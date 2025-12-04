@@ -1053,6 +1053,7 @@ defmodule Meadow.Data.Planner do
   end
 
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
+  @coded_fields ~w(license rights_statement)a
 
   defp apply_controlled_field_operations(work, delete, add) do
     @controlled_fields
@@ -1151,6 +1152,7 @@ defmodule Meadow.Data.Planner do
     |> update_top_level_field(:visibility, visibility)
     |> update_top_level_field(:published, published)
     |> merge_uncontrolled_metadata(add, :append)
+    |> merge_coded_fields(add)
     |> merge_uncontrolled_metadata(replace, :replace)
   end
 
@@ -1168,6 +1170,37 @@ defmodule Meadow.Data.Planner do
     work_id
   end
 
+  defp merge_coded_fields(work_id, new_values) when map_size(new_values) == 0 do
+    work_id
+  end
+
+  defp merge_coded_fields(work_id, new_values) do
+    descriptive_metadata =
+      new_values
+      |> metadata_section(:descriptive_metadata)
+      |> Atoms.atomize()
+
+    # Extract only coded fields from the descriptive metadata
+    coded_fields_metadata =
+      descriptive_metadata
+      |> Enum.filter(fn {key, _} -> key in @coded_fields end)
+      |> Enum.into(%{})
+
+    # Always use replace mode for coded fields to avoid creating arrays
+    if map_size(coded_fields_metadata) > 0 do
+      from(w in Work, where: w.id == ^work_id)
+      |> Works.merge_metadata_values(
+        :descriptive_metadata,
+        coded_fields_metadata,
+        :replace
+      )
+      |> Works.merge_updated_at()
+      |> Repo.update_all([])
+    end
+
+    work_id
+  end
+
   defp merge_uncontrolled_metadata(work_id, new_values, _mode) when map_size(new_values) == 0 do
     work_id
   end
@@ -1178,9 +1211,13 @@ defmodule Meadow.Data.Planner do
       |> metadata_section(:descriptive_metadata)
       |> Atoms.atomize()
 
+    # For append mode, exclude both controlled and coded fields
+    # Coded fields must use replace mode to avoid creating arrays
+    excluded_fields = if mode == :append, do: @controlled_fields ++ @coded_fields, else: @controlled_fields
+
     mergeable_descriptive_metadata =
       descriptive_metadata
-      |> Enum.filter(fn {key, _} -> key not in @controlled_fields end)
+      |> Enum.filter(fn {key, _} -> key not in excluded_fields end)
       |> Enum.into(%{})
       |> humanize_date_created()
 

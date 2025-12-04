@@ -6,6 +6,8 @@ jest.mock("@js/components/Plan/fields", () => {
       description: "Description",
       subject: "Subject",
       creator: "Creator",
+      rights_statement: "Rights Statement",
+      license: "License",
     },
     visibility: "Visibility",
   };
@@ -15,7 +17,12 @@ jest.mock("@js/components/Plan/fields", () => {
     "descriptive_metadata.creator",
   ]);
 
-  return { WORK_FIELDS, CONTROLLED_TERM_FIELDS };
+  const CODED_TERM_FIELDS = new Set([
+    "descriptive_metadata.license",
+    "descriptive_metadata.rights_statement",
+  ]);
+
+  return { WORK_FIELDS, CONTROLLED_TERM_FIELDS, CODED_TERM_FIELDS };
 });
 
 import { toArray, isControlled, getFieldLabel, toRows } from "./diff-helpers";

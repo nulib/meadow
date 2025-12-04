@@ -6,6 +6,10 @@ import PlanPanelChangesDiff from "./Diff";
 // ---- Mocks that the factories will reference (must be prefixed with "mock") ----
 const mockToArray = jest.fn((v) => (Array.isArray(v) ? v : v ? [v] : []));
 const mockToRows = jest.fn();
+const mockIsCodedTerm = jest.fn((path) =>
+  path === "descriptive_metadata.rights_statement" ||
+  path === "descriptive_metadata.license"
+);
 
 jest.mock("@nulib/design-system", () => ({
   Tag: ({ children }) => <span data-testid="tag">{children}</span>,
@@ -20,6 +24,7 @@ jest.mock("@js/components/UI/ControlledTerm/List", () => {
 jest.mock("@js/components/Plan/Panel/diff-helpers", () => ({
   toArray: (...args) => mockToArray(...args),
   toRows: (...args) => mockToRows(...args),
+  isCodedTerm: (...args) => mockIsCodedTerm(...args),
 }));
 
 beforeEach(() => {
