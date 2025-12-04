@@ -67,31 +67,55 @@ def proposer_prompt():
     - Process one change at a time and recheck pending list
     - After all changes, call propose_plan so the plan itself is proposed; do not skip
     - Return a summary with counts
+    - The `id` field can never be changed
+    - The `title` is a single strings; do not use lists
+    - Works can only have one rights statement
 
     Controlled term fields (must use authoritiesSearch): contributor (role required, marc_relator), creator (role optional, marc_relator), genre, language, location, subject (role required, subject_role), style_period, technique.
 
     Requirements:
     - Always search for controlled term IDs; never invent them
-    - Structure: {{"term": {{"id": "controlled-term-id", "label": "Label"}}, "role": {{"id": "role-id", "scheme": "role-scheme", "label": "Role Label"}}}}
+    - Structure: {"term": {"id": "controlled-term-id", "label": "Label"}, "role": {"id": "role-id", "scheme": "role-scheme", "label": "Role Label"}}
     - term is an object with id, not a string; role required for subject and contributor, optional for creator
     - For roles, query codeList(scheme: SUBJECT_ROLE or MARC_RELATOR); use returned ids (e.g., TOPICAL, GEOGRAPHIC, TEMPORAL, GENRE_FORM, pht, art, ctb)
 
     Examples:
-    authoritiesSearch: query {{ authoritiesSearch(authority: "lcsh", query: "cats") {{ id label hint }} }}
-    codeList: query {{ codeList(scheme: MARC_RELATOR) {{ id label }} }} and query {{ codeList(scheme: SUBJECT_ROLE) {{ id label }} }}
+    authoritiesSearch: query { authoritiesSearch(authority: "lcsh", query: "cats") { id label hint } }
+    codeList: query { codeList(scheme: MARC_RELATOR) { id label } } and query { codeList(scheme: SUBJECT_ROLE) { id label } }
 
     Authorities: lcsh (subject), lcnaf (creator/contributor), lcgft (genre), lclang (language), fast/fast-* subsets (subject), aat (technique/style_period/genre), tgn or geonames (location), ulan (creator/contributor), homosaurus (LGBTQ+), nul-authority (any field).
 
     Controlled term format in add/replace:
-    {{
-      "descriptive_metadata": {{
-        "subject": [{{"term": {{"id": "http://id.worldcat.org/fast/849374"}}, "role": {{"id": "TOPICAL", "scheme": "subject_role"}}}}],
-        "creator": [{{"term": {{"id": "http://id.loc.gov/authorities/names/n79021164"}}}}],
-        "contributor": [{{"term": {{"id": "http://id.loc.gov/authorities/names/n79021164"}}, "role": {{"id": "pht", "scheme": "marc_relator"}}}}]
-      }}
-    }}
+    {
+      "descriptive_metadata": {
+        "subject": [{"term": {"id": "http://id.worldcat.org/fast/849374"}, "role": {"id": "TOPICAL", "scheme": "subject_role"}}],
+        "creator": [{"term": {"id": "http://id.loc.gov/authorities/names/n79021164"}}],
+        "contributor": [{"term": {"id": "http://id.loc.gov/authorities/names/n79021164"}, "role": {"id": "pht", "scheme": "marc_relator"}}]
+      }
+    }
 
     Add controlled terms by: search for term, lookup role if required, build the nested structure, then call update_plan_change.
+
+    Coded term fields (must use codeList query):
+    - Available schemes: MARC_RELATOR, SUBJECT_ROLE, RIGHTS_STATEMENT, WORK_TYPE, NOTE_TYPE, LICENSE, PRESERVATION_LEVEL, STATUS, LIBRARY_UNIT
+    - Always query codeList to get the exact id (URI), label, and scheme
+    - CRITICAL: The "id" field must be the exact URI from codeList, NOT a UUID or generated value
+    - Example query: query { codeList(scheme: RIGHTS_STATEMENT) { id label scheme } }
+    - Use the exact "id" value returned (e.g., "http://rightsstatements.org/vocab/InC/1.0/")
+
+    Example workflow for rights_statement:
+    1. Query: codeList(scheme: RIGHTS_STATEMENT) { id label scheme }
+    2. Find desired term (e.g., "In Copyright" with id "http://rightsstatements.org/vocab/InC/1.0/")
+    3. Use exact values in update (NOTE: scheme must be uppercase like the GraphQL enum):
+    {
+      "descriptive_metadata": {
+        "rights_statement": {
+          "id": "http://rightsstatements.org/vocab/InC/1.0/",
+          "scheme": "RIGHTS_STATEMENT",
+          "label": "In Copyright"
+        }
+      }
+    }
     """
 
 def system_prompt():

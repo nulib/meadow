@@ -59,3 +59,12 @@ export const CONTROLLED_TERM_FIELDS = new Set([
   "descriptive_metadata.subject",
   "descriptive_metadata.technique",
 ]);
+
+/**
+ * Set of coded term fields by their dotted paths
+ * These are single objects with id/label/scheme that should not be recursively walked
+ */
+export const CODED_TERM_FIELDS = new Set([
+  "descriptive_metadata.license",
+  "descriptive_metadata.rights_statement",
+]);

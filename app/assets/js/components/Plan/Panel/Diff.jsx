@@ -1,6 +1,6 @@
 import React from "react";
 import UIControlledTermList from "@js/components/UI/ControlledTerm/List";
-import { toArray, toRows } from "@js/components/Plan/Panel/diff-helpers";
+import { toArray, toRows, isCodedTerm } from "@js/components/Plan/Panel/diff-helpers";
 
 /**
  * Tag indicating the method of change
@@ -24,6 +24,19 @@ const MethodTag = ({ method }) => {
   }
 
   return <span data-testid="tag">{text}</span>;
+};
+
+/**
+ * Render a coded term value (rights_statement, license)
+ */
+const renderCodedTerm = (value) => {
+  if (!value || typeof value !== "object") return "—";
+
+  // Show label if available, otherwise show id
+  if (value.label) return value.label;
+  if (value.id) return value.id;
+
+  return JSON.stringify(value, null, 0);
 };
 
 /**
@@ -85,6 +98,8 @@ const PlanPanelChangesDiff = ({ proposedChanges }) => {
                   title={change.label}
                   items={toArray(change.value)}
                 />
+              ) : isCodedTerm(change.path) ? (
+                renderCodedTerm(change.value)
               ) : (
                 renderGenericValue(change.value)
               )}
