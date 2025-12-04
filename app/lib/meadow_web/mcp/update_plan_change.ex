@@ -9,6 +9,9 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
   Controlled term fields (subject, contributor, creator, genre, language, location,
   style_period, technique) are automatically enriched with labels from authority sources.
 
+  Coded term fields (rights_statement, license) are automatically enriched with labels
+  from the code list.
+
   ## Example Usage
 
       # Update a pending change with proposed modifications
@@ -77,6 +80,7 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
   require Logger
 
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
+  @coded_fields ~w(license rights_statement)a
 
   schema do
     field(:id, :string,
@@ -199,6 +203,14 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
   defp enrich_descriptive_metadata(nil), do: nil
 
   defp enrich_descriptive_metadata(metadata) when is_map(metadata) do
+    metadata
+    |> enrich_controlled_fields()
+    |> enrich_coded_fields()
+  end
+
+  defp enrich_descriptive_metadata(metadata), do: metadata
+
+  defp enrich_controlled_fields(metadata) do
     Enum.reduce(@controlled_fields, metadata, fn field, acc ->
       field_string = Atom.to_string(field)
 
@@ -223,7 +235,29 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
     end)
   end
 
-  defp enrich_descriptive_metadata(metadata), do: metadata
+  defp enrich_coded_fields(metadata) do
+    Enum.reduce(@coded_fields, metadata, fn field, acc ->
+      field_string = Atom.to_string(field)
+
+      case Map.get(acc, field, Map.get(acc, field_string)) do
+        nil ->
+          acc
+
+        value when is_map(value) ->
+          enriched_value =
+            value
+            |> atomize_keys()
+            |> enrich_coded_term()
+
+          acc
+          |> Map.delete(field_string)
+          |> Map.put(field, enriched_value)
+
+        _value ->
+          acc
+      end
+    end)
+  end
 
   defp enrich_controlled_term_entry(entry) when is_map(entry) do
     entry
@@ -299,6 +333,29 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
   end
 
   defp enrich_role_with_label(role), do: role
+
+  defp enrich_coded_term(%{id: _id, scheme: _scheme, label: label} = term)
+       when not is_nil(label) do
+    # Label already exists, don't overwrite
+    term
+  end
+
+  defp enrich_coded_term(%{id: id, scheme: scheme} = term)
+       when is_binary(id) and is_binary(scheme) do
+    case CodedTerms.get_coded_term(id, scheme) do
+      {{:ok, _}, %{label: label}} ->
+        Map.put(term, :label, label)
+
+      nil ->
+        Logger.warning("Failed to fetch label for coded term #{id} in scheme #{scheme}")
+        term
+
+      _ ->
+        term
+    end
+  end
+
+  defp enrich_coded_term(term), do: term
 
   defp atomize_keys(map) when is_map(map) do
     Map.new(map, fn

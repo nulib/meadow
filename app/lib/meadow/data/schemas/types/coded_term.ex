@@ -16,11 +16,11 @@ defmodule Meadow.Data.Types.CodedTerm do
 
   def dump(nil), do: nil
 
-  def dump(%Schemas.CodedTerm{id: id, scheme: scheme}),
-    do: {:ok, %{id: id, scheme: scheme}}
+  def dump(%Schemas.CodedTerm{id: id, scheme: scheme}), do: {:ok, %{id: id, scheme: scheme}}
 
   def dump(%{id: id, scheme: scheme}), do: {:ok, %{id: id, scheme: scheme}}
-  def dump(_), do: :error
+
+  def dump(_term), do: :error
 
   def from_string(value), do: %{id: value}
 
