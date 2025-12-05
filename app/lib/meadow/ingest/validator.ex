@@ -361,6 +361,14 @@ defmodule Meadow.Ingest.Validator do
     validate_structure_extension(extension, work_type, content, value)
   end
 
+  defp validate_structure_value({:error, {:http_error, 404, _}}, value, _work_type) do
+    {:error, "structure", "Structure file #{value} not found in the ingest bucket"}
+  end
+
+  defp validate_structure_value({:error, other}, value, _work_type) do
+    {:error, "structure", "The following error occurred validating #{value}: #{inspect(other)}"}
+  end
+
   defp validate_structure_extension(".txt", "IMAGE", _content, _value), do: :ok
 
   defp validate_structure_extension(".vtt", work_type, content, value)
@@ -381,14 +389,6 @@ defmodule Meadow.Ingest.Validator do
 
   defp validate_structure_extension(extension, work_type, _content, _value) do
     {:error, "structure", "Invalid structure file extension #{extension} for work type #{work_type}"}
-  end
-
-  defp validate_structure_value({:error, {:http_error, 404, _}}, value, _work_type) do
-    {:error, "structure", "Structure file #{value} not found in the ingest bucket"}
-  end
-
-  defp validate_structure_value({:error, other}, value, _work_type) do
-    {:error, "structure", "The following error occurred validating #{value}: #{inspect(other)}"}
   end
 
   defp validate_row(%Row{state: "pending"} = row, context) do

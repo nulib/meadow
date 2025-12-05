@@ -23,7 +23,7 @@ defmodule Meadow.Events.FileSets.Annotations do
     ExAws.S3.delete_object(bucket, key) |> ExAws.request()
   end
 
-  def notify_annotation_subscriptions(%{new_record: %{id: id} = record, changes: %{status: _}}) do
+  def notify_annotation_subscriptions(%{new_record: %{id: id}, changes: %{status: _}}) do
     from(fsa in FileSetAnnotation,
       where: fsa.id == ^id,
       left_join: fs in FileSet,
@@ -46,5 +46,5 @@ defmodule Meadow.Events.FileSets.Annotations do
     end
   end
 
-  def notify_annotation_subscriptions(message), do: :ok
+  def notify_annotation_subscriptions(_), do: :ok
 end
