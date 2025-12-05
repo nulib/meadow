@@ -13,8 +13,10 @@ defmodule Meadow.Ingest.WorkCreatorTest do
 
   @state %{batch_size: 20, works_per_tick: 20, interval: 500, status: :running}
   @vtt_fixture "Donohue_002_01.vtt"
+  @transcription_fixture "transcription.txt"
   @ingest_bucket Meadow.Config.ingest_bucket()
   @streaming_bucket Meadow.Config.streaming_bucket()
+  @derivatives_bucket Meadow.Config.derivatives_bucket()
 
   describe "normal operation" do
     setup %{ingest_sheet: sheet} do
@@ -97,5 +99,71 @@ defmodule Meadow.Ingest.WorkCreatorTest do
 
     assert Regex.scan(~r/Creating work [A-Z0-9]+_Donohue_001 with 4 file sets/, log)
            |> length() == 1
+  end
+
+  describe "transcription annotations from ingest sheet" do
+    setup do
+      sheet = ingest_sheet_rows_fixture("test/fixtures/ingest_sheet_transcription.csv")
+
+      sheet
+      |> Sheets.change_ingest_sheet_validation_state!(%{file: "pass", rows: "pass", overall: "pass"})
+      |> Repo.preload(:ingest_sheet_rows)
+      |> Map.get(:ingest_sheet_rows)
+      |> Enum.each(fn row -> Meadow.Ingest.Rows.change_ingest_sheet_row_validation_state(row, "pass") end)
+
+      {:ok, ingest_sheet: sheet}
+    end
+
+    setup %{ingest_sheet: sheet} do
+      sheet_with_project = Sheets.get_ingest_sheet_with_project!(sheet.id)
+
+      upload_object(
+        @ingest_bucket,
+        "#{sheet_with_project.project.folder}/#{@transcription_fixture}",
+        File.read!("test/fixtures/#{@transcription_fixture}")
+      )
+
+      upload_object(
+        @ingest_bucket,
+        "#{sheet_with_project.project.folder}/#{@vtt_fixture}",
+        File.read!("test/fixtures/#{@vtt_fixture}")
+      )
+
+      on_exit(fn ->
+        empty_bucket(@ingest_bucket)
+        empty_bucket(@derivatives_bucket)
+      end)
+    end
+
+    test "creates transcription annotation for IMAGE work with .txt file", %{
+      ingest_sheet: sheet
+    } do
+      SheetsToWorks.create_works_from_ingest_sheet(sheet)
+      WorkCreator.create_works(@state)
+
+      # Find the IMAGE work
+      image_work = Works.list_works() |> Enum.find(fn w -> w.work_type.id == "IMAGE" end)
+      assert image_work
+
+      # Find the file set with the transcription (first one in the CSV)
+      file_set =
+        image_work.id
+        |> Works.with_file_sets()
+        |> Map.get(:file_sets)
+        |> Enum.find(fn fs -> String.ends_with?(fs.accession_number, "Donohue_001_01555") end)
+
+      # Verify transcription annotation was created
+      annotations = FileSets.list_annotations(file_set)
+      assert length(annotations) == 1
+
+      annotation = List.first(annotations)
+      assert annotation.type == "transcription"
+      assert annotation.status == "completed"
+      assert annotation.s3_location
+
+      # Verify content was copied to S3
+      {:ok, content} = FileSets.read_annotation_content(annotation)
+      assert content == "This is the transcription for the image!"
+    end
   end
 end
