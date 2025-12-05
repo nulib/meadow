@@ -6,7 +6,10 @@ import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 import { toastWrapper } from "@js/services/helpers";
 import WorkTabsStructureTranscriptionModal from "./Modal";
-import { UPDATE_FILE_SET_ANNOTATION } from "./transcription.gql";
+import {
+  UPDATE_FILE_SET_ANNOTATION,
+  DELETE_FILE_SET_ANNOTATION,
+} from "./transcription.gql";
 
 // --- Mocks ---
 
@@ -18,11 +21,12 @@ jest.mock("@samvera/clover-iiif/image", () => {
   };
 });
 
-// Simple stub for Button
+// Simple stub for Button and Notification
 jest.mock("@nulib/design-system", () => {
   const React = require("react");
   return {
     Button: ({ children, ...props }) => <button {...props}>{children}</button>,
+    Notification: ({ children, ...props }) => <div {...props}>{children}</div>,
   };
 });
 
@@ -193,6 +197,100 @@ describe("WorkTabsStructureTranscriptionModal", () => {
     fireEvent.click(cancelButton);
 
     expect(mockDispatch).toHaveBeenCalledWith({
+      type: "toggleTranscriptionModal",
+      fileSetId: null,
+    });
+  });
+
+  it("calls delete mutation and closes modal on successful delete", async () => {
+    const mutationMocks = [
+      {
+        request: {
+          query: DELETE_FILE_SET_ANNOTATION,
+          variables: {
+            annotationId: "ann-1",
+          },
+        },
+        result: {
+          data: {
+            deleteFileSetAnnotation: {
+              id: "ann-1",
+              fileSetId: "fs-123",
+            },
+          },
+        },
+      },
+    ];
+
+    renderModal({ mocks: mutationMocks });
+
+    const deleteButton = await screen.findByRole("button", {
+      name: /delete transcription/i,
+    });
+
+    // Click delete to show confirmation
+    fireEvent.click(deleteButton);
+
+    // Verify confirmation notification appears
+    expect(
+      screen.getByText(/are you sure you want to delete this transcription/i),
+    ).toBeInTheDocument();
+
+    // Click "Yes, delete" to confirm
+    const confirmButton = await screen.findByRole("button", {
+      name: /yes, delete/i,
+    });
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(toastWrapper).toHaveBeenCalledWith(
+        "is-success",
+        "Transcription successfully deleted",
+      );
+    });
+
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "toggleTranscriptionModal",
+      fileSetId: null,
+    });
+  });
+
+  it("shows error toast when delete mutation fails", async () => {
+    const mutationMocks = [
+      {
+        request: {
+          query: DELETE_FILE_SET_ANNOTATION,
+          variables: {
+            annotationId: "ann-1",
+          },
+        },
+        error: new Error("Delete failed"),
+      },
+    ];
+
+    renderModal({ mocks: mutationMocks });
+
+    const deleteButton = await screen.findByRole("button", {
+      name: /delete transcription/i,
+    });
+
+    // Click delete to show confirmation
+    fireEvent.click(deleteButton);
+
+    // Click "Yes, delete" to confirm
+    const confirmButton = await screen.findByRole("button", {
+      name: /yes, delete/i,
+    });
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(toastWrapper).toHaveBeenCalledWith(
+        "is-danger",
+        "Error deleting transcription: Delete failed",
+      );
+    });
+
+    expect(mockDispatch).not.toHaveBeenCalledWith({
       type: "toggleTranscriptionModal",
       fileSetId: null,
     });
