@@ -61,3 +61,12 @@ export const UPDATE_FILE_SET_ANNOTATION = gql`
     }
   }
 `;
+
+export const DELETE_FILE_SET_ANNOTATION = gql`
+  mutation deleteFileSetAnnotation($annotationId: ID!) {
+    deleteFileSetAnnotation(annotationId: $annotationId) {
+      id
+      fileSetId
+    }
+  }
+`;

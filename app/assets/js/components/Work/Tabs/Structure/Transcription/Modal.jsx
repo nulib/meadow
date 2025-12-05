@@ -1,18 +1,22 @@
 import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import CloverImage from "@samvera/clover-iiif/image";
-import { Button } from "@nulib/design-system";
+import { Button, Notification } from "@nulib/design-system";
 import classNames from "classnames";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { IIIF_SIZES } from "@js/services/global-vars";
 import { toastWrapper } from "@js/services/helpers";
 import { useMutation } from "@apollo/client";
-import { UPDATE_FILE_SET_ANNOTATION } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
+import {
+  UPDATE_FILE_SET_ANNOTATION,
+  DELETE_FILE_SET_ANNOTATION,
+} from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
 import WorkTabsStructureTranscriptionWorkflow from "@js/components/Work/Tabs/Structure/Transcription/Workflow";
 
 function WorkTabsStructureTranscriptionModal({ isActive }) {
   const [textArea, setTextArea] = useState();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const dispatch = useWorkDispatch();
   const iiifServerUrl = useContext(IIIFContext);
@@ -24,6 +28,7 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
   const iiifImageUrl = `${iiifServerUrl}${fileSetId}${IIIF_SIZES.IIIF_FULL}`;
 
   const [updateFileSetAnnotation] = useMutation(UPDATE_FILE_SET_ANNOTATION);
+  const [deleteFileSetAnnotation] = useMutation(DELETE_FILE_SET_ANNOTATION);
 
   useEffect(() => {
     const textAreaElement = document.getElementById(
@@ -33,6 +38,7 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
   }, [isActive]);
 
   const handleClose = () => {
+    setConfirmDelete(false);
     dispatch({
       type: "toggleTranscriptionModal",
       fileSetId: null,
@@ -56,6 +62,37 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
         toastWrapper(
           "is-danger",
           "Error saving transcription: " + error.message,
+        );
+      },
+    });
+  };
+
+  const handleDeleteTranscription = () => {
+    const annotationId = textArea?.getAttribute("data-annotation-id");
+
+    if (!annotationId) {
+      toastWrapper("is-danger", "No transcription to delete");
+      return;
+    }
+
+    setConfirmDelete(true);
+  };
+
+  const handleConfirmDelete = () => {
+    const annotationId = textArea?.getAttribute("data-annotation-id");
+
+    deleteFileSetAnnotation({
+      variables: {
+        annotationId: annotationId,
+      },
+      onCompleted: () => {
+        handleClose();
+        toastWrapper("is-success", "Transcription successfully deleted");
+      },
+      onError: (error) => {
+        toastWrapper(
+          "is-danger",
+          "Error deleting transcription: " + error.message,
         );
       },
     });
@@ -85,9 +122,16 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
         </header>
 
         <section className="modal-card-body">
+          {confirmDelete && (
+            <Notification isDanger>
+              Are you sure you want to delete this transcription? This action
+              cannot be undone.
+            </Notification>
+          )}
+
           <div
             className="is-flex is-justify-content-space-between"
-            style={{ gap: "1rem" }}
+            style={{ gap: "1rem", display: confirmDelete ? "none" : "flex" }}
           >
             <div style={{ width: "50%", flexShrink: 0 }}>
               <div
@@ -118,15 +162,28 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
         </section>
 
         <footer className="modal-card-foot buttons is-justify-content-space-between">
+          {!confirmDelete && hasTextArea && (
+            <div>
+              <Button isDanger onClick={handleDeleteTranscription}>
+                Delete Transcription
+              </Button>
+            </div>
+          )}
           <div className="is-flex is-justify-content-flex-end is-flex-grow-1">
             <Button onClick={handleClose}>Cancel</Button>
-            <Button
-              isPrimary
-              disabled={!hasTextArea}
-              onClick={handleSaveTranscription}
-            >
-              Save
-            </Button>
+            {confirmDelete ? (
+              <Button isPrimary onClick={handleConfirmDelete}>
+                Yes, delete
+              </Button>
+            ) : (
+              <Button
+                isPrimary
+                disabled={!hasTextArea}
+                onClick={handleSaveTranscription}
+              >
+                Save
+              </Button>
+            )}
           </div>
         </footer>
       </div>
