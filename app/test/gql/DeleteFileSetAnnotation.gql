@@ -1,0 +1,10 @@
+mutation (
+  $annotationId: ID!
+) {
+  deleteFileSetAnnotation(
+    annotationId: $annotationId
+  ) {
+    id
+    fileSetId
+  }
+}

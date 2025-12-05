@@ -13,8 +13,8 @@ defmodule Meadow.Data.Transcriber do
 
   require Logger
 
-  @default_max_tokens 1024
-  @image_variant "full/!1024,1024/0/default.jpg"
+  @default_max_tokens 64_000
+  @image_variant "full/!2048,2048/0/default.jpg"
   @default_model "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
   @image_request_headers [{"Accept", "image/jpeg"}]
   @image_request_opts [follow_redirect: true, recv_timeout: 30_000]
@@ -171,9 +171,9 @@ defmodule Meadow.Data.Transcriber do
         "tools" => [
           %{
             "toolSpec" => %{
-              "name" => "provide_transcription",
+              "name" => "provide_exact_transcription",
               "description" =>
-                "Provide the EXACT transcribed text IN FULL from the image without any preamble, explanation, exicision, truncation, or abbreviation. Also detect the language(s) used in the text.",
+                "Extract the text content and detected languages from the provided image with exact fidelity.",
               "inputSchema" => %{
                 "json" => %{
                   "type" => "object",
@@ -196,21 +196,20 @@ defmodule Meadow.Data.Transcriber do
         ],
         "toolChoice" => %{
           "tool" => %{
-            "name" => "provide_transcription"
+            "name" => "provide_exact_transcription"
           }
         }
       },
       "inferenceConfig" => %{
-        "maxTokens" => max_tokens
+        "maxTokens" => max_tokens,
+        "temperature" => 0
       }
     }
   end
 
   defp default_prompt(file_set_id) do
     """
-    Review the provided digitized image for Meadow file set #{file_set_id}.
-    Extract every legible piece of text, preserving line breaks when helpful.
-    Use the provide_transcription tool to return the transcribed text.
+    Use the provide_exact_transcription tool to provide a FULL and EXACT text transcription for this image without any preamble, explanation, excision, truncation, abbreviation, or summarization. Include every column, heading, caption, and any other legible text exactly as it appears. Also detect the language(s) used in the text. Never abbreviate the transcription with bracketed text or summary information. ALWAYS TRANSCRIBE THE TEXT IN FULL!!! You have a massive 64K output token limit so there is NO EXCUSE for omitting any text. If the text is very long, you MUST still provide it ALL without omission. Preserve line breaks when they clarify structure and keep the original order (top-to-bottom, left-to-right).
     """
     |> String.trim()
   end

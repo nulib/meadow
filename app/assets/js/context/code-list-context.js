@@ -168,18 +168,18 @@ function CodeListProvider({ children }) {
         visibilityData,
         isLoading: Boolean(
           behaviorLoading ||
-            fileSetRoleLoading ||
-            authorityLoading ||
-            libraryUnitLoading ||
-            licenseLoading ||
-            marcLoading ||
-            notesLoading ||
-            preservationLevelLoading ||
-            relatedUrlLoading ||
-            rightsStatementLoading ||
-            statusLoading ||
-            subjectRoleLoading ||
-            visibilityLoading,
+          fileSetRoleLoading ||
+          authorityLoading ||
+          libraryUnitLoading ||
+          licenseLoading ||
+          marcLoading ||
+          notesLoading ||
+          preservationLevelLoading ||
+          relatedUrlLoading ||
+          rightsStatementLoading ||
+          statusLoading ||
+          subjectRoleLoading ||
+          visibilityLoading,
         ),
       }}
     >

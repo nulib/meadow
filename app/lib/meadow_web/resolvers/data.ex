@@ -181,6 +181,25 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
+  def delete_file_set_annotation(_, args, _) do
+    case FileSets.get_annotation(args[:annotation_id]) do
+      nil ->
+        {:error, message: "Annotation not found"}
+
+      annotation ->
+        case FileSets.delete_annotation(annotation) do
+          {:ok, annotation} ->
+            {:ok, annotation}
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            {:error, message: "Could not delete annotation", details: ChangesetErrors.humanize_errors(changeset)}
+
+          {:error, reason} ->
+            {:error, message: "Could not delete annotation", details: inspect(reason)}
+        end
+    end
+  end
+
   defp maybe_add_opt(opts, _key, nil), do: opts
   defp maybe_add_opt(opts, key, value), do: Keyword.put(opts, key, value)
 

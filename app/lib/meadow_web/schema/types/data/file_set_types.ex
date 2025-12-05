@@ -90,6 +90,14 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.update_file_set_annotation/3)
     end
+
+    @desc "Delete a FileSet annotation"
+    field :delete_file_set_annotation, :file_set_annotation do
+      arg(:annotation_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.delete_file_set_annotation/3)
+    end
   end
 
   object :file_set_subscriptions do
