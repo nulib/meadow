@@ -212,6 +212,15 @@ const PlanPanelChanges = ({
             </div>
           </div>
 
+          <div className="plan-panel-changes--prompt mt-5 mb-5">
+            <h3 className="mb-3">Prompt</h3>
+            {originalPrompt ? (
+              <p style={{ whiteSpace: "pre-line" }}>{originalPrompt}</p>
+            ) : (
+              <UISkeleton type="text" rows={2} />
+            )}
+          </div>
+
           {summary ? (
             <div className="plan-panel-changes--summary mt-5 mb-5">
               <h3 className="mb-3">Summary</h3>

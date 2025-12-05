@@ -1,7 +1,7 @@
 defmodule MeadowWeb.SubscriptionTest do
   use MeadowWeb.SubscriptionCase, async: true
-  alias Meadow.Notification
   alias Meadow.Ingest.Progress
+  alias Meadow.Notification
 
   load_gql(MeadowWeb.Schema, "test/gql/IngestProgress.gql")
 

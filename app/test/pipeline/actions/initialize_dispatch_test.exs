@@ -6,8 +6,8 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
 
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Ingest.{Progress, Rows}
-  alias Meadow.Pipeline.Dispatcher
   alias Meadow.Pipeline.Actions.{ExtractMimeType, IngestFileSet, InitializeDispatch}
+  alias Meadow.Pipeline.Dispatcher
   alias Meadow.Utils.MapList
 
   @bucket @ingest_bucket

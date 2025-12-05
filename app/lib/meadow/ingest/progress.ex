@@ -4,8 +4,8 @@ defmodule Meadow.Ingest.Progress do
   """
   use Meadow.Utils.Logging
 
-  alias Meadow.Ingest.Schemas.{Progress, Row, Sheet}
   alias Meadow.Ingest.{Rows, Sheets}
+  alias Meadow.Ingest.Schemas.{Progress, Row, Sheet}
   alias Meadow.IntervalTask
   alias Meadow.Pipeline.Dispatcher
   alias Meadow.Repo
