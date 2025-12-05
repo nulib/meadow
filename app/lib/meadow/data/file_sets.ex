@@ -516,6 +516,28 @@ defmodule Meadow.Data.FileSets do
   end
 
   @doc """
+  Copy annotation content from a source S3 location to the annotation's destination.
+
+  ## Examples
+
+      iex> copy_annotation_content(%FileSetAnnotation{}, "source-bucket", "path/to/source.txt")
+      {:ok, "s3://dest-bucket/path/to/annotation.txt"}
+
+  """
+  def copy_annotation_content(%FileSetAnnotation{} = annotation, source_bucket, source_key) do
+    location = annotation_location(annotation)
+    %URI{host: dest_bucket, path: "/" <> dest_key} = URI.parse(location)
+
+    case ExAws.S3.put_object_copy(dest_bucket, dest_key, source_bucket, source_key,
+           content_type: "text/plain; charset=utf-8"
+         )
+         |> ExAws.request() do
+      {:ok, _} -> {:ok, location}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
   Read annotation content from S3.
 
   ## Examples

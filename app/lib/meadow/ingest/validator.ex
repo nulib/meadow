@@ -248,14 +248,16 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value(_row, {"structure", value}, context) do
+  defp validate_value(row, {"structure", value}, context) do
     if String.trim(value) == "" do
       :ok
     else
+      work_type = Row.field_value(row, "work_type")
+
       Meadow.Config.ingest_bucket()
       |> ExAws.S3.get_object("#{context.project_folder}/#{value}")
       |> ExAws.request()
-      |> validate_structure_value(value)
+      |> validate_structure_value(value, work_type)
     end
   end
 
@@ -354,18 +356,38 @@ defmodule Meadow.Ingest.Validator do
   defp validate_value(_row, {_field_name, _value}, _context),
     do: :ok
 
-  defp validate_structure_value({:ok, %{body: vtt}}, value) do
-    if(String.match?(vtt, ~r/^WEBVTT/),
-      do: :ok,
-      else: {:error, "structure", "#{value} is not a valid WebVTT file"}
-    )
+  defp validate_structure_value({:ok, %{body: content}}, value, work_type) do
+    extension = Path.extname(value) |> String.downcase()
+    validate_structure_extension(extension, work_type, content, value)
   end
 
-  defp validate_structure_value({:error, {:http_error, 404, _}}, value) do
+  defp validate_structure_extension(".txt", "IMAGE", _content, _value), do: :ok
+
+  defp validate_structure_extension(".vtt", work_type, content, value)
+       when work_type in ["AUDIO", "VIDEO"] do
+    if String.match?(content, ~r/^WEBVTT/),
+      do: :ok,
+      else: {:error, "structure", "#{value} is not a valid WebVTT file"}
+  end
+
+  defp validate_structure_extension(".vtt", "IMAGE", _content, _value) do
+    {:error, "structure", "IMAGE works must use .txt files for transcriptions, not .vtt files"}
+  end
+
+  defp validate_structure_extension(".txt", work_type, _content, _value)
+       when work_type in ["AUDIO", "VIDEO"] do
+    {:error, "structure", "#{work_type} works must use .vtt files for structure, not .txt files"}
+  end
+
+  defp validate_structure_extension(extension, work_type, _content, _value) do
+    {:error, "structure", "Invalid structure file extension #{extension} for work type #{work_type}"}
+  end
+
+  defp validate_structure_value({:error, {:http_error, 404, _}}, value, _work_type) do
     {:error, "structure", "Structure file #{value} not found in the ingest bucket"}
   end
 
-  defp validate_structure_value({:error, other}, value) do
+  defp validate_structure_value({:error, other}, value, _work_type) do
     {:error, "structure", "The following error occurred validating #{value}: #{inspect(other)}"}
   end
 
