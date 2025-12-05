@@ -327,7 +327,7 @@ defmodule Meadow.Config.Runtime do
         }
       ]
 
-    config :meadow, MeadowAI,
+    config :meadow, :ai,
       metrics_log: log_configuration(),
       model:
         get_secret(

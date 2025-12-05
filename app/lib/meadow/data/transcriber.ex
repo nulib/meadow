@@ -89,10 +89,14 @@ defmodule Meadow.Data.Transcriber do
   end
 
   defp fetch_base64_image(base_url) do
-
-    headers = with {:ok, %{token: token}} <- DCAPI.superuser_token() do
-      [{"Authorization", "Bearer #{token}"} | @image_request_headers]
-    end
+    headers =
+      with {:ok, %{token: token}} <-
+             DCAPI.token(300,
+               scopes: ["read:Public", "read:Published", "read:Private", "read:Unpublished"],
+               is_superuser: true
+             ) do
+        [{"Authorization", "Bearer #{token}"} | @image_request_headers]
+      end
 
     base_url
     |> build_image_url()
@@ -185,7 +189,8 @@ defmodule Meadow.Data.Transcriber do
                     "detected_languages" => %{
                       "type" => "array",
                       "items" => %{"type" => "string"},
-                      "description" => "ISO 639 language codes for languages detected in the text (e.g., ['en', 'lg', 'fr'])"
+                      "description" =>
+                        "ISO 639 language codes for languages detected in the text (e.g., ['en', 'lg', 'fr'])"
                     }
                   },
                   "required" => ["transcribed_text", "detected_languages"]
@@ -377,11 +382,13 @@ defmodule Meadow.Data.Transcriber do
 
   defp log_metrics(%{"usage" => usage}) do
     {:ok, model} = transcriber_model()
+
     message = %{
       source: __MODULE__,
       model: model,
       tokens: usage
     }
+
     AWSUtils.log_metrics(message)
   end
 

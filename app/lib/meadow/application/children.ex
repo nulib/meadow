@@ -42,7 +42,7 @@ defmodule Meadow.Application.Children do
       "web.server" => [
         MeadowWeb.Endpoint,
         {Absinthe.Subscription, MeadowWeb.Endpoint},
-        MeadowWeb.Subscription
+        MeadowWeb.Subscription,
         Anubis.Server.Registry,
         {MeadowWeb.MCP.Server, transport: :streamable_http}
       ],
