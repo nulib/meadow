@@ -5,8 +5,8 @@ defmodule MeadowAI.IOHandler do
 
   use GenServer
 
-  alias MeadowAI.Config, as: AIConfig
   alias Meadow.Notification
+  alias MeadowAI.Config, as: AIConfig
   require Logger
 
   def open(metadata \\ []) do

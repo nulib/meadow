@@ -5,8 +5,8 @@ defmodule Meadow.Data.Collections do
 
   import Ecto.Changeset
   import Ecto.Query, warn: false
-  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Data.{FileSets, Works}
+  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Repo
 
   require Logger

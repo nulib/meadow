@@ -4,8 +4,8 @@ defmodule Meadow.Data.WorksTest do
   use Meadow.S3Case
 
   alias Meadow.Config
-  alias Meadow.Data.Schemas.Work
   alias Meadow.Data.{FileSets, Works}
+  alias Meadow.Data.Schemas.Work
   alias Meadow.Repo
 
   describe "queries" do

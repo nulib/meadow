@@ -7,7 +7,7 @@ defmodule MeadowWeb.Schema.Query.DescribeFieldsTest do
 
     test "describeFields query is a valid query" do
       assert {:ok, %{data: query_data}} = query_gql(context: gql_context())
-      assert length(get_in(query_data, ["describeFields"])) > 0
+      assert query_data |> get_in(["describeFields"]) |> Enum.empty?() |> Kernel.not()
     end
   end
 

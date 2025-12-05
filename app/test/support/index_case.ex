@@ -6,8 +6,8 @@ defmodule Meadow.IndexCase do
   alias Meadow.Config
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
-  alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.{Alias, HTTP, Index}
+  alias Meadow.Search.Config, as: SearchConfig
 
   setup _tags do
     result =

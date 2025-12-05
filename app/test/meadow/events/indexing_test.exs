@@ -4,10 +4,10 @@ defmodule Meadow.Events.IndexingTest do
   # use Meadow.AuthorityCase
   use Meadow.DataCase, async: false
   use Meadow.IndexCase
+  alias Meadow.{Config, Repo}
   alias Meadow.Data.{Collections, FileSets, IndexBatcher, Indexer, Works}
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Ingest.{Projects, Sheets}
-  alias Meadow.{Config, Repo}
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.HTTP, as: SearchHTTP
 

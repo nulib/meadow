@@ -2,8 +2,8 @@ defmodule Meadow.Ingest.SheetsTest do
   use Meadow.DataCase
 
   alias Meadow.Data.Works
-  alias Meadow.Ingest.Schemas.Sheet
   alias Meadow.Ingest.{Progress, Rows, Sheets}
+  alias Meadow.Ingest.Schemas.Sheet
 
   describe "ingest_sheets" do
     @valid_attrs %{

@@ -385,7 +385,7 @@ defmodule Meadow.Data.Works.TransferFileSets do
     with {:ok, :valid} <- validate_filesets_exist(filesets, fileset_ids),
          {:ok, transferred_ids} <-
            perform_fileset_transfer(filesets, target_work_id, max_rank_in_target_work) do
-      Logger.info("Transferred #{length(transferred_ids)} file sets to work #{target_work_id}")
+      Logger.info("Transferred #{Enum.count(transferred_ids)} file sets to work #{target_work_id}")
       {:ok, transferred_ids}
     end
   end
@@ -394,10 +394,10 @@ defmodule Meadow.Data.Works.TransferFileSets do
     found_ids = Enum.map(filesets, & &1.id)
     missing_ids = fileset_ids -- found_ids
 
-    if length(missing_ids) > 0 do
-      {:error, "Filesets not found: #{Enum.join(missing_ids, ", ")}"}
-    else
+    if Enum.empty?(missing_ids) do
       {:ok, :valid}
+    else
+      {:error, "Filesets not found: #{Enum.join(missing_ids, ", ")}"}
     end
   end
 
@@ -416,12 +416,12 @@ defmodule Meadow.Data.Works.TransferFileSets do
 
     failed_updates = Enum.filter(updates, fn {status, _} -> status == :error end)
 
-    if length(failed_updates) > 0 do
-      failed_ids = Enum.map(failed_updates, fn {_, id} -> id end)
-      {:error, "Failed to transfer filesets: #{Enum.join(failed_ids, ", ")}"}
-    else
+    if Enum.empty?(failed_updates) do
       transferred_ids = Enum.map(updates, fn {:ok, id} -> id end)
       {:ok, transferred_ids}
+    else
+      failed_ids = Enum.map(failed_updates, fn {_, id} -> id end)
+      {:error, "Failed to transfer filesets: #{Enum.join(failed_ids, ", ")}"}
     end
   end
 
@@ -452,9 +452,11 @@ defmodule Meadow.Data.Works.TransferFileSets do
         is_nil(work_id) || work_id in deleted_work_ids
       end)
 
-    if length(valid_work_ids) > 0 do
+    if Enum.empty?(valid_work_ids) do
+      :ok
+    else
       IndexBatcher.reindex(valid_work_ids, :works)
-      Logger.info("Reindexed #{length(valid_work_ids)} source works after fileset transfer")
+      Logger.info("Reindexed #{Enum.count(valid_work_ids)} source works after fileset transfer")
     end
   end
 

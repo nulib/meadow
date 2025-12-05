@@ -21,7 +21,7 @@ defmodule Meadow.Data.PlannerTest do
 
   describe "list_plans/0" do
     test "returns all plans" do
-      assert length(Planner.list_plans()) >= 1
+      assert Planner.list_plans() |> Enum.count() >= 1
     end
 
     test "returns empty list when no plans exist" do
@@ -48,7 +48,7 @@ defmodule Meadow.Data.PlannerTest do
       Planner.create_plan(@valid_plan_attrs)
 
       plans = Planner.list_plans(limit: 2)
-      assert length(plans) == 2
+      assert Enum.count(plans) == 2
     end
 
     test "filters by user" do
