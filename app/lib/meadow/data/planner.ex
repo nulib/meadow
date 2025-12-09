@@ -886,7 +886,11 @@ defmodule Meadow.Data.Planner do
   end
 
   defp apply_single_change(change) do
-    apply_change_to_work(change)
+    try do
+      apply_change_to_work(change)
+    rescue
+      err -> {:error, Exception.message(err)}
+    end
     |> handle_change_result(change)
   end
 
