@@ -19,7 +19,10 @@ defmodule MeadowWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: MeadowWeb
+      use Phoenix.Controller,
+        formats: [html: "View", json: "View"]
+
+      plug :put_layout, html: {MeadowWeb.LayoutView, :app}
 
       import Plug.Conn
       use Gettext, backend: MeadowWeb.GetText

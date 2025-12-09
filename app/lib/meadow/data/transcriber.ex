@@ -207,7 +207,7 @@ defmodule Meadow.Data.Transcriber do
     }
   end
 
-  defp default_prompt(file_set_id) do
+  defp default_prompt(_file_set_id) do
     """
     Use the provide_exact_transcription tool to provide a FULL and EXACT text transcription for this image without any preamble, explanation, excision, truncation, abbreviation, or summarization. Include every column, heading, caption, and any other legible text exactly as it appears. Also detect the language(s) used in the text. Never abbreviate the transcription with bracketed text or summary information. ALWAYS TRANSCRIBE THE TEXT IN FULL!!! You have a massive 64K output token limit so there is NO EXCUSE for omitting any text. If the text is very long, you MUST still provide it ALL without omission. Preserve line breaks when they clarify structure and keep the original order (top-to-bottom, left-to-right).
     """
