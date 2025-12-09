@@ -143,7 +143,7 @@ defmodule Meadow.Config.Runtime do
       bulk_wait_interval: 500,
       indexes: [
         %{
-          name: prefix("dc-v2-work"),
+          name: index_prefix("dc-v2-work"),
           settings: priv_path("search/v2/settings/work.json"),
           version: 2,
           schemas: [Meadow.Data.Schemas.Work],
@@ -151,14 +151,14 @@ defmodule Meadow.Config.Runtime do
           retain: 1
         },
         %{
-          name: prefix("dc-v2-file-set"),
+          name: index_prefix("dc-v2-file-set"),
           settings: priv_path("search/v2/settings/file_set.json"),
           version: 2,
           schemas: [Meadow.Data.Schemas.FileSet],
           retain: 1
         },
         %{
-          name: prefix("dc-v2-collection"),
+          name: index_prefix("dc-v2-collection"),
           settings: priv_path("search/v2/settings/collection.json"),
           version: 2,
           schemas: [Meadow.Data.Schemas.Collection],

@@ -99,6 +99,16 @@ defmodule Meadow.Config.Secrets do
   def prefix, do: System.get_env("MEADOW_TENANT")
   def prefix(val), do: [prefix(), to_string(val)] |> reject_empty() |> Enum.join("-")
 
+  # Workaround for when prefix is "meadow" (i.e., no prefix needed on indexes even when needed elsewhere)
+  def index_prefix, do: index_prefix(prefix(), nil)
+  def index_prefix("meadow", nil), do: nil
+  def index_prefix(prefix, nil), do: prefix
+
+  def index_prefix(prefix, suffix),
+    do: [index_prefix(prefix, nil), to_string(suffix)] |> reject_empty() |> Enum.join("-")
+
+  def index_prefix(suffix), do: index_prefix(prefix(), suffix)
+
   defp reject_empty(list), do: Enum.reject(list, &(is_nil(&1) or &1 == ""))
 
   defp join_non_empty([]), do: nil
