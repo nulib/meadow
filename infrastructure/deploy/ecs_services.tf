@@ -38,7 +38,7 @@ data "aws_service_discovery_dns_namespace" "internal_dns_zone" {
 }
 
 resource "aws_service_discovery_service" "meadow" {
-  name = "meadow"
+  name = var.stack_name
 
   dns_config {
     namespace_id = data.aws_service_discovery_dns_namespace.internal_dns_zone.id

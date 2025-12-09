@@ -3,11 +3,11 @@ defmodule Meadow.Utils.DCAPITest do
 
   alias Meadow.Utils.DCAPI
 
-  describe "DCAPI.superuser_token/0" do
+  describe "DCAPI.token/2" do
     test "generates a valid JWT token" do
       secret = Application.get_env(:meadow, :dc_api)[:v2]["api_token_secret"]
 
-      {:ok, %{token: token, expires: expires_at}} = DCAPI.superuser_token()
+      {:ok, %{token: token, expires: expires_at}} = DCAPI.token(300, is_superuser: true)
 
       assert is_binary(token)
       assert %DateTime{} = expires_at

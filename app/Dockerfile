@@ -10,6 +10,7 @@ ARG HONEYBADGER_API_KEY=
 ARG HONEYBADGER_API_KEY_FRONTEND=
 ARG HONEYBADGER_ENVIRONMENT=
 ARG HONEYBADGER_REVISION=
+ARG MEADOW_TENANT=
 ARG MEADOW_VERSION=
 ENV MIX_ENV=prod
 RUN  mix local.hex --force \
@@ -47,10 +48,12 @@ RUN mix release --overwrite
 FROM ${RUNTIME_IMAGE}
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.stage=runtime
-RUN apt update -qq && apt install -y curl jq libssl-dev libncurses5-dev
+RUN apt update -qq && apt install -y curl git jq libssl-dev libncurses5-dev
 ENV LANG=C.UTF-8
 EXPOSE 4000 4369
 COPY --from=build /app/_build/prod/rel/meadow /app
 WORKDIR /app
+RUN npm install -g @anthropic-ai/claude-code \
+ && bin/meadow eval "MeadowAI.Verification.verify_claude_and_exit()"
 ENTRYPOINT ["./bin/meadow"]
 CMD ["start"]

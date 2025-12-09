@@ -1,11 +1,11 @@
 import React from "react";
-import Work from "./Work";
+import Work from "@js/components/Work/Work";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import {
   mockWork,
   workArchiverEndpointMock,
   dcApiTokenMock,
-} from "./work.gql.mock";
+} from "@js/components/Work/work.gql.mock";
 import { dcApiEndpointMock } from "@js/components/UI/ui.gql.mock";
 import { iiifServerUrlMock } from "@js/components/IIIF/iiif.gql.mock";
 import { screen } from "@testing-library/react";

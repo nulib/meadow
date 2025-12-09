@@ -4,8 +4,8 @@ defmodule Meadow.Arks do
   """
 
   alias Meadow.{Ark, Config}
-  alias Meadow.Data.Works
   alias Meadow.Data.Schemas.{ArkCache, ControlledMetadataEntry, Work}
+  alias Meadow.Data.Works
   alias Meadow.Repo
 
   import Ecto.Query

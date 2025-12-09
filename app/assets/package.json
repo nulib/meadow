@@ -30,6 +30,7 @@
     "@honeybadger-io/js": "^6.12.3",
     "@honeybadger-io/react": "^6.1.7",
     "@nulib/design-system": "^1.5.1",
+    "@nulib/use-markdown": "^0.2.3",
     "@radix-ui/react-dialog": "^1.1.14",
     "@samvera/clover-iiif": "^3.0.3",
     "@samvera/image-downloader": "^1.1.1",
@@ -67,6 +68,7 @@
     "react-json-pretty": "^2.2.0",
     "recharts": "^3.5.1",
     "use-clipboard-copy": "^0.2.0",
+    "uuid": "^13.0.0",
     "webvtt-parser": "^2.2.0"
   },
   "devDependencies": {

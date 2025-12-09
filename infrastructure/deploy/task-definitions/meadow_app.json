@@ -1,12 +1,20 @@
 [
   {
     "name": "meadow",
-    "image": "${docker_repository}:latest",
+    "image": "${docker_repository}:${image_tag}",
     "cpu": 1024,
     "memoryReservation": 1024,
     "mountPoints": [],
     "essential": true,
     "environment": [
+      {
+        "name": "MEADOW_CONFIG",
+        "value": "${meadow_tenant}"
+      },
+      {
+        "name": "MEADOW_TENANT",
+        "value": "${meadow_tenant}"
+      },
       {
         "name": "SECRETS_PATH",
         "value": "${secrets_path}"
@@ -57,7 +65,7 @@
       },
       {
         "name": "RELEASE_NODE",
-        "value": "meadow@meadow.${discovery_zone}"
+        "value": "meadow@${meadow_tenant}.${discovery_zone}"
       },
       {
         "name": "ALLOWED_ORIGINS",
@@ -114,6 +122,10 @@
       {
         "name": "FILE_SET_COMPLETE_PROCESSOR_CONCURRENCY",
         "value": "20"
+      },
+      {
+        "name": "PHX_SERVER",
+        "value": "true"
       }
     ],
     "portMappings": [

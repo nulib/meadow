@@ -14,6 +14,7 @@ defmodule Meadow.Config.Runtime do
 
     Logger.info("Loading Meadow runtime configuration")
 
+    initialize_prefix()
     clear_cache!()
     [:hackney, :ex_aws] |> Enum.each(&Application.ensure_all_started/1)
 
@@ -126,6 +127,9 @@ defmodule Meadow.Config.Runtime do
       render_errors: [view: MeadowWeb.ErrorView, accepts: ~w(html json)],
       pubsub_server: Meadow.PubSub
 
+    if hostname = System.get_env("MEADOW_HOSTNAME"),
+      do: config(:meadow, MeadowWeb.Endpoint, url: [scheme: "https", host: hostname])
+
     Logger.info("Configuring Meadow.Search.Cluster")
 
     config :meadow, Meadow.Search.Cluster,
@@ -223,6 +227,9 @@ defmodule Meadow.Config.Runtime do
         ),
       environment: environment(),
       environment_prefix: prefix(),
+      firewall_security_header:
+        get_secret(:firewall, ["security_header"], [])
+        |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end),
       iiif_server_url:
         get_secret(
           :iiif,
@@ -319,6 +326,18 @@ defmodule Meadow.Config.Runtime do
           {Meadow.Data.PreservationChecks, :start_job, []}
         }
       ]
+
+    config :meadow, :ai,
+      metrics_log: log_configuration(),
+      model:
+        get_secret(
+          :meadow,
+          ["meadow_ai", "model"],
+          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+        ),
+      pythonx_env: %{
+        "CLAUDE_CODE_USE_BEDROCK" => "1"
+      }
 
     Logger.info("Configuring ueberauth for NU SSO")
 

@@ -51,6 +51,7 @@ defmodule MeadowWeb.Router do
   pipeline :api do
     plug(:accepts, ["json"])
 
+    plug(MeadowWeb.Plugs.BearerAuth)
     plug(MeadowWeb.Plugs.SetCurrentUser)
   end
 
@@ -69,12 +70,21 @@ defmodule MeadowWeb.Router do
       before_send: {Middleware.AssumeRole, :update_user_role}
     )
 
+    forward("/graphiql/agent", Absinthe.Plug.GraphiQL,
+      schema: MeadowWeb.Schema.Agent,
+      interface: :simple,
+      socket: MeadowWeb.UserSocket,
+      before_send: {Middleware.AssumeRole, :update_user_role}
+    )
+
     forward("/graphiql", Absinthe.Plug.GraphiQL,
       schema: MeadowWeb.Schema,
       interface: :simple,
       socket: MeadowWeb.UserSocket,
       before_send: {Middleware.AssumeRole, :update_user_role}
     )
+
+    forward("/mcp", Anubis.Server.Transport.StreamableHTTP.Plug, server: MeadowWeb.MCP.Server)
 
     forward("/", Plug.Static,
       at: "/",

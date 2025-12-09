@@ -4,9 +4,9 @@ defmodule Meadow.Data.Indexer do
   """
   use Meadow.Utils.Logging
 
-  alias Meadow.Repo
   alias Meadow.Data.{Collections, Works}
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
+  alias Meadow.Repo
   alias Meadow.Search.Bulk
   alias Meadow.Search.Client, as: SearchClient
   alias Meadow.Search.Config, as: SearchConfig

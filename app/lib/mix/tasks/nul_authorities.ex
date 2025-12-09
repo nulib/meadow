@@ -130,7 +130,7 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
   end
 
   defp next(base_url, %{"_scroll_id" => scroll_id, "hits" => %{"hits" => hits}})
-       when is_list(hits) and length(hits) > 0 do
+       when is_list(hits) and hits != [] do
     {
       hits,
       post!(base_url, "/_search/scroll", %{scroll: "1m", scroll_id: scroll_id})

@@ -2,8 +2,8 @@ defmodule Meadow.Search.Index do
   @moduledoc """
   Meadow config-aware wrapper for Elastix.Index
   """
-  alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.{Alias, HTTP}
+  alias Meadow.Search.Config, as: SearchConfig
 
   @doc """
   Create a timestamped index based on the config for the given schema and version.

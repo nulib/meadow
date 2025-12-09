@@ -86,6 +86,11 @@ variable "pyramid_bucket" {
   default = ""
 }
 
+variable "create_pyramid_bucket" {
+  type    = bool
+  default = false
+}
+
 variable "preservation_check_bucket" {
   type    = string
   default = ""
@@ -142,4 +147,9 @@ variable "livebook_shared_bucket" {
 variable "transcription_bucket" {
   type    = string
   default = ""
+}
+
+variable "config_overrides" {
+  type    = map(string)
+  default = {}
 }

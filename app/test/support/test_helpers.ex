@@ -4,13 +4,12 @@ defmodule Meadow.TestHelpers do
 
   """
   alias Meadow.Accounts.User
-  alias Meadow.Data.Schemas.{Batch, Collection, FileSet, Work}
+  alias Meadow.Data.Schemas.{Batch, Collection, FileSet, Plan, PlanChange, Work}
   alias Meadow.Data.Works
-  alias Meadow.Ingest.Validator
   alias Meadow.Ingest.Schemas.{Project, Sheet}
-  alias Meadow.TestSupport.MetadataGenerator
-
+  alias Meadow.Ingest.Validator
   alias Meadow.Repo
+  alias Meadow.TestSupport.MetadataGenerator
 
   alias NimbleCSV.RFC4180, as: CSV
 
@@ -226,14 +225,15 @@ defmodule Meadow.TestHelpers do
 
   def gql_context(user \\ %{}, extra \\ %{}) do
     %{
-      current_user: %{
-        id: "user1",
-        username: "user1",
-        email: "email@example.com",
-        display_name: "User Name",
-        role: :administrator
-      }
-      |> Map.merge(user)
+      current_user:
+        %{
+          id: "user1",
+          username: "user1",
+          email: "email@example.com",
+          display_name: "User Name",
+          role: :administrator
+        }
+        |> Map.merge(user)
     }
     |> Map.merge(extra)
   end
@@ -296,5 +296,41 @@ defmodule Meadow.TestHelpers do
     |> :rand.uniform()
     |> Kernel.+(min)
     |> Integer.to_string(36)
+  end
+
+  def plan_fixture(attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        prompt: "Test plan prompt",
+        query: "collection.id:test-123",
+        status: :proposed
+      })
+
+    {:ok, plan} =
+      %Plan{}
+      |> Plan.changeset(attrs)
+      |> Repo.insert()
+
+    plan
+  end
+
+  def plan_change_fixture(attrs \\ %{}) do
+    plan = attrs[:plan] || plan_fixture()
+    work = attrs[:work] || work_fixture()
+
+    attrs =
+      Enum.into(attrs, %{
+        plan_id: plan.id,
+        work_id: work.id,
+        add: %{descriptive_metadata: %{title: "Updated title"}},
+        status: :proposed
+      })
+
+    {:ok, plan_change} =
+      %PlanChange{}
+      |> PlanChange.changeset(attrs)
+      |> Repo.insert()
+
+    plan_change
   end
 end
