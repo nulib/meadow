@@ -679,6 +679,22 @@ defmodule Meadow.Data.PlannerTest do
     end
   end
 
+  test "handles exception applying plan", %{plan: plan, work: work} do
+    {:ok, change} =
+      Planner.create_plan_change(%{
+        plan_id: plan.id,
+        work_id: work.id,
+        replace: %{descriptive_metadata: %{title: ["Updated"]}}
+      })
+
+    Planner.approve_plan_change(change)
+    {:ok, plan} = Planner.approve_plan(plan)
+
+    assert {:ok, error_plan} = Planner.apply_plan(plan)
+    assert error_plan.status == :error
+    assert error_plan.error |> String.contains?(~s(cannot load `[\\"Updated\\"]` as type :string))
+  end
+
   describe "apply_plan_change/1" do
     test "applies replace change to work", %{plan: plan} do
       work = work_fixture()
