@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       deploy_env: ${{ steps.set-deploy-env.outputs.result }}
-      container_tag: ${{ steps.set-deploy-env.outputs.result }}
+      container_tag: ${{ steps.set-container-tag.outputs.result }}
       meadow_tenant: ${{ steps.set-meadow-prefix.outputs.result }}
     steps:
       - name: Set DEPLOY_ENV from Branch Name
@@ -44,12 +44,17 @@ jobs:
         id: set-meadow-prefix
         run: |
           if [[ $DEPLOY_ENV == 'production' || $DEPLOY_ENV == 'staging' ]]; then
-            echo "result=" >> $GITHUB_OUTPUT
+            echo "result=meadow" >> $GITHUB_OUTPUT
           else
             echo "result=$DEPLOY_ENV" >> $GITHUB_OUTPUT
           fi
         env:
           DEPLOY_ENV: ${{ steps.set-deploy-env.outputs.result }}
+      - name: Output Environment Info
+        run: |
+          echo "Deploying to environment: ${{ steps.set-deploy-env.outputs.result }}"
+          echo "Using container tag: ${{ steps.set-container-tag.outputs.result }}"
+          echo "Using meadow tenant prefix: ${{ steps.set-meadow-prefix.outputs.result }}"
   build:
     if: ${{ !github.event.pull_request && !contains(github.event.head_commit.message, '[no-deploy]') }}
     runs-on: ubuntu-latest
@@ -84,11 +89,14 @@ jobs:
       - name: Determine container tags
         id: determine-container-tags
         run: |
-          ECR_TAGS="${REGISTRY_NAME}/meadow:${CONTAINER_TAG}"
-          if [[ ${CONTAINER_TAG} == "latest" ]]; then
-            ECR_TAGS="${ECR_TAGS} ${REGISTRY_NAME}/meadow:${MEADOW_VERSION}"
-          fi
-          echo "tags=${ECR_TAGS}" >> $GITHUB_OUTPUT
+          {
+            echo "tags<<EOF"
+            echo "${REGISTRY_NAME}/meadow:${CONTAINER_TAG}"
+            if [[ ${CONTAINER_TAG} == "latest" ]]; then
+              echo "${REGISTRY_NAME}/meadow:${MEADOW_VERSION}"
+            fi
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
         env:
           REGISTRY_NAME: ${{ steps.login-ecr.outputs.registry }}
       - uses: docker/build-push-action@v2
@@ -159,11 +167,14 @@ jobs:
       - name: Determine container tags
         id: determine-container-tags
         run: |
-          ECR_TAGS="${REGISTRY_NAME}/meadow:livebook-${CONTAINER_TAG}"
-          if [[ ${CONTAINER_TAG} == "latest" ]]; then
-            ECR_TAGS="${ECR_TAGS} ${REGISTRY_NAME}/meadow:livebook-${MEADOW_VERSION}"
-          fi
-          echo "tags=${ECR_TAGS}" >> $GITHUB_OUTPUT
+          {
+            echo "tags<<EOF"
+            echo "${REGISTRY_NAME}/meadow:livebook-${CONTAINER_TAG}"
+            if [[ ${CONTAINER_TAG} == "latest" ]]; then
+              echo "${REGISTRY_NAME}/meadow:livebook-${MEADOW_VERSION}"
+            fi
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
         env:
           REGISTRY_NAME: ${{ steps.login-ecr.outputs.registry }}
       - uses: docker/build-push-action@v2
