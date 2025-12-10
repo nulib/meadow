@@ -5,8 +5,8 @@ defmodule MeadowWeb.Resolvers.Accounts do
   alias Meadow.Accounts
   alias Meadow.Accounts.User
 
-  def me(_, _, %{context: %{auth_token: token, current_user: user}}) when not is_nil(user) do
-    {:ok, Map.put(user, :token, token)}
+  def me(_, _, %{context: %{current_user: user} = context}) when not is_nil(user) do
+    {:ok, Map.put(user, :token, Map.get(context, :auth_token))}
   end
 
   def me(_, _, _) do

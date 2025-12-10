@@ -1,0 +1,9 @@
+work_type,work_accession_number,file_accession_number,filename,description,role,label,work_image,structure
+IMAGE,Donohue_001r,Donohue_001_01555,coffee.tif,"Letter, page 1, Dear Sir, recto",A,The label,,transcription.txt
+IMAGE,Donohue_001r,Donohue_001_01556,coffee.tif,"Letter, page 1, Dear Sir, verso, blank",P,The label,,
+IMAGE,Donohue_001r,Donohue_001_01557,coffee.tif,"Letter, page 2, If these papers, recto",A,The label,TRUE,
+IMAGE,Donohue_001r,Donohue_001_01558,coffee.tif,"Letter, page 2, If these papers, verso, blank",X,The label,,
+VIDEO,Donohue_002r,Donohue_001_01559,small.m4v,"Photo, man with two children",A,The label,,Donohue_002_01.vtt
+VIDEO,Donohue_002r,Donohue_001_01560,small.m4v,Small Video,A,The label,,
+VIDEO,Donohue_002r,Donohue_001_01561,coffee.tif,"Photo, two children praying",X,The label,,
+VIDEO,Donohue_002r,Donohue_001_01562,details.json,Supplemental information,S,Supplement,,

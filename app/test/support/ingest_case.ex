@@ -7,8 +7,8 @@ defmodule Meadow.IngestCase do
   convenience functions for manipulating their progress.
   """
 
-  alias Meadow.Repo
   alias Meadow.Ingest.{Rows, Sheets, SheetsToWorks}
+  alias Meadow.Repo
   import Meadow.TestHelpers
 
   @fixture "test/fixtures/ingest_sheet.csv"

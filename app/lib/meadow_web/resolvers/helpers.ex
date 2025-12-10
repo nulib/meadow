@@ -7,9 +7,9 @@ defmodule MeadowWeb.Resolvers.Helpers do
   alias Meadow.Utils.{AWS, DCAPI}
 
   def get_dc_api_token(_, _args, _) do
-    case DCAPI.superuser_token() do
-      {:ok, result} -> {:ok, result}
-      error -> error
+    with api_config <- Application.get_env(:meadow, :dc_api)[:v2],
+         ttl <- Map.get(api_config, "api_token_ttl", 300) do
+      DCAPI.token(ttl, is_superuser: true)
     end
   end
 

@@ -3,10 +3,12 @@ defmodule Meadow.BucketNames do
   Import all bucket names as attributes into the using module
   """
 
+  alias Meadow.Config.Secrets
+
   defmacro __using__(_) do
     quote do
       with prefixed <- fn name ->
-             [System.get_env("DEV_PREFIX"), Mix.env(), name]
+             [Secrets.prefix(), name]
              |> Enum.reject(&is_nil/1)
              |> Enum.join("-")
            end do

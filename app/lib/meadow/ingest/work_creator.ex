@@ -129,6 +129,7 @@ defmodule Meadow.Ingest.WorkCreator do
 
     on_complete = fn work ->
       work = set_work_image(work, file_set_rows)
+      create_transcriptions_from_structure(work, file_set_rows, ingest_sheet)
       Progress.update_entry(List.first(file_set_rows), "CreateWork", "ok")
       ActionStates.set_state!(work, "Create Work", "ok")
       send_work_to_pipeline(ingest_sheet, work, file_set_rows)
@@ -156,6 +157,23 @@ defmodule Meadow.Ingest.WorkCreator do
   defp structure_attributes("", _sheet), do: %{type: nil, value: nil}
 
   defp structure_attributes(path, sheet) do
+    extension = Path.extname(path) |> String.downcase()
+
+    case extension do
+      ".vtt" ->
+        fetch_vtt_structure(path, sheet)
+
+      ".txt" ->
+        # For .txt files (IMAGE transcriptions), we don't store in structural_metadata
+        # They will be created as FileSetAnnotation records in create_transcriptions_from_structure/3
+        %{type: nil, value: nil}
+
+      _ ->
+        %{type: nil, value: nil}
+    end
+  end
+
+  defp fetch_vtt_structure(path, sheet) do
     sheet_with_project = Sheets.get_ingest_sheet_with_project!(sheet.id)
 
     case Meadow.Config.ingest_bucket()
@@ -171,6 +189,47 @@ defmodule Meadow.Ingest.WorkCreator do
       {:error, other} ->
         Logger.error(inspect(other))
         %{type: nil, value: nil}
+    end
+  end
+
+  defp create_transcriptions_from_structure(work, file_set_rows, ingest_sheet) do
+    sheet_with_project = Sheets.get_ingest_sheet_with_project!(ingest_sheet.id)
+    ingest_bucket = Config.ingest_bucket()
+
+    file_set_rows
+    |> Enum.zip(work.file_sets)
+    |> Enum.each(fn {row, file_set} ->
+      create_transcription_for_file_set(row, file_set, sheet_with_project, ingest_bucket)
+    end)
+  end
+
+  defp create_transcription_for_file_set(row, file_set, sheet_with_project, ingest_bucket) do
+    structure_file = Row.field_value(row, :structure)
+
+    if structure_file != "" and Path.extname(structure_file) |> String.downcase() == ".txt" do
+      source_key = "#{sheet_with_project.project.folder}/#{structure_file}"
+
+      with {:ok, annotation} <-
+             FileSets.create_annotation(file_set, %{
+               type: "transcription",
+               status: "completed",
+               language: ["en"]
+             }),
+           {:ok, s3_location} <-
+             FileSets.copy_annotation_content(annotation, ingest_bucket, source_key) do
+        FileSets.update_annotation(annotation, %{s3_location: s3_location})
+        Logger.info("Created transcription annotation for file set #{file_set.id}")
+      else
+        {:error, %Ecto.Changeset{} = changeset} ->
+          Logger.error(
+            "Failed to create transcription annotation for file set #{file_set.id}: #{inspect(changeset.errors)}"
+          )
+
+        {:error, reason} ->
+          Logger.error(
+            "Failed to copy transcription to S3 for file set #{file_set.id}: #{inspect(reason)}"
+          )
+      end
     end
   end
 

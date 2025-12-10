@@ -576,10 +576,10 @@ defmodule Meadow.Data.Works do
     extra_file_set_ids = file_set_ids -- work_file_set_ids
 
     cond do
-      length(missing_file_set_ids) > 0 ->
+      not Enum.empty?(missing_file_set_ids) ->
         {:error, "Ordered file set list is missing #{inspect(missing_file_set_ids)}"}
 
-      length(extra_file_set_ids) > 0 ->
+      not Enum.empty?(extra_file_set_ids) ->
         {:error, "Extra file set IDs provided: #{inspect(extra_file_set_ids)}"}
 
       true ->

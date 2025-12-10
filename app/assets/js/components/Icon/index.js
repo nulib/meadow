@@ -22,10 +22,12 @@ import IconCsv from "@js/components/Icon/Csv";
 import IconDelete from "@js/components/Icon/Delete";
 import IconDownload from "@js/components/Icon/Download";
 import IconEdit from "@js/components/Icon/Edit";
+import IconEnter from "@js/components/Icon/Enter";
 import IconExternalLink from "@js/components/Icon/ExternalLink";
 import IconFile from "@js/components/Icon/File";
 import IconImages from "@js/components/Icon/Images";
 import IconList from "@js/components/Icon/List";
+import IconMagic from "@js/components/Icon/Magic";
 import IconMinus from "@js/components/Icon/Minus";
 import IconPlay from "@js/components/Icon/Play";
 import IconProjects from "@js/components/Icon/Projects";
@@ -65,10 +67,12 @@ export {
   IconDelete,
   IconDownload,
   IconEdit,
+  IconEnter,
   IconExternalLink,
   IconFile,
   IconImages,
   IconList,
+  IconMagic,
   IconMinus,
   IconPlay,
   IconProjects,

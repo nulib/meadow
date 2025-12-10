@@ -3,9 +3,9 @@ defmodule MeadowWeb.Resolvers.Data do
   Absinthe GraphQL query resolver for Data Context
 
   """
-  alias Meadow.Pipeline
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Data.Works.TransferFileSets
+  alias Meadow.Pipeline
   alias Meadow.Utils.AWS.S3, as: S3Utils
   alias Meadow.Utils.ChangesetErrors
 

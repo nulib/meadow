@@ -1,0 +1,10 @@
+query GetPlan($id: ID!) {
+  plan(id: $id) {
+    id
+    prompt
+    query
+    status
+    user
+    notes
+  }
+}

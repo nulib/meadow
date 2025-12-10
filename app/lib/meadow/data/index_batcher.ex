@@ -144,13 +144,14 @@ defmodule Meadow.Data.IndexBatcher do
     %{schema: schema, version: version} = state
 
     ids = MapSet.to_list(state.delete)
+    id_count = Enum.count(ids)
 
-    if length(ids) > 0 do
-      Logger.info("Flushing #{length(ids)} #{schema} deleted documents")
+    if id_count > 0 do
+      Logger.info("Flushing #{id_count} #{schema} deleted documents")
       Bulk.delete(ids, SearchConfig.alias_for(schema, version))
     end
 
-    {length(ids), Map.put(state, :delete, MapSet.new([]))}
+    {id_count, Map.put(state, :delete, MapSet.new([]))}
   end
 
   defp flush(state, :update) do
@@ -158,9 +159,10 @@ defmodule Meadow.Data.IndexBatcher do
     %{repo: repo, schema: schema, version: version} = state
 
     ids = MapSet.to_list(state.update)
+    id_count = Enum.count(ids)
 
-    if length(ids) > 0 do
-      Logger.info("Flushing #{length(ids)} #{schema} updated documents")
+    if id_count > 0 do
+      Logger.info("Flushing #{id_count} #{schema} updated documents")
       preloads = schema.required_index_preloads()
 
       ids
@@ -175,7 +177,7 @@ defmodule Meadow.Data.IndexBatcher do
       end)
     end
 
-    {length(ids), Map.put(state, :update, MapSet.new([]))}
+    {id_count, Map.put(state, :update, MapSet.new([]))}
   end
 
   defp set_timer(%{flush_interval: :never} = state, action), do: cancel_timer(state, action)
