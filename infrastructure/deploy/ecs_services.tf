@@ -1,5 +1,10 @@
 locals {
-  container_ports = tolist([4000, 4369, 8080, 24601])
+  container_ports = tolist([
+    {from = 4000, to = 4000},
+    {from = 4369, to = 4369},
+    {from = 8080, to = 8080},
+    {from = 9100, to = 9155}
+  ])
 
   meadow_urls = [for hostname in concat([aws_route53_record.app_hostname.fqdn], var.additional_hostnames) : "//${hostname}"]
   canonical_hostname = coalesce(var.canonical_hostname, aws_route53_record.app_hostname.fqdn)

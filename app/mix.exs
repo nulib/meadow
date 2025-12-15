@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "10.0.1"
+  @app_version "10.0.2"
 
   def project do
     [
@@ -34,7 +34,8 @@ defmodule Meadow.MixProject do
   def application do
     [
       mod: {Meadow.Application, []},
-      extra_applications: [:os_mon, :retry]
+      extra_applications: [:os_mon, :retry],
+      included_applications: [:anubis_mcp]
     ]
   end
 
@@ -80,11 +81,12 @@ defmodule Meadow.MixProject do
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.17"},
       {:honeybadger, "~> 0.7"},
+      {:horde, "~> 0.10.0"},
       {:inflex, "~> 2.1.0"},
       {:jason, "~> 1.0"},
       {:jwt, "~> 0.1.11"},
+      {:libcluster, "~> 3.3"},
       {:logger_file_backend, "~> 0.0.11"},
-      # {:meadow_ai, path: "/home/ec2-user/environment/meadow-ai", override: true},
       {:mox, "~> 1.0", only: :test},
       {:nimble_csv, "~> 1.3.0"},
       {:phoenix, "~> 1.8.1"},
@@ -143,7 +145,11 @@ defmodule Meadow.MixProject do
           runtime_tools: :permanent
         ],
         extra_applications: [:os_mon],
-        steps: [&build_assets/1, :assemble]
+        steps: [
+          &build_assets/1,
+          &set_release_node_name/1,
+          :assemble
+        ]
       ]
     ]
   end
@@ -152,5 +158,14 @@ defmodule Meadow.MixProject do
     System.cmd("npm", ["run-script", "deploy"], cd: "assets")
     Mix.Task.run("phx.digest")
     release
+  end
+
+  def set_release_node_name(release) do
+    build = case System.shell("git rev-parse --short=9 HEAD") do
+      {revision, 0} -> String.trim(revision)
+      _ -> nil
+    end
+    release_node_name = [release.name, build] |> Enum.reject(&is_nil/1) |> Enum.join("-")
+    put_in(release.options[:release_node_name], release_node_name)
   end
 end

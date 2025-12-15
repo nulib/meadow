@@ -50,7 +50,7 @@ LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.stage=runtime
 RUN apt update -qq && apt install -y curl git jq libssl-dev libncurses5-dev
 ENV LANG=C.UTF-8
-EXPOSE 4000 4369
+EXPOSE 4000 4369 9100-9155
 COPY --from=build /app/_build/prod/rel/meadow /app
 WORKDIR /app
 RUN npm install -g @anthropic-ai/claude-code \

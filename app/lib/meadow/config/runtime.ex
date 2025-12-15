@@ -44,7 +44,6 @@ defmodule Meadow.Config.Runtime do
       api_key: get_secret(:meadow, ["honeybadger", "api_key"], "DO_NOT_REPORT"),
       environment_name:
         get_secret(:meadow, ["honeybadger", "environment"], to_string(environment())),
-      revision: System.get_env("HONEYBADGER_REVISION", ""),
       repos: [Meadow.Repo],
       breadcrumbs_enabled: true,
       filter: Meadow.Error.Filter,
@@ -251,7 +250,7 @@ defmodule Meadow.Config.Runtime do
       pyramid_tiff_working_dir: System.tmp_dir!(),
       required_checksum_tags: ["computed-md5"],
       checksum_wait_timeout: 3_600_000,
-      shared_links_index: prefix("shared_links"),
+      shared_links_index: index_prefix("shared_links"),
       sitemaps: [
         gzip: true,
         store: Sitemapper.S3Store,

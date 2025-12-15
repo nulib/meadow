@@ -39,6 +39,11 @@ alias Meadow.Pipeline.Actions
 
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
+case System.shell("git rev-parse HEAD") do
+  {revision, 0} -> config :honeybadger, revision: String.trim(revision)
+  _ -> :ok
+end
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
@@ -114,6 +119,10 @@ config :meadow, Meadow.Pipeline,
     Actions.GeneratePosterImage,
     Actions.FileSetComplete
   ]
+
+config :mime, :types, %{
+  "text/event-stream" => ["event-stream"]
+}
 
 config :ueberauth, Ueberauth, providers: [nusso: {Ueberauth.Strategy.NuSSO, []}]
 

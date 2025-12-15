@@ -30,13 +30,18 @@ defmodule Meadow.Directory.MockServer do
             user
         end
 
-      Cachex.put!(@cache, {:netid, user["uid"]}, user)
-      Cachex.put!(@cache, {:mail, user["mail"]}, user)
+      Cachex.put!(@cache, key_for(:netid, user["uid"]), user)
+      Cachex.put!(@cache, key_for(:mail, user["mail"]), user)
     end)
   end
 
+  defp key_for(field, value) do
+    [to_string(field), value]
+    |> Enum.join("_")
+  end
+
   get "/directory-search/res/:field/bas/:value" do
-    case Cachex.get!(@cache, {String.to_existing_atom(field), value}) do
+    case Cachex.get!(@cache, key_for(field, value)) do
       nil ->
         response =
           ~s[{"errorCode":404,"errorMessage":"No LDAP Data Found for = (#{field}=#{value})"}]

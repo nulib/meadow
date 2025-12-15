@@ -34,6 +34,17 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
   }
 
   statement {
+    sid    = "ecs"
+    effect = "Allow"
+    actions = [
+      "ecs:ListTasks",
+      "ecs:DescribeTasks",
+      "ec2:DescribeNetworkInterfaces"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
     sid    = "logstream"
     effect = "Allow"
     actions = [
@@ -217,8 +228,9 @@ resource "aws_lb_target_group" "meadow_target" {
   tags                 = var.tags
 
   stickiness {
-    enabled = false
-    type    = "lb_cookie"
+    enabled           = true
+    type              = "lb_cookie"
+    cookie_duration   = 86400
   }
 }
 
@@ -238,8 +250,9 @@ resource "aws_lb_target_group" "meadow_livebook_target" {
   }
 
   stickiness {
-    enabled = false
-    type    = "lb_cookie"
+    enabled           = true
+    type              = "lb_cookie"
+    cookie_duration   = 86400
   }
 }
 
@@ -278,7 +291,15 @@ resource "aws_lb_listener" "meadow_lb_listener_https" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.meadow_target.arn
+    forward {
+      target_group {
+        arn = aws_lb_target_group.meadow_target.arn
+      }
+      stickiness {
+        enabled  = true
+        duration = 3600
+      }
+    }
   }
 }
 
@@ -291,7 +312,15 @@ resource "aws_lb_listener" "meadow_lb_listener_livebook" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.meadow_livebook_target.arn
+    forward {
+      target_group {
+        arn = aws_lb_target_group.meadow_livebook_target.arn
+      }
+      stickiness {
+        enabled  = true
+        duration = 3600
+      }
+    }
   }
 }
 
