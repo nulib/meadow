@@ -251,7 +251,7 @@ defmodule Meadow.Config.Runtime do
       pyramid_tiff_working_dir: System.tmp_dir!(),
       required_checksum_tags: ["computed-md5"],
       checksum_wait_timeout: 3_600_000,
-      shared_links_index: prefix("shared_links"),
+      shared_links_index: index_prefix("shared_links"),
       sitemaps: [
         gzip: true,
         store: Sitemapper.S3Store,
