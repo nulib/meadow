@@ -14,6 +14,18 @@ defmodule MeadowWeb.Resolvers.Chat do
       {:ok, plan} ->
         # Publish plan_id immediately to frontend with dedicated message type
         Cachex.put!(Meadow.Cache.Chat.Conversations, plan.id, conversation_id)
+
+        {:ok, heartbeat_pid} =
+          Meadow.Notification.Heartbeat.start(
+            %{
+              conversation_id: conversation_id,
+              message: "",
+              type: "heartbeat",
+              plan_id: plan.id
+            },
+            chat_response: "conversation:#{conversation_id}"
+          )
+
         Meadow.Notification.publish(
           %{
             conversation_id: conversation_id,
@@ -26,18 +38,23 @@ defmodule MeadowWeb.Resolvers.Chat do
 
         # Run agent in background
         Task.start(fn ->
-          {:ok, ai_response} = MeadowAI.query(prompt, context: %{query: query, plan_id: plan.id})
+          try do
+            {:ok, ai_response} =
+              MeadowAI.query(prompt, context: %{query: query, plan_id: plan.id})
 
-          # Publish final agent response as chat message
-          Meadow.Notification.publish(
-            %{
-              conversation_id: conversation_id,
-              message: ai_response,
-              type: "chat",
-              plan_id: plan.id
-            },
-            chat_response: "conversation:#{conversation_id}"
-          )
+            # Publish final agent response as chat message
+            Meadow.Notification.publish(
+              %{
+                conversation_id: conversation_id,
+                message: ai_response,
+                type: "chat",
+                plan_id: plan.id
+              },
+              chat_response: "conversation:#{conversation_id}"
+            )
+          after
+            Meadow.Notification.Heartbeat.stop(heartbeat_pid)
+          end
         end)
 
         {:ok, %{conversation_id: conversation_id, type: type, query: query, prompt: prompt}}
