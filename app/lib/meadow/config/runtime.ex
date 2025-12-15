@@ -44,6 +44,7 @@ defmodule Meadow.Config.Runtime do
       api_key: get_secret(:meadow, ["honeybadger", "api_key"], "DO_NOT_REPORT"),
       environment_name:
         get_secret(:meadow, ["honeybadger", "environment"], to_string(environment())),
+      revision: System.get_env("HONEYBADGER_REVISION", ""),
       repos: [Meadow.Repo],
       breadcrumbs_enabled: true,
       filter: Meadow.Error.Filter,

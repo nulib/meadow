@@ -145,11 +145,7 @@ defmodule Meadow.MixProject do
           runtime_tools: :permanent
         ],
         extra_applications: [:os_mon],
-        steps: [
-          &build_assets/1,
-          &set_release_node_name/1,
-          :assemble
-        ]
+        steps: [&build_assets/1, :assemble]
       ]
     ]
   end
@@ -158,14 +154,5 @@ defmodule Meadow.MixProject do
     System.cmd("npm", ["run-script", "deploy"], cd: "assets")
     Mix.Task.run("phx.digest")
     release
-  end
-
-  def set_release_node_name(release) do
-    build = case System.shell("git rev-parse --short=9 HEAD") do
-      {revision, 0} -> String.trim(revision)
-      _ -> nil
-    end
-    release_node_name = [release.name, build] |> Enum.reject(&is_nil/1) |> Enum.join("-")
-    put_in(release.options[:release_node_name], release_node_name)
   end
 end

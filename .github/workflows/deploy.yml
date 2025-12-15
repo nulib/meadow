@@ -99,6 +99,9 @@ jobs:
           } >> $GITHUB_OUTPUT
         env:
           REGISTRY_NAME: ${{ steps.login-ecr.outputs.registry }}
+      - name: Set Meadow Release Name
+        id: meadow-release
+        run: echo "name=meadow-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - uses: docker/build-push-action@v2
         with:
           context: ./app
@@ -111,6 +114,7 @@ jobs:
             HONEYBADGER_API_KEY_FRONTEND=${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
             HONEYBADGER_ENVIRONMENT=${{ env.DEPLOY_ENV }}
             HONEYBADGER_REVISION=${{ github.sha }}
+            RELEASE_NAME=${{ steps.meadow-release.outputs.name }}
             MEADOW_TENANT=${{ env.MEADOW_TENANT }}
             MEADOW_VERSION=${{ env.MEADOW_VERSION }}
       - name: Upload Source Maps to Honeybadger
