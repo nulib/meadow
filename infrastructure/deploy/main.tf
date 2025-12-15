@@ -413,8 +413,8 @@ resource "aws_security_group_rule" "allow_stack_db_access" {
 resource "aws_security_group_rule" "allow_alb_access" {
   count             = length(local.container_ports)
   type              = "ingress"
-  from_port         = element(local.container_ports, count.index)
-  to_port           = element(local.container_ports, count.index)
+  from_port         = element(local.container_ports, count.index)["from"]
+  to_port           = element(local.container_ports, count.index)["to"]
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.meadow.id

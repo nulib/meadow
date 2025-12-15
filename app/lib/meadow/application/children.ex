@@ -17,10 +17,9 @@ defmodule Meadow.Application.Children do
       "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
       "database_listeners" => [
         {WalEx.Supervisor, Application.get_env(:meadow, WalEx)},
-        {Meadow.Events.Works.Arks.Processor,
-         token_count: 100, interval: 1_000, replenish_count: 10}
+        {Meadow.Events.Works.Arks.Processor, token_count: 100, interval: 1_000, replenish_count: 10} |> distributed()
       ],
-      "scheduler" => Meadow.Scheduler,
+      "scheduler" => Meadow.Scheduler |> distributed(),
       "work_creator" => [Meadow.Ingest.WorkCreator, Meadow.Ingest.WorkRedriver]
     }
   end
@@ -43,8 +42,8 @@ defmodule Meadow.Application.Children do
         MeadowWeb.Endpoint,
         {Absinthe.Subscription, MeadowWeb.Endpoint},
         MeadowWeb.Subscription,
-        Anubis.Server.Registry,
-        {MeadowWeb.MCP.Server, transport: :streamable_http}
+        MeadowWeb.MCP.GlobalRegistry,
+        {MeadowWeb.MCP.Server, transport: :streamable_http, registry: MeadowWeb.MCP.GlobalRegistry} |> distributed()
       ],
       "web.notifiers" => [
         {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()}
@@ -128,7 +127,7 @@ defmodule Meadow.Application.Children do
   end
 
   defp mock_server(plug, port) do
-    case :gen_tcp.connect(~c"localhost", port, [], 50) do
+    case :gen_tcp.connect(~c"localhost", port, [], 500) do
       {:ok, _} ->
         "Skipping launch of #{inspect(plug)}. Port #{port} already in use."
         |> Logger.info()
@@ -143,5 +142,27 @@ defmodule Meadow.Application.Children do
 
         {Plug.Cowboy, scheme: :http, plug: plug, options: [port: port]}
     end
+  end
+
+  def distributed(%{start: {mod, fun, [args]}} = spec) do
+    %{spec | start: {mod, fun, [via_horde(Keyword.put_new(args, :name, mod))]}}
+  end
+
+  def distributed(%{start: {mod, fun, args}} = spec) do
+    %{spec | start: {mod, fun, via_horde(Keyword.put_new(args, :name, mod))}}
+  end
+
+  def distributed({mod, args}) do
+    {mod, via_horde(Keyword.put_new(args, :name, mod))}
+  end
+
+  def distributed(mod), do: {mod, via_horde([name: mod])}
+
+  defp via_horde(args) do
+    Keyword.update(args, :name, nil, fn name ->
+      if is_atom(name),
+        do: {:via, Horde.Registry, {Meadow.HordeRegistry, name}},
+        else: name
+    end)
   end
 end

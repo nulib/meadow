@@ -49,7 +49,7 @@ defmodule MeadowWeb.Router do
   end
 
   pipeline :api do
-    plug(:accepts, ["json"])
+    plug(:accepts, ["json", "event-stream"])
 
     plug(MeadowWeb.Plugs.BearerAuth)
     plug(MeadowWeb.Plugs.SetCurrentUser)
@@ -84,7 +84,10 @@ defmodule MeadowWeb.Router do
       before_send: {Middleware.AssumeRole, :update_user_role}
     )
 
-    forward("/mcp", Anubis.Server.Transport.StreamableHTTP.Plug, server: MeadowWeb.MCP.Server)
+    forward("/mcp", Anubis.Server.Transport.StreamableHTTP.Plug,
+      server: MeadowWeb.MCP.Server,
+      registry: MeadowWeb.MCP.GlobalRegistry
+    )
 
     forward("/", Plug.Static,
       at: "/",
