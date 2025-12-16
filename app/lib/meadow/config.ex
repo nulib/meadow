@@ -120,6 +120,7 @@ defmodule Meadow.Config do
   @doc "Retrieve a list of configured buckets"
   def buckets do
     [
+      derivatives_bucket(),
       ingest_bucket(),
       preservation_bucket(),
       preservation_check_bucket(),
