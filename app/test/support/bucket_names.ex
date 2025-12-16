@@ -12,6 +12,7 @@ defmodule Meadow.BucketNames do
              |> Enum.reject(&is_nil/1)
              |> Enum.join("-")
            end do
+        @derivatives_bucket prefixed.("derivatives")
         @ingest_bucket prefixed.("ingest")
         @preservation_bucket prefixed.("preservation")
         @preservation_check_bucket prefixed.("preservation-checks")
