@@ -22,7 +22,12 @@ jest.mock("@js/components/Plan/fields", () => {
     "descriptive_metadata.rights_statement",
   ]);
 
-  return { WORK_FIELDS, CONTROLLED_TERM_FIELDS, CODED_TERM_FIELDS };
+  const NESTED_CODED_TERM_FIELDS = new Set([
+    "descriptive_metadata.notes",
+    "descriptive_metadata.related_url",
+  ]);
+
+  return { WORK_FIELDS, CONTROLLED_TERM_FIELDS, CODED_TERM_FIELDS, NESTED_CODED_TERM_FIELDS };
 });
 
 import { toArray, isControlled, getFieldLabel, toRows } from "./diff-helpers";

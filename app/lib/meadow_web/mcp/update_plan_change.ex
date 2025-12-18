@@ -81,6 +81,8 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
 
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
   @coded_fields ~w(license rights_statement)a
+  # Fields with arrays of objects containing coded terms
+  @nested_coded_fields ~w(notes related_url)a
 
   schema do
     field(:id, :string,
@@ -107,19 +109,12 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
   def execute(%{id: id} = request, frame) do
     Logger.debug("MCP Server updating PlanChange: #{id}")
 
-    case fetch_plan_change(id) do
-      {:ok, change} ->
-        attrs = build_attrs(request)
-
-        case Planner.update_plan_change(change, attrs) do
-          {:ok, updated_change} ->
-            updated_change = Repo.preload(updated_change, :plan)
-            {:reply, Response.tool() |> Response.json(serialize_change(updated_change)), frame}
-
-          {:error, reason} ->
-            {:error, MCPError.execution(reason), frame}
-        end
-
+    with {:ok, change} <- fetch_plan_change(id),
+         {:ok, attrs} <- build_attrs_result(request),
+         {:ok, updated_change} <- Planner.update_plan_change(change, attrs) do
+      updated_change = Repo.preload(updated_change, :plan)
+      {:reply, Response.tool() |> Response.json(serialize_change(updated_change)), frame}
+    else
       {:error, reason} ->
         {:error, MCPError.execution(reason), frame}
     end
@@ -136,6 +131,14 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
     request
     |> Map.take([:add, :delete, :replace, :status, :notes])
     |> enrich_controlled_terms()
+    |> validate_coded_terms()
+  end
+
+  defp build_attrs_result(request) do
+    case build_attrs(request) do
+      {:error, _} = error -> error
+      attrs -> {:ok, attrs}
+    end
   end
 
   defp serialize_change(change) do
@@ -206,6 +209,7 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
     metadata
     |> enrich_controlled_fields()
     |> enrich_coded_fields()
+    |> enrich_nested_coded_fields()
   end
 
   defp enrich_descriptive_metadata(metadata), do: metadata
@@ -258,6 +262,65 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
       end
     end)
   end
+
+  defp enrich_nested_coded_fields(metadata) do
+    Enum.reduce(@nested_coded_fields, metadata, fn field, acc ->
+      field_string = Atom.to_string(field)
+
+      case Map.get(acc, field, Map.get(acc, field_string)) do
+        nil ->
+          acc
+
+        values when is_list(values) ->
+          enriched_values = Enum.map(values, &enrich_nested_coded_entry(field, &1))
+
+          acc
+          |> Map.delete(field_string)
+          |> Map.put(field, enriched_values)
+
+        _value ->
+          acc
+      end
+    end)
+  end
+
+  # Enrich notes entries (have a 'type' coded term)
+  defp enrich_nested_coded_entry(:notes, entry) when is_map(entry) do
+    entry
+    |> atomize_keys()
+    |> enrich_note_type()
+  end
+
+  # Enrich related_url entries (have a 'label' coded term)
+  defp enrich_nested_coded_entry(:related_url, entry) when is_map(entry) do
+    entry
+    |> atomize_keys()
+    |> enrich_related_url_label()
+  end
+
+  defp enrich_nested_coded_entry(_field, entry), do: entry
+
+  defp enrich_note_type(%{type: type} = entry) when is_map(type) do
+    enriched_type =
+      type
+      |> atomize_keys()
+      |> enrich_coded_term()
+
+    Map.put(entry, :type, enriched_type)
+  end
+
+  defp enrich_note_type(entry), do: entry
+
+  defp enrich_related_url_label(%{label: label} = entry) when is_map(label) do
+    enriched_label =
+      label
+      |> atomize_keys()
+      |> enrich_coded_term()
+
+    Map.put(entry, :label, enriched_label)
+  end
+
+  defp enrich_related_url_label(entry), do: entry
 
   defp enrich_controlled_term_entry(entry) when is_map(entry) do
     entry
@@ -365,4 +428,219 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
   end
 
   defp atomize_keys(value), do: value
+
+  # Validation functions for coded terms
+
+  defp validate_coded_terms({:error, _} = error), do: error
+
+  defp validate_coded_terms(attrs) do
+    with :ok <- validate_operation_coded_terms(attrs, :add),
+         :ok <- validate_operation_coded_terms(attrs, :replace) do
+      attrs
+    else
+      {:error, message} -> {:error, message}
+    end
+  end
+
+  defp validate_operation_coded_terms(attrs, operation) do
+    case Map.get(attrs, operation) do
+      nil -> :ok
+      operation_data -> validate_coded_terms_in_section(operation_data, Atom.to_string(operation))
+    end
+  end
+
+  defp validate_coded_terms_in_section(section, path) when is_map(section) do
+    case Map.get(section, :descriptive_metadata) do
+      nil ->
+        :ok
+
+      metadata ->
+        with :ok <- validate_direct_coded_fields(metadata, path),
+             :ok <- validate_role_coded_terms(metadata, path) do
+          validate_nested_coded_fields(metadata, path)
+        end
+    end
+  end
+
+  defp validate_coded_terms_in_section(_section, _path), do: :ok
+
+  # Validate direct coded fields (license, rights_statement)
+  defp validate_direct_coded_fields(metadata, path) do
+    Enum.reduce_while(@coded_fields, :ok, fn field, :ok ->
+      validate_single_coded_field(metadata, field, path)
+    end)
+  end
+
+  defp validate_single_coded_field(metadata, field, path) do
+    case Map.get(metadata, field) do
+      nil ->
+        {:cont, :ok}
+
+      %{id: id, scheme: scheme} = term ->
+        field_path = "#{path}.descriptive_metadata.#{field}"
+        validate_and_wrap_result(validate_coded_term(id, scheme, term, field_path))
+
+      _ ->
+        {:cont, :ok}
+    end
+  end
+
+  # Validate role coded terms in controlled fields
+  defp validate_role_coded_terms(metadata, path) do
+    Enum.reduce_while(@controlled_fields, :ok, fn field, :ok ->
+      validate_controlled_field_roles(metadata, field, path)
+    end)
+  end
+
+  defp validate_controlled_field_roles(metadata, field, path) do
+    case Map.get(metadata, field) do
+      nil ->
+        {:cont, :ok}
+
+      values when is_list(values) ->
+        field_path = "#{path}.descriptive_metadata.#{field}"
+        validate_and_wrap_result(validate_roles_in_list(values, field_path))
+
+      _ ->
+        {:cont, :ok}
+    end
+  end
+
+  defp validate_roles_in_list(values, base_path) do
+    values
+    |> Enum.with_index()
+    |> Enum.reduce_while(:ok, fn {entry, idx}, :ok ->
+      validate_single_role(entry, idx, base_path)
+    end)
+  end
+
+  defp validate_single_role(entry, idx, base_path) do
+    case entry do
+      %{role: %{id: id, scheme: scheme}} = role_map ->
+        role_path = "#{base_path}[#{idx}].role"
+        validate_and_wrap_result(validate_coded_term(id, scheme, role_map.role, role_path))
+
+      _ ->
+        {:cont, :ok}
+    end
+  end
+
+  # Validate nested coded fields (notes, related_url)
+  defp validate_nested_coded_fields(metadata, path) do
+    Enum.reduce_while(@nested_coded_fields, :ok, fn field, :ok ->
+      validate_nested_coded_field_values(metadata, field, path)
+    end)
+  end
+
+  defp validate_nested_coded_field_values(metadata, field, path) do
+    case Map.get(metadata, field) do
+      nil ->
+        {:cont, :ok}
+
+      values when is_list(values) ->
+        field_path = "#{path}.descriptive_metadata.#{field}"
+        validate_and_wrap_result(validate_nested_coded_list(field, values, field_path))
+
+      _ ->
+        {:cont, :ok}
+    end
+  end
+
+  defp validate_nested_coded_list(:notes, values, base_path) do
+    values
+    |> Enum.with_index()
+    |> Enum.reduce_while(:ok, fn {entry, idx}, :ok ->
+      validate_note_type(entry, idx, base_path)
+    end)
+  end
+
+  defp validate_nested_coded_list(:related_url, values, base_path) do
+    values
+    |> Enum.with_index()
+    |> Enum.reduce_while(:ok, fn {entry, idx}, :ok ->
+      validate_related_url_label(entry, idx, base_path)
+    end)
+  end
+
+  defp validate_nested_coded_list(_field, _values, _base_path), do: :ok
+
+  defp validate_note_type(entry, idx, base_path) do
+    case entry do
+      %{type: %{id: id, scheme: scheme}} = type_map ->
+        type_path = "#{base_path}[#{idx}].type"
+        validate_and_wrap_result(validate_coded_term(id, scheme, type_map.type, type_path))
+
+      _ ->
+        {:cont, :ok}
+    end
+  end
+
+  defp validate_related_url_label(entry, idx, base_path) do
+    case entry do
+      %{label: %{id: id, scheme: scheme}} = label_map ->
+        label_path = "#{base_path}[#{idx}].label"
+        validate_and_wrap_result(validate_coded_term(id, scheme, label_map.label, label_path))
+
+      _ ->
+        {:cont, :ok}
+    end
+  end
+
+  # Helper to wrap validation results for reduce_while
+  defp validate_and_wrap_result(:ok), do: {:cont, :ok}
+  defp validate_and_wrap_result(error), do: {:halt, error}
+
+  defp validate_coded_term(id, scheme, term, field_path)
+       when is_binary(id) and is_binary(scheme) do
+    case CodedTerms.get_coded_term(id, scheme) do
+      nil ->
+        valid_ids = list_valid_coded_term_ids(scheme)
+        error_msg = build_validation_error(field_path, id, scheme, valid_ids, term)
+        {:error, error_msg}
+
+      {{:ok, _}, _term} ->
+        :ok
+
+      _other ->
+        {:error, "Unexpected error validating coded term #{id} in scheme #{scheme}"}
+    end
+  rescue
+    e ->
+      Logger.error("Exception during coded term validation: #{inspect(e)}")
+      {:error, "Error validating coded term #{id} in scheme #{scheme}"}
+  end
+
+  defp validate_coded_term(_id, _scheme, _term, _path), do: :ok
+
+  defp list_valid_coded_term_ids(scheme) do
+    try do
+      scheme
+      |> CodedTerms.list_coded_terms()
+      |> Enum.map(& &1.id)
+      |> Enum.take(10)
+    rescue
+      _ -> []
+    end
+  end
+
+  defp build_validation_error(path, id, scheme, valid_ids, term) do
+    base_msg =
+      "Invalid coded term in '#{path}': '#{id}' is not a valid term for scheme #{String.upcase(scheme)}."
+
+    suggestions =
+      if Enum.empty?(valid_ids) do
+        ""
+      else
+        id_list = Enum.join(valid_ids, ", ")
+        " Valid options include: #{id_list}"
+      end
+
+    label_info =
+      case Map.get(term, :label) do
+        nil -> ""
+        label -> " (attempted label: '#{label}')"
+      end
+
+    base_msg <> label_info <> suggestions
+  end
 end

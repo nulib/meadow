@@ -2,6 +2,7 @@ import {
   WORK_FIELDS,
   CONTROLLED_TERM_FIELDS,
   CODED_TERM_FIELDS,
+  NESTED_CODED_TERM_FIELDS,
 } from "@js/components/Plan/fields";
 
 /**
@@ -18,6 +19,11 @@ const isControlled = (path) => CONTROLLED_TERM_FIELDS.has(path);
  * Determine if a given dotted path is a coded term field
  */
 const isCodedTerm = (path) => CODED_TERM_FIELDS.has(path);
+
+/**
+ * Determine if a given dotted path is a nested coded term field
+ */
+const isNestedCodedTerm = (path) => NESTED_CODED_TERM_FIELDS.has(path);
 
 /**
  * Lookup a display label from WORK_FIELDS
@@ -80,6 +86,19 @@ const toRows = (changeObj, method) => {
         continue;
       }
 
+      if (isNestedCodedTerm(path)) {
+        rows.push({
+          id: `${method}-${path}`,
+          method,
+          path,
+          label: getFieldLabel(path, WORK_FIELDS),
+          value,
+          controlled: false,
+          nestedCoded: true,
+        });
+        continue;
+      }
+
       // Is a primitive value or array
       if (value == null || typeof value !== "object" || Array.isArray(value)) {
         rows.push({
@@ -102,4 +121,11 @@ const toRows = (changeObj, method) => {
   return rows;
 };
 
-export { toArray, isControlled, isCodedTerm, getFieldLabel, toRows };
+export {
+  toArray,
+  isControlled,
+  isCodedTerm,
+  isNestedCodedTerm,
+  getFieldLabel,
+  toRows,
+};
