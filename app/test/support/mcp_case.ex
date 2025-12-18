@@ -62,7 +62,10 @@ defmodule MeadowWeb.MCPCase do
 
   defp call_mcp(frame, method, params \\ %{}) do
     request = %{"method" => method, "params" => params}
-    {:reply, response, _frame} = Handlers.handle(request, MeadowWeb.MCP.Server, frame)
-    response
+
+    case Handlers.handle(request, MeadowWeb.MCP.Server, frame) do
+      {:reply, response, _frame} -> response
+      {:error, _error, _frame} = error_tuple -> error_tuple
+    end
   end
 end

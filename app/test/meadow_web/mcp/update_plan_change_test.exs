@@ -242,4 +242,144 @@ defmodule MeadowWeb.MCP.UpdatePlanChangeTest do
       assert result["status"] == "proposed"
     end
   end
+
+  describe "coded term validation" do
+    setup do
+      work = work_fixture()
+      {:ok, plan} = Planner.create_plan(%{prompt: "Test plan"})
+
+      {:ok, plan_change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          add: %{},
+          status: :pending
+        })
+
+      {:ok, plan: plan, plan_change: plan_change, work: work}
+    end
+
+    test "rejects invalid license term in add operation", %{plan_change: plan_change} do
+      params = %{
+        "id" => plan_change.id,
+        "add" => %{
+          "descriptive_metadata" => %{
+            "license" => %{
+              "id" => "http://invalid-license.com/",
+              "scheme" => "license"
+            }
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:error, _error, _frame} = call_tool("update_plan_change", params)
+    end
+
+    test "rejects invalid rights_statement term in replace operation", %{
+      plan_change: plan_change
+    } do
+      params = %{
+        "id" => plan_change.id,
+        "replace" => %{
+          "descriptive_metadata" => %{
+            "rights_statement" => %{
+              "id" => "http://invalid-rights.org/vocab/CNE/1.0/",
+              "scheme" => "rights_statement"
+            }
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:error, _error, _frame} = call_tool("update_plan_change", params)
+    end
+
+    test "rejects invalid role in subject controlled field", %{plan_change: plan_change} do
+      params = %{
+        "id" => plan_change.id,
+        "add" => %{
+          "descriptive_metadata" => %{
+            "subject" => [
+              %{
+                "term" => %{"id" => "mock1:result1"},
+                "role" => %{"id" => "INVALID_ROLE", "scheme" => "subject_role"}
+              }
+            ]
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:error, _error, _frame} = call_tool("update_plan_change", params)
+    end
+
+    test "accepts valid coded terms", %{plan_change: plan_change} do
+      # Get a valid license from the database
+      valid_license = Meadow.Data.CodedTerms.list_coded_terms("license") |> List.first()
+      assert valid_license, "No license terms found in database"
+
+      params = %{
+        "id" => plan_change.id,
+        "add" => %{
+          "descriptive_metadata" => %{
+            "license" => %{
+              "id" => valid_license.id,
+              "scheme" => "license"
+            }
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+
+      result = Jason.decode!(response)
+      assert get_in(result, ["add", "descriptive_metadata", "license", "id"]) == valid_license.id
+      assert get_in(result, ["add", "descriptive_metadata", "license", "label"]) == valid_license.label
+    end
+
+    test "accepts valid role coded terms", %{plan_change: plan_change} do
+      params = %{
+        "id" => plan_change.id,
+        "add" => %{
+          "descriptive_metadata" => %{
+            "subject" => [
+              %{
+                "term" => %{"id" => "mock1:result1"},
+                "role" => %{"id" => "TOPICAL", "scheme" => "subject_role"}
+              }
+            ]
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+
+      result = Jason.decode!(response)
+      subject = get_in(result, ["add", "descriptive_metadata", "subject"]) |> List.first()
+      assert subject["role"]["id"] == "TOPICAL"
+      assert subject["role"]["label"] == "Topical"
+    end
+
+    test "does not validate coded terms in delete operations", %{plan_change: plan_change} do
+      # Delete operations should not be validated since we're removing data
+      params = %{
+        "id" => plan_change.id,
+        "delete" => %{
+          "descriptive_metadata" => %{
+            "license" => %{
+              "id" => "http://invalid-license.com/",
+              "scheme" => "license"
+            }
+          }
+        },
+        "status" => "proposed"
+      }
+
+      # Should succeed even though license is invalid - we're just deleting it
+      assert {:ok, [{:text, _response}]} = call_tool("update_plan_change", params) |> parse_response()
+    end
+  end
 end

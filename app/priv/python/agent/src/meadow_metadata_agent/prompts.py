@@ -97,23 +97,58 @@ def proposer_prompt():
     Add controlled terms by: search for term, lookup role if required, build the nested structure, then call update_plan_change.
 
     Coded term fields (must use codeList query):
-    - Available schemes: MARC_RELATOR, SUBJECT_ROLE, RIGHTS_STATEMENT, WORK_TYPE, NOTE_TYPE, LICENSE, PRESERVATION_LEVEL, STATUS, LIBRARY_UNIT
+    - Available schemes: MARC_RELATOR, SUBJECT_ROLE, RIGHTS_STATEMENT, WORK_TYPE, NOTE_TYPE, LICENSE, PRESERVATION_LEVEL, STATUS, LIBRARY_UNIT, RELATED_URL_LABEL
     - Always query codeList to get the exact id (URI), label, and scheme
     - CRITICAL: The "id" field must be the exact URI from codeList, NOT a UUID or generated value
+    - CRITICAL: The "scheme" field must be LOWERCASE when used in update_plan_change (e.g., "note_type", not "NOTE_TYPE")
     - Example query: query { codeList(scheme: RIGHTS_STATEMENT) { id label scheme } }
     - Use the exact "id" value returned (e.g., "http://rightsstatements.org/vocab/InC/1.0/")
 
     Example workflow for rights_statement:
     1. Query: codeList(scheme: RIGHTS_STATEMENT) { id label scheme }
     2. Find desired term (e.g., "In Copyright" with id "http://rightsstatements.org/vocab/InC/1.0/")
-    3. Use exact values in update (NOTE: scheme must be uppercase like the GraphQL enum):
+    3. Use exact values in update (IMPORTANT: scheme must be lowercase in update):
     {
       "descriptive_metadata": {
         "rights_statement": {
           "id": "http://rightsstatements.org/vocab/InC/1.0/",
-          "scheme": "RIGHTS_STATEMENT",
+          "scheme": "rights_statement",
           "label": "In Copyright"
         }
+      }
+    }
+
+    Example for notes with type coded term:
+    1. Query: codeList(scheme: NOTE_TYPE) { id label scheme }
+    2. Find desired type (e.g., "General Note" with id "GENERAL_NOTE")
+    3. Use in update (scheme must be lowercase "note_type"):
+    {
+      "descriptive_metadata": {
+        "notes": [{
+          "note": "This is a general note",
+          "type": {
+            "id": "GENERAL_NOTE",
+            "scheme": "note_type",
+            "label": "General Note"
+          }
+        }]
+      }
+    }
+
+    Example for related_url with label coded term:
+    1. Query: codeList(scheme: RELATED_URL_LABEL) { id label scheme }
+    2. Find desired label (e.g., "Related Information" with id "RELATED_INFORMATION")
+    3. Use in update (scheme must be lowercase "related_url"):
+    {
+      "descriptive_metadata": {
+        "related_url": [{
+          "url": "https://example.org/resource",
+          "label": {
+            "id": "RELATED_INFORMATION",
+            "scheme": "related_url",
+            "label": "Related Information"
+          }
+        }]
       }
     }
     """
@@ -132,6 +167,12 @@ def system_prompt():
     3. Structure as objects: {"term": {"id": "uri"}, "role": {"id": "role", "scheme": "scheme"}}
     4. Never use strings for terms; include required roles for subject and contributor
     5. Never guess IDs; always query
+
+    For coded term fields (license, rights_statement, notes, related_url):
+    1. Query codeList with the appropriate scheme (LICENSE, RIGHTS_STATEMENT, NOTE_TYPE, RELATED_URL_LABEL)
+    2. CRITICAL: Use lowercase scheme names in update_plan_change (e.g., "note_type", not "NOTE_TYPE")
+    3. For notes: each entry has a "note" text field and a "type" coded term object
+    4. For related_url: each entry has a "url" text field and a "label" coded term object
 
     Do not look for information in the file system or local codebase.
     """

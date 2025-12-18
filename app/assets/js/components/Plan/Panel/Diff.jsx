@@ -4,6 +4,7 @@ import {
   toArray,
   toRows,
   isCodedTerm,
+  isNestedCodedTerm,
 } from "@js/components/Plan/Panel/diff-helpers";
 
 /**
@@ -41,6 +42,66 @@ const renderCodedTerm = (value) => {
   if (value.id) return value.id;
 
   return JSON.stringify(value, null, 0);
+};
+
+/**
+ * Render a notes array
+ */
+const renderNotes = (notes) => {
+  if (!Array.isArray(notes) || notes.length === 0) return "—";
+
+  return (
+    <ul>
+      {notes.map((note, i) => (
+        <li key={i}>
+          {note.type?.label && (
+            <strong>{note.type.label}: </strong>
+          )}
+          {note.note || "—"}
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+/**
+ * Render a related_url array
+ */
+const renderRelatedUrls = (urls) => {
+  if (!Array.isArray(urls) || urls.length === 0) return "—";
+
+  return (
+    <ul>
+      {urls.map((item, i) => (
+        <li key={i}>
+          {item.label?.label && (
+            <strong>{item.label.label}: </strong>
+          )}
+          {item.url ? (
+            <a href={item.url} target="_blank" rel="noopener noreferrer">
+              {item.url}
+            </a>
+          ) : (
+            "—"
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+/**
+ * Render a nested coded term field (notes or related_url)
+ */
+const renderNestedCodedTerm = (path, value) => {
+  if (path.endsWith("notes")) {
+    return renderNotes(value);
+  }
+  if (path.endsWith("related_url")) {
+    return renderRelatedUrls(value);
+  }
+  // Fallback to generic rendering
+  return renderGenericValue(value);
 };
 
 /**
@@ -104,6 +165,8 @@ const PlanPanelChangesDiff = ({ proposedChanges }) => {
                     title={change.label}
                     items={toArray(change.value)}
                   />
+                ) : change.nestedCoded ? (
+                  renderNestedCodedTerm(change.path, change.value)
                 ) : isCodedTerm(change.path) ? (
                   renderCodedTerm(change.value)
                 ) : (

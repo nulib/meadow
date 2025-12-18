@@ -55,6 +55,7 @@ defmodule Meadow.Data.Planner do
      ```
   """
   import Ecto.Query, warn: false
+  alias Meadow.Data.CodedTerms
   alias Meadow.Data.Schemas.{Plan, PlanChange}
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
@@ -294,24 +295,33 @@ defmodule Meadow.Data.Planner do
   """
 
   def propose_plan(%Plan{} = plan) do
-    result = Repo.transaction(fn ->
-      from(c in PlanChange,
-        where: c.plan_id == ^plan.id and c.status == :pending,
-        where: ^change_fragment(:not_empty),
-        update: [set: [status: :proposed, updated_at: ^DateTime.utc_now()]]
-      )
-      |> Repo.update_all([])
+    case validate_plan_changes(plan) do
+      :ok ->
+        result =
+          Repo.transaction(fn ->
+            from(c in PlanChange,
+              where: c.plan_id == ^plan.id and c.status == :pending,
+              where: ^change_fragment(:not_empty),
+              update: [set: [status: :proposed, updated_at: ^DateTime.utc_now()]]
+            )
+            |> Repo.update_all([])
 
-      plan
-      |> Plan.propose()
-      |> Repo.update!()
-    end)
+            plan
+            |> Plan.propose()
+            |> Repo.update!()
+          end)
 
-    case result do
-      {:ok, updated_plan} ->
-        broadcast_plan_update(updated_plan)
-        {:ok, updated_plan}
-      error -> error
+        case result do
+          {:ok, updated_plan} ->
+            broadcast_plan_update(updated_plan)
+            {:ok, updated_plan}
+
+          error ->
+            error
+        end
+
+      {:error, msg} ->
+        {:error, msg}
     end
   end
 
@@ -1327,6 +1337,77 @@ defmodule Meadow.Data.Planner do
   end
 
   defp preload_plan_changes(query, _), do: query
+
+  defp validate_plan_changes(%Plan{id: plan_id}) do
+    try do
+      changes =
+        from(c in PlanChange,
+          where: c.plan_id == ^plan_id,
+          where: c.status in [:pending, :proposed],
+          where: ^change_fragment(:not_empty)
+        )
+        |> Repo.all()
+
+      invalid_changes = Enum.filter(changes, &has_invalid_coded_terms?/1)
+
+      case invalid_changes do
+        [] ->
+          :ok
+
+        changes ->
+          work_ids = Enum.map_join(changes, ", ", & &1.work_id)
+
+          {:error,
+           "Plan contains #{length(changes)} change(s) with invalid coded terms for works: #{work_ids}"}
+      end
+    rescue
+      e ->
+        require Logger
+        Logger.error("Exception during plan validation: #{inspect(e)}")
+        # Allow the plan to proceed if validation itself fails
+        :ok
+    end
+  end
+
+  defp has_invalid_coded_terms?(%PlanChange{} = change) do
+    # Check add and replace operations for invalid coded terms
+    coded_fields = [:license, :rights_statement]
+
+    Enum.any?([:add, :replace], fn operation ->
+      operation_data = Map.get(change, operation)
+      check_coded_terms_in_operation(operation_data, coded_fields)
+    end)
+  end
+
+  defp check_coded_terms_in_operation(nil, _fields), do: false
+
+  defp check_coded_terms_in_operation(operation_data, coded_fields)
+       when is_map(operation_data) do
+    metadata =
+      Map.get(operation_data, "descriptive_metadata") ||
+        Map.get(operation_data, :descriptive_metadata)
+
+    case metadata do
+      nil -> false
+      metadata -> Enum.any?(coded_fields, &has_invalid_coded_term?(metadata, &1))
+    end
+  end
+
+  defp has_invalid_coded_term?(metadata, field) do
+    field_str = Atom.to_string(field)
+    term = Map.get(metadata, field_str) || Map.get(metadata, field)
+
+    case term do
+      %{id: id, scheme: scheme} when is_binary(id) and is_binary(scheme) ->
+        CodedTerms.get_coded_term(id, scheme) == nil
+
+      %{"id" => id, "scheme" => scheme} when is_binary(id) and is_binary(scheme) ->
+        CodedTerms.get_coded_term(id, scheme) == nil
+
+      _ ->
+        false
+    end
+  end
 
   defp change_fragment(true), do: change_fragment(:not_empty)
   defp change_fragment(false), do: change_fragment(:empty)

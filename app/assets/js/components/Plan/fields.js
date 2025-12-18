@@ -68,3 +68,14 @@ export const CODED_TERM_FIELDS = new Set([
   "descriptive_metadata.license",
   "descriptive_metadata.rights_statement",
 ]);
+
+/**
+ * Set of nested coded term fields by their dotted paths
+ * These are arrays of objects where each object contains a coded term
+ * - notes: array of {note: string, type: {id, scheme, label}}
+ * - related_url: array of {url: string, label: {id, scheme, label}}
+ */
+export const NESTED_CODED_TERM_FIELDS = new Set([
+  "descriptive_metadata.notes",
+  "descriptive_metadata.related_url",
+]);
