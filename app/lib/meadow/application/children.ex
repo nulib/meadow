@@ -17,7 +17,9 @@ defmodule Meadow.Application.Children do
       "csv_update_driver" => Meadow.CSVMetadataUpdateDriver,
       "database_listeners" => [
         {WalEx.Supervisor, Application.get_env(:meadow, WalEx)},
-        {Meadow.Events.Works.Arks.Processor, token_count: 100, interval: 1_000, replenish_count: 10} |> distributed()
+        {Meadow.Events.Works.Arks.Processor,
+         token_count: 100, interval: 1_000, replenish_count: 10}
+        |> distributed()
       ],
       "scheduler" => Meadow.Scheduler |> distributed(),
       "work_creator" => [Meadow.Ingest.WorkCreator, Meadow.Ingest.WorkRedriver]
@@ -43,7 +45,9 @@ defmodule Meadow.Application.Children do
         {Absinthe.Subscription, MeadowWeb.Endpoint},
         MeadowWeb.Subscription,
         MeadowWeb.MCP.GlobalRegistry,
-        {MeadowWeb.MCP.Server, transport: :streamable_http, registry: MeadowWeb.MCP.GlobalRegistry} |> distributed()
+        {MeadowWeb.MCP.Server,
+         transport: :streamable_http, registry: MeadowWeb.MCP.GlobalRegistry}
+        |> distributed()
       ],
       "web.notifiers" => [
         {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()}
@@ -90,16 +94,42 @@ defmodule Meadow.Application.Children do
   end
 
   defp specs(:dev) do
-    [mock_server(Meadow.Ark.MockServer, 3943) | workers(Config.workers())]
+    [finch_spec(), mock_server(Meadow.Ark.MockServer, 3943)] ++ workers(Config.workers())
   end
 
   defp specs(:test) do
-    [mock_server(Meadow.Ark.MockServer, 3944), mock_server(Meadow.Directory.MockServer, 3946)] ++
+    [finch_spec(), mock_server(Meadow.Ark.MockServer, 3944), mock_server(Meadow.Directory.MockServer, 3946)] ++
       workers(["web.server"])
   end
 
   defp specs(:prod) do
-    workers(Config.workers())
+    [finch_spec() | workers(Config.workers())]
+  end
+
+  defp finch_spec do
+    multipart_processors =
+      Application.get_env(:meadow, Meadow.Pipeline)
+      |> get_in([
+        Meadow.Pipeline.Actions.CopyFileToPreservation,
+        :processors,
+        :default,
+        :concurrency
+      ])
+
+    multipart_concurrency = Application.get_env(:meadow, :multipart_upload_concurrency)
+    pool_size = multipart_processors * multipart_concurrency + 500
+
+    Logger.info("Starting Finch pool with #{pool_size} connections")
+
+    {
+      Finch,
+      [
+        name: Meadow.FinchPool,
+        pools: %{
+          default: [size: pool_size]
+        }
+      ]
+    }
   end
 
   def processes("aliases"), do: process_aliases()
@@ -156,7 +186,7 @@ defmodule Meadow.Application.Children do
     {mod, via_horde(Keyword.put_new(args, :name, mod))}
   end
 
-  def distributed(mod), do: {mod, via_horde([name: mod])}
+  def distributed(mod), do: {mod, via_horde(name: mod)}
 
   defp via_horde(args) do
     Keyword.update(args, :name, nil, fn name ->

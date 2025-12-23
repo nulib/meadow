@@ -52,7 +52,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
       with {:ok, %{headers: headers}} <-
              ExAws.S3.head_object(@preservation_bucket, preservation_key) |> ExAws.request() do
-        assert headers |> Enum.member?({"Content-Type", "image/tiff"})
+        assert headers |> Enum.member?({"content-type", "image/tiff"})
         assert headers |> Enum.member?({"x-amz-meta-md5", @md5})
       end
 

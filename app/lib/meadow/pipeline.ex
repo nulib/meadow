@@ -20,8 +20,6 @@ defmodule Meadow.Pipeline do
   end
 
   def children do
-    Meadow.Config.Pipeline.configure!()
-
     actions()
     |> Enum.map(fn action ->
       {action, Application.get_env(:meadow, __MODULE__, []) |> Keyword.get(action, [])}
