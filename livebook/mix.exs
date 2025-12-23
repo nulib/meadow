@@ -1,7 +1,7 @@
 defmodule Meadow.Livebook.MixProject do
   use Mix.Project
 
-  @app_version "9.7.5"
+  @app_version "10.1.0"
 
   def project do
     [
