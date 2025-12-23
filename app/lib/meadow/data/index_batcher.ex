@@ -52,18 +52,27 @@ defmodule Meadow.Data.IndexBatcher do
   def clear(schema), do: dispatch(schema, :clear)
 
   defp dispatch(schema, message) do
-    case Process.whereis(:"#{schema}_batcher") do
-      nil -> :noop
-      pid -> GenServer.call(pid, message, :infinity)
+    case Horde.Registry.whereis_name({Meadow.HordeRegistry, registry_name(schema)}) do
+      pid when is_pid(pid) -> GenServer.call(pid, message, :infinity)
+      _ -> :noop
     end
   end
 
   def child_spec(schema, opts \\ []) do
     opts =
-      [schema: schema, version: 2, name: :"#{schema.__schema__(:source)}_batcher"]
+      [schema: schema, version: 2, name: registry_name(schema)]
       |> Keyword.merge(opts)
 
     %{id: Module.concat(__MODULE__, schema), start: {__MODULE__, :start_link, [opts]}}
+    |> Meadow.Application.Children.distributed()
+  end
+
+  defp registry_name(source) when is_binary(source), do: :"#{source}_batcher"
+
+  defp registry_name(schema) do
+    if Code.ensure_loaded?(schema) and function_exported?(schema, :__schema__, 1),
+      do: registry_name(schema.__schema__(:source)),
+      else: registry_name(to_string(schema))
   end
 
   def start_link(args \\ []) do

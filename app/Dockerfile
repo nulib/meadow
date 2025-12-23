@@ -6,13 +6,6 @@ FROM ${BUILD_IMAGE} AS build
 LABEL edu.northwestern.library.app=meadow \
   edu.northwestern.library.cache=true \
   edu.northwestern.library.stage=deps
-ARG HONEYBADGER_API_KEY=
-ARG HONEYBADGER_API_KEY_FRONTEND=
-ARG HONEYBADGER_ENVIRONMENT=
-ARG HONEYBADGER_REVISION=
-ARG MEADOW_TENANT=
-ARG MEADOW_VERSION=
-ENV MIX_ENV=prod
 RUN  mix local.hex --force \
   && mix local.rebar --force
 ENV NODE_VERSION=22
@@ -26,6 +19,7 @@ RUN apt update -qq \
  && apt update -qq \
  && apt install -y nodejs \
  && npm install -g npm@$NPM_VERSION
+ENV MIX_ENV=prod
 COPY . /app
 WORKDIR /app
 RUN mix deps.get --only prod \
@@ -42,15 +36,25 @@ RUN for flag in $(find . -name .docker-npm); do \
       cd -; \
     done
 WORKDIR /app
+ARG HONEYBADGER_API_KEY=
+ARG HONEYBADGER_API_KEY_FRONTEND=
+ARG HONEYBADGER_ENVIRONMENT=
+ARG HONEYBADGER_REVISION=
+ARG MEADOW_TENANT=
+ARG MEADOW_VERSION=
+ARG RELEASE_NAME=
+ENV RELEASE_NAME=${RELEASE_NAME}
 RUN mix release --overwrite
 
 # Create runtime image
 FROM ${RUNTIME_IMAGE}
 LABEL edu.northwestern.library.app=meadow \
-  edu.northwestern.library.stage=runtime
+edu.northwestern.library.stage=runtime
 RUN apt update -qq && apt install -y curl git jq libssl-dev libncurses5-dev
+ARG RELEASE_NAME=
+ENV RELEASE_NAME=${RELEASE_NAME}
 ENV LANG=C.UTF-8
-EXPOSE 4000 4369
+EXPOSE 4000 4369 9100-9155
 COPY --from=build /app/_build/prod/rel/meadow /app
 WORKDIR /app
 RUN npm install -g @anthropic-ai/claude-code \

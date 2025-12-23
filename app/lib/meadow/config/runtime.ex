@@ -383,6 +383,13 @@ defmodule Meadow.Config.Runtime do
       end
     end
 
+    Meadow.Config.Pipeline.configure!()
+
+    config :ex_aws,
+      req_opts: [
+        finch: Meadow.FinchPool
+      ]
+
     :ok
   end
 

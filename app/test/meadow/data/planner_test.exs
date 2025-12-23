@@ -259,6 +259,67 @@ defmodule Meadow.Data.PlannerTest do
     end
   end
 
+  describe "propose_plan/1 validation" do
+    test "rejects plan with invalid coded terms", %{plan: plan, work: work} do
+      # Create a plan change with invalid license
+      {:ok, _change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          add: %{
+            descriptive_metadata: %{
+              license: %{
+                id: "http://invalid-license.com/",
+                scheme: "license"
+              }
+            }
+          },
+          status: :pending
+        })
+
+      assert {:error, error_msg} = Planner.propose_plan(plan)
+      assert error_msg =~ "invalid coded terms"
+      assert error_msg =~ work.id
+    end
+
+    test "allows plan with valid coded terms", %{plan: plan, work: work} do
+      # Get a valid license from the database
+      valid_license = Meadow.Data.CodedTerms.list_coded_terms("license") |> List.first()
+      assert valid_license, "No license terms found in database"
+
+      {:ok, _change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          add: %{
+            descriptive_metadata: %{
+              license: %{
+                id: valid_license.id,
+                scheme: "license"
+              }
+            }
+          },
+          status: :pending
+        })
+
+      assert {:ok, %Plan{status: :proposed}} = Planner.propose_plan(plan)
+    end
+
+    test "allows plan with empty plan changes", %{plan: plan, work: work} do
+      # Create a plan change with empty add/delete/replace
+      {:ok, _change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          add: %{},
+          status: :pending
+        })
+
+      # Empty changes should not be validated (they're filtered out by not_empty fragment)
+      assert {:ok, %Plan{status: :proposed}} = Planner.propose_plan(plan)
+    end
+  end
+
   describe "reject_plan/2" do
     test "transitions plan to rejected status", %{plan: plan} do
       assert {:ok, %Plan{} = rejected_plan} = Planner.reject_plan(plan)

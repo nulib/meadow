@@ -44,6 +44,7 @@ defmodule MediaConvert.AudioTemplate do
             Name: "HLS",
             OutputGroupSettings: %{
               HlsGroupSettings: %{
+                ManifestDurationFormat: "FLOATING_POINT",
                 MinSegmentLength: 0,
                 SegmentControl: "SEGMENTED_FILES",
                 SegmentLength: 2

@@ -1,41 +1,52 @@
 defmodule Meadow.NotificationTest do
   use ExUnit.Case, async: true
   alias Meadow.Notification
+  import ExUnit.CaptureLog
 
   describe "register/1, registered/0, unregister/1" do
     setup do
       pid = self()
-      on_exit(fn -> Notification.unregister(pid) end)
+      on_exit(fn ->
+        capture_log(fn -> Notification.unregister(pid) end)
+      end)
       {:ok, %{pid: pid}}
     end
 
     test "registers and unregisters processes", %{pid: pid} do
-      assert :ok = Notification.register(pid)
-      assert Notification.registered() |> Enum.member?(pid)
-      assert :ok = Notification.unregister(pid)
-      refute Notification.registered() |> Enum.member?(pid)
+      capture_log(fn ->
+        assert :ok = Notification.register(pid)
+        assert Notification.registered() |> Enum.member?(pid)
+        assert :ok = Notification.unregister(pid)
+        refute Notification.registered() |> Enum.member?(pid)
+      end)
     end
 
     test "handles double registration", %{pid: pid} do
-      assert :ok = Notification.register(pid)
-      assert {:error, :already_registered} = Notification.register(pid)
-      assert Notification.registered() |> Enum.member?(pid)
+      capture_log(fn ->
+        assert :ok = Notification.register(pid)
+        assert {:error, :already_registered} = Notification.register(pid)
+        assert Notification.registered() |> Enum.member?(pid)
+      end)
     end
 
     test "handles unregistering unregistered process", %{pid: pid} do
-      assert {:error, :not_registered} = Notification.unregister(pid)
+      capture_log(fn ->
+        assert {:error, :not_registered} = Notification.unregister(pid)
+      end)
     end
   end
 
   describe "publish/2" do
     setup do
       pid = self()
-      on_exit(fn -> Notification.unregister(pid) end)
+      on_exit(fn ->
+        capture_log(fn -> Notification.unregister(pid) end)
+      end)
       {:ok, %{pid: pid}}
     end
 
     test "publishes to registered processes", %{pid: pid} do
-      Notification.register(pid)
+      capture_log(fn -> Notification.register(pid) end)
       assert :ok = Notification.publish(:test_event, %{data: "test_data"})
       assert_receive {:notify, :test_event, %{data: "test_data"}}, 250
     end
@@ -51,15 +62,17 @@ defmodule Meadow.NotificationTest do
   describe "heartbeat" do
     setup do
       pid = self()
-      on_exit(fn -> Notification.unregister(pid) end)
+      on_exit(fn ->
+        capture_log(fn -> Notification.unregister(pid) end)
+      end)
       {:ok, %{pid: pid}}
     end
 
     test "sends periodic heartbeat notifications", %{pid: pid} do
-      Notification.register(pid)
+      capture_log(fn -> Notification.register(pid) end)
 
       data = %{
-        "test1" => {:message1, 75},
+        "test1" => {:message1, 80},
         "test2" => {:message2, 100}
       }
 
@@ -84,7 +97,7 @@ defmodule Meadow.NotificationTest do
 
       for {info, {message, expected_interval}} <- data do
         messages = Map.get(received, info, [])
-        assert length(messages) == 3, "Expected 3 messages for info #{inspect(info)}"
+        assert length(messages) == 3, "Expected 3 messages for info #{inspect(info)}, got #{length(messages)}"
         timestamps = Enum.map(messages, fn {_, _, ts} -> ts end)
         intervals =
           timestamps

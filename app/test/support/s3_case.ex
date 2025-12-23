@@ -90,7 +90,7 @@ defmodule Meadow.S3Case do
           {:ok, %{headers: headers}} ->
             headers
             |> Enum.into(%{})
-            |> Map.get("Content-Length")
+            |> Map.get("content-length")
             |> String.to_integer()
 
           _ ->

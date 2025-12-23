@@ -32,7 +32,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
         content_length =
           headers
           |> Enum.into(%{})
-          |> Map.get("Content-Length")
+          |> Map.get("content-length")
           |> Integer.parse()
           |> Tuple.to_list()
           |> List.first()
@@ -167,7 +167,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
           service: :s3,
           stream_builder: nil
         }
-        |> ExAws.request(http_opts: [recv_timeout: Config.multipart_upload_timeout()])
+        |> ExAws.request(http_opts: [receive_timeout: Config.multipart_upload_timeout()])
 
       case result do
         {:ok, %{status_code: 200, body: %{e_tag: etag}}} -> {:ok, String.replace(etag, ~s'"', "")}

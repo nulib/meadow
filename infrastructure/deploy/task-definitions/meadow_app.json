@@ -60,14 +60,6 @@
         "value": "${secret_key_base}"
       },
       {
-        "name": "RELEASE_DISTRIBUTION",
-        "value": "name"
-      },
-      {
-        "name": "RELEASE_NODE",
-        "value": "meadow@${meadow_tenant}.${discovery_zone}"
-      },
-      {
         "name": "ALLOWED_ORIGINS",
         "value": "${meadow_urls}"
       },
@@ -126,6 +118,22 @@
       {
         "name": "PHX_SERVER",
         "value": "true"
+      },
+      {
+        "name": "CLUSTER_ENABLED",
+        "value": "true"
+      },
+      {
+        "name": "CLUSTER_DNS_NAME",
+        "value": "${meadow_tenant}.${discovery_zone}"
+      },
+      {
+        "name": "ERL_EPMD_PORT",
+        "value": "4369"
+      },
+      {
+        "name": "BEAM_PORT",
+        "value": "9100"
       }
     ],
     "portMappings": [

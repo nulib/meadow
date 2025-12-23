@@ -3,6 +3,7 @@ defmodule Meadow.Application.Caches do
   Cache specs for Meadow.Application
   """
   require Cachex.Spec
+  import Cachex.Spec
 
   def specs do
     [
@@ -10,31 +11,31 @@ defmodule Meadow.Application.Caches do
       cache_spec(
         :chat_conversation_cache,
         Meadow.Cache.Chat.Conversations,
-        expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
+        expiration: expiration(default: :timer.hours(6)),
         stats: true
       ),
       cache_spec(
         :coded_term_cache,
         Meadow.Cache.CodedTerms,
-        expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
+        expiration: expiration(default: :timer.hours(6)),
         stats: true
       ),
       cache_spec(
         :controlled_term_cache,
         Meadow.Cache.ControlledTerms,
-        expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
+        expiration: expiration(default: :timer.hours(6)),
         stats: true
       ),
       cache_spec(
         :preservation_check_job_cache,
         Meadow.Cache.PreservationChecks,
-        expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
+        expiration: expiration(default: :timer.hours(6)),
         stats: true
       ),
       cache_spec(
         :aws_credentials_cache,
         Meadow.Cache.AWS.Credentials,
-        expiration: Cachex.Spec.expiration(default: :timer.hours(6)),
+        expiration: expiration(default: :timer.hours(6)),
         stats: true
       )
     ]
@@ -57,8 +58,9 @@ defmodule Meadow.Application.Caches do
   end
 
   defp cache_spec(id, name, args \\ []) do
+    args = Keyword.put_new(args, :router, router(module: Cachex.Router.Ring, options: [monitor: true]))
     %{
-      id: id,
+      id: [id, Node.self()] |> Enum.join("_") |> String.to_atom(),
       start: {Cachex, :start_link, [name, args]},
       type: :supervisor
     }

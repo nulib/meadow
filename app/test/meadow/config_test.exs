@@ -39,6 +39,7 @@ defmodule Meadow.ConfigTest do
 
   test "buckets/0" do
     [
+      @derivatives_bucket,
       @ingest_bucket,
       @preservation_bucket,
       @upload_bucket,

@@ -211,7 +211,7 @@ defmodule Meadow.Seed.Export do
                key,
                source_bucket,
                source_key,
-               metadata_directive: :COPY
+               metadata_directive: "COPY"
              )
              |> ExAws.request() do
           {:error, {:http_error, status, _}} ->

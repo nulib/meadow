@@ -24,13 +24,17 @@ defmodule Meadow.Config.Runtime.Dev do
       handshake_timeout: 60_000,
       pool_size: 50
 
+    if System.get_env("MEADOW_NO_SSL") != "true",
+      do:
+        config(:meadow, MeadowWeb.Endpoint,
+          https: [
+            port: 3001,
+            cipher_suite: :strong,
+            certfile: Path.join(project_root(), "priv/cert/cert.pem"),
+            keyfile: Path.join(project_root(), "priv/cert/key.pem")
+          ])
+
     config :meadow, MeadowWeb.Endpoint,
-      https: [
-        port: 3001,
-        cipher_suite: :strong,
-        certfile: Path.join(project_root(), "priv/cert/cert.pem"),
-        keyfile: Path.join(project_root(), "priv/cert/key.pem")
-      ],
       check_origin: false,
       watchers: [
         node: [
@@ -96,6 +100,11 @@ defmodule Meadow.Config.Runtime.Dev do
     config :ueberauth, Ueberauth.Strategy.NuSSO,
       callback_port: 3001,
       ssl_port: 3001
+
+    config :libcluster,
+      topologies: [
+        ecs: [strategy: Cluster.Strategy.LocalEpmd]
+      ]
 
     if prefix = System.get_env("DEV_PREFIX") do
       config :meadow,

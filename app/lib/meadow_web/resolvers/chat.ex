@@ -4,6 +4,7 @@ defmodule MeadowWeb.Resolvers.Chat do
 
   """
   alias Meadow.Data.Planner
+  require Logger
 
   def send_chat_message(
         _,
@@ -39,19 +40,23 @@ defmodule MeadowWeb.Resolvers.Chat do
         # Run agent in background
         Task.start(fn ->
           try do
-            {:ok, ai_response} =
-              MeadowAI.query(prompt, context: %{query: query, plan_id: plan.id})
+            case MeadowAI.query(prompt, context: %{query: query, plan_id: plan.id}) do
+              {:ok, ai_response} ->
+                # Publish final agent response as chat message
+                Meadow.Notification.publish(
+                  %{
+                    conversation_id: conversation_id,
+                    message: ai_response,
+                    type: "chat",
+                    plan_id: plan.id
+                  },
+                  chat_response: "conversation:#{conversation_id}"
+                )
 
-            # Publish final agent response as chat message
-            Meadow.Notification.publish(
-              %{
-                conversation_id: conversation_id,
-                message: ai_response,
-                type: "chat",
-                plan_id: plan.id
-              },
-              chat_response: "conversation:#{conversation_id}"
-            )
+              {:error, reason} ->
+                Logger.error("AI query error: #{inspect(reason)}")
+                Planner.mark_plan_error(plan, inspect(reason))
+            end
           after
             Meadow.Notification.Heartbeat.stop(heartbeat_pid)
           end

@@ -39,6 +39,11 @@ alias Meadow.Pipeline.Actions
 
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
+case System.shell("git rev-parse HEAD") do
+  {revision, 0} -> config :honeybadger, revision: String.trim(revision)
+  _ -> :ok
+end
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
@@ -76,12 +81,7 @@ config :authoritex,
 config :httpoison_retry, wait: 50
 
 config :ex_aws,
-  http_client: Meadow.Utils.AWS.HttpClient,
-  hackney_opts: [
-    pool: :default,
-    max_connections: 500,
-    checkout_timeout: 30_000
-  ]
+  http_client: ExAws.Request.Req
 
 config :meadow, :extra_mime_types, %{
   "aif" => "audio/x-aiff",
@@ -114,6 +114,10 @@ config :meadow, Meadow.Pipeline,
     Actions.GeneratePosterImage,
     Actions.FileSetComplete
   ]
+
+config :mime, :types, %{
+  "text/event-stream" => ["event-stream"]
+}
 
 config :ueberauth, Ueberauth, providers: [nusso: {Ueberauth.Strategy.NuSSO, []}]
 

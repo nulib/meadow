@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "10.0.1"
+  @app_version "10.1.0"
 
   def project do
     [
@@ -34,7 +34,8 @@ defmodule Meadow.MixProject do
   def application do
     [
       mod: {Meadow.Application, []},
-      extra_applications: [:os_mon, :retry]
+      extra_applications: [:os_mon, :retry],
+      included_applications: [:anubis_mcp]
     ]
   end
 
@@ -80,11 +81,12 @@ defmodule Meadow.MixProject do
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.17"},
       {:honeybadger, "~> 0.7"},
+      {:horde, "~> 0.10.0"},
       {:inflex, "~> 2.1.0"},
       {:jason, "~> 1.0"},
       {:jwt, "~> 0.1.11"},
+      {:libcluster, "~> 3.3"},
       {:logger_file_backend, "~> 0.0.11"},
-      # {:meadow_ai, path: "/home/ec2-user/environment/meadow-ai", override: true},
       {:mox, "~> 1.0", only: :test},
       {:nimble_csv, "~> 1.3.0"},
       {:phoenix, "~> 1.8.1"},
@@ -101,6 +103,7 @@ defmodule Meadow.MixProject do
       {:postgrex, "~> 0.17"},
       {:pythonx, "~> 0.4.0"},
       {:quantum, "~> 3.0"},
+      {:req, "~> 0.5.16"},
       {:retry, "~> 0.19.0"},
       {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
       {:sitemapper, "~> 0.10.0"},
