@@ -29,7 +29,7 @@ defmodule Meadow.Utils.Stream do
     with {source_bucket, source_key} <- parse_s3_uri(source),
          {dest_bucket, dest_key} <- parse_s3_uri(dest) do
       S3.put_object_copy(dest_bucket, dest_key, source_bucket, source_key,
-        metadata_directive: :COPY
+        metadata_directive: "COPY"
       )
       |> ExAws.request!()
     end

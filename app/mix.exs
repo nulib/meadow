@@ -103,6 +103,7 @@ defmodule Meadow.MixProject do
       {:postgrex, "~> 0.17"},
       {:pythonx, "~> 0.4.0"},
       {:quantum, "~> 3.0"},
+      {:req, "~> 0.5.16"},
       {:retry, "~> 0.19.0"},
       {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
       {:sitemapper, "~> 0.10.0"},

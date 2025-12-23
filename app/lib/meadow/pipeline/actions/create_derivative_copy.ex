@@ -76,10 +76,10 @@ defmodule Meadow.Pipeline.Actions.CreateDerivativeCopy do
              src_bucket,
              src_key,
              content_type: content_type,
-             metadata_directive: :REPLACE,
+             metadata_directive: "REPLACE",
              meta: s3_metadata,
              tagging: tagging,
-             tagging_directive: :REPLACE
+             tagging_directive: "REPLACE"
            ) do
         {:ok, _} -> {:ok, dest_location}
         {:error, {:http_error, _status, %{body: body}}} -> {:error, extract_error(body)}
