@@ -1,23 +1,17 @@
 defmodule Meadow.Ark.Client do
   @moduledoc """
-  HTTPoison-based client for the CDLib EZID API
+  Req-based client for the CDLib EZID API
   """
 
   use Meadow.HTTP.Base
   alias Meadow.Config
 
-  def reprocess_request_headers(headers) do
+  def preprocess_opts(opts) do
     with config <- Config.ark_config(),
-         credentials <- Base.encode64("#{config.user}:#{config.password}") do
-      headers ++ [{"Authorization", "Basic #{credentials}"}, {"Content-Type", "text/plain"}]
+         credentials <- [config.user, config.password] |> Enum.join(":") do
+      opts
+      |> Keyword.put_new(:base_url, config.url)
+      |> Keyword.put_new(:auth, {:basic, credentials})
     end
-  end
-
-  def process_request_url(url) do
-    Config.ark_config()
-    |> Map.get(:url)
-    |> URI.parse()
-    |> URI.merge(url)
-    |> URI.to_string()
   end
 end

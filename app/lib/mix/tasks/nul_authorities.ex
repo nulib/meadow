@@ -32,7 +32,6 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
 
   alias Meadow.Config
 
-  require HTTPoison.Retry
   require Logger
 
   @query %{
@@ -126,7 +125,6 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
   defp first(base_url) do
     post!(base_url, "/_search?scroll=1m", @query)
     |> Map.get(:body)
-    |> Jason.decode!()
   end
 
   defp next(base_url, %{"_scroll_id" => scroll_id, "hits" => %{"hits" => hits}})
@@ -135,7 +133,6 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
       hits,
       post!(base_url, "/_search/scroll", %{scroll: "1m", scroll_id: scroll_id})
       |> Map.get(:body)
-      |> Jason.decode!()
     }
   end
 
@@ -143,8 +140,7 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
 
   defp post!(base_url, path, data) do
     with url <- URI.parse(base_url) |> Map.put(:path, path) |> URI.to_string() do
-      case Meadow.HTTP.post(url, Jason.encode!(data), @headers)
-           |> HTTPoison.Retry.autoretry() do
+      case Meadow.HTTP.post(url, headers: @headers, body: Jason.encode!(data)) do
         {:ok, response} -> response
         {:error, :timeout} -> post!(base_url, path, data)
         {:error, error} -> raise error

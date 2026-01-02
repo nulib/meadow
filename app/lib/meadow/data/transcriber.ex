@@ -17,7 +17,7 @@ defmodule Meadow.Data.Transcriber do
   @image_variant "full/!2048,2048/0/default.jpg"
   @default_model "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
   @image_request_headers [{"Accept", "image/jpeg"}]
-  @image_request_opts [follow_redirect: true, recv_timeout: 30_000]
+  @image_request_opts [redirect: true, receive_timeout: 30_000, raw: true]
 
   @doc """
   Retrieve a transcription for the representative image associated with the given file set.
@@ -96,17 +96,18 @@ defmodule Meadow.Data.Transcriber do
                is_superuser: true
              ) do
         [{"Authorization", "Bearer #{token}"} | @image_request_headers]
+        |> Enum.into(%{})
       end
 
     base_url
     |> build_image_url()
-    |> HTTP.get(headers, @image_request_opts)
+    |> HTTP.get([{:headers, headers} | @image_request_opts])
     |> case do
-      {:ok, %{status_code: 200, body: body, headers: headers}} ->
+      {:ok, %{status: 200, body: body, headers: headers}} ->
         encoded = Base.encode64(body)
         {:ok, encoded, header_value(headers, "content-type") || "image/jpeg"}
 
-      {:ok, %{status_code: status} = response} ->
+      {:ok, %{status: status} = response} ->
         Logger.warning(
           "Failed to fetch IIIF image #{base_url}: HTTP #{status} #{inspect(response)}"
         )

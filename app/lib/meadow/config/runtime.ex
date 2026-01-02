@@ -26,7 +26,9 @@ defmodule Meadow.Config.Runtime do
       )
 
     Logger.info("Configuring authoritex")
-    config :authoritex, geonames_username: get_secret(:meadow, ["geonames", "username"])
+    config :authoritex,
+      connection_pool: Meadow.FinchPool,
+      geonames_username: get_secret(:meadow, ["geonames", "username"])
 
     Logger.info("Configuring elastix")
 
@@ -416,7 +418,6 @@ defmodule Meadow.Config.Runtime do
         log_options =
           Meadow.HTTP.get!(uri)
           |> Map.get(:body)
-          |> Jason.decode!()
           |> Map.get("LogOptions")
 
         [

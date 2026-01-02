@@ -78,8 +78,6 @@ config :authoritex,
     NUL.Authority
   ]
 
-config :httpoison_retry, wait: 50
-
 config :ex_aws,
   http_client: ExAws.Request.Req
 
