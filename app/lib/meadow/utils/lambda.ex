@@ -92,7 +92,7 @@ defmodule Meadow.Utils.Lambda do
     Logger.metadata(lambda: lambda)
 
     case ExAws.Lambda.invoke(lambda, payload, %{})
-         |> ExAws.request(http_opts: [receive_timeout: timeout], retries: [max_attempts: 1]) do
+         |> ExAws.request(http_opts: [receive_timeout: timeout]) do
       {:ok, %{"errorType" => _, "errorMessage" => error_message, "trace" => trace}} ->
         Meadow.Error.report(%Meadow.LambdaError{message: error_message}, __MODULE__, [], %{
           lambda: lambda,
