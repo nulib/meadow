@@ -111,7 +111,7 @@ defmodule Meadow.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:tzdata, "~> 1.1.0"},
-      {:ueberauth_nusso, "~> 2.2.0"},
+      {:ueberauth_nusso, "~> 2.3.0"},
       {:walex, "~> 4.7.0"},
       {:wait_for_it, "~> 2.1.2"},
       {:wormwood, "~> 0.1.0"}
