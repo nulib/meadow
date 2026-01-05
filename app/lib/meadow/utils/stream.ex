@@ -19,8 +19,8 @@ defmodule Meadow.Utils.Stream do
   def exists?("file://" <> filename), do: File.exists?(filename)
 
   def exists?(url) do
-    case Meadow.HTTP.head(url, %{}, follow_redirect: true) do
-      {:ok, %{status_code: status}} when status in 200..299 -> true
+    case Meadow.HTTP.head(url, headers: %{}, redirect: true) do
+      {:ok, %{status: status}} when status in 200..299 -> true
       _ -> false
     end
   end
@@ -94,34 +94,34 @@ defmodule Meadow.Utils.Stream do
     end
   end
 
-  defp async_stream_start(url), do: Meadow.HTTP.get!(url, [], stream_to: self(), async: :once)
+  defp async_stream_start(url), do: Meadow.HTTP.get!(url, into: :self)
 
-  defp async_stream_next(%HTTPoison.AsyncResponse{id: id} = resp) do
-    receive do
-      %HTTPoison.AsyncStatus{id: ^id} ->
-        Meadow.HTTP.stream_next(resp)
-        {[], resp}
+  defp async_stream_next(%Req.Response{} = resp) do
+    message =
+      receive do
+        message -> message
+      after
+        5_000 ->
+          with msg <- "No message received from #{inspect(resp)} in 5 seconds." do
+            Logger.warning(msg)
+            raise Meadow.TimeoutError, message: msg
+          end
+      end
 
-      %HTTPoison.AsyncHeaders{id: ^id} ->
-        Meadow.HTTP.stream_next(resp)
-        {[], resp}
-
-      %HTTPoison.AsyncChunk{id: ^id, chunk: chunk} ->
-        Meadow.HTTP.stream_next(resp)
-        {[chunk], resp}
-
-      %HTTPoison.AsyncEnd{id: ^id} ->
-        {:halt, resp}
-    after
-      5_000 ->
-        with msg <- "No message received from #{inspect(resp)} in 5 seconds." do
-          Logger.warning(msg)
-          raise Meadow.TimeoutError, message: msg
+    case Req.parse_message(resp, message) do
+      {:ok, [{:data, chunk}]} -> {[chunk], resp}
+      {:ok, [{:trailers, _}]} -> {[], resp}
+      {:ok, [:done]} -> {:halt, resp}
+      {:error, reason} ->
+        with msg <- "Error streaming #{inspect(resp)}: #{inspect(reason)}" do
+          Logger.error(msg)
+          raise Meadow.StreamError, message: msg
         end
+      :unknown -> {[], resp}
     end
   end
 
-  defp async_stream_after(%HTTPoison.AsyncResponse{id: id}), do: :hackney.stop_async(id)
+  defp async_stream_after(_), do: :noop
 
   def by_line(enum) do
     enum
