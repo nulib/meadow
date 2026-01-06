@@ -13,7 +13,7 @@ defmodule Meadow.Config.Runtime.Prod do
       cache_static_manifest: "priv/static/cache_manifest.json",
       server: true
 
-    if System.get_env("CLUSTER_ENABLED") == "true" do
+    if Meadow.Config.cluster?() do
       config :libcluster,
         topologies: [
           ecs: [
