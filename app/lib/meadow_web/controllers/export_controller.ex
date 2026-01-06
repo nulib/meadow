@@ -1,6 +1,7 @@
 defmodule MeadowWeb.ExportController do
   use MeadowWeb, :controller
   alias Meadow.Data.CSV.Export
+  alias Meadow.Ingest.Sheets
   alias Meadow.Roles
   import Plug.Conn
 
@@ -25,6 +26,35 @@ defmodule MeadowWeb.ExportController do
     end
 
     conn
+  end
+
+  defp export(conn, ".csv", %{"file" => _file, "sheet_id" => sheet_id}) do
+    try do
+      sheet = Sheets.get_ingest_sheet!(sheet_id)
+
+      # Parse S3 URI from filename (e.g., "s3://bucket/ingest_sheets/uuid.csv")
+      %URI{host: bucket, path: "/" <> key} = URI.parse(sheet.filename)
+
+      # Generate presigned URL valid for 5 minutes
+      {:ok, presigned_url} =
+        ExAws.S3.presigned_url(
+          ExAws.Config.new(:s3),
+          :get,
+          bucket,
+          key,
+          expires_in: 300
+        )
+
+      # Redirect to the presigned S3 URL
+      conn
+      |> redirect(external: presigned_url)
+    rescue
+      Ecto.NoResultsError ->
+        conn
+        |> put_resp_content_type("text/plain")
+        |> resp(404, "Ingest sheet not found")
+        |> halt()
+    end
   end
 
   defp export(conn, _, _) do
