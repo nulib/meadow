@@ -2,7 +2,7 @@ import React from "react";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import { mockWork } from "@js/components/Work/work.gql.mock";
 import WorkTabsAbout from "./About";
-import { fireEvent, waitFor, screen } from "@testing-library/react";
+import { fireEvent, waitFor, screen, within } from "@testing-library/react";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { CodeListProvider } from "@js/context/code-list-context";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
@@ -65,5 +65,13 @@ describe("Work About tab component", () => {
 
     fireEvent.click(screen.queryByTestId("edit-button"));
     expect(screen.getByDisplayValue(/Work description here/i));
+  });
+
+  it("shows GeoNames navPlace values and edit affordance", async () => {
+    expect(await screen.findByText(/Chicago/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.queryByTestId("edit-button"));
+    const geoNamesSection = screen.getByTestId("geonames-nav-place");
+    expect(within(geoNamesSection).getByText(/Add another/i)).toBeInTheDocument();
   });
 });

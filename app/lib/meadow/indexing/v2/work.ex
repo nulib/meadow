@@ -49,6 +49,7 @@ defmodule Meadow.Indexing.V2.Work do
       location: encode_field(work.descriptive_metadata.location),
       modified_date: work.updated_at,
       notes: encode_field(work.descriptive_metadata.notes),
+      nav_place: work.descriptive_metadata.nav_place,
       physical_description_material: work.descriptive_metadata.physical_description_material,
       physical_description_size: work.descriptive_metadata.physical_description_size,
       preservation_level: encode_label(work.administrative_metadata.preservation_level),

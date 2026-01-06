@@ -97,6 +97,35 @@
       %{term: %{id: "https://sws.geonames.org/3530597/"}},
       %{term: %{id: "https://sws.geonames.org/3582677/"}}
     ],
+    nav_place: %{
+      "type" => "FeatureCollection",
+      "features" => [
+        %{
+          "id" => "https://sws.geonames.org/4887398/",
+          "type" => "Feature",
+          "geometry" => %{
+            "type" => "Point",
+            "coordinates" => [-87.65005, 41.85003]
+          },
+          "properties" => %{
+            "label" => %{"en" => ["Chicago"]},
+            "summary" => %{"en" => ["Illinois, United States"]}
+          }
+        },
+        %{
+          "id" => "https://sws.geonames.org/2110435/",
+          "type" => "Feature",
+          "geometry" => %{
+            "type" => "Point",
+            "coordinates" => [166.93453, -0.5033]
+          },
+          "properties" => %{
+            "label" => %{"en" => ["Ewa District"]},
+            "summary" => %{"en" => ["Ewa District, Nauru"]}
+          }
+        }
+      ]
+    },
     terms_of_use: "Terms of Use",
     scope_and_contents: ["Scope", "Contents"],
     physical_description_material: ["DVD"],

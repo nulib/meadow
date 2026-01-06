@@ -38,6 +38,35 @@ defmodule Meadow.Indexing.V2.EncodingTest do
       end
     end
 
+    test "work encodes nav_place", %{work: subject} do
+      nav_place = %{
+        "type" => "FeatureCollection",
+        "features" => [
+          %{
+            "type" => "Feature",
+            "geometry" => %{
+              "type" => "Point",
+              "coordinates" => [88.3639, 22.5726]
+            },
+            "properties" => %{
+              "label" => %{"en" => ["Calcutta"]}
+            }
+          }
+        ]
+      }
+
+      {:ok, subject} =
+        subject
+        |> Works.update_work(%{
+          descriptive_metadata: %{
+            nav_place: nav_place
+          }
+        })
+
+      doc = subject |> Document.encode(2)
+      assert doc |> get_in([:nav_place]) == nav_place
+    end
+
     test "work encodes thumbnail field", %{work: subject} do
       Indexer.synchronize_index()
       doc = subject |> Document.encode(2)

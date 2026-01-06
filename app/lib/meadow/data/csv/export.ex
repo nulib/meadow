@@ -199,6 +199,14 @@ defmodule Meadow.Data.CSV.Export do
     Enum.join([prefix, note], ":")
   end
 
+  defp to_field(%{"type" => "FeatureCollection", "features" => features})
+       when is_list(features) do
+    features
+    |> Enum.map(&Map.get(&1, "id"))
+    |> Enum.reject(&is_nil/1)
+    |> combine_multivalued_field()
+  end
+
   defp to_field(%{"id" => id}), do: id
 
   defp to_field(%{}), do: nil

@@ -4033,6 +4033,35 @@
         %{role: nil, term: %{id: "https://sws.geonames.org/3530597/"}},
         %{role: nil, term: %{id: "https://sws.geonames.org/3582677/"}}
       ],
+      nav_place: %{
+        "type" => "FeatureCollection",
+        "features" => [
+          %{
+            "id" => "https://sws.geonames.org/4887398/",
+            "type" => "Feature",
+            "geometry" => %{
+              "type" => "Point",
+              "coordinates" => [-87.65005, 41.85003]
+            },
+            "properties" => %{
+              "label" => %{"en" => ["Chicago"]},
+              "summary" => %{"en" => ["Illinois, United States"]}
+            }
+          },
+          %{
+            "id" => "https://sws.geonames.org/2110435/",
+            "type" => "Feature",
+            "geometry" => %{
+              "type" => "Point",
+              "coordinates" => [166.93453, -0.5033]
+            },
+            "properties" => %{
+              "label" => %{"en" => ["Ewa District"]},
+              "summary" => %{"en" => ["Ewa District, Nauru"]}
+            }
+          }
+        ]
+      },
       description: ["Three", "Descriptions", "With a | pipe in the third"],
       citation: ["Citation"],
       cultural_context: ["Context 1", "Context 2"],

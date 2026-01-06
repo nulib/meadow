@@ -103,6 +103,23 @@ export const mockWork = {
         },
       },
     ],
+    navPlace: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          id: "https://sws.geonames.org/4887398/",
+          geometry: {
+            type: "Point",
+            coordinates: [-87.65005, 41.85003],
+          },
+          properties: {
+            label: { en: ["Chicago"] },
+            summary: { en: ["Illinois, United States"] },
+          },
+        },
+      ],
+    },
     notes: [],
     physicalDescriptionMaterial: [],
     physicalDescriptionSize: [],
@@ -310,6 +327,7 @@ export const mockWork2 = {
       label: "Public Domain Mark 1.0",
     },
     location: [],
+    navPlace: null,
     notes: [],
     physicalDescriptionMaterial: [],
     physicalDescriptionSize: [],

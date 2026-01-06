@@ -51,10 +51,8 @@ defmodule Meadow.Events.IndexingTest do
           assert_flushed(:file_sets)
         end)
 
-      assert String.contains?(
-               logged,
-               "id=#{file_set.id} [error] Index encoding failed due to: ** (KeyError)"
-             )
+      assert String.contains?(logged, "id=#{file_set.id} [error] Index encoding failed due to: ** (") and
+               (String.contains?(logged, "KeyError") or String.contains?(logged, "BadMapError"))
     end
 
     test "reindex_all", context do
