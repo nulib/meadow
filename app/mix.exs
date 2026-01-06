@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "10.1.1"
+  @app_version "10.1.2"
 
   def project do
     [
@@ -54,7 +54,7 @@ defmodule Meadow.MixProject do
       {:anubis_mcp, "~> 0.14"},
       {:assertions, "~> 0.21.0", only: :test},
       {:atomic_map, "~> 0.8"},
-      {:authoritex, "~> 1.3.0"},
+      {:authoritex, "~> 2.0"},
       {:aws_signature, "~> 0.4.0"},
       {:briefly, "~> 0.5.0"},
       {:broadway_dashboard, "~> 0.4.1"},
@@ -111,7 +111,7 @@ defmodule Meadow.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:tzdata, "~> 1.1.0"},
-      {:ueberauth_nusso, "~> 2.2.0"},
+      {:ueberauth_nusso, "~> 2.3.0"},
       {:walex, "~> 4.7.0"},
       {:wait_for_it, "~> 2.1.2"},
       {:wormwood, "~> 0.1.0"}

@@ -58,7 +58,10 @@ defmodule Meadow.Application.Caches do
   end
 
   defp cache_spec(id, name, args \\ []) do
-    args = Keyword.put_new(args, :router, router(module: Cachex.Router.Ring, options: [monitor: true]))
+    args = if Meadow.Config.cluster?(),
+      do: Keyword.put_new(args, :router, router(module: Cachex.Router.Ring, options: [monitor: true])),
+      else: args
+
     %{
       id: [id, Node.self()] |> Enum.join("_") |> String.to_atom(),
       start: {Cachex, :start_link, [name, args]},

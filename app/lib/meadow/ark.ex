@@ -72,8 +72,13 @@ defmodule Meadow.Ark do
 
   def mint(%__MODULE__{} = ark) do
     with shoulder <- Config.ark_config() |> Map.get(:default_shoulder) do
-      case Client.post("/shoulder/#{shoulder}", Serializer.serialize(ark)) do
-        {:ok, %{status_code: status, body: body}} when status in 200..201 ->
+      Client.post(
+        "/shoulder/:shoulder",
+        path_params: %{shoulder: shoulder},
+        body: Serializer.serialize(ark)
+      )
+      |> case do
+        {:ok, %{status: status, body: body}} when status in 200..201 ->
           new_id = Serializer.deserialize(body) |> Map.get(:ark)
           ark = Map.put(ark, :ark, new_id)
           put_in_cache(ark)
@@ -133,8 +138,9 @@ defmodule Meadow.Ark do
   def get_from_source(id) do
     Logger.debug("Retrieving ark #{id} from source")
 
-    case Client.get("/id/#{id}") do
-      {:ok, %{status_code: 200, body: body}} -> {:ok, Serializer.deserialize(body)}
+    Client.get("/id/:id", path_params: %{id: id})
+    |> case do
+      {:ok, %{status: 200, body: body}} -> {:ok, Serializer.deserialize(body)}
       {:ok, %{body: body}} -> {:error, body}
       {:error, error} -> {:error, error}
     end
@@ -164,8 +170,9 @@ defmodule Meadow.Ark do
   end
 
   def put(%__MODULE__{} = ark) do
-    case Client.post("/id/#{ark.ark}", Serializer.serialize(ark)) do
-      {:ok, %{status_code: status}} when status in 200..201 ->
+    Client.post("/id/:id", path_params: %{id: ark.ark}, body: Serializer.serialize(ark))
+    |> case do
+      {:ok, %{status: status}} when status in 200..201 ->
         put_in_cache(ark)
         {:ok, ark}
 
@@ -191,8 +198,9 @@ defmodule Meadow.Ark do
    {:error, "error: bad request - no such identifier"}
   """
   def delete(id) do
-    case Client.delete("/id/#{id}") do
-      {:ok, %{status_code: 200, body: body}} ->
+    Client.delete("/id/:id", path_params: %{id: id})
+    |> case do
+      {:ok, %{status: 200, body: body}} ->
         delete_from_cache(id)
         {:ok, Serializer.deserialize(body)}
 
