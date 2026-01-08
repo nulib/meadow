@@ -39,21 +39,12 @@ defmodule Meadow.Indexing.V2.EncodingTest do
     end
 
     test "work encodes nav_place", %{work: subject} do
-      nav_place = %{
-        "type" => "FeatureCollection",
-        "features" => [
-          %{
-            "type" => "Feature",
-            "geometry" => %{
-              "type" => "Point",
-              "coordinates" => [88.3639, 22.5726]
-            },
-            "properties" => %{
-              "label" => %{"en" => ["Calcutta"]}
-            }
-          }
-        ]
-      }
+      nav_place = [
+        %{
+          "label" => "Calcutta",
+          "coordinates" => [88.3639, 22.5726]
+        }
+      ]
 
       {:ok, subject} =
         subject

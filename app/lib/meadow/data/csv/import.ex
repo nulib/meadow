@@ -135,6 +135,10 @@ defmodule Meadow.Data.CSV.Import do
     |> Enum.map(&decode_field({:embedded, type}, String.trim(&1), field))
   end
 
+  defp decode_field({:array, :map}, value, :nav_place) when is_binary(value) do
+    decode_nav_place(value) || []
+  end
+
   defp decode_field({:array, type}, value, field) do
     value
     |> split_multivalued_field()
@@ -183,32 +187,45 @@ defmodule Meadow.Data.CSV.Import do
 
   defp decode_nav_place(value) do
     with ids <- value |> split_multivalued_field() |> Enum.map(&String.trim/1),
-         features <- fetch_geonames_features(ids) do
-      if Enum.empty?(features) do
+         places <- fetch_geonames_places(ids) do
+      if Enum.empty?(places) do
         nil
       else
-        %{
-          "type" => "FeatureCollection",
-          "features" => features
-        }
+        places
       end
     end
   end
 
-  defp fetch_geonames_features(ids) do
+  defp fetch_geonames_places(ids) do
     ids
-    |> Enum.map(&fetch_geonames_feature/1)
+    |> Enum.map(&fetch_geonames_place/1)
     |> Enum.reject(&is_nil/1)
   end
 
-  defp fetch_geonames_feature(id) do
+  defp fetch_geonames_place(id) do
     case MeadowWeb.Resolvers.Data.GeoNames.place(nil, %{id: id}, nil) do
-      {:ok, feature} -> feature
+      {:ok, feature} -> convert_feature_to_concise(feature)
       {:error, error} ->
         Logger.warning("Failed to fetch GeoNames feature for #{id}: #{inspect(error)}")
         nil
     end
   end
+
+  defp convert_feature_to_concise(%{"id" => id, "geometry" => geometry, "properties" => properties}) do
+    label = get_in(properties, ["label", "en"]) |> List.first()
+    summary = get_in(properties, ["summary", "en"]) |> List.first()
+    coordinates = Map.get(geometry, "coordinates")
+
+    place = %{
+      "id" => id,
+      "label" => label,
+      "coordinates" => coordinates
+    }
+
+    if summary, do: Map.put(place, "summary", summary), else: place
+  end
+
+  defp convert_feature_to_concise(_), do: nil
 
   defp schema_for(field) do
     [Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata]

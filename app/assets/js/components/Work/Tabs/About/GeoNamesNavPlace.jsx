@@ -16,7 +16,8 @@ const WorkTabsAboutGeoNamesNavPlace = ({ descriptiveMetadata, isEditing }) => {
     keyName: "useFieldArrayId",
   });
 
-  const navPlaceFeatures = descriptiveMetadata?.navPlace?.features || [];
+  const navPlace = descriptiveMetadata?.navPlace;
+  const navPlacePlaces = Array.isArray(navPlace) ? navPlace : [];
 
   const handleAddAnother = () => {
     append({
@@ -45,7 +46,7 @@ const WorkTabsAboutGeoNamesNavPlace = ({ descriptiveMetadata, isEditing }) => {
           </Button>
         </>
       ) : (
-        <GeoNamesNavPlaceList features={navPlaceFeatures} />
+        <GeoNamesNavPlaceList places={navPlacePlaces} />
       )}
     </div>
   );
@@ -292,22 +293,19 @@ const GeoNamesComboBox = ({
   );
 };
 
-const GeoNamesNavPlaceList = ({ features }) => {
-  if (!features.length) {
+const GeoNamesNavPlaceList = ({ places }) => {
+  if (!places.length) {
     return <p className="has-text-grey">No locations added.</p>;
   }
 
   return (
     <ul>
-      {features.map((feature, index) => {
-        const label =
-          feature?.properties?.label?.en?.[0] || feature?.properties?.label?.none?.[0];
-        const summary = feature?.properties?.summary?.en?.[0];
-        const coordinates = feature?.geometry?.coordinates || [];
+      {places.map((place, index) => {
+        const coordinates = place?.coordinates || [];
         return (
-          <li key={`${feature.id || "feature"}-${index}`}>
-            <strong>{label || "Unknown place"}</strong>
-            {summary ? ` • ${summary}` : ""}
+          <li key={`${place.id || "place"}-${index}`}>
+            <strong>{place?.label || "Unknown place"}</strong>
+            {place?.summary ? ` • ${place.summary}` : ""}
             {coordinates.length >= 2
               ? ` (${coordinates[1]}, ${coordinates[0]})`
               : ""}
@@ -340,7 +338,7 @@ GeoNamesComboBox.propTypes = {
 };
 
 GeoNamesNavPlaceList.propTypes = {
-  features: PropTypes.array,
+  places: PropTypes.array,
 };
 
 export default WorkTabsAboutGeoNamesNavPlace;

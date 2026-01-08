@@ -32,61 +32,48 @@ import { toastWrapper } from "../../../services/helpers";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { useMutation } from "@apollo/client";
 
-function buildNavPlaceFormValues(navPlace = {}) {
-  const features = navPlace?.features || [];
-  return features
-    .map((feature) => {
-      const coordinates = feature?.geometry?.coordinates || [];
-      const label =
-        feature?.properties?.label?.en?.[0] ||
-        feature?.properties?.label?.none?.[0] ||
-        "";
-      const summary = feature?.properties?.summary?.en?.[0] || "";
-      const termId = feature?.id || feature?.properties?.geonamesId || "";
-      return {
-        termId,
-        label,
-        summary,
-        longitude: coordinates[0] ?? "",
-        latitude: coordinates[1] ?? "",
-      };
-    })
+function buildNavPlaceFormValues(navPlace) {
+  if (!navPlace) return [];
+
+  if (!Array.isArray(navPlace)) return [];
+
+  return navPlace
+    .map((place) => ({
+      termId: place.id || "",
+      label: place.label || "",
+      summary: place.summary || "",
+      longitude: place.coordinates?.[0] ?? "",
+      latitude: place.coordinates?.[1] ?? "",
+    }))
     .filter((item) => item.termId || item.label || item.longitude || item.latitude);
 }
 
-function buildNavPlaceFeatureCollection(places = []) {
-  const features = places
+function buildNavPlaceConcise(places = []) {
+  const validPlaces = places
     .map((place) => {
       if (!place?.label) return null;
       const latitude = Number(place.latitude);
       const longitude = Number(place.longitude);
       if (Number.isNaN(latitude) || Number.isNaN(longitude)) return null;
 
-      const properties = {
-        label: { en: [place.label] },
+      const concisePlace = {
+        label: place.label,
+        coordinates: [longitude, latitude],
       };
-      if (place.summary) {
-        properties.summary = { en: [place.summary] };
+
+      if (place.termId) {
+        concisePlace.id = place.termId;
       }
 
-      return {
-        type: "Feature",
-        ...(place.termId ? { id: place.termId } : {}),
-        geometry: {
-          type: "Point",
-          coordinates: [longitude, latitude],
-        },
-        properties,
-      };
+      if (place.summary) {
+        concisePlace.summary = place.summary;
+      }
+
+      return concisePlace;
     })
     .filter(Boolean);
 
-  if (!features.length) return null;
-
-  return {
-    type: "FeatureCollection",
-    features,
-  };
+  return validPlaces.length > 0 ? validPlaces : null;
 }
 
 function prepFormData(work) {
@@ -222,7 +209,7 @@ const WorkTabsAbout = ({ work }) => {
       );
     }
 
-    const navPlace = buildNavPlaceFeatureCollection(currentFormValues.navPlace);
+    const navPlace = buildNavPlaceConcise(currentFormValues.navPlace);
     workUpdateInput.descriptiveMetadata.navPlace = navPlace
       ? JSON.stringify(navPlace)
       : null;

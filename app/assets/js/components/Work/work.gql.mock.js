@@ -103,23 +103,14 @@ export const mockWork = {
         },
       },
     ],
-    navPlace: {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          id: "https://sws.geonames.org/4887398/",
-          geometry: {
-            type: "Point",
-            coordinates: [-87.65005, 41.85003],
-          },
-          properties: {
-            label: { en: ["Chicago"] },
-            summary: { en: ["Illinois, United States"] },
-          },
-        },
-      ],
-    },
+    navPlace: [
+      {
+        id: "https://sws.geonames.org/4887398/",
+        label: "Chicago",
+        summary: "Illinois, United States",
+        coordinates: [-87.65005, 41.85003],
+      },
+    ],
     notes: [],
     physicalDescriptionMaterial: [],
     physicalDescriptionSize: [],

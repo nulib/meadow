@@ -96,31 +96,28 @@ defmodule Meadow.Data.CSV.ImportTest do
       |> Enum.at(0)
 
     # Verify the imported nav_place has the correct structure
-    assert imported.descriptive_metadata.nav_place["type"] == "FeatureCollection"
-    assert is_list(imported.descriptive_metadata.nav_place["features"])
-    assert length(imported.descriptive_metadata.nav_place["features"]) == 2
+    assert is_list(imported.descriptive_metadata.nav_place)
+    assert length(imported.descriptive_metadata.nav_place) == 2
 
-    # Verify both features were imported with correct IDs
-    feature_ids =
-      imported.descriptive_metadata.nav_place["features"]
+    # Verify both places were imported with correct IDs
+    place_ids =
+      imported.descriptive_metadata.nav_place
       |> Enum.map(& &1["id"])
       |> Enum.sort()
 
-    assert feature_ids == [
+    assert place_ids == [
              "https://sws.geonames.org/2110435/",
              "https://sws.geonames.org/4887398/"
            ]
 
-    # Verify features have the expected structure (id, type, geometry, properties)
+    # Verify places have the expected structure
     chicago =
       Enum.find(
-        imported.descriptive_metadata.nav_place["features"],
+        imported.descriptive_metadata.nav_place,
         &(&1["id"] == "https://sws.geonames.org/4887398/")
       )
 
-    assert chicago["type"] == "Feature"
-    assert chicago["geometry"]["type"] == "Point"
-    assert is_list(chicago["geometry"]["coordinates"])
-    assert chicago["properties"]["label"]["en"] == ["Chicago"]
+    assert chicago["label"] == "Chicago"
+    assert is_list(chicago["coordinates"])
   end
 end

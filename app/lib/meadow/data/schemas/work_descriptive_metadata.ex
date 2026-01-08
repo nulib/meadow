@@ -73,7 +73,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
 
     @map_fields
     |> Enum.each(fn f ->
-      field f, :map
+      field f, {:array, :map}, default: []
     end)
 
     @coded_fields
