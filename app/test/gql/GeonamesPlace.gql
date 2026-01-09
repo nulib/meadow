@@ -1,0 +1,3 @@
+query GeonamesPlace($id: ID!) {
+  geonamesPlace(id: $id)
+}

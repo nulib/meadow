@@ -28,49 +28,14 @@ defmodule MeadowWeb.Resolvers.Data.GeoNames do
   end
 
   defp fetch_geonames_data(geoname_id, username) do
-    # Use mock data in test environment to avoid API rate limits
-    if Mix.env() == :test and username == "test_user" do
-      case get_test_data(geoname_id) do
-        nil -> {:ok, %{body: %{"status" => %{"message" => "record does not exist", "value" => 11}}, status: 404}}
-        data -> {:ok, %{body: data, status: 200}}
-      end
-    else
-      HttpClient.get(
-        "http://api.geonames.org/getJSON",
-        params: [
-          geonameId: geoname_id,
-          username: username
-        ]
-      )
-    end
+    HttpClient.get(
+      "http://api.geonames.org/getJSON",
+      params: [
+        geonameId: geoname_id,
+        username: username
+      ]
+    )
   end
-
-  defp get_test_data("4887398") do
-    %{
-      "geonameId" => 4887398,
-      # credo:disable-for-previous-line Credo.Check.Readability.LargeNumbers
-      "name" => "Chicago",
-      "lat" => 41.85003,
-      "lng" => -87.65005,
-      "countryName" => "United States",
-      "adminName1" => "Illinois"
-    }
-  end
-
-
-  defp get_test_data("2110435") do
-    %{
-      "geonameId" => 2110435,
-      # credo:disable-for-previous-line Credo.Check.Readability.LargeNumbers
-      "name" => "Ewa District",
-      "lat" => -0.5033,
-      "lng" => 166.93453,
-      "countryName" => "Nauru",
-      "adminName1" => "Ewa District"
-    }
-  end
-
-  defp get_test_data(_), do: nil
 
   defp parse_geonames_id(id) when is_binary(id) do
     if String.starts_with?(id, @http_uri_base) do

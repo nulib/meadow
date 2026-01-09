@@ -54,7 +54,7 @@ defmodule Meadow.MixProject do
       {:anubis_mcp, "~> 0.14"},
       {:assertions, "~> 0.21.0", only: :test},
       {:atomic_map, "~> 0.8"},
-      {:authoritex, "~> 2.0"},
+      {:authoritex, git: "https://github.com/nulib/authoritex.git", branch: "req-test", override: true},
       {:aws_signature, "~> 0.4.0"},
       {:briefly, "~> 0.5.0"},
       {:broadway_dashboard, "~> 0.4.1"},
