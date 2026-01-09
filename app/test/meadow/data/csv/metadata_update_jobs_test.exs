@@ -2,6 +2,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   use Meadow.DataCase
   use Meadow.CSVMetadataUpdateCase
   use Meadow.IndexCase
+  use Meadow.GeoNamesCase
   alias Meadow.Data.{CSV.MetadataUpdateJobs, Works}
   alias Meadow.Data.Schemas.{CSV.MetadataUpdateJob, Work}
   alias Meadow.Repo

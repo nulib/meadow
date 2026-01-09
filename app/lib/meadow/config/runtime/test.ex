@@ -41,7 +41,8 @@ defmodule Meadow.Config.Runtime.Test do
 
     config :authoritex,
       authorities: [Authoritex.Mock, NUL.Authority],
-      geonames_username: "test_user"
+      geonames_username: "test_user",
+      plug: {Req.Test, Meadow.GeoNamesHttpMock}
 
     config :meadow, Meadow.Repo,
       show_sensitive_data_on_connection_error: true,

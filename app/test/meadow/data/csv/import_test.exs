@@ -1,5 +1,6 @@
 defmodule Meadow.Data.CSV.ImportTest do
   use Meadow.DataCase
+  use Meadow.GeoNamesCase
   alias Meadow.Data.CSV.Import
 
   import Assertions
