@@ -199,6 +199,19 @@ defmodule Meadow.Data.CSV.Export do
     Enum.join([prefix, note], ":")
   end
 
+  defp to_field(places) when is_list(places) do
+    places
+    |> Enum.map(fn
+      %{"id" => id} when is_binary(id) -> id
+      _ -> nil
+    end)
+    |> Enum.reject(&is_nil/1)
+    |> case do
+      [] -> nil
+      ids -> combine_multivalued_field(ids)
+    end
+  end
+
   defp to_field(%{"id" => id}), do: id
 
   defp to_field(%{}), do: nil

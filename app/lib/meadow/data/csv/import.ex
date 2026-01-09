@@ -93,7 +93,7 @@ defmodule Meadow.Data.CSV.Import do
         value = if value == "", do: nil, else: value
 
         decoded_value =
-          decode_field(schema.__schema__(:type, field), value)
+          decode_field(schema.__schema__(:type, field), value, field)
           |> add_scheme(field)
 
         put_path =
@@ -118,30 +118,34 @@ defmodule Meadow.Data.CSV.Import do
 
   defp add_scheme(value, _), do: value
 
-  defp decode_field({:array, _}, nil), do: []
-  defp decode_field({type, {schema, spec}}, value), do: decode_field({type, schema, spec}, value)
-  defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: _}}, nil), do: []
-  defp decode_field({_, _, %Ecto.Embedded{cardinality: :one, related: _}}, nil), do: nil
-  defp decode_field(_, nil), do: nil
+  defp decode_field({:array, _}, nil, _), do: []
+  defp decode_field({type, {schema, spec}}, value, field), do: decode_field({type, schema, spec}, value, field)
+  defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: _}}, nil, _), do: []
+  defp decode_field({_, _, %Ecto.Embedded{cardinality: :one, related: _}}, nil, _), do: nil
+  defp decode_field(_, nil, _), do: nil
 
-  defp decode_field({:embedded, type}, value), do: decode_field(type, value)
+  defp decode_field({:embedded, type}, value, field), do: decode_field(type, value, field)
 
-  defp decode_field({_, _, %Ecto.Embedded{cardinality: :one, related: type}}, value),
-    do: decode_field({:embedded, type}, value)
+  defp decode_field({_, _, %Ecto.Embedded{cardinality: :one, related: type}}, value, field),
+    do: decode_field({:embedded, type}, value, field)
 
-  defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: type}}, value) do
+  defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: type}}, value, field) do
     value
     |> split_multivalued_field()
-    |> Enum.map(&decode_field({:embedded, type}, String.trim(&1)))
+    |> Enum.map(&decode_field({:embedded, type}, String.trim(&1), field))
   end
 
-  defp decode_field({:array, type}, value) do
+  defp decode_field({:array, :map}, value, :nav_place) when is_binary(value) do
+    decode_nav_place(value) || []
+  end
+
+  defp decode_field({:array, type}, value, field) do
     value
     |> split_multivalued_field()
-    |> Enum.map(&decode_field(type, &1))
+    |> Enum.map(&decode_field(type, &1, field))
   end
 
-  defp decode_field(:boolean, value) do
+  defp decode_field(:boolean, value, _field) do
     with value <- value |> to_string() |> String.downcase() do
       cond do
         Truth.true?(value) -> true
@@ -151,11 +155,77 @@ defmodule Meadow.Data.CSV.Import do
     end
   end
 
-  defp decode_field(type, value) do
+  defp decode_field(:map, value, :nav_place) when is_binary(value) do
+    decode_nav_place(value)
+  end
+
+  defp decode_field(Meadow.Data.Types.CodedTerm, value, _field) when is_binary(value) do
+    Meadow.Data.Types.CodedTerm.from_string(value)
+  end
+
+  defp decode_field(Meadow.Data.Types.EDTFDate, value, _field) when is_binary(value) do
+    Meadow.Data.Types.EDTFDate.from_string(value)
+  end
+
+  defp decode_field(Meadow.Data.Schemas.ControlledMetadataEntry, value, _field) when is_binary(value) do
+    Meadow.Data.Schemas.ControlledMetadataEntry.from_string(value)
+  end
+
+  defp decode_field(Meadow.Data.Schemas.NoteEntry, value, _field) when is_binary(value) do
+    Meadow.Data.Schemas.NoteEntry.from_string(value)
+  end
+
+  defp decode_field(Meadow.Data.Schemas.RelatedURLEntry, value, _field) when is_binary(value) do
+    Meadow.Data.Schemas.RelatedURLEntry.from_string(value)
+  end
+
+  defp decode_field(type, value, _field) do
     if Kernel.function_exported?(type, :from_string, 1),
       do: type.from_string(value),
       else: value
   end
+
+  defp decode_nav_place(value) do
+    with ids <- value |> split_multivalued_field() |> Enum.map(&String.trim/1),
+         places <- fetch_geonames_places(ids) do
+      if Enum.empty?(places) do
+        nil
+      else
+        places
+      end
+    end
+  end
+
+  defp fetch_geonames_places(ids) do
+    ids
+    |> Enum.map(&fetch_geonames_place/1)
+    |> Enum.reject(&is_nil/1)
+  end
+
+  defp fetch_geonames_place(id) do
+    case MeadowWeb.Resolvers.Data.GeoNames.place(nil, %{id: id}, nil) do
+      {:ok, feature} -> convert_feature_to_concise(feature)
+      {:error, error} ->
+        Logger.warning("Failed to fetch GeoNames feature for #{id}: #{inspect(error)}")
+        nil
+    end
+  end
+
+  defp convert_feature_to_concise(%{"id" => id, "geometry" => geometry, "properties" => properties}) do
+    label = get_in(properties, ["label", "en"]) |> List.first()
+    summary = get_in(properties, ["summary", "en"]) |> List.first()
+    coordinates = Map.get(geometry, "coordinates")
+
+    place = %{
+      "id" => id,
+      "label" => label,
+      "coordinates" => coordinates
+    }
+
+    if summary, do: Map.put(place, "summary", summary), else: place
+  end
+
+  defp convert_feature_to_concise(_), do: nil
 
   defp schema_for(field) do
     [Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata]

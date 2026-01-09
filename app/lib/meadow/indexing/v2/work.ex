@@ -49,6 +49,7 @@ defmodule Meadow.Indexing.V2.Work do
       location: encode_field(work.descriptive_metadata.location),
       modified_date: work.updated_at,
       notes: encode_field(work.descriptive_metadata.notes),
+      nav_place: encode_nav_place(work.descriptive_metadata.nav_place),
       physical_description_material: work.descriptive_metadata.physical_description_material,
       physical_description_size: work.descriptive_metadata.physical_description_size,
       preservation_level: encode_label(work.administrative_metadata.preservation_level),
@@ -166,6 +167,12 @@ defmodule Meadow.Indexing.V2.Work do
   def encode_field(%{humanized: humanized}), do: humanized
 
   def encode_field(field), do: field
+
+  def encode_nav_place(nil), do: nil
+
+  def encode_nav_place(places) when is_list(places), do: places
+
+  def encode_nav_place(_), do: nil
 
   def encode_edtf(value) when is_list(value), do: Enum.map(value, &encode_edtf/1)
   def encode_edtf(%{edtf: edtf}), do: edtf

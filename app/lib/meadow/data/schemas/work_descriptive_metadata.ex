@@ -39,6 +39,10 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     {:title, false}
   ]
 
+  @map_fields [
+    :nav_place
+  ]
+
   @coded_fields [
     :license,
     :rights_statement
@@ -65,6 +69,11 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     |> Enum.each(fn
       {f, true} -> field f, {:array, :string}, default: []
       {f, false} -> field f, :string
+    end)
+
+    @map_fields
+    |> Enum.each(fn f ->
+      field f, {:array, :map}, default: []
     end)
 
     @coded_fields
@@ -110,7 +119,7 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
     end)
   end
 
-  def permitted, do: @coded_fields ++ scalar_fields() ++ @edtf_fields
+  def permitted, do: @coded_fields ++ scalar_fields() ++ @map_fields ++ @edtf_fields
 
   defp scalar_fields, do: @fields |> Enum.map(fn {name, _} -> name end)
   def field_names, do: __schema__(:fields) -- [:id, :inserted_at, :updated_at]
