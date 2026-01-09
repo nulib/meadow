@@ -252,6 +252,11 @@ defmodule Meadow.Config do
     System.get_env("AWS_LOCALSTACK", "false") == "true"
   end
 
+  @doc "Determine whether to run clustered"
+  def cluster? do
+    System.get_env("CLUSTER_ENABLED", "false") == "true"
+  end
+
   defp configured_integer_value(key, default \\ 0) do
     case Application.get_env(:meadow, key, default) do
       n when is_binary(n) -> String.to_integer(n)

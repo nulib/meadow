@@ -35,7 +35,7 @@ defmodule Meadow.Application do
       Runtime.configure!()
     end
 
-    if System.get_env("CLUSTER_ENABLED") == "true" do
+    if Meadow.Config.cluster?() do
       Logger.info("Starting libcluster")
       topologies = Application.get_env(:libcluster, :topologies, [])
 

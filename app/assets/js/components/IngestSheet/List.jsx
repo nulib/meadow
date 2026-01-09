@@ -7,7 +7,7 @@ import UIModalDelete from "../UI/Modal/Delete";
 import { toastWrapper } from "@js/services/helpers";
 import UIIconText from "@js/components/UI/IconText";
 import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "@js/services/helpers";
-import { IconAlert, IconTrashCan, IconView } from "@js/components/Icon";
+import { IconAlert, IconDownload, IconTrashCan, IconView } from "@js/components/Icon";
 import IngestSheetStatusTag from "@js/components/IngestSheet/StatusTag";
 import { Notification } from "@nulib/design-system";
 
@@ -48,6 +48,24 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
     setModalOpen(false);
   };
 
+  const handleExportClick = (sheetId, title) => {
+    const filename = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.csv`;
+    // Create form and submit to trigger download from S3 presigned URL
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/api/export/${filename}`;
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'sheet_id';
+    input.value = sheetId;
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+  };
+
   return (
     <div>
       {project.ingestSheets.length === 0 && (
@@ -86,28 +104,42 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                       </IngestSheetStatusTag>
                     </td>
                     <td className="has-text-right">
-                      {["APPROVED", "COMPLETED", "COMPLETED_ERROR"].indexOf(
-                        status
-                      ) > -1 && (
-                        <Link
-                          to={`/project/${project.id}/ingest-sheet/${id}`}
-                          className="button is-light"
-                        >
-                          {<IconView />}{" "}
-                          <span className="is-sr-only">View</span>
-                        </Link>
-                      )}
-                      {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
-                        status
-                      ) > -1 && (
-                        <button
-                          className="button is-light"
-                          onClick={(e) => onOpenModal(e, { id, title })}
-                        >
-                          {<IconTrashCan />}{" "}
-                          <span className="is-sr-only">Delete</span>
-                        </button>
-                      )}
+                      <div className="buttons is-right">
+                        {["APPROVED", "COMPLETED", "COMPLETED_ERROR"].indexOf(
+                          status
+                        ) > -1 && (
+                          <Link
+                            to={`/project/${project.id}/ingest-sheet/${id}`}
+                            className="button is-light"
+                          >
+                            {<IconView />}{" "}
+                            <span className="is-sr-only">View</span>
+                          </Link>
+                        )}
+                        {["VALID", "APPROVED", "COMPLETED", "COMPLETED_ERROR", "ROW_FAIL"].indexOf(
+                          status
+                        ) > -1 && (
+                          <button
+                            className="button is-light"
+                            onClick={() => handleExportClick(id, title)}
+                            title="Export to CSV"
+                          >
+                            {<IconDownload />}{" "}
+                            <span className="is-sr-only">Export CSV</span>
+                          </button>
+                        )}
+                        {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
+                          status
+                        ) > -1 && (
+                          <button
+                            className="button is-light"
+                            onClick={(e) => onOpenModal(e, { id, title })}
+                          >
+                            {<IconTrashCan />}{" "}
+                            <span className="is-sr-only">Delete</span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )
