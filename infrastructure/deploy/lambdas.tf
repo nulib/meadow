@@ -24,7 +24,7 @@ resource "aws_iam_role" "lambda_role" {
         {
           Effect   = "Allow"
           Action   = "states:StartExecution"
-          Resource = "arn:aws:states:${var.aws_region}:${data.aws_caller_identity.current.account_id}:stateMachine:${var.fixity_function}"
+          Resource = data.aws_sfn_state_machine.fixity_state_machine.arn
         }
       ]
     })
@@ -121,7 +121,7 @@ locals {
       tag           = "MeadowExecuteFixity"
 
       environment = {
-        stateMachineArn = "arn:aws:states:${var.aws_region}:${data.aws_caller_identity.current.account_id}:stateMachine:${var.fixity_function}"
+        stateMachineArn = data.aws_sfn_state_machine.fixity_state_machine.arn
       }
     }
   }
@@ -131,7 +131,7 @@ module "pipeline_lambda" {
   for_each    = local.pipeline_lambdas
   source      = "terraform-aws-modules/lambda/aws"
   version     = "~> 3.1"
-  
+
   function_name             = "${var.stack_name}-${each.value.source}"
   # build_in_docker           = true
   description               = each.value.description
@@ -143,7 +143,7 @@ module "pipeline_lambda" {
   publish                   = true
   create_role               = false
   lambda_role               = aws_iam_role.lambda_role.arn
-  
+
   environment_variables   = contains(keys(each.value), "environment") ? each.value.environment : {}
   layers                  = contains(keys(each.value), "layers") ? each.value.layers : []
 
@@ -158,4 +158,6 @@ module "pipeline_lambda" {
     Component = "pipeline"
     Name      = each.value.tag
   }
+
+  depends_on = [data.aws_sfn_state_machine.fixity_state_machine]
 }
