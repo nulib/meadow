@@ -140,4 +140,51 @@ defmodule Meadow.Data.ControlledTermsTest do
       end
     end
   end
+
+  describe "replaced_by field" do
+    test "normal terms have nil replaced_by" do
+      # Fetch a normal term and verify replaced_by is nil
+      assert {{:ok, :miss}, _term} = ControlledTerms.fetch("mock1:result1")
+
+      cached_record = Repo.get(ControlledTermCache, "mock1:result1")
+      assert cached_record.replaced_by == nil
+    end
+
+    @tag :skip
+    @tag :manual
+    test "caches both obsolete and replacement terms from real Getty ULAN redirect" do
+      # This test hits the real Getty ULAN API with an obsolete term that redirects
+      # Run manually with: mix test test/meadow/data/controlled_terms_test.exs --only manual
+      obsolete_id = "http://vocab.getty.edu/ulan/500461126"
+      replacement_id = "http://vocab.getty.edu/ulan/500125274"
+
+      # Clear any existing cache entries
+      ControlledTerms.clear!(obsolete_id)
+      ControlledTerms.clear!(replacement_id)
+
+      # First fetch - should trigger HTTP request and cache both terms
+      assert {{:ok, :miss}, term} = ControlledTerms.fetch(obsolete_id)
+      assert term.id == replacement_id
+      assert term.label == "unknown"
+
+      # Verify both IDs are now in the database cache
+      obsolete_record = Repo.get(ControlledTermCache, obsolete_id)
+      assert obsolete_record != nil
+      assert obsolete_record.replaced_by == replacement_id
+      assert obsolete_record.label == "unknown"
+
+      replacement_record = Repo.get(ControlledTermCache, replacement_id)
+      assert replacement_record != nil
+      assert replacement_record.replaced_by == nil
+      assert replacement_record.label == "unknown"
+
+      # Clear ETS cache to force DB lookup
+      Cachex.clear!(Meadow.Cache.ControlledTerms)
+
+      # Second fetch of obsolete ID - should be a DB cache hit (no HTTP request)
+      assert {{:ok, :db}, cached_term} = ControlledTerms.fetch(obsolete_id)
+      assert cached_term.id == obsolete_id
+      assert cached_term.label == "unknown"
+    end
+  end
 end
