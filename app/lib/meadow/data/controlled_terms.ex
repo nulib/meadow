@@ -212,22 +212,29 @@ defmodule Meadow.Data.ControlledTerms do
     end
   end
 
-  defp cache(id) do
-    Cachex.del!(Meadow.Cache.ControlledTerms, id)
+  defp cache(requested_id) do
+    Cachex.del!(Meadow.Cache.ControlledTerms, requested_id)
 
-    case Authoritex.fetch(id) do
-      {:ok, %{id: id, label: label, variants: variants}} ->
-        try_to_save(id, label, variants)
-        {:ok, %{id: id, label: label, variants: variants}}
+    case Authoritex.fetch(requested_id) do
+      {:ok, %{id: returned_id, label: label, variants: variants}} ->
+        if requested_id != returned_id do
+          # Obsolete term - cache both the replacement and the obsolete term
+          try_to_save(returned_id, label, variants, nil)
+          try_to_save(requested_id, label, variants, returned_id)
+        else
+          try_to_save(returned_id, label, variants, nil)
+        end
+
+        {:ok, %{id: returned_id, label: label, variants: variants}}
 
       other ->
         other
     end
   end
 
-  defp try_to_save(id, label, variants) do
+  defp try_to_save(id, label, variants, replaced_by) do
     %ControlledTermCache{id: id}
-    |> ControlledTermCache.changeset(%{label: label, variants: variants})
+    |> ControlledTermCache.changeset(%{label: label, variants: variants, replaced_by: replaced_by})
     |> Repo.insert(on_conflict: :nothing)
   rescue
     e in Postgrex.Error ->
