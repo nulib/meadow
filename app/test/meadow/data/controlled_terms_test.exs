@@ -119,10 +119,15 @@ defmodule Meadow.Data.ControlledTermsTest do
     end
 
     test "expire on age and prefix" do
-      assert {2, nil} == ControlledTerms.expire!(200, "mock1:")
+      assert {2, nil} == ControlledTerms.expire!(200, prefix: "mock1:")
       assert {{:ok, :miss}, _} = ControlledTerms.fetch("mock1:result1")
       assert {{:ok, :miss}, _} = ControlledTerms.fetch("mock1:result2")
       assert {{:ok, :db}, _} = ControlledTerms.fetch("mock2:result3")
+    end
+
+    test "expire on age with a limit" do
+      assert {2, nil} == ControlledTerms.expire!(200, limit: 2)
+      assert Repo.aggregate(ControlledTermCache, :count) == 1
     end
   end
 
