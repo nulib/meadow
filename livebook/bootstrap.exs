@@ -31,6 +31,10 @@ defmodule Meadow.Bootstrap do
     if :code.is_loaded(Mix), do: Meadow.Config.Runtime.configure!()
     Logger.configure(level: :info)
     Application.ensure_all_started(:meadow)
+
+    # Disable Honeybadger
+    Application.stop(:honeybadger)
+    Application.put_env(:honeybadger, :api_key, nil)
   end
 
   defp set_environment do

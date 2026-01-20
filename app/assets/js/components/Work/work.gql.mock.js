@@ -103,6 +103,14 @@ export const mockWork = {
         },
       },
     ],
+    navPlace: [
+      {
+        id: "https://sws.geonames.org/4887398/",
+        label: "Chicago",
+        summary: "Illinois, United States",
+        coordinates: [-87.65005, 41.85003],
+      },
+    ],
     notes: [],
     physicalDescriptionMaterial: [],
     physicalDescriptionSize: [],
@@ -310,6 +318,7 @@ export const mockWork2 = {
       label: "Public Domain Mark 1.0",
     },
     location: [],
+    navPlace: null,
     notes: [],
     physicalDescriptionMaterial: [],
     physicalDescriptionSize: [],

@@ -5,6 +5,7 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
   """
   use Absinthe.Schema.Notation
   alias MeadowWeb.Resolvers.Data.AuthoritiesSearch
+  alias MeadowWeb.Resolvers.Data.GeoNames
   alias MeadowWeb.Resolvers.Data.ControlledVocabulary
   alias MeadowWeb.Schema.Middleware
 
@@ -40,6 +41,14 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
       middleware(Middleware.Authenticate)
 
       resolve(&AuthoritiesSearch.search/2)
+    end
+
+    @desc "Get GeoNames coordinates and metadata by id or URI"
+    field :geonames_place, :json do
+      arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
+
+      resolve(&GeoNames.place/3)
     end
   end
 

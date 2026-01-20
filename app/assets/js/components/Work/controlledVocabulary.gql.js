@@ -19,6 +19,12 @@ export const CODE_LIST_QUERY = gql`
   }
 `;
 
+export const GEONAMES_PLACE = gql`
+  query GeonamesPlace($id: ID!) {
+    geonamesPlace(id: $id)
+  }
+`;
+
 export const FETCH_CODED_TERM_QUERY = gql`
   query FetchCodedTermLabelQuery($id: ID!, $scheme: CodeListScheme!) {
     fetchCodedTermLabel(id: $id, scheme: $scheme) {

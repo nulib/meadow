@@ -5,7 +5,6 @@ import {
   RIGHTS_METADATA,
   UNCONTROLLED_METADATA,
   convertFieldArrayValToHookFormVal,
-  deleteKeyFromObject,
   prepControlledTermInput,
   prepEDTFforPost,
   prepFieldArrayItemsForPost,
@@ -24,6 +23,7 @@ import UIAccordion from "../../UI/Accordion";
 import UIError from "../../UI/Error";
 import WorkTabsAboutControlledMetadata from "./About/ControlledMetadata";
 import WorkTabsAboutCoreMetadata from "./About/CoreMetadata";
+import WorkTabsAboutGeoNamesNavPlace from "./About/GeoNamesNavPlace";
 import WorkTabsAboutIdentifiersMetadata from "./About/IdentifiersMetadata";
 import WorkTabsAboutPhysicalMetadata from "./About/PhysicalMetadata";
 import WorkTabsAboutRightsMetadata from "./About/RightsMetadata";
@@ -31,6 +31,50 @@ import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
 import { toastWrapper } from "../../../services/helpers";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { useMutation } from "@apollo/client";
+
+function buildNavPlaceFormValues(navPlace) {
+  if (!navPlace) return [];
+
+  if (!Array.isArray(navPlace)) return [];
+
+  return navPlace
+    .map((place) => ({
+      termId: place.id || "",
+      label: place.label || "",
+      summary: place.summary || "",
+      longitude: place.coordinates?.[0] ?? "",
+      latitude: place.coordinates?.[1] ?? "",
+    }))
+    .filter((item) => item.termId || item.label || item.longitude || item.latitude);
+}
+
+function buildNavPlaceConcise(places = []) {
+  const validPlaces = places
+    .map((place) => {
+      if (!place?.label) return null;
+      const latitude = Number(place.latitude);
+      const longitude = Number(place.longitude);
+      if (Number.isNaN(latitude) || Number.isNaN(longitude)) return null;
+
+      const concisePlace = {
+        label: place.label,
+        coordinates: [longitude, latitude],
+      };
+
+      if (place.termId) {
+        concisePlace.id = place.termId;
+      }
+
+      if (place.summary) {
+        concisePlace.summary = place.summary;
+      }
+
+      return concisePlace;
+    })
+    .filter(Boolean);
+
+  return validPlaces.length > 0 ? validPlaces : null;
+}
 
 function prepFormData(work) {
   const { descriptiveMetadata } = work;
@@ -70,6 +114,7 @@ function prepFormData(work) {
       metadataItem: value.edtf,
     })),
     notes: descriptiveMetadata.notes,
+    navPlace: buildNavPlaceFormValues(descriptiveMetadata.navPlace),
     relatedUrl: descriptiveMetadata.relatedUrl,
     ...resetValues,
     ...controlledTermResetValues,
@@ -164,6 +209,11 @@ const WorkTabsAbout = ({ work }) => {
       );
     }
 
+    const navPlace = buildNavPlaceConcise(currentFormValues.navPlace);
+    workUpdateInput.descriptiveMetadata.navPlace = navPlace
+      ? JSON.stringify(navPlace)
+      : null;
+
     updateWork({
       variables: {
         id: work.id,
@@ -229,6 +279,16 @@ const WorkTabsAbout = ({ work }) => {
             <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutControlledMetadata
+              descriptiveMetadata={descriptiveMetadata}
+              isEditing={isEditing}
+            />
+          )}
+        </UIAccordion>
+        <UIAccordion testid="geo-metadata-wrapper" title="Geographic Context">
+          {updateWorkLoading ? (
+            <Skeleton rows={6} />
+          ) : (
+            <WorkTabsAboutGeoNamesNavPlace
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
             />

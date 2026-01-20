@@ -1,6 +1,7 @@
 defmodule Meadow.CSVMetadataUpdateDriverTest do
   use Meadow.DataCase
   use Meadow.CSVMetadataUpdateCase
+  use Meadow.GeoNamesCase
 
   alias Meadow.CSVMetadataUpdateDriver
   alias Meadow.Data.CSV.MetadataUpdateJobs

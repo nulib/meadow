@@ -229,6 +229,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:citation, list_of(:string))
     field(:date_created, list_of(:edtf_date_entry))
     field(:license, :coded_term)
+    field(:nav_place, :json)
     field(:rights_statement, :coded_term)
     import_fields(:uncontrolled_descriptive_fields)
     import_fields(:controlled_fields)
@@ -297,6 +298,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   input_object :work_descriptive_metadata_input do
     field(:date_created, list_of(:edtf_date_input))
     field(:license, :coded_term_input)
+    field(:nav_place, :json)
     field(:notes, list_of(:note_entry_input))
     field(:rights_statement, :coded_term_input)
     field(:related_url, list_of(:related_url_entry_input))
