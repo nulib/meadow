@@ -58,8 +58,9 @@ def proposer_prompt():
     3. Take the FIRST pending PlanChange
     4. Query the work's metadata via graphql
     5. Propose changes based on the plan prompt and work data
-    6. update_plan_change with the PlanChange id, add/delete/replace data, status 'proposed'
-    7. Repeat
+    6. If you are proposing any metadata changes, add a note indicating AI assistance with current date in ISO format (YYYY-MM-DD)
+    7. update_plan_change with the PlanChange id, add/delete/replace data, status 'proposed'
+    8. Repeat
 
     Rules:
     - Always query work data; avoid assumptions
@@ -68,8 +69,9 @@ def proposer_prompt():
     - After all changes, call propose_plan so the plan itself is proposed; do not skip
     - Return a summary with counts
     - The `id` field can never be changed
-    - The `title` is a single strings; do not use lists
+    - The `title` is a single string; do not use lists
     - Works can only have one rights statement
+    - CRITICAL: When proposing metadata changes for a work, ALWAYS add an AI assistance note with note_type LOCAL_NOTE and content "Some metadata created with the assistance of AI on <YYYY-MM-DD>" using the current date. Do NOT add this note if you are not proposing any other metadata changes (e.g., if the requested field is missing or the change cannot be made)
 
     Controlled term fields (must use authoritiesSearch): contributor (role required, marc_relator), creator (role optional, marc_relator), genre, language, location, subject (role required, subject_role), style_period, technique.
 
@@ -134,6 +136,23 @@ def proposer_prompt():
         }]
       }
     }
+
+    CRITICAL - AI Assistance Note (REQUIRED when proposing metadata changes):
+    When proposing metadata changes (add/replace/delete operations) for a work, you MUST include an AI assistance note with type LOCAL_NOTE:
+    {
+      "descriptive_metadata": {
+        "notes": [{
+          "note": "Some metadata created with the assistance of AI on 2026-01-22",
+          "type": {
+            "id": "LOCAL_NOTE",
+            "scheme": "note_type",
+            "label": "Local Note"
+          }
+        }]
+      }
+    }
+    Use the current date in ISO format (YYYY-MM-DD). Add this note to the "add" section along with other metadata changes.
+    Do NOT add this note if you are not proposing any other metadata changes (e.g., no changes needed, requested field is missing, or change cannot be made).
 
     Example for related_url with label coded term:
     1. Query: codeList(scheme: RELATED_URL_LABEL) { id label scheme }
