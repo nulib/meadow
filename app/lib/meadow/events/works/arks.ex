@@ -16,6 +16,7 @@ defmodule Meadow.Events.Works.Arks do
     use GenServer
 
     alias Meadow.Arks
+    alias Meadow.Data.Schemas.Work
     alias Meadow.Data.Works
 
     use Meadow.Utils.Logging
@@ -126,10 +127,9 @@ defmodule Meadow.Events.Works.Arks do
       end
     end
 
-    defp update_ark_metadata(work) do
-      Logger.info(
-        "Updating ARK metadata for work: #{work.id}, with ark: #{work.descriptive_metadata.ark}"
-      )
+    defp update_ark_metadata(%Work{descriptive_metadata: %{ark: ark}} = work)
+         when not is_nil(ark) do
+      Logger.info("Updating ARK metadata for work: #{work.id}, with ark: #{ark}")
 
       case Arks.update_ark_metadata(work) do
         :noop ->
@@ -140,9 +140,14 @@ defmodule Meadow.Events.Works.Arks do
 
         {:error, error_message} ->
           Logger.error(
-            "Error updating ARK metadata for work: #{work.id}, with ark: #{work.descriptive_metadata.ark}. #{error_message}"
+            "Error updating ARK metadata for work: #{work.id}, with ark: #{ark}. #{error_message}"
           )
       end
+    end
+
+    defp update_ark_metadata(%Work{} = work) do
+      Logger.warning("No ARK to update for work: #{work.id}")
+      :noop
     end
   end
 
