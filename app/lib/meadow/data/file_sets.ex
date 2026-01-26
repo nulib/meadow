@@ -599,11 +599,16 @@ defmodule Meadow.Data.FileSets do
       {:ok, transcription} ->
         case write_annotation_content(annotation, transcription.text) do
           {:ok, s3_location} ->
-            update_annotation(annotation, %{
+            result = update_annotation(annotation, %{
               status: "completed",
               s3_location: s3_location,
               language: transcription.languages
             })
+
+            # Add AI transcription note to the work
+            add_transcription_note(annotation)
+
+            result
 
           {:error, _reason} ->
             update_annotation(annotation, %{status: "error"})
@@ -611,6 +616,33 @@ defmodule Meadow.Data.FileSets do
 
       {:error, _reason} ->
         update_annotation(annotation, %{status: "error"})
+    end
+  end
+
+  defp add_transcription_note(%{file_set_id: file_set_id}) do
+    alias Meadow.Data.Works
+
+    case Repo.get(FileSet, file_set_id) |> Repo.preload(:work) do
+      %FileSet{work: work, core_metadata: %{label: label}} when not is_nil(work) ->
+        today = Date.utc_today() |> Date.to_iso8601()
+
+        new_note = %{
+          note: "Transcription generated for #{label} by AI on #{today}",
+          type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
+        }
+
+        existing_notes = get_in(work, [Access.key(:descriptive_metadata), Access.key(:notes)]) || []
+
+        updated_metadata = %{
+          descriptive_metadata: %{
+            notes: existing_notes ++ [new_note]
+          }
+        }
+
+        Works.update_work(work, updated_metadata)
+
+      _ ->
+        :ok
     end
   end
 
