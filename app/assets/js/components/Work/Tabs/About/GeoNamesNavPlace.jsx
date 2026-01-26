@@ -259,7 +259,7 @@ const GeoNamesComboBox = ({
 
   return (
     <>
-      <UIFormField label="GeoNames place">
+      <UIFormField label="GeoNames place (Experimental - Do Not Use)">
         <input
           {...getInputProps({
             className: `input ${hasErrors ? "is-danger" : ""}`,

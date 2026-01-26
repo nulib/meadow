@@ -284,14 +284,19 @@ const WorkTabsAbout = ({ work }) => {
             />
           )}
         </UIAccordion>
-        <UIAccordion testid="geo-metadata-wrapper" title="Geographic Context">
+        <UIAccordion testid="geo-metadata-wrapper" title="Geographic Context (Experimental)">
           {updateWorkLoading ? (
             <Skeleton rows={6} />
           ) : (
-            <WorkTabsAboutGeoNamesNavPlace
-              descriptiveMetadata={descriptiveMetadata}
-              isEditing={isEditing}
-            />
+            <>
+              <div className="notification is-warning is-light mb-4">
+                <strong>Experimental Feature:</strong> This field is experimental and not yet ready for production use. Please do not use it at this time.
+              </div>
+              <WorkTabsAboutGeoNamesNavPlace
+                descriptiveMetadata={descriptiveMetadata}
+                isEditing={isEditing}
+              />
+            </>
           )}
         </UIAccordion>
         <UIAccordion
