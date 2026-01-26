@@ -20,6 +20,8 @@ defmodule Meadow.Ingest.WorkCreator do
 
   require Logger
 
+  @initial_rank_interval 5_000
+
   @impl IntervalTask
   def initial_state(args) do
     %{batch_size: Keyword.get(args, :batch_size, 20)}
@@ -102,7 +104,8 @@ defmodule Meadow.Ingest.WorkCreator do
       accession_number: accession_number,
       file_sets:
         file_set_rows
-        |> Enum.map(fn row ->
+        |> Enum.with_index()
+        |> Enum.map(fn {row, index} ->
           file_path = Row.field_value(row, :filename)
           location = "s3://#{ingest_bucket}/#{file_path}"
 
@@ -118,7 +121,8 @@ defmodule Meadow.Ingest.WorkCreator do
               original_filename: Path.basename(file_path),
               label: row |> Row.field_value(:label)
             },
-            structural_metadata: structure_attributes
+            structural_metadata: structure_attributes,
+            rank: index * @initial_rank_interval
           }
         end),
       ingest_sheet_id: ingest_sheet.id,

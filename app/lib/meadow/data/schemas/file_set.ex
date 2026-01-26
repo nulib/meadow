@@ -57,19 +57,27 @@ defmodule Meadow.Data.Schemas.FileSet do
 
   def changeset(file_set \\ %__MODULE__{}, params) do
     with {required_params, optional_params} <- changeset_params() do
-      file_set
-      |> cast(rename_core_metadata(params), required_params ++ optional_params)
-      |> prepare_embed(:core_metadata)
-      |> cast_embed(:core_metadata)
-      |> prepare_embed(:structural_metadata)
-      |> cast_embed(:structural_metadata)
-      |> validate_required([:core_metadata | required_params])
-      |> validate_number(:poster_offset, greater_than_or_equal_to: 0)
-      |> assoc_constraint(:work)
-      |> assoc_constraint(:group_with_file_set)
-      |> unsafe_validate_unique([:accession_number], Meadow.Repo)
-      |> unique_constraint(:accession_number)
-      |> set_rank(scope: [:work_id, :role])
+      changeset =
+        file_set
+        |> cast(rename_core_metadata(params), required_params ++ optional_params)
+        |> prepare_embed(:core_metadata)
+        |> cast_embed(:core_metadata)
+        |> prepare_embed(:structural_metadata)
+        |> cast_embed(:structural_metadata)
+        |> validate_required([:core_metadata | required_params])
+        |> validate_number(:poster_offset, greater_than_or_equal_to: 0)
+        |> assoc_constraint(:work)
+        |> assoc_constraint(:group_with_file_set)
+        |> unsafe_validate_unique([:accession_number], Meadow.Repo)
+        |> unique_constraint(:accession_number)
+
+      changeset = case params do
+        %{"rank" => _} -> changeset |> cast(params, [:rank])
+        %{rank: _} -> changeset |> cast(params, [:rank])
+        _ -> changeset |> set_rank(scope: [:work_id, :role])
+      end
+
+      changeset
       |> validate_group_with()
       |> foreign_key_constraint(:group_with)
     end
