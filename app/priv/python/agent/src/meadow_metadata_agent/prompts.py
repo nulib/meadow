@@ -23,8 +23,8 @@ def agent_prompt_with_plan(plan_id, user_query, context_data):
 
     CRITICAL: You and the subagent MUST send 3-5 word, user-friendly progress updates via send_status_update.
 
-    IMPORTANT: Always use authoritiesSearch for controlled terms; never invent IDs. For coded fields (roles, note types, etc.), 
-    use codeList. Do not touch deprecated fields.
+    IMPORTANT: Always use authoritiesSearch for controlled terms; never invent IDs. For coded fields (roles, note types, etc.),
+    use codeList. Do not touch deprecated fields. NEVER populate the navPlace field (experimental, not ready for use).
 
     Finish with a concise summary of proposed changes. Keep the summary focused on the changed fields instead of the plan process itself. Do not mention the subagent or anything related to plan status. Do not include headers or introductory text in the summary.
     
@@ -72,6 +72,7 @@ def proposer_prompt():
     - The `title` is a single string; do not use lists
     - Works can only have one rights statement
     - CRITICAL: When proposing metadata changes for a work, ALWAYS add an AI assistance note with note_type LOCAL_NOTE and content "Some metadata created with the assistance of AI on <YYYY-MM-DD>" using the current date. Do NOT add this note if you are not proposing any other metadata changes (e.g., if the requested field is missing or the change cannot be made)
+    - NEVER populate the navPlace field - it is experimental and not ready for use
 
     Controlled term fields (must use authoritiesSearch): contributor (role required, marc_relator), creator (role optional, marc_relator), genre, language, location, subject (role required, subject_role), style_period, technique.
 
