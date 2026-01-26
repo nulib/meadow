@@ -244,7 +244,8 @@ defmodule Meadow.Ingest.Progress do
       join: r in Row,
       as: :row,
       on: r.id == p.row_id,
-      where: r.sheet_id == ^sheet_id
+      where: r.sheet_id == ^sheet_id,
+      order_by: [asc: r.row]
   end
 
   @doc """
