@@ -155,10 +155,14 @@ defmodule Meadow.Utils.Exif do
     }
   """
   def transform(nil), do: nil
+  def transform(""), do: nil
 
   def transform(metadata) do
     metadata
-    |> Enum.map(fn {key, value} -> {Inflex.camelize(key, :lower), transform_value(key, value)} end)
+    |> IO.inspect(label: "EXIF METADATA")
+    |> Enum.map(fn {key, value} ->
+      {Inflex.camelize(key, :lower), transform_value(key, value)}
+    end)
     |> Enum.into(%{})
   end
 
