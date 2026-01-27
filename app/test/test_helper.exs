@@ -31,7 +31,13 @@ if Meadow.Config.use_localstack?() do
   Mix.Task.run("meadow.buckets.create")
 end
 
-ExUnit.start(capture_log: true, exclude: [:skip, :validator, manual: true])
+formatters = case System.get_env("MEADOW_TEST_TRACE") do
+  nil -> [ExUnit.CLIFormatter]
+  _ -> [TraceFormatter, ExUnit.CLIFormatter]
+end
+
+ExUnit.start(capture_log: true, exclude: [:skip, :validator, manual: true], formatters: formatters)
+
 Faker.start()
 Meadow.Directory.MockServer.prewarm()
 Ecto.Adapters.SQL.Sandbox.mode(Meadow.Repo, :manual)
@@ -41,4 +47,9 @@ System.delete_env("MEADOW_PROCESSES")
 ExUnit.after_suite(fn _ ->
   Meadow.S3Case.show_cleanup_warnings()
   Mix.Task.run("meadow.search.teardown")
+  case System.get_env("MEADOW_TEST_SAVE_SEED") do
+    nil -> :ok
+    path ->
+      File.write!(path, Integer.to_string(ExUnit.configuration()[:seed]))
+  end
 end)

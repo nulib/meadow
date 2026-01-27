@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.AddWorksToCollectionTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   alias Meadow.Data.Collections

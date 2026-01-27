@@ -1,7 +1,7 @@
 defmodule MeadowWeb.Schema.Query.AuthoritiesSearchTest do
   use Meadow.AuthorityCase
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   alias NUL.Schemas.AuthorityRecord
