@@ -1,7 +1,7 @@
 defmodule MeadowWeb.Schema.Mutation.CreateSheet do
   use Meadow.DataCase
   use Meadow.S3Case
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/CreateIngestSheet.gql")

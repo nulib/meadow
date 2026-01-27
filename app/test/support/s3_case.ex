@@ -8,7 +8,7 @@ defmodule Meadow.S3Case do
 
       defmodule Meadow.FileCheckerTest do
         use Meadow.BucketNames
-  $2use Meadow.S3Case
+        use Meadow.S3Case
 
         @bucket @ingest_bucket
         @key "file_checker_test/path/to/file.tif"

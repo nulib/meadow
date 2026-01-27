@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.CreateProjectTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   alias Meadow.Ingest.Projects
