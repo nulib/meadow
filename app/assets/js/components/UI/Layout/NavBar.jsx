@@ -16,6 +16,7 @@ import { GrDocumentCsv, GrMultiple } from "react-icons/gr";
 import {
   IconChart,
   IconCheck,
+  IconLinkedData,
   IconSearch,
   IconUser,
 } from "@js/components/Icon";
@@ -190,6 +191,13 @@ const UILayoutNavBar = () => {
                         <Link to="/dashboards/nul-local-authorities">
                           <IconText icon={<NLogo width="14px" height="14px" />}>
                             Local Authorities
+                          </IconText>
+                        </Link>
+                      </UILayoutNavDropdownItem>
+                      <UILayoutNavDropdownItem>
+                        <Link to="/dashboards/obsolete-terms">
+                          <IconText icon={<IconLinkedData />}>
+                            Obsolete Controlled Terms
                           </IconText>
                         </Link>
                       </UILayoutNavDropdownItem>

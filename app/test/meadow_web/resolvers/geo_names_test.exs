@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Resolvers.Data.GeoNamesTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Meadow.AuthorityCase
   use Meadow.GeoNamesCase
   use Wormwood.GQLCase

@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Meadow.CSVMetadataUpdateCase
   use Wormwood.GQLCase
   alias Meadow.Data.CSV.MetadataUpdateJobs

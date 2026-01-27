@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.CreateCollectionTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/CreateCollection.gql")

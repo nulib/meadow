@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.UpdatePlanStatusTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/UpdatePlanStatus.gql")

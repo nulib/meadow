@@ -46,6 +46,9 @@
         "search_analyzer": "stopword_analyzer",
         "search_quote_analyzer": "full_analyzer"
       },
+      "all_controlled_ids": {
+        "type": "keyword"
+      },
       "all_controlled_labels": {
         "type": "text",
         "analyzer": "full_analyzer",
@@ -92,6 +95,18 @@
             "search_quote_analyzer": "full_analyzer",
             "copy_to": [
               "all_text"
+            ]
+          }
+        }
+      },
+      {
+        "controlled_term_ids": {
+          "path_match": "^contributor.id$|^creator.id$|^genre.id$|^language.id$|^location.id$|^style_period.id$|^subject.id$|^technique.id$",
+          "match_pattern": "regex",
+          "mapping": {
+            "type": "keyword",
+            "copy_to": [
+              "all_controlled_ids"
             ]
           }
         }

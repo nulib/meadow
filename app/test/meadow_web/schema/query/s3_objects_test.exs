@@ -1,7 +1,7 @@
 # defmodule MeadowWeb.Schema.Query.S3ObjectsTest do
 #   use Meadow.DataCase
 #   use Meadow.S3Case
-#   use MeadowWeb.ConnCase, async: true
+#   use MeadowWeb.ConnCase, async: false
 
 #   alias Meadow.Config
 #   alias Meadow.Utils.AWS

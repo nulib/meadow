@@ -26,6 +26,7 @@ import IconEnter from "@js/components/Icon/Enter";
 import IconExternalLink from "@js/components/Icon/ExternalLink";
 import IconFile from "@js/components/Icon/File";
 import IconImages from "@js/components/Icon/Images";
+import IconLinkedData from "@js/components/Icon/LinkedData";
 import IconList from "@js/components/Icon/List";
 import IconMagic from "@js/components/Icon/Magic";
 import IconMinus from "@js/components/Icon/Minus";
@@ -71,6 +72,7 @@ export {
   IconExternalLink,
   IconFile,
   IconImages,
+  IconLinkedData,
   IconList,
   IconMagic,
   IconMinus,

@@ -326,6 +326,13 @@ defmodule Meadow.Config.Runtime do
         {
           get_secret(:meadow, ["scheduler", "preservation_check"], "0 2 * * *"),
           {Meadow.Data.PreservationChecks, :start_job, []}
+        },
+        # Expire entries in the controlled terms cache nightly at midnight Central.
+        # Entries older than 2 weeks will be deleted, but no more than 2,500
+        # at a time (to avoid overwhelming downstream authorities on re-fetch).
+        {
+          get_secret(:meadow, ["scheduler", "controlled_terms_expire"], "0 0 * * *"),
+          {Meadow.Data.ControlledTerms, :expire!, [14 * 24 * 60 * 60, [limit: 2_500]]}
         }
       ]
 

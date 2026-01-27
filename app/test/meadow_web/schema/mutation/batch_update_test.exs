@@ -1,7 +1,7 @@
 defmodule MeadowWeb.Schema.Mutation.BatchUpdateTest do
   use Meadow.DataCase
   use Meadow.IndexCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
   alias Meadow.Data.Indexer
 

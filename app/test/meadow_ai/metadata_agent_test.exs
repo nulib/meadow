@@ -1,5 +1,5 @@
 defmodule MeadowAI.MetadataAgentTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   describe "init/1" do
     setup do

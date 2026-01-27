@@ -110,7 +110,7 @@ defmodule Meadow.Ingest.ProgressTest do
     end
 
     test "action_count/1", %{ingest_sheet: sheet} do
-      assert Progress.action_count(sheet) == 90
+      assert Progress.action_count(sheet) == 98
       assert Progress.action_count(@bad_sheet_id) == 0
     end
 
@@ -136,18 +136,18 @@ defmodule Meadow.Ingest.ProgressTest do
         assert progress.sheet_id == sheet.id
         assert progress.total_file_sets == 8
         assert progress.completed_file_sets == 0
-        assert progress.total_actions == 90
+        assert progress.total_actions == 98
         assert progress.completed_actions == 0
         assert progress.percent_complete == 0.0
       end
 
       Progress.get_entries(sheet)
-      |> Enum.take(20)
+      |> Enum.take(25)
       |> Enum.each(fn entry -> Progress.update_entry(entry.row_id, entry.action, "ok") end)
 
       with progress <- Progress.pipeline_progress(sheet) do
         assert progress.completed_file_sets == 2
-        assert progress.completed_actions == 20
+        assert progress.completed_actions == 25
       end
 
       Progress.get_entries(sheet)
@@ -155,7 +155,7 @@ defmodule Meadow.Ingest.ProgressTest do
 
       with progress <- Progress.pipeline_progress(sheet) do
         assert progress.completed_file_sets == 8
-        assert progress.completed_actions == 90
+        assert progress.completed_actions == 98
         assert progress.percent_complete == 100.0
       end
 

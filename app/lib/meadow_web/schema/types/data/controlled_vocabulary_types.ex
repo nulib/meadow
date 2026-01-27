@@ -50,6 +50,13 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
       resolve(&GeoNames.place/3)
     end
+
+    @desc "Get a list of obsolete terms in use"
+    field :obsolete_controlled_terms, list_of(:obsolete_term) do
+      arg(:limit, :integer, default_value: 100)
+      middleware(Middleware.Authenticate)
+      resolve(&ControlledVocabulary.obsolete_controlled_terms/3)
+    end
   end
 
   @desc "Search or fetch result"
@@ -57,6 +64,14 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :id, :id
     field :label, :string
     field :hint, :string
+  end
+
+  @desc "Obsolete controlled term with replacement"
+  object :obsolete_term do
+    field :id, :id
+    field :label, :string
+    field :hint, :string
+    field :replaced_by, :id
   end
 
   @desc "Controlled value associated with a role"

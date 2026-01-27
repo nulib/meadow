@@ -4,6 +4,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
   use Meadow.PipelineCase
 
   alias Meadow.Pipeline.Actions.{
+    AttachTranscription,
     CopyFileToPreservation,
     CreatePyramidTiff,
     CreateTranscodeJob,
@@ -111,6 +112,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
                GenerateFileSetDigests,
                ExtractExifMetadata,
                CopyFileToPreservation,
+               AttachTranscription,
                CreatePyramidTiff,
                FileSetComplete
              ]

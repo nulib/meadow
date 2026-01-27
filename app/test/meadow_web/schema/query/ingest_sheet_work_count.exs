@@ -1,7 +1,7 @@
 defmodule MeadowWeb.Schema.Query.IngestSheetWorkCount do
   use Meadow.DataCase
   use Meadow.IngestCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/IngestSheetWorkCount.gql")

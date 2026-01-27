@@ -159,3 +159,13 @@ export const UPDATE_NUL_AUTHORITY_RECORD = gql`
     }
   }
 `;
+
+export const GET_OBSOLETE_CONTROLLED_TERMS = gql`
+  query ListObsoleteControlledTerms($limit: Int) {
+    obsoleteControlledTerms(limit: $limit){
+      id
+      label
+      replacedBy
+    }
+  }
+`

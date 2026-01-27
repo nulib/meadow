@@ -1,7 +1,7 @@
 defmodule MeadowWeb.Schema.Query.ProjectsTest do
   defmodule All do
     use Meadow.DataCase
-    use MeadowWeb.ConnCase, async: true
+    use MeadowWeb.ConnCase, async: false
     use Wormwood.GQLCase
 
     set_gql(MeadowWeb.Schema, """
@@ -28,7 +28,7 @@ defmodule MeadowWeb.Schema.Query.ProjectsTest do
 
   defmodule Limit do
     use Meadow.DataCase
-    use MeadowWeb.ConnCase, async: true
+    use MeadowWeb.ConnCase, async: false
     use Wormwood.GQLCase
 
     set_gql(MeadowWeb.Schema, """
@@ -56,7 +56,7 @@ defmodule MeadowWeb.Schema.Query.ProjectsTest do
 
   defmodule Order do
     use Meadow.DataCase
-    use MeadowWeb.ConnCase, async: true
+    use MeadowWeb.ConnCase, async: false
     use Wormwood.GQLCase
 
     set_gql(MeadowWeb.Schema, """

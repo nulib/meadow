@@ -7,6 +7,7 @@ import {
   GET_NUL_AUTHORITY_RECORDS,
   UPDATE_NUL_AUTHORITY_RECORD,
   GET_PRESERVATION_CHECKS,
+  GET_OBSOLETE_CONTROLLED_TERMS,
 } from "@js/components/Dashboards/dashboards.gql";
 import { errors as csvMetadataUpdateJobErrors } from "@js/components/Dashboards/Csv/Errors";
 
@@ -143,6 +144,19 @@ export const mockNulAuthorityRecords = [
   },
 ];
 
+export const mockObsoleteTerms = [
+  {
+    id: "http://id.authority.org/test/12345",
+    label: "Obsolete Term 1",
+    replacedBy: "http://id.authority.org/test/67890",
+  },
+  {
+    id: "http://id.authority.org/test/54321",
+    label: "Obsolete Term 2",
+    replacedBy: "http://id.authority.org/test/09876",
+  },
+];
+
 export const deleteNulAuthorityRecordMock = {
   request: {
     query: DELETE_NUL_AUTHORITY_RECORD,
@@ -253,6 +267,34 @@ export const updateNulAuthorityRecordMock = {
   result: {
     data: {
       updateNulAuthorityRecord: mockNulAuthorityRecords[0],
+    },
+  },
+};
+
+export const getObsoleteTermsMock = {
+  request: {
+    query: GET_OBSOLETE_CONTROLLED_TERMS,
+    variables: {
+      limit: 100,
+    },
+  },
+  result: {
+    data: {
+      obsoleteControlledTerms: mockObsoleteTerms,
+    },
+  },
+};
+
+export const getObsoleteTermsSetLimitMock = {
+  request: {
+    query: GET_OBSOLETE_CONTROLLED_TERMS,
+    variables: {
+      limit: 25,
+    },
+  },
+  result: {
+    data: {
+      obsoleteControlledTerms: mockObsoleteTerms,
     },
   },
 };
