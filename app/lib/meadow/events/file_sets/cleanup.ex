@@ -49,8 +49,12 @@ defmodule Meadow.Events.FileSets.Cleanup do
   end
 
   defp clean_derivative!(type, "s3://" <> _ = uri) do
-    Logger.warning("Removing #{type} derivative at #{uri}")
-    delete_s3_uri(uri)
+    if URI.parse(uri) |> Map.get(:host) == Config.ingest_bucket() do
+      Logger.warning("Not removing #{type} derivative #{uri} because it is in the ingest bucket.")
+    else
+      Logger.warning("Removing #{type} derivative at #{uri}")
+      delete_s3_uri(uri)
+    end
   end
 
   defp clean_derivative!(_, _), do: :ok
