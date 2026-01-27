@@ -87,3 +87,5 @@ AGENT.md
 /app/priv/python/agent/**/*.pyc
 /app/priv/python/agent/**/*.pyo
 /app/priv/python/agent/**/*.pyd
+
+.aws-sam/

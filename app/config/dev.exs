@@ -35,10 +35,14 @@ if System.get_env("AWS_LOCALSTACK", "false") == "true" do
 end
 
 if System.get_env("USE_SAM_LAMBDAS") do
+  sam_lambda_port =
+    System.get_env("SAM_LAMBDA_PORT", "3005")
+    |> String.to_integer()
+
   config :ex_aws, :lambda,
     scheme: "http",
     host: "localhost",
-    port: 3001
+    port: sam_lambda_port
 
   config :meadow, :lambda,
     digester: {:lambda, "digester"},
