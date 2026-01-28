@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@aws-sdk/s3-request-presigner": "^3.981.0",
-    "aws-s3-shim": "file:../aws-s3-shim",
+    "@aws-sdk/client-s3": "^3.975.0",
     "mediainfo.js": "^0.1.5",
     "uri-js": "^4.4.1"
   }

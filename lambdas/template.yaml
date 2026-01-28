@@ -1,62 +1,83 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Transform: AWS::Serverless-2016-10-31
+Transform:
+  - AWS::Serverless-2016-10-31
+  - AWS::LanguageExtensions
 Description: Meadow Ingest Pipeline
 Parameters:
-  LambdaLayerBase:
+  ProjectName:
     Type: String
-    Default: "s3://nul-public/lambda-layers"
+    Description: Project whose S3 buckets this pipeline can access
+  ConfigSecretPath:
+    Type: String
+    Description: Path to secrets in AWS Secrets Manager
+    Default: config/meadow-pipeline
 Resources:
   exifToolLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: exiftool
       CompatibleRuntimes: ["nodejs22.x"]
-      ContentUri: !Sub "${LambdaLayerBase}/exiftool_lambda_layer.zip"
+      ContentUri: .layers/exiftool_lambda_layer.zip
   ffmpegLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: ffmpeg
       CompatibleRuntimes: ["nodejs22.x"]
-      ContentUri: !Sub "${LambdaLayerBase}/ffmpeg.zip"
+      ContentUri: .layers/ffmpeg.zip
   mediaInfoLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: mediainfo
       CompatibleRuntimes: ["nodejs22.x"]
-      ContentUri: !Sub "${LambdaLayerBase}/mediainfo_lambda_layer.zip"
+      ContentUri: .layers/mediainfo_lambda_layer.zip
   perlLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: perl
       CompatibleRuntimes: ["nodejs22.x"]
-      ContentUri: !Sub "${LambdaLayerBase}/lambda-layer-perl-5.30.zip"
+      ContentUri: .layers/lambda-layer-perl-5.30.zip
   digester:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: digester
       Description: Generate FileSet digests
       CodeUri: ./digester
       Handler: index.handler
       Runtime: nodejs22.x
       MemorySize: 1024
       Timeout: 240
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
   executeFixity:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: execute-fixity
       Description: Run the fixity step function
       CodeUri: ./execute-fixity
       Handler: index.handler
       Runtime: nodejs22.x
       MemorySize: 256
       Timeout: 60
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
       Environment:
         Variables:
           stateMachineArn: ""
   exif:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: exif
       Description: Extract EXIF metadata from FileSet
       CodeUri: ./exif
       Handler: index.handler
@@ -68,13 +89,23 @@ Resources:
         Size: 8192
       MemorySize: 768
       Timeout: 120
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
       Environment:
         Variables:
-          EXIFTOOL: ""
+          EXIFTOOL: "/opt/bin/exiftool"
   frameExtractor:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: frame-extractor
       Description: Extract frame from video
       CodeUri: ./frame-extractor
       Handler: index.handler
@@ -83,10 +114,24 @@ Resources:
         - !Ref ffmpegLayer
       MemorySize: 1024
       Timeout: 240
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
+      Environment:
+        Variables:
+          FFMPEG_PATH: "/opt/bin/ffmpeg"
+          FFPROBE_PATH: "/opt/bin/ffprobe"
   mediainfo:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: mediainfo
       Description: Extract MediaInfo metadata from FileSet
       CodeUri: ./mediainfo
       Handler: index.handler
@@ -95,23 +140,43 @@ Resources:
         - !Ref mediaInfoLayer
       MemorySize: 512
       Timeout: 240
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
       Environment:
         Variables:
-          MEDIAINFO_PATH: ""
+          MEDIAINFO_PATH: "/opt/bin/mediainfo"
   mimeType:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: mime-type
       Description: Extract MIME type from FileSet
       CodeUri: ./mime-type
       Handler: index.handler
       Runtime: nodejs22.x
       MemorySize: 256
       Timeout: 120
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
   pyramidTiff:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: pyramid-tiff
       Description: Create pyramid TIFF derivative
       CodeUri: ./pyramid-tiff
       Handler: index.handler
@@ -120,6 +185,17 @@ Resources:
         - !Ref ffmpegLayer
       MemorySize: 8192
       Timeout: 240
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
       Environment:
         Variables:
           NODE_OPTIONS: "--max-old-space-size=8192"
@@ -127,10 +203,33 @@ Resources:
   streamAuthorizer:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: stream-authorizer
       Description: Stream authorizer
       CodeUri: ./stream-authorizer
       Handler: index.handler
       Runtime: nodejs22.x
       MemorySize: 128
       Timeout: 5
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
+  pipelineConfiguration:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref ConfigSecretPath
+      Description: Configuration secrets for Meadow Ingest Pipeline
+      SecretString:
+        Fn::ToJsonString:
+          digester: !GetAtt digester.Arn
+          exif: !GetAtt exif.Arn
+          frame_extractor: !GetAtt frameExtractor.Arn
+          mediainfo: !GetAtt mediainfo.Arn
+          mime_type: !GetAtt mimeType.Arn
+          tiff: !GetAtt pyramidTiff.Arn

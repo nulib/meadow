@@ -4,41 +4,47 @@ endif
 
 SHELL := /bin/bash
 
-SAM_TEMPLATE ?= lambdas/template.yaml
 SAM_PORT ?= 3005
 SAM_HOST ?= 0.0.0.0
 LAYER_BASE ?= s3://nul-public/lambda-layers
-LAYER_DIR := lambdas/.layers
+LAYER_DIR := .layers
+LOCALSTACK_ENDPOINT ?= https://localhost.localstack.cloud:4566
 
-.PHONY: help sam-layers sam-build sam-start sam-all sam-clean
+.PHONY: help pipeline-layers pipeline-build pipeline-start pipeline-clean
 
 help:
-	echo "make sam-layers   | download lambda layer zips for local SAM"
-	echo "make sam-build    | build the SAM template for local lambdas"
-	echo "make sam-start    | run sam local start-lambda on port $(SAM_PORT)"
-	echo "make sam-all      | sam-layers + sam-build + sam-start"
-	echo "make sam-clean    | remove SAM build artifacts and downloaded layers"
+	echo "make localstack        | start localstack and apply terraform infrastructure"
+	echo "make pipeline-layers   | download lambda layer zips for local SAM"
+	echo "make pipeline-build    | build the SAM template for local lambdas"
+	echo "make pipeline-start    | run sam local start-lambda on port $(SAM_PORT)"
+	echo "make pipeline-clean    | remove SAM build artifacts and downloaded layers"
 
-$(LAYER_DIR)/%.zip:
-	mkdir -p $(LAYER_DIR)
-	aws s3 cp $(LAYER_BASE)/$*.zip $(LAYER_DIR)/
+localstack:
+	cd infrastructure/localstack && \
+	docker compose up -d && \
+	terraform apply -auto-approve -var-file test.tfvars -var localstack_endpoint=$(LOCALSTACK_ENDPOINT)
 
-lambda-modules: lambdas/digester/node_modules lambdas/execute-fixity/node_modules lambdas/exif/node_modules 
-lambda-modules: lambdas/frame-extractor/node_modules lambdas/mediainfo/node_modules lambdas/mime-type/node_modules 
-lambda-modules: lambdas/pyramid-tiff/node_modules lambdas/stream-authorizer/node_modules
+localstack-down:
+	cd infrastructure/localstack && docker compose down -v
+
+node-deps: lambdas/digester/node_modules lambdas/execute-fixity/node_modules lambdas/exif/node_modules 
+node-deps: lambdas/frame-extractor/node_modules lambdas/mediainfo/node_modules lambdas/mime-type/node_modules 
+node-deps: lambdas/pyramid-tiff/node_modules lambdas/stream-authorizer/node_modules
 
 lambdas/%/node_modules:
 	npm install --prefix lambdas/$*
 
-sam-layers: $(LAYER_DIR)/exiftool_lambda_layer.zip $(LAYER_DIR)/ffmpeg.zip $(LAYER_DIR)/mediainfo_lambda_layer.zip $(LAYER_DIR)/lambda-layer-perl-5.30.zip
+$(LAYER_DIR)/%.zip:
+	mkdir -p lambdas/$(LAYER_DIR)
+	aws s3 cp $(LAYER_BASE)/$*.zip lambdas/$(LAYER_DIR)/
 
-sam-build:
-	sam build -t $(SAM_TEMPLATE)
+pipeline-layers: $(LAYER_DIR)/exiftool_lambda_layer.zip $(LAYER_DIR)/ffmpeg.zip $(LAYER_DIR)/mediainfo_lambda_layer.zip $(LAYER_DIR)/lambda-layer-perl-5.30.zip
 
-sam-start: sam-layers lambda-modules
-	sam local start-lambda --host $(SAM_HOST) -p $(SAM_PORT) -t $(SAM_TEMPLATE) --parameter-overrides LambdaLayerBase=.layers
+pipeline-build: pipeline-layers
+	cd lambdas && sam build
 
-sam-all: sam-layers sam-build sam-start
+pipeline-start: pipeline-layers node-deps
+	cd lambdas && sam local start-lambda --host $(SAM_HOST) -p $(SAM_PORT) 
 
-sam-clean:
+pipeline-clean:
 	rm -rf .aws-sam $(LAYER_DIR) lambdas/*/node_modules

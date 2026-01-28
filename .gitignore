@@ -89,3 +89,4 @@ AGENT.md
 /app/priv/python/agent/**/*.pyd
 
 .aws-sam/
+samconfig.*

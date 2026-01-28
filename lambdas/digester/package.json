@@ -6,6 +6,6 @@
   "author": "mbklein",
   "license": "Apache2",
   "dependencies": {
-    "aws-s3-shim": "file:../aws-s3-shim"
+    "@aws-sdk/client-s3": "^3.975.0"
   }
 }

@@ -159,7 +159,6 @@ defmodule Meadow.Utils.Exif do
 
   def transform(metadata) do
     metadata
-    |> IO.inspect(label: "EXIF METADATA")
     |> Enum.map(fn {key, value} ->
       {Inflex.camelize(key, :lower), transform_value(key, value)}
     end)
