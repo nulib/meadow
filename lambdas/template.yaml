@@ -16,22 +16,22 @@ Resources:
     Type: AWS::Serverless::LayerVersion
     Properties:
       CompatibleRuntimes: ["nodejs22.x"]
-      ContentUri: .layers/exiftool_lambda_layer.zip
+      ContentUri: ./layers/exifToolLayer.zip
   ffmpegLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
       CompatibleRuntimes: ["nodejs22.x"]
-      ContentUri: .layers/ffmpeg.zip
+      ContentUri: ./layers/ffmpegLayer.zip
   mediaInfoLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
       CompatibleRuntimes: ["nodejs22.x"]
-      ContentUri: .layers/mediainfo_lambda_layer.zip
+      ContentUri: ./layers/mediaInfoLayer.zip
   perlLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
       CompatibleRuntimes: ["nodejs22.x"]
-      ContentUri: .layers/lambda-layer-perl-5.30.zip
+      ContentUri: ./layers/perlLayer.zip
   digester:
     Type: AWS::Serverless::Function
     Properties:

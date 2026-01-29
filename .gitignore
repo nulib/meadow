@@ -45,8 +45,8 @@ npm-debug.log
 /app/priv/seed_data/
 
 /lambdas/.aws-sam
-/lambdas/.layers
 /lambdas/**/*.log
+/lambdas/layers/*.zip
 
 .elixir_ls
 
