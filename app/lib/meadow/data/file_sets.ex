@@ -631,7 +631,12 @@ defmodule Meadow.Data.FileSets do
           type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
         }
 
-        existing_notes = get_in(work, [Access.key(:descriptive_metadata), Access.key(:notes)]) || []
+        existing_notes =
+          (get_in(work, [Access.key(:descriptive_metadata), Access.key(:notes)]) || [])
+          |> Enum.map(fn
+            %_{} = struct -> Map.from_struct(struct)
+            map when is_map(map) -> map
+          end)
 
         updated_metadata = %{
           descriptive_metadata: %{
