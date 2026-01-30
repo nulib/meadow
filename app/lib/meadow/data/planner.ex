@@ -337,12 +337,14 @@ defmodule Meadow.Data.Planner do
     case check_approvable(plan) do
       :ok ->
         case plan
-        |> Plan.approve(user)
-        |> Repo.update() do
+             |> Plan.approve(user)
+             |> Repo.update() do
           {:ok, updated_plan} = result ->
             broadcast_plan_update(updated_plan)
             result
-          error -> error
+
+          error ->
+            error
         end
 
       {:error, msg} ->
@@ -381,12 +383,14 @@ defmodule Meadow.Data.Planner do
   """
   def reject_plan(%Plan{} = plan, notes \\ nil) do
     case plan
-    |> Plan.reject(notes)
-    |> Repo.update() do
+         |> Plan.reject(notes)
+         |> Repo.update() do
       {:ok, updated_plan} = result ->
         broadcast_plan_update(updated_plan)
         result
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -400,12 +404,14 @@ defmodule Meadow.Data.Planner do
   """
   def mark_plan_completed(%Plan{} = plan) do
     case plan
-    |> Plan.mark_completed()
-    |> Repo.update() do
+         |> Plan.mark_completed()
+         |> Repo.update() do
       {:ok, updated_plan} = result ->
         broadcast_plan_update(updated_plan)
         result
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -419,12 +425,14 @@ defmodule Meadow.Data.Planner do
   """
   def mark_plan_error(%Plan{} = plan, error) do
     case plan
-    |> Plan.mark_error(error)
-    |> Repo.update() do
+         |> Plan.mark_error(error)
+         |> Repo.update() do
       {:ok, updated_plan} = result ->
         broadcast_plan_update(updated_plan)
         result
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -1068,6 +1076,7 @@ defmodule Meadow.Data.Planner do
 
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
   @coded_fields ~w(license rights_statement)a
+  @single_valued_fields ~w(title)
 
   defp apply_controlled_field_operations(work, delete, add) do
     @controlled_fields
@@ -1167,6 +1176,7 @@ defmodule Meadow.Data.Planner do
     |> update_top_level_field(:published, published)
     |> merge_uncontrolled_metadata(add, :append)
     |> merge_coded_fields(add)
+    |> merge_single_valued_fields(add)
     |> merge_uncontrolled_metadata(replace, :replace)
   end
 
@@ -1215,6 +1225,37 @@ defmodule Meadow.Data.Planner do
     work_id
   end
 
+  defp merge_single_valued_fields(work_id, new_values) when map_size(new_values) == 0 do
+    work_id
+  end
+
+  defp merge_single_valued_fields(work_id, new_values) do
+    descriptive_metadata =
+      new_values
+      |> metadata_section(:descriptive_metadata)
+      |> Atoms.atomize()
+
+    # Extract only single-valued fields (currently just title)
+    single_valued_metadata =
+      descriptive_metadata
+      |> Enum.filter(fn {key, _} -> key == :title end)
+      |> Enum.into(%{})
+
+    # Always use replace mode for single-valued fields to avoid creating arrays
+    if map_size(single_valued_metadata) > 0 do
+      from(w in Work, where: w.id == ^work_id)
+      |> Works.merge_metadata_values(
+        :descriptive_metadata,
+        single_valued_metadata,
+        :replace
+      )
+      |> Works.merge_updated_at()
+      |> Repo.update_all([])
+    end
+
+    work_id
+  end
+
   defp merge_uncontrolled_metadata(work_id, new_values, _mode) when map_size(new_values) == 0 do
     work_id
   end
@@ -1226,8 +1267,11 @@ defmodule Meadow.Data.Planner do
       |> Atoms.atomize()
 
     # For append mode, exclude both controlled and coded fields
-    # Coded fields must use replace mode to avoid creating arrays
-    excluded_fields = if mode == :append, do: @controlled_fields ++ @coded_fields, else: @controlled_fields
+    # Coded fields and title must use replace mode to avoid creating arrays
+    excluded_fields =
+      if mode == :append,
+        do: @controlled_fields ++ @coded_fields ++ @single_valued_fields,
+        else: @controlled_fields
 
     mergeable_descriptive_metadata =
       descriptive_metadata

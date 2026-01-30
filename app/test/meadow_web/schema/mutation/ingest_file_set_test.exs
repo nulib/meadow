@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.IngestFileSetTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Meadow.S3Case
   use Wormwood.GQLCase
 

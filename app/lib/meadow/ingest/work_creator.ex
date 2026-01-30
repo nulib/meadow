@@ -9,7 +9,7 @@ defmodule Meadow.Ingest.WorkCreator do
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets, Works}
   alias Meadow.Data.Schemas.{FileSet, Work}
-  alias Meadow.Ingest.{Progress, Rows, Sheets}
+  alias Meadow.Ingest.{Progress, Rows}
   alias Meadow.Ingest.Schemas.Row
   alias Meadow.IntervalTask
   alias Meadow.Pipeline
@@ -19,6 +19,8 @@ defmodule Meadow.Ingest.WorkCreator do
   use IntervalTask, default_interval: 500, function: :create_works
 
   require Logger
+
+  @initial_rank_interval 5_000
 
   @impl IntervalTask
   def initial_state(args) do
@@ -52,7 +54,7 @@ defmodule Meadow.Ingest.WorkCreator do
   defp handle_result({:ok, progress_rows}) do
     Logger.enable(self())
     Logger.info("Creating #{length(progress_rows)} works")
-    create_works_from_rows(progress_rows |> Repo.preload(row: :sheet))
+    create_works_from_rows(progress_rows |> Repo.preload(row: [sheet: :project]))
   end
 
   defp handle_result({:error, message}) do
@@ -92,8 +94,9 @@ defmodule Meadow.Ingest.WorkCreator do
   end
 
   # Ingest a single work and update its status inside a single atomic transaction
-  defp ingest_work({work_row, file_set_rows}, ingest_sheet) do
+  defp ingest_work({work_row, file_set_rows}, %{project: %{folder: folder}} = ingest_sheet) do
     accession_number = work_row |> Row.field_value(:work_accession_number)
+
     Logger.info("Creating work #{accession_number} with #{length(file_set_rows)} file sets")
 
     ingest_bucket = Config.ingest_bucket()
@@ -102,12 +105,17 @@ defmodule Meadow.Ingest.WorkCreator do
       accession_number: accession_number,
       file_sets:
         file_set_rows
-        |> Enum.map(fn row ->
+        |> Enum.with_index()
+        |> Enum.map(fn {row, index} ->
           file_path = Row.field_value(row, :filename)
           location = "s3://#{ingest_bucket}/#{file_path}"
 
-          structure_attributes =
-            structure_attributes(Row.field_value(row, :structure), ingest_sheet)
+          structure_file =
+            case Row.field_value(row, :structure) do
+              nil -> nil
+              "" -> nil
+              path -> "s3://#{ingest_bucket}/#{folder}/#{path}"
+            end
 
           %{
             accession_number: row |> Row.field_value(:file_accession_number),
@@ -118,8 +126,9 @@ defmodule Meadow.Ingest.WorkCreator do
               original_filename: Path.basename(file_path),
               label: row |> Row.field_value(:label)
             },
-            structural_metadata: structure_attributes
+            rank: index * @initial_rank_interval
           }
+          |> attach_structure_or_transcription(structure_file)
         end),
       ingest_sheet_id: ingest_sheet.id,
       published: false,
@@ -129,7 +138,6 @@ defmodule Meadow.Ingest.WorkCreator do
 
     on_complete = fn work ->
       work = set_work_image(work, file_set_rows)
-      create_transcriptions_from_structure(work, file_set_rows, ingest_sheet)
       Progress.update_entry(List.first(file_set_rows), "CreateWork", "ok")
       ActionStates.set_state!(work, "Create Work", "ok")
       send_work_to_pipeline(ingest_sheet, work, file_set_rows)
@@ -154,82 +162,48 @@ defmodule Meadow.Ingest.WorkCreator do
     end
   end
 
-  defp structure_attributes("", _sheet), do: %{type: nil, value: nil}
+  defp ingest_work({work_row, file_set_rows}, ingest_sheet), do:
+    ingest_work({work_row, file_set_rows}, Repo.preload(ingest_sheet, :project))
 
-  defp structure_attributes(path, sheet) do
-    extension = Path.extname(path) |> String.downcase()
+  defp attach_structure_or_transcription(file_set_attrs, nil), do: file_set_attrs
 
-    case extension do
+  defp attach_structure_or_transcription(file_set_attrs, structure_file) do
+    Path.extname(structure_file)
+    |> String.downcase()
+    |> case do
       ".vtt" ->
-        fetch_vtt_structure(path, sheet)
+        Map.put(file_set_attrs, :structural_metadata, fetch_vtt_structure(structure_file))
 
       ".txt" ->
-        # For .txt files (IMAGE transcriptions), we don't store in structural_metadata
-        # They will be created as FileSetAnnotation records in create_transcriptions_from_structure/3
-        %{type: nil, value: nil}
+        Map.update(
+          file_set_attrs,
+          :derivatives,
+          %{"transcription_file" => structure_file},
+          fn derivatives ->
+            Map.put(derivatives, "transcription_file", structure_file)
+          end
+        )
 
       _ ->
-        %{type: nil, value: nil}
+        file_set_attrs
     end
   end
 
-  defp fetch_vtt_structure(path, sheet) do
-    sheet_with_project = Sheets.get_ingest_sheet_with_project!(sheet.id)
+  defp fetch_vtt_structure(s3_location) do
+    %URI{host: bucket, path: "/" <> key} = URI.parse(s3_location)
 
-    case Meadow.Config.ingest_bucket()
-         |> ExAws.S3.get_object("#{sheet_with_project.project.folder}/#{path}")
+    case ExAws.S3.get_object(bucket, key)
          |> ExAws.request() do
       {:ok, vtt} ->
         %{type: "webvtt", value: vtt.body}
 
       {:error, {:http_error, 404, _}} ->
-        Logger.error(".vtt file not found at #{sheet_with_project.project.folder}/#{path}")
+        Logger.error(".vtt file not found at #{s3_location}")
         %{type: nil, value: nil}
 
       {:error, other} ->
         Logger.error(inspect(other))
         %{type: nil, value: nil}
-    end
-  end
-
-  defp create_transcriptions_from_structure(work, file_set_rows, ingest_sheet) do
-    sheet_with_project = Sheets.get_ingest_sheet_with_project!(ingest_sheet.id)
-    ingest_bucket = Config.ingest_bucket()
-
-    file_set_rows
-    |> Enum.zip(work.file_sets)
-    |> Enum.each(fn {row, file_set} ->
-      create_transcription_for_file_set(row, file_set, sheet_with_project, ingest_bucket)
-    end)
-  end
-
-  defp create_transcription_for_file_set(row, file_set, sheet_with_project, ingest_bucket) do
-    structure_file = Row.field_value(row, :structure)
-
-    if structure_file != "" and Path.extname(structure_file) |> String.downcase() == ".txt" do
-      source_key = "#{sheet_with_project.project.folder}/#{structure_file}"
-
-      with {:ok, annotation} <-
-             FileSets.create_annotation(file_set, %{
-               type: "transcription",
-               status: "completed",
-               language: ["en"]
-             }),
-           {:ok, s3_location} <-
-             FileSets.copy_annotation_content(annotation, ingest_bucket, source_key) do
-        FileSets.update_annotation(annotation, %{s3_location: s3_location})
-        Logger.info("Created transcription annotation for file set #{file_set.id}")
-      else
-        {:error, %Ecto.Changeset{} = changeset} ->
-          Logger.error(
-            "Failed to create transcription annotation for file set #{file_set.id}: #{inspect(changeset.errors)}"
-          )
-
-        {:error, reason} ->
-          Logger.error(
-            "Failed to copy transcription to S3 for file set #{file_set.id}: #{inspect(reason)}"
-          )
-      end
     end
   end
 

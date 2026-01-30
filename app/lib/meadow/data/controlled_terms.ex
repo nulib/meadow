@@ -102,7 +102,8 @@ defmodule Meadow.Data.ControlledTerms do
   end
 
   @doc """
-  Deletes values from the cache based on age in seconds and (optional) ID prefix
+  Deletes values from the cache based on age in seconds and (optional) ID prefix,
+  with an optional limit on the number of records to delete at once.
 
   ## Examples
 
@@ -111,20 +112,42 @@ defmodule Meadow.Data.ControlledTerms do
       :ok
 
       # Clear all LCNAF entries older than 24 hours
-      iex> clear!(86_400, "http://id.loc.gov/authorities/names/")
+      iex> clear!(86_400, prefix: "http://id.loc.gov/authorities/names/")
+      :ok
+
+      # Clear all entries older than 24 hours, but no more than 1,000 at a time
+      iex> clear!(86_400, limit: 1_000)
       :ok
   """
-  @spec expire!(age_in_seconds :: integer(), prefix :: binary()) :: :ok | {:error, any()}
-  def expire!(age_in_seconds, prefix \\ "") do
+  @spec expire!(age_in_seconds :: integer(), opts :: [keyword()]) :: :ok | {:error, any()}
+  def expire!(age_in_seconds, opts \\ []) do
     Cachex.clear!(Meadow.Cache.ControlledTerms)
 
-    with timestamp <- NaiveDateTime.utc_now() |> NaiveDateTime.add(-age_in_seconds) do
-      from(e in ControlledTermCache,
-        where: e.updated_at < ^timestamp,
-        where: like(e.id, ^(prefix <> "%"))
-      )
-      |> Repo.delete_all()
-    end
+    opts = Keyword.validate!(opts, prefix: nil, limit: nil)
+
+    timestamp = NaiveDateTime.utc_now() |> NaiveDateTime.add(-age_in_seconds)
+
+    query = Enum.reduce(opts, ControlledTermCache, fn
+      {:prefix, prefix}, query when not is_nil(prefix) ->
+        from(e in query, where: like(e.id, ^(prefix <> "%")))
+
+      {:limit, limit}, query when not is_nil(limit) ->
+        id_query =
+          from(c in query,
+            where: c.updated_at < ^timestamp,
+            order_by: [asc: c.updated_at],
+            limit: ^limit,
+            select: %{id: c.id}
+          )
+        from(e in query, join: s in subquery(id_query), on: e.id == s.id)
+
+      _, query ->
+        query
+    end)
+
+
+    from(e in query, where: e.updated_at < ^timestamp)
+    |> Repo.delete_all()
   end
 
   def cache!(%{id: id, label: label, variants: variants}) do
@@ -175,6 +198,16 @@ defmodule Meadow.Data.ControlledTerms do
     end
   end
 
+  @doc """
+  List obsolete/replaced controlled terms stored in the cache
+  """
+  def list_obsolete_terms(limit \\ 100) do
+      from(c in ControlledTermCache,
+        where: not is_nil(c.replaced_by),
+        limit: ^limit)
+      |> Repo.all()
+  end
+
   defp term_id(%{id: id}), do: id
 
   defp term_id(term), do: term
@@ -216,14 +249,14 @@ defmodule Meadow.Data.ControlledTerms do
     Cachex.del!(Meadow.Cache.ControlledTerms, requested_id)
 
     case Authoritex.fetch(requested_id) do
+      {:ok, %{id: ^requested_id, label: label, variants: variants}} ->
+        try_to_save(requested_id, label, variants, nil)
+
+        {:ok, %{id: requested_id, label: label, variants: variants}}
+
       {:ok, %{id: returned_id, label: label, variants: variants}} ->
-        if requested_id != returned_id do
-          # Obsolete term - cache both the replacement and the obsolete term
-          try_to_save(returned_id, label, variants, nil)
-          try_to_save(requested_id, label, variants, returned_id)
-        else
-          try_to_save(returned_id, label, variants, nil)
-        end
+        try_to_save(returned_id, label, variants, nil)
+        try_to_save(requested_id, label, variants, returned_id)
 
         {:ok, %{id: returned_id, label: label, variants: variants}}
 

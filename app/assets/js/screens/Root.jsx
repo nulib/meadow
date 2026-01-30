@@ -23,6 +23,7 @@ import ScreensDashboardsBatchEditList from "@js/screens/Dashboards/BatchEdit/Lis
 import ScreensDashboardsCsvDetails from "@js/screens/Dashboards/Csv/Details";
 import ScreensDashboardsCsvList from "@js/screens/Dashboards/Csv/List";
 import ScreensDashboardsLocalAuthoritiesList from "@js/screens/Dashboards/LocalAuthorities/List";
+import ScreensDashboardsObsoleteTermsList from "./Dashboards/Authorities/ObsoleteTerms/List";
 import ScreensDashboardsPreservationChecksList from "@js/screens/Dashboards/PreservationChecks/List";
 import ScreensDashboardsUsersList from "@js/screens/Dashboards/Users/List";
 import ScreensIngestSheet from "./IngestSheet/IngestSheet";
@@ -65,6 +66,11 @@ export default class Root extends React.Component {
                   exact
                   path="/dashboards/nul-local-authorities"
                   component={ScreensDashboardsLocalAuthoritiesList}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/obsolete-terms"
+                  component={ScreensDashboardsObsoleteTermsList}
                 />
                 <PrivateRoute
                   exact

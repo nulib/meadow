@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Middleware.AuthorizeTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
 
   alias MeadowWeb.Schema.Middleware.Authorize
 

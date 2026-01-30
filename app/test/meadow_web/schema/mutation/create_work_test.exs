@@ -1,7 +1,7 @@
 defmodule MeadowWeb.Schema.Mutation.CreateWorkTest do
   use Meadow.AuthorityCase
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/CreateWork.gql")

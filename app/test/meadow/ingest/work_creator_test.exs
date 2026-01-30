@@ -133,6 +133,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
         empty_bucket(@ingest_bucket)
         empty_bucket(@derivatives_bucket)
       end)
+      {:ok, ingest_sheet: sheet_with_project}
     end
 
     test "creates transcription annotation for IMAGE work with .txt file", %{
@@ -152,18 +153,8 @@ defmodule Meadow.Ingest.WorkCreatorTest do
         |> Map.get(:file_sets)
         |> Enum.find(fn fs -> String.ends_with?(fs.accession_number, "Donohue_001_01555") end)
 
-      # Verify transcription annotation was created
-      annotations = FileSets.list_annotations(file_set)
-      assert length(annotations) == 1
-
-      annotation = List.first(annotations)
-      assert annotation.type == "transcription"
-      assert annotation.status == "completed"
-      assert annotation.s3_location
-
-      # Verify content was copied to S3
-      {:ok, content} = FileSets.read_annotation_content(annotation)
-      assert content == "This is the transcription for the image!"
+      # Verify transcription location was attached to file set record
+      assert file_set.derivatives |> Map.get("transcription_file") == "s3://#{@ingest_bucket}/#{sheet.project.folder}/#{@transcription_fixture}"
     end
   end
 end
