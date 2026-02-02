@@ -32,6 +32,7 @@ describe("DashboardsObsoleteTermsList component", () => {
     const utils = within(row);
     expect(utils.getByText(/Obsolete Term 1/i));
     expect(utils.getByText(/http:\/\/id.authority.org\/test\/67890/i));
+    expect(utils.getByText(/Replacement Term 1/i));
   });
 
   it("renders correct obsolete terms query limit options", async () => {

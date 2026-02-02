@@ -6,7 +6,7 @@ import { useQuery } from "@apollo/client";
 
 import React from "react";
 
-const colHeaders = ["Obsolete Term", "Obsolete Label", "Replacement Term"];
+const colHeaders = ["Obsolete URI", "Obsolete Label", "Replacement URI", "Replacement Label"];
 
 export default function DashboardsObsoleteTermsList() {
   const history = useHistory();
@@ -79,13 +79,14 @@ export default function DashboardsObsoleteTermsList() {
           </thead>
           <tbody data-testid="obsolete-terms-table-body">
             {authorities.map((record) => {
-              const { id = "", label = "", replacedBy = "" } = record;
+              const { id = "", label = "", replacedBy = "", replacementLabel = "" } = record;
 
               return (
                 <tr key={id} data-testid="obsolete-terms-row">
                   <td><a href={id} target="_blank" rel="noopener noreferrer">{id}</a></td>
                   <td>{label}</td>
                   <td><a href={replacedBy} target="_blank" rel="noopener noreferrer">{replacedBy}</a></td>
+                  <td>{replacementLabel}</td>
 
                   <td className="has-text-right is-right mb-0">
                     <div className="field is-grouped">
