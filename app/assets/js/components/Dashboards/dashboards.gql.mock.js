@@ -149,11 +149,13 @@ export const mockObsoleteTerms = [
     id: "http://id.authority.org/test/12345",
     label: "Obsolete Term 1",
     replacedBy: "http://id.authority.org/test/67890",
+    replacementLabel: "Replacement Term 1",
   },
   {
     id: "http://id.authority.org/test/54321",
     label: "Obsolete Term 2",
     replacedBy: "http://id.authority.org/test/09876",
+    replacementLabel: "Replacement Term 2",
   },
 ];
 

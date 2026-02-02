@@ -70,8 +70,8 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
   object :obsolete_term do
     field :id, :id
     field :label, :string
-    field :hint, :string
     field :replaced_by, :id
+    field :replacement_label, :string
   end
 
   @desc "Controlled value associated with a role"

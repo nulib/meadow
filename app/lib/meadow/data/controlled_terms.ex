@@ -202,8 +202,16 @@ defmodule Meadow.Data.ControlledTerms do
   List obsolete/replaced controlled terms stored in the cache
   """
   def list_obsolete_terms(limit \\ 100) do
-      from(c in ControlledTermCache,
-        where: not is_nil(c.replaced_by),
+      from(obsolete in ControlledTermCache,
+        join: replacement in ControlledTermCache,
+        on: obsolete.replaced_by == replacement.id,
+        where: not is_nil(obsolete.replaced_by),
+        select: %{
+          id: obsolete.id,
+          label: obsolete.label,
+          replaced_by: replacement.id,
+          replacement_label: replacement.label
+        },
         limit: ^limit)
       |> Repo.all()
   end
@@ -248,17 +256,12 @@ defmodule Meadow.Data.ControlledTerms do
   defp cache(requested_id) do
     Cachex.del!(Meadow.Cache.ControlledTerms, requested_id)
 
-    case Authoritex.fetch(requested_id) do
-      {:ok, %{id: ^requested_id, label: label, variants: variants}} ->
-        try_to_save(requested_id, label, variants, nil)
-
+    case Authoritex.fetch(requested_id, redirect: false) do
+      {:ok, %{id: ^requested_id, label: label, variants: variants, related: related}} ->
+        replacement_id = Keyword.get(related, :replaced_by)
+        if not is_nil(replacement_id), do: fetch(replacement_id)
+        try_to_save(requested_id, label, variants, replacement_id)
         {:ok, %{id: requested_id, label: label, variants: variants}}
-
-      {:ok, %{id: returned_id, label: label, variants: variants}} ->
-        try_to_save(returned_id, label, variants, nil)
-        try_to_save(requested_id, label, variants, returned_id)
-
-        {:ok, %{id: returned_id, label: label, variants: variants}}
 
       other ->
         other
