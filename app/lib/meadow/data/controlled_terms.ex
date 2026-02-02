@@ -256,12 +256,23 @@ defmodule Meadow.Data.ControlledTerms do
   defp cache(requested_id) do
     Cachex.del!(Meadow.Cache.ControlledTerms, requested_id)
 
-    case Authoritex.fetch(requested_id, redirect: false) do
+    try do
+      Authoritex.fetch(requested_id, redirect: false)
+    rescue
+      e in Exception ->
+        Logger.warning("HTTP error fetching controlled term #{requested_id}: #{e.message}")
+        {:error, e.message}
+    end
+    |> case do
       {:ok, %{id: ^requested_id, label: label, variants: variants, related: related}} ->
         replacement_id = Keyword.get(related, :replaced_by)
         if not is_nil(replacement_id), do: fetch(replacement_id)
         try_to_save(requested_id, label, variants, replacement_id)
         {:ok, %{id: requested_id, label: label, variants: variants}}
+
+      {:error, %Req.HTTPError{reason: {_, reason}}} ->
+        Logger.warning("HTTP error fetching controlled term #{requested_id}: #{reason}")
+        {:error, 404}
 
       other ->
         other
