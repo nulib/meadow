@@ -1,7 +1,7 @@
 defmodule MeadowWeb.Schema.Query.WorksTest do
   defmodule All do
     use Meadow.DataCase
-    use MeadowWeb.ConnCase, async: true
+    use MeadowWeb.ConnCase, async: false
     use Wormwood.GQLCase
 
     set_gql(MeadowWeb.Schema, """
@@ -26,7 +26,7 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
 
   defmodule Limit do
     use Meadow.DataCase
-    use MeadowWeb.ConnCase, async: true
+    use MeadowWeb.ConnCase, async: false
     use Wormwood.GQLCase
 
     set_gql(MeadowWeb.Schema, """
@@ -55,7 +55,7 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
 
   defmodule TitleMatch do
     use Meadow.DataCase
-    use MeadowWeb.ConnCase, async: true
+    use MeadowWeb.ConnCase, async: false
     use Wormwood.GQLCase
 
     set_gql(MeadowWeb.Schema, """
@@ -92,7 +92,7 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
 
   defmodule RepresentativeImage do
     use Meadow.DataCase
-    use MeadowWeb.ConnCase, async: true
+    use MeadowWeb.ConnCase, async: false
     use Wormwood.GQLCase
     alias Meadow.Data.Works
 

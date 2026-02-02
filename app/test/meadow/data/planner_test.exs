@@ -847,6 +847,25 @@ defmodule Meadow.Data.PlannerTest do
       assert humanized != nil
     end
 
+    test "applies add change to single-valued title field using replace mode", %{plan: plan} do
+      work = work_fixture(%{descriptive_metadata: %{title: "Original Title"}})
+
+      {:ok, change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          add: %{descriptive_metadata: %{title: "Updated Title"}},
+          status: :approved
+        })
+
+      assert {:ok, completed_change} = Planner.apply_plan_change(change)
+      assert completed_change.status == :completed
+
+      updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+
+      assert updated_work.descriptive_metadata.title == "Updated Title"
+    end
+
     test "marks error when work not found", %{plan: plan} do
       fake_work_id = Ecto.UUID.generate()
 

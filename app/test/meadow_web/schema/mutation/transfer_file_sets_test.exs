@@ -1,6 +1,6 @@
 defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/TransferFileSets.gql")
@@ -82,7 +82,7 @@ end
 
 defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest.Subset do
   use Meadow.DataCase
-  use MeadowWeb.ConnCase, async: true
+  use MeadowWeb.ConnCase, async: false
   use Wormwood.GQLCase
 
   load_gql(MeadowWeb.Schema, "test/gql/TransferFileSetsSubset.gql")

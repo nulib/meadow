@@ -114,10 +114,11 @@ jobs:
         run: mix credo
         working-directory: app
       - name: Elixir Tests
-        run: mix test || mix test --failed
+        run: mix test || mix test --seed $(cat ${MEADOW_TEST_SAVE_SEED}) --failed
         env:
           AWS_LOCALSTACK: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MEADOW_TEST_SAVE_SEED: ${{ runner.temp }}/MEADOW_TEST_SEED
         working-directory: app
       # - name: Test DB Rollback
       #   run: mix ecto.rollback --all
