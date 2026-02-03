@@ -78,4 +78,45 @@ export const CODED_TERM_FIELDS = new Set([
 export const NESTED_CODED_TERM_FIELDS = new Set([
   "descriptive_metadata.notes",
   "descriptive_metadata.related_url",
+  "administrative_metadata.library_unit",
+  "administrative_metadata.preservation_level",
+  "administrative_metadata.status",
+  "administrative_metadata.visibility",
+]);
+
+/**
+ * Set of single valued text fields by their dotted paths
+ */
+export const TEXT_SINGLE_FIELDS = new Set([
+  "descriptive_metadata.title",
+  "descriptive_metadata.terms_of_use",
+]);
+
+/**
+ * Set of multi valued text fields by their dotted paths
+ */
+export const TEXT_ARRAY_FIELDS = new Set([
+  "descriptive_metadata.abstract",
+  "descriptive_metadata.alternate_title",
+  "descriptive_metadata.box_name",
+  "descriptive_metadata.box_number",
+  "descriptive_metadata.catalog_key",
+  "descriptive_metadata.caption",
+  "descriptive_metadata.cultural_context",
+  "descriptive_metadata.description",
+  "descriptive_metadata.date_created",
+  "descriptive_metadata.folder_name",
+  "descriptive_metadata.folder_number",
+  "descriptive_metadata.identifier",
+  "descriptive_metadata.keywords",
+  "descriptive_metadata.legacy_identifier",
+  "descriptive_metadata.physical_description_material",
+  "descriptive_metadata.physical_description_size",
+  "descriptive_metadata.provenance",
+  "descriptive_metadata.publisher",
+  "descriptive_metadata.related_material",
+  "descriptive_metadata.scope_and_contents",
+  "descriptive_metadata.series",
+  "descriptive_metadata.source",
+  "descriptive_metadata.table_of_contents",
 ]);

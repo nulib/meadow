@@ -3,7 +3,12 @@ import {
   CONTROLLED_TERM_FIELDS,
   CODED_TERM_FIELDS,
   NESTED_CODED_TERM_FIELDS,
+  TEXT_SINGLE_FIELDS,
+  TEXT_ARRAY_FIELDS,
 } from "@js/components/Plan/fields";
+import {
+  CONTROLLED_METADATA,
+} from "@js/services/metadata";
 
 /**
  * Ensure a value is an array
@@ -24,6 +29,16 @@ const isCodedTerm = (path) => CODED_TERM_FIELDS.has(path);
  * Determine if a given dotted path is a nested coded term field
  */
 const isNestedCodedTerm = (path) => NESTED_CODED_TERM_FIELDS.has(path);
+
+/**
+ * Determine if a given dotted path is a single valued text field
+ */
+const isTextSingle = (path) => TEXT_SINGLE_FIELDS.has(path);
+
+/**
+ * Determine if a given dotted path is a multi valued text field
+ */
+const isTextArray = (path) => TEXT_ARRAY_FIELDS.has(path);
 
 /**
  * Lookup a display label from WORK_FIELDS
@@ -126,6 +141,8 @@ export {
   isControlled,
   isCodedTerm,
   isNestedCodedTerm,
+  isTextSingle,
+  isTextArray,
   getFieldLabel,
   toRows,
 };

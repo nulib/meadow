@@ -69,17 +69,33 @@ export const proposerPrompt = () => `
     - Process one change at a time and recheck pending list
     - After all changes, call propose_plan so the plan itself is proposed; do not skip
     - Return a summary with counts
-    - The \`id\` field can never be changed
-    - The \`title\` is a single string; do not use lists
+    - The id, ark and accession_number fields can never be changed
+    - The title and terms_of_use fields are single strings; do not use lists
     - Works can only have one rights statement
     - NEVER populate the navPlace field - it is experimental and not ready for use
 
-    Controlled term fields (must use authoritiesSearch): contributor (role required, marc_relator), creator (role optional, marc_relator), genre, language, location, subject (role required, subject_role), style_period, technique.
+    CRITICAL - Valid operations per field type:
+    - Controlled term fields (contributor, creator, genre, language, location, style_period, subject, technique):
+      Use "add" to add new terms. Use "delete" to remove specific existing terms.
+      To replace a term, put the old value in "delete" AND the new value in "add" in the same update.
+      NEVER use "replace" for these fields - it will be ignored.
+    - Coded fields (license, rights_statement) and title and terms_of_use:
+      ONLY use "replace". Never use "add" or "delete" for these fields.
+    - All other fields (description, alternate_title, notes, related_url, date_created, etc.):
+      Use "add" to append new values alongside existing ones (existing values are kept).
+      Use "replace" to overwrite the entire field with new values (existing values are removed).
+      To remove specific items from these fields, use "replace" with only the items you want to keep.
+      To clear a field entirely, use "replace" with an empty array [].
+      NEVER use "delete" for these fields - it will be ignored.
+    - date_created: use simple EDTF strings e.g. ["1985", "2005-06"] - do NOT use {edtf:, humanized:} objects.
+    - Do not suggest changes to administrative_metadata fields
+
+    Controlled term fields (must use authoritiesSearch): contributor (role required, marc_relator), subject (role required, subject_role), genre, language, location, creator, style_period, technique.
 
     Requirements:
     - Always search for controlled term IDs; never invent them
     - Structure: {"term": {"id": "controlled-term-id", "label": "Label"}, "role": {"id": "role-id", "scheme": "role-scheme", "label": "Role Label"}}
-    - term is an object with id, not a string; role required for subject and contributor, optional for creator
+    - term is an object with id, not a string; role required for subject and contributor
     - For roles, query codeList(scheme: SUBJECT_ROLE or MARC_RELATOR); use returned ids (e.g., TOPICAL, GEOGRAPHIC, TEMPORAL, GENRE_FORM, pht, art, ctb)
 
     Examples:
@@ -88,7 +104,7 @@ export const proposerPrompt = () => `
 
     Authorities: lcsh (subject), lcnaf (creator/contributor), lcgft (genre), lclang (language), fast/fast-* subsets (subject), aat (technique/style_period/genre), tgn or geonames (location), ulan (creator/contributor), homosaurus (LGBTQ+), nul-authority (any field).
 
-    Controlled term format in add/replace:
+    Controlled term format in add/replace (for contributor (role required), genre, language, location, subject (role required), style_period, technique, creator:
     {
       "descriptive_metadata": {
         "subject": [{"term": {"id": "http://id.worldcat.org/fast/849374"}, "role": {"id": "TOPICAL", "scheme": "subject_role"}}],

@@ -163,10 +163,7 @@ const PlanPanelChanges = ({
               Approved
             </span>
             <hr className="plan-panel-changes--status--divider" />
-            <span
-              data-status={status}
-              data-active={status === "COMPLETED"}
-            >
+            <span data-status={status} data-active={status === "COMPLETED"}>
               Applied
             </span>
           </div>
@@ -232,7 +229,10 @@ const PlanPanelChanges = ({
               <UISkeleton type="text" rows={3} />
             </div>
           )}
-          <PlanPanelChangesDiff proposedChanges={changes?.planChange || {}} />
+          <PlanPanelChangesDiff
+            proposedChanges={changes?.planChange || {}}
+            planChangeId={changes?.planChange?.id}
+          />
         </div>
       )}
     </div>
