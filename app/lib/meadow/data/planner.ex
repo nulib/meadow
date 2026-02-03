@@ -722,6 +722,21 @@ defmodule Meadow.Data.Planner do
   end
 
   @doc """
+  Deletes a plan change.
+
+  ## Examples
+
+      iex> delete_plan_change(plan_change)
+      {:ok, %PlanChange{}}
+
+      iex> delete_plan_change(plan_change)
+      {:error, %Ecto.Changeset{}}
+  """
+  def delete_plan_change(%PlanChange{} = plan_change) do
+    Repo.delete(plan_change)
+  end
+
+  @doc """
   Approves all proposed changes for a given plan
   """
   def approve_proposed_plan_changes(%Plan{} = plan, user \\ nil) do
