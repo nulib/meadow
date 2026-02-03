@@ -306,7 +306,7 @@ defmodule Meadow.Ingest.Validator do
       nil ->
         if FileSets.accession_exists?(value),
           do: {:error, "file_accession_number", "#{value} already exists in system"},
-          else: :ok
+          else: ensure_trimmed(value, "file_accession_number")
 
       duplicate_rows ->
         with row_list <- duplicate_rows |> Enum.map_join(", ", &to_string/1) do
@@ -321,7 +321,7 @@ defmodule Meadow.Ingest.Validator do
         {:error, "work_accession_number", "#{value} already exists in system"}
 
       false ->
-        :ok
+        ensure_trimmed(value, "work_accession_number")
     end
   end
 
@@ -355,6 +355,12 @@ defmodule Meadow.Ingest.Validator do
 
   defp validate_value(_row, {_field_name, _value}, _context),
     do: :ok
+
+  defp ensure_trimmed(value, field_name) do
+    if String.trim(value) == value,
+      do: :ok,
+      else: {:error, field_name, "cannot have leading or trailing spaces"}
+  end
 
   defp validate_structure_value({:ok, %{body: content}}, value, work_type) do
     extension = Path.extname(value) |> String.downcase()

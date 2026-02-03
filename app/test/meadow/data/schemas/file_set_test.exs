@@ -60,5 +60,13 @@ defmodule Meadow.Data.Schemas.FileSetTest do
 
       assert log =~ ~r/Ignoring :metadata/
     end
+
+    test "accession number cannot have leading or trailing spaces" do
+      invalid_attrs = Map.put(@valid_attrs, :accession_number, " 12345 ")
+
+      assert changeset = FileSet.changeset(%FileSet{}, invalid_attrs)
+      assert changeset.errors[:accession_number] ==
+        {"cannot have leading or trailing spaces", []}
+    end
   end
 end

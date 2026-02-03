@@ -60,6 +60,7 @@ defmodule Meadow.Data.Schemas.FileSet do
       changeset =
         file_set
         |> cast(rename_core_metadata(params), required_params ++ optional_params)
+        |> validate_trimmed(:accession_number)
         |> prepare_embed(:core_metadata)
         |> cast_embed(:core_metadata)
         |> prepare_embed(:structural_metadata)

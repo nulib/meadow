@@ -128,6 +128,18 @@ defmodule Meadow.Ingest.ValidatorTest do
       assert(ingest_sheet.status == "row_fail")
     end
 
+    @tag sheet: "ingest_sheet_accession_with_spaces.csv"
+    test "fails when work or file accession_number isn't trimmed", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
+
+      assert(ingest_sheet.status == "row_fail")
+      %{ingest_sheet_rows: rows} = Repo.preload(ingest_sheet, :ingest_sheet_rows)
+
+      assert Enum.filter(rows, fn row -> not Enum.empty?(row.errors) end)
+             |> length() == 4
+    end
+
     @tag sheet: "ingest_sheet_work_accession_exists.csv"
     test "fails when work_accession_number already exists", context do
       work_fixture(%{accession_number: "6779"})

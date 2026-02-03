@@ -62,14 +62,14 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                    "errors" => [
                      %{
                        "field" => "contributor#3",
-                       "messages" => ["nop is an invalid coded term for scheme MARC_RELATOR"]
+                       "messages" => [~s'"nop" is an invalid coded term for scheme MARC_RELATOR']
                      }
                    ],
                    "row" => 12
                  },
                  %{
                    "errors" => [
-                     %{"field" => "id", "messages" => ["NOT_A_UUID is not a valid UUID"]}
+                     %{"field" => "id", "messages" => [~s'"NOT_A_UUID" is not a valid UUID']}
                    ],
                    "row" => 13
                  },
@@ -77,7 +77,7 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                    "errors" => [
                      %{
                        "field" => "date_created",
-                       "messages" => ["[%{edtf: \"bad_date\"}, %{edtf: \"201?\"}] is invalid"]
+                       "messages" => [~s'[%{edtf: "bad_date"}, %{edtf: "201?"}] is invalid']
                      }
                    ],
                    "row" => 14
@@ -86,7 +86,7 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                    "errors" => [
                      %{
                        "field" => "id",
-                       "messages" => ["0bde5432-0b7b-4f80-98fb-5f7ceff98dee not found"]
+                       "messages" => [~s'"0bde5432-0b7b-4f80-98fb-5f7ceff98dee" not found']
                      }
                    ],
                    "row" => 18
@@ -96,7 +96,7 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                    "row" => 21
                  },
                  %{
-                   "errors" => [%{"field" => "published", "messages" => ["flase is invalid"]}],
+                   "errors" => [%{"field" => "published", "messages" => [~s'"flase" is invalid']}],
                    "row" => 26
                  },
                  %{"errors" => [%{"field" => "id", "messages" => ["is required"]}], "row" => 28},
@@ -104,7 +104,7 @@ defmodule MeadowWeb.Schema.Query.GetMetadataUpdateJobByIdTest do
                    "errors" => [
                      %{
                        "field" => "accession_number",
-                       "messages" => ["MISMATCHED_ACCESSION does not match"]
+                       "messages" => [~s'"MISMATCHED_ACCESSION" does not match']
                      }
                    ],
                    "row" => 37
