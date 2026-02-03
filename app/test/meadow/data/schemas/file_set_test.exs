@@ -7,7 +7,7 @@ defmodule Meadow.Data.Schemas.FileSetTest do
 
   describe "file_sets" do
     @valid_attrs %{
-      accession_number: "12345",
+      accession_number: "  12345  ",
       role: %{id: "A", scheme: "FILE_SET_ROLE"},
       core_metadata: %{
         description: "yes",
@@ -27,6 +27,10 @@ defmodule Meadow.Data.Schemas.FileSetTest do
 
     test "created file_set has a UUID identifier", %{file_set: file_set} do
       assert {:ok, <<_data::binary-size(16)>>} = Ecto.UUID.dump(file_set.id)
+    end
+
+    test "accession number is trimmed", %{file_set: file_set} do
+      assert file_set.accession_number == "12345"
     end
 
     test "Rename metadata to core_metadata", %{file_set: file_set} do

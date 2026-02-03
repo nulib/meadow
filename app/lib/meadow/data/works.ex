@@ -213,6 +213,7 @@ defmodule Meadow.Data.Works do
   true
   """
   def accession_exists?(accession_number) do
+    accession_number = String.trim(accession_number)
     Repo.exists?(from(w in Work, where: w.accession_number == ^accession_number))
   end
 

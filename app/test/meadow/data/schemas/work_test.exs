@@ -23,5 +23,14 @@ defmodule Meadow.Data.Schemas.WorkTest do
 
       assert {:ok, <<_data::binary-size(16)>>} = Ecto.UUID.dump(work.id)
     end
+
+    test "accession number is trimmed", %{attrs: attrs} do
+      {:ok, work} =
+        %Work{}
+        |> Work.changeset(Map.put(attrs, :accession_number, "  12345  "))
+        |> Repo.insert()
+
+      assert work.accession_number == "12345"
+    end
   end
 end

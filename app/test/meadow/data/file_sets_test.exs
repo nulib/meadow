@@ -162,6 +162,7 @@ defmodule Meadow.Data.FileSetsTest do
       file_set = file_set_fixture()
 
       assert FileSets.accession_exists?(file_set.accession_number) == true
+      assert FileSets.accession_exists?(" #{file_set.accession_number}  ") == true
     end
 
     test "compute_positions/1 dynamically sets position values" do

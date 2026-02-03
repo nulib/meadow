@@ -130,6 +130,8 @@ defmodule Meadow.Ingest.Validator do
       v =
         case k do
           "filename" -> sheet.project.folder <> "/" <> v
+          "work_accession_number" -> String.trim(v)
+          "file_accession_number" -> String.trim(v)
           _ -> v
         end
 

@@ -75,6 +75,7 @@ defmodule Meadow.Data.WorksTest do
       work = work_fixture()
 
       assert Works.accession_exists?(work.accession_number) == true
+      assert Works.accession_exists?(" #{work.accession_number}  ") == true
     end
 
     test "add_to_collection/2 adds the work to a collection" do

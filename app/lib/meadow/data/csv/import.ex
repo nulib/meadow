@@ -135,6 +135,10 @@ defmodule Meadow.Data.CSV.Import do
     |> Enum.map(&decode_field({:embedded, type}, String.trim(&1), field))
   end
 
+  defp decode_field(:string, value, :accession_number) when is_binary(value) do
+    String.trim(value)
+  end
+
   defp decode_field({:array, :map}, value, :nav_place) when is_binary(value) do
     decode_nav_place(value) || []
   end

@@ -89,6 +89,7 @@ defmodule Meadow.Data.Schemas.Work do
     with {required_params, optional_params} <- changeset_params() do
       work
       |> cast(attrs, required_params ++ optional_params)
+      |> update_change(:accession_number, &String.trim/1)
       |> prepare_embed(:administrative_metadata)
       |> prepare_embed(:descriptive_metadata)
       |> cast_embed(:administrative_metadata)

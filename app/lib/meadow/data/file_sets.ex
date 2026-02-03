@@ -83,6 +83,7 @@ defmodule Meadow.Data.FileSets do
   true
   """
   def accession_exists?(accession_number) do
+    accession_number = String.trim(accession_number)
     Repo.exists?(from(f in FileSet, where: f.accession_number == ^accession_number))
   end
 
