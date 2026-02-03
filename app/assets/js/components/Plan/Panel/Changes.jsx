@@ -20,6 +20,121 @@ const PlanPanelChanges = ({
   target,
   onCompleted,
 }) => {
+  // TODO: REMOVE - Mock data for development
+  // const MOCK_CHANGES = {
+  //   planChange: {
+  //     __typename: "PlanChange",
+  //     id: "mock-plan-change-id",
+  //     status: "PROPOSED",
+  //     add: {
+  //       descriptive_metadata: {
+  //         genre: [
+  //           {
+  //             term: {
+  //               id: "http://id.loc.gov/authorities/genreForms/gf2017027249",
+  //               label: "Photographs",
+  //             },
+  //           },
+  //         ],
+  //         subject: [
+  //           {
+  //             term: {
+  //               id: "http://id.worldcat.org/fast/1893289",
+  //               label: "Coffee cups",
+  //             },
+  //             role: {
+  //               id: "TOPICAL",
+  //               label: "Topical",
+  //               scheme: "subject_role",
+  //             },
+  //           },
+  //           {
+  //             term: {
+  //               id: "http://id.worldcat.org/fast/992606",
+  //               label: "Laptop computers",
+  //             },
+  //             role: {
+  //               id: "TOPICAL",
+  //               label: "Topical",
+  //               scheme: "subject_role",
+  //             },
+  //           },
+  //         ],
+  //         notes: [
+  //           {
+  //             type: {
+  //               id: "LOCAL_NOTE",
+  //               label: "Local Note",
+  //               scheme: "note_type",
+  //             },
+  //             note: "Some metadata created with the assistance of AI on 2026-02-05",
+  //           },
+  //         ],
+  //         description: [
+  //           "A laptop computer displaying programming code on its screen sits on a wooden table with a cup of coffee.",
+  //           "A cozy environment",
+  //           "A coffee shop scene",
+  //         ],
+  //         date_created: ["1964", "1964-04"],
+  //         related_url: [
+  //           {
+  //             url: "https://www.northwestern.edu/libraries/collections/digital-collections/",
+  //             label: {
+  //               id: "RELATED_INFORMATION",
+  //               label: "Related Information",
+  //               scheme: "related_url",
+  //             },
+  //           },
+  //           {
+  //             url: "https://guides.library.northwestern.edu/photography-collections",
+  //             label: {
+  //               id: "RESEARCH_GUIDE",
+  //               label: "Research Guide",
+  //               scheme: "related_url",
+  //             },
+  //           },
+  //         ],
+  //         contributor: [
+  //           {
+  //             role: { id: "col", label: "Collector", scheme: "marc_relator" },
+  //             term: {
+  //               id: "http://id.loc.gov/authorities/names/nb2018012059",
+  //               label: "O'Reilly, Louise (Archivist)",
+  //             },
+  //           },
+  //           {
+  //             role: { id: "cur", label: "Curator", scheme: "marc_relator" },
+  //             term: {
+  //               id: "http://id.loc.gov/authorities/names/no2023141536",
+  //               label: "Yokota, Megumi (Curator)",
+  //             },
+  //           },
+  //           {
+  //             role: { id: "edt", label: "Editor", scheme: "marc_relator" },
+  //             term: {
+  //               id: "http://id.loc.gov/authorities/names/no2010179616",
+  //               label: "O'Brien, Barbara (Curator)",
+  //             },
+  //           },
+  //         ],
+  //       },
+  //     },
+  //     replace: {
+  //       descriptive_metadata: {
+  //         title: "Coffee Cup and Laptop",
+  //         license: {
+  //           id: "http://creativecommons.org/publicdomain/zero/1.0/",
+  //           label: "CC0 1.0 Universal",
+  //           scheme: "license",
+  //         },
+  //       },
+  //     },
+  //     delete: null,
+  //   },
+  // };
+  // changes = MOCK_CHANGES; // Override with mock data
+  // plan = { ...plan, status: "PROPOSED" }; // Start at PROPOSED status to see the diff immediately
+
   const [loading, setLoading] = React.useState(true);
   const [isApproved, setIsApproved] = React.useState(false);
   const [isApplying, setIsApplying] = React.useState(false);
@@ -163,10 +278,7 @@ const PlanPanelChanges = ({
               Approved
             </span>
             <hr className="plan-panel-changes--status--divider" />
-            <span
-              data-status={status}
-              data-active={status === "COMPLETED"}
-            >
+            <span data-status={status} data-active={status === "COMPLETED"}>
               Applied
             </span>
           </div>
@@ -232,7 +344,10 @@ const PlanPanelChanges = ({
               <UISkeleton type="text" rows={3} />
             </div>
           )}
-          <PlanPanelChangesDiff proposedChanges={changes?.planChange || {}} />
+          <PlanPanelChangesDiff
+            proposedChanges={changes?.planChange || {}}
+            planChangeId={changes?.planChange?.id}
+          />
         </div>
       )}
     </div>

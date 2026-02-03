@@ -13,11 +13,20 @@ const conversationId = uuidv4();
 
 const Plan = ({ works }) => {
   const query = works.map((work) => `id:(${work.id})`).join(" OR ");
+
+  // TODO: REMOVE - Uncomment this block to mock plan data for development
+
+  // const [planId, setPlanId] = React.useState("mock-plan-id");
+  // const [summary, setSummary] = React.useState("This is a mock summary of proposed changes.");
+  // const [originalPrompt, setOriginalPrompt] = React.useState("Update the metadata for this work");
+
+  // Normal (non-mocked) state
   const [planId, setPlanId] = React.useState(null);
-  const [loadingMessage, setLoadingMessage] =
-    React.useState("Initializing plan");
   const [summary, setSummary] = React.useState(null);
   const [originalPrompt, setOriginalPrompt] = React.useState(null);
+
+  const [loadingMessage, setLoadingMessage] =
+    React.useState("Initializing plan");
 
   const { data: planChanges, error: planChangesError } = usePlanChanges(planId);
   const { data: plan, error: planError } = usePlan(planId);

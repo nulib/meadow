@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import UIControlledTermList from "@js/components/UI/ControlledTerm/List";
+import UIModalDelete from "@js/components/UI/Modal/Delete";
 import {
   toArray,
   toRows,
   isCodedTerm,
-  isNestedCodedTerm,
 } from "@js/components/Plan/Panel/diff-helpers";
+import { IconEdit, IconDelete } from "@js/components/Icon";
+import { UPDATE_PLAN_CHANGE } from "../plan.gql";
+import { Button } from "@nulib/design-system";
+import { useMutation } from "@apollo/client";
+import EditDiffRowForm from "@js/components/Plan/Panel/EditDiffRowForm";
 
 /**
  * Tag indicating the method of change
@@ -54,9 +59,7 @@ const renderNotes = (notes) => {
     <ul>
       {notes.map((note, i) => (
         <li key={i}>
-          {note.type?.label && (
-            <strong>{note.type.label}: </strong>
-          )}
+          {note.type?.label && <strong>{note.type.label}: </strong>}
           {note.note || "—"}
         </li>
       ))}
@@ -74,9 +77,7 @@ const renderRelatedUrls = (urls) => {
     <ul>
       {urls.map((item, i) => (
         <li key={i}>
-          {item.label?.label && (
-            <strong>{item.label.label}: </strong>
-          )}
+          {item.label?.label && <strong>{item.label.label}: </strong>}
           {item.url ? (
             <a href={item.url} target="_blank" rel="noopener noreferrer">
               {item.url}
@@ -129,7 +130,150 @@ const renderGenericValue = (value) => {
   return JSON.stringify(value, null, 0);
 };
 
-const PlanPanelChangesDiff = ({ proposedChanges }) => {
+const PlanPanelChangesDiff = ({ proposedChanges, planChangeId }) => {
+  console.log("PlanPanelChangesDiff - proposedChanges:", proposedChanges);
+  console.log(
+    "PlanPanelChangesDiff - proposedChanges (stringified):",
+    JSON.stringify(proposedChanges, null, 2),
+  );
+
+  const [updatePlanChange] = useMutation(UPDATE_PLAN_CHANGE);
+  const [editingRowId, setEditingRowId] = useState(null);
+  const [deletingRowId, setDeletingRowId] = useState(null);
+
+  const isProposed = proposedChanges?.status === "PROPOSED";
+
+  const removeFieldFromProposedChanges = (id) => {
+    const [method, path] = id.split("-");
+
+    const methodChanges = JSON.parse(
+      JSON.stringify(proposedChanges[method] || {}),
+    );
+    const pathSegments = path.split(".");
+    let current = methodChanges;
+
+    for (let i = 0; i < pathSegments.length - 1; i++) {
+      const key = pathSegments[i];
+      if (typeof current[key] === "undefined" || current[key] === null) {
+        return;
+      }
+      current = current[key];
+    }
+
+    const finalKey = pathSegments[pathSegments.length - 1];
+    if (typeof current[finalKey] !== "undefined") {
+      delete current[finalKey];
+    }
+
+    console.log("Updated (method) changes after removal:", methodChanges);
+
+    return {
+      ...proposedChanges,
+      [method]: methodChanges,
+    };
+  };
+
+  const formatUpdates = (updatedPlanChangeForMethod) => {
+    return Object.keys(updatedPlanChangeForMethod || {}).length > 0
+      ? JSON.stringify(updatedPlanChangeForMethod)
+      : null;
+  };
+
+  const handleDeletePlanChangeRow = async (id) => {
+    console.log("proposedChanges:", proposedChanges);
+    console.log("planChangeId:", planChangeId);
+    console.log("Deleting plan change row with id:", id, "Type:", typeof id);
+    if (!id) {
+      console.error("Cannot delete: id is null or undefined");
+      return;
+    }
+
+    const updatedPlanChange = removeFieldFromProposedChanges(id);
+    console.log("Sending to mutation:", {
+      id: planChangeId,
+      add: updatedPlanChange.add,
+      replace: updatedPlanChange.replace,
+      delete: updatedPlanChange.delete,
+    });
+
+    try {
+      await updatePlanChange({
+        variables: {
+          id: planChangeId,
+          add: formatUpdates(updatedPlanChange.add),
+          replace: formatUpdates(updatedPlanChange.replace),
+          delete: formatUpdates(updatedPlanChange.delete),
+        },
+      });
+    } catch (e) {
+      console.error("Error deleting plan change row:", e);
+    }
+    setDeletingRowId(null);
+  };
+
+  const handleSaveClick = async (changeId, newValue) => {
+    // TODO: Parse newValue back to correct type and update via mutation
+    console.log("Saving change:", changeId, "with new value:", newValue);
+    console.log(
+      "Saving change:",
+      changeId,
+      "with new value:",
+      JSON.stringify(newValue, null, 2),
+    );
+
+    // Parse the changeId to get method and path
+    const [method, path] = changeId.split("-");
+
+    // Update the proposedChanges structure
+    const updatedChanges = JSON.parse(JSON.stringify(proposedChanges));
+
+    // Navigate to the field and update it (path already exists since we're editing an existing row)
+    const pathSegments = path.split(".");
+    let current = updatedChanges[method];
+
+    // Navigate to the parent
+    for (let i = 0; i < pathSegments.length - 1; i++) {
+      current = current[pathSegments[i]];
+    }
+
+    // Update the value
+    const finalSegment = pathSegments[pathSegments.length - 1];
+    current[finalSegment] = newValue;
+
+    console.log("Updated changes:", JSON.stringify(updatedChanges, null, 2));
+
+    // Call updatePlanChange mutation
+    try {
+      await updatePlanChange({
+        variables: {
+          id: planChangeId,
+          add: updatedChanges.add && formatUpdates(updatedChanges.add),
+          replace:
+            updatedChanges.replace && formatUpdates(updatedChanges.replace),
+          delete: updatedChanges.delete && formatUpdates(updatedChanges.delete),
+        },
+        // The subscription in usePlanChanges will automatically update the UI
+      });
+
+      setEditingRowId(null);
+    } catch (e) {
+      console.error("Error saving plan change:", e);
+    }
+  };
+  const handleCancelClick = () => {
+    setEditingRowId(null);
+  };
+  const handleEditClick = (id) => {
+    setEditingRowId(id);
+  };
+  const handleDeleteClick = (id) => {
+    setDeletingRowId(id);
+  };
+
+  const onCloseModal = () => {
+    setDeletingRowId(null);
+  };
+
   const changes = [
     ...toRows(proposedChanges.add, "add"),
     ...toRows(proposedChanges.delete, "delete"),
@@ -150,6 +294,7 @@ const PlanPanelChangesDiff = ({ proposedChanges }) => {
             <th>Type</th>
             <th>Field</th>
             <th>Proposed Value</th>
+            <th>{isProposed && "Actions"}</th>
           </tr>
         </thead>
         <tbody>
@@ -173,10 +318,45 @@ const PlanPanelChangesDiff = ({ proposedChanges }) => {
                   renderGenericValue(change.value)
                 )}
               </td>
+              <td style={{ whiteSpace: "nowrap" }}>
+                {isProposed && (
+                  <>
+                    <Button
+                      onClick={() => handleEditClick(change.id)}
+                      data-testid="button-edit-plan-change-row"
+                    >
+                      <IconEdit />
+                    </Button>
+                    <Button
+                      onClick={() => handleDeleteClick(change.id)}
+                      data-testid="button-delete-plan-change-row"
+                    >
+                      <IconDelete />
+                    </Button>
+                  </>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <EditDiffRowForm
+        change={changes.find((c) => c.id === editingRowId)}
+        isOpen={!!editingRowId}
+        onSave={handleSaveClick}
+        onCancel={handleCancelClick}
+      />
+      <UIModalDelete
+        isOpen={!!deletingRowId}
+        handleClose={onCloseModal}
+        handleConfirm={() => handleDeletePlanChangeRow(deletingRowId)}
+        thingToDeleteLabel={
+          deletingRowId
+            ? `${changes.find((c) => c.id === deletingRowId)?.label || 'this field'} from plan changes`
+            : ''
+        }
+      />
     </>
   );
 };
