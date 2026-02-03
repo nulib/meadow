@@ -212,6 +212,8 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
       assert errors == [
                %{
                  errors: %{
+                   "http://id.loc.gov/authorities/subjects/sh85070610 TOPICAL:http://id.loc.gov/authorities/subjects/sh85076671" =>
+                     "is from an unknown authority",
                    "http://id.loc.gov/authorities/names/blahblah" =>
                      "is from an unknown authority",
                    "http://id.lock.gov/authorities/names/n79091588" =>
