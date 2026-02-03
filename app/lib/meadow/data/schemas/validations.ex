@@ -8,6 +8,8 @@ defmodule Meadow.Data.Schemas.Validations do
   If a `cast_embed()` will result in a `nil` value (either on create or
   update), set it to an empty embedded struct instead
   """
+  import Ecto.Changeset
+
   def prepare_embed(%Ecto.Changeset{data: data, params: params} = change, field)
       when is_atom(field) do
     with f <- to_string(field),
@@ -29,6 +31,14 @@ defmodule Meadow.Data.Schemas.Validations do
           Map.put(change, :params, params)
       end
     end
+  end
+
+  def validate_trimmed(%Ecto.Changeset{} = change, field) do
+    validate_change(change, field, fn _, value ->
+      if String.trim(value) == value,
+        do: [],
+        else: [{field, "cannot have leading or trailing spaces"}]
+    end)
   end
 
   defp empty_struct(data, field) do

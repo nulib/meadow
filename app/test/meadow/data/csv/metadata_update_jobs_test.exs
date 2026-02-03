@@ -192,7 +192,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                %{
                  errors: %{
                    "subject#1" => [
-                     "METAPHORICAL is an invalid coded term for scheme SUBJECT_ROLE"
+                     ~s'"METAPHORICAL" is an invalid coded term for scheme SUBJECT_ROLE'
                    ]
                  },
                  row: 15
@@ -257,22 +257,22 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                %{errors: %{"notes" => ["cannot have a blank id"]}, row: 10},
                %{
                  errors: %{
-                   "contributor#3" => ["nop is an invalid coded term for scheme MARC_RELATOR"]
+                   "contributor#3" => [~s'"nop" is an invalid coded term for scheme MARC_RELATOR']
                  },
                  row: 12
                },
-               %{errors: %{"id" => "NOT_A_UUID is not a valid UUID"}, row: 13},
+               %{errors: %{"id" => ~s'"NOT_A_UUID" is not a valid UUID'}, row: 13},
                %{
                  errors: %{
-                   "date_created" => "[%{edtf: \"bad_date\"}, %{edtf: \"201?\"}] is invalid"
+                   "date_created" => ~s'[%{edtf: "bad_date"}, %{edtf: "201?"}] is invalid'
                  },
                  row: 14
                },
-               %{errors: %{"id" => "0bde5432-0b7b-4f80-98fb-5f7ceff98dee not found"}, row: 18},
+               %{errors: %{"id" => ~s'"0bde5432-0b7b-4f80-98fb-5f7ceff98dee" not found'}, row: 18},
                %{errors: %{"subject#3" => ["can't be blank"]}, row: 21},
-               %{errors: %{"published" => "flase is invalid"}, row: 26},
+               %{errors: %{"published" => ~s'"flase" is invalid'}, row: 26},
                %{errors: %{"id" => "is required"}, row: 28},
-               %{errors: %{"accession_number" => "MISMATCHED_ACCESSION does not match"}, row: 37}
+               %{errors: %{"accession_number" => ~s'"MISMATCHED_ACCESSION" does not match'}, row: 37}
              ]
     end
   end
