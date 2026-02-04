@@ -6,6 +6,11 @@ import {
   isCodedTerm,
   isNestedCodedTerm,
 } from "@js/components/Plan/Panel/diff-helpers";
+import { IconEdit, IconDelete } from "@js/components/Icon";
+import { UPDATE_PLAN_CHANGE } from "../plan.gql";
+import { Button } from "@nulib/design-system";
+import {useMutation} from '@apollo/client';
+
 
 /**
  * Tag indicating the method of change
@@ -30,6 +35,7 @@ const MethodTag = ({ method }) => {
 
   return <span data-testid="tag">{text}</span>;
 };
+
 
 /**
  * Render a coded term value (rights_statement, license)
@@ -129,7 +135,69 @@ const renderGenericValue = (value) => {
   return JSON.stringify(value, null, 0);
 };
 
-const PlanPanelChangesDiff = ({ proposedChanges }) => {
+
+const PlanPanelChangesDiff = ({ proposedChanges, planChangeId }) => {
+  const [updatePlanChange] = useMutation(UPDATE_PLAN_CHANGE);
+
+  const removeFieldFromPlanChange = (id) => {
+    const [method, path] = id.split("-");
+
+    const methodChanges = JSON.parse(JSON.stringify(proposedChanges[method] || {}));
+    const pathSegments = path.split(".");
+    let current = methodChanges;
+
+    for (let i = 0; i < pathSegments.length - 1; i++) {
+      const key = pathSegments[i];
+      if (typeof current[key] === 'undefined' || current[key] === null) {
+          return;
+      }
+      current = current[key];
+    }
+
+    const finalKey = pathSegments[pathSegments.length - 1];
+    if (typeof current[finalKey] !== 'undefined') {
+        delete current[finalKey];
+    }
+
+    console.log("Updated (method) changes after removal:", methodChanges);
+
+    return {
+      ...proposedChanges,
+      [method]: methodChanges
+    };
+  }
+
+  const handleDeletePlanChangeRow = async (id) => {
+    console.log("proposedChanges:", proposedChanges);
+    console.log("planChangeId:", planChangeId);
+    console.log("Deleting plan change row with id:", id, "Type:", typeof id);
+    if (!id) {
+      console.error("Cannot delete: id is null or undefined");
+      return;
+    }
+
+    const updatedPlanChange = removeFieldFromPlanChange(id);
+    console.log("Sending to mutation:", {
+      id: planChangeId,
+      add: updatedPlanChange.add,
+      replace: updatedPlanChange.replace,
+      delete: updatedPlanChange.delete
+    });
+
+    try {
+      await updatePlanChange({
+        variables: {
+          id: planChangeId,
+          add: Object.keys(updatedPlanChange.add || {}).length > 0 ? JSON.stringify(updatedPlanChange.add) : null,
+          replace: Object.keys(updatedPlanChange.replace || {}).length > 0 ? JSON.stringify(updatedPlanChange.replace) : null,
+          delete: Object.keys(updatedPlanChange.delete || {}).length > 0 ? JSON.stringify(updatedPlanChange.delete) : null
+        },
+      });
+    } catch (e) {
+      console.error("Error deleting plan change row:", e);
+    }
+  }
+
   const changes = [
     ...toRows(proposedChanges.add, "add"),
     ...toRows(proposedChanges.delete, "delete"),
@@ -150,6 +218,7 @@ const PlanPanelChangesDiff = ({ proposedChanges }) => {
             <th>Type</th>
             <th>Field</th>
             <th>Proposed Value</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -172,6 +241,17 @@ const PlanPanelChangesDiff = ({ proposedChanges }) => {
                 ) : (
                   renderGenericValue(change.value)
                 )}
+              </td>
+              <td>
+                <Button
+                  onClick={() => handleDeletePlanChangeRow(change.id)}
+                  data-testid="button-delete-plan-change"
+                >
+                  <IconDelete />
+                </Button>
+                <Button>
+                  <IconEdit />
+                </Button>
               </td>
             </tr>
           ))}

@@ -232,7 +232,10 @@ const PlanPanelChanges = ({
               <UISkeleton type="text" rows={3} />
             </div>
           )}
-          <PlanPanelChangesDiff proposedChanges={changes?.planChange || {}} />
+          <PlanPanelChangesDiff
+            proposedChanges={changes?.planChange || {}}
+            planChangeId={changes?.planChange?.id}
+          />
         </div>
       )}
     </div>
