@@ -36,7 +36,7 @@ pipeline-layers:
 	cd lambdas/layers/build && make all
 
 pipeline-build: pipeline-layers
-	cd lambdas && sam build
+	cd lambdas && SHARP_IGNORE_GLOBAL_LIBVIPS=1 sam build
 
 pipeline-start: node-deps pipeline-layers
 	cd lambdas && sam local start-lambda --warm-containers=LAZY --host $(SAM_HOST) -p $(SAM_PORT) 

@@ -15,7 +15,7 @@
 - Run `mix meadow.setup`. This creates the Sequins pipeline, S3 buckets, and database.
 - Install Node.js dependencies with `mix assets.install`
   - `assets.install` looks for all `package-lock.json` files project-wide and runs `npm install` in each directory found, so you don't need to run `npm install` in individual directories.
-- run `sg open all 3001`
+- run `sgport open all 3001`
 - Start the Phoenix server with `mix phx.server` (or `iex -S mix phx.server` if you want to an interactive shell).
 
 Now you can visit [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001/`](https://[YOURENV].dev.rdc.library.northwestern.edu:3001/) from your browser.
