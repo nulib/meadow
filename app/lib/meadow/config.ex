@@ -172,7 +172,8 @@ defmodule Meadow.Config do
       |> build_environment(Map.get(config, :access_key_id), "AWS_ACCESS_KEY_ID")
       |> build_environment(Map.get(config, :secret_access_key), "AWS_SECRET_ACCESS_KEY")
       |> build_environment(Map.get(config, :region), "AWS_REGION")
-      |> build_environment(extract_endpoint(config), "AWS_S3_ENDPOINT")
+      |> build_environment(extract_endpoint(config), "AWS_ENDPOINT_URL_S3")
+      |> build_environment("true", "AWS_S3_FORCE_PATH_STYLE")
       |> build_environment(working_dir, "TMPDIR")
     end
   end

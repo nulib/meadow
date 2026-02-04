@@ -34,6 +34,25 @@ if System.get_env("AWS_LOCALSTACK", "false") == "true" do
   end)
 end
 
+if System.get_env("USE_SAM_LAMBDAS") do
+  sam_lambda_port =
+    System.get_env("SAM_LAMBDA_PORT", "3005")
+    |> String.to_integer()
+
+  config :ex_aws, :lambda,
+    scheme: "http",
+    host: "localhost",
+    port: sam_lambda_port
+
+  config :meadow, :lambda,
+    digester: {:lambda, "digester"},
+    exif: {:lambda, "exif"},
+    frame_extractor: {:lambda, "frame-extractor"},
+    mediainfo: {:lambda, "mediainfo"},
+    mime_type: {:lambda, "mime-type"},
+    tiff: {:lambda, "pyramid-tiff"}
+end
+
 config :meadow, MeadowWeb.Endpoint,
   code_reloader: true,
   debug_errors: true

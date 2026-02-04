@@ -44,6 +44,10 @@ npm-debug.log
 /app/priv/cert/
 /app/priv/seed_data/
 
+/lambdas/.aws-sam
+/lambdas/**/*.log
+/lambdas/layers/*.zip
+
 .elixir_ls
 
 *.tfvars
@@ -83,3 +87,6 @@ AGENT.md
 /app/priv/python/agent/**/*.pyc
 /app/priv/python/agent/**/*.pyo
 /app/priv/python/agent/**/*.pyd
+
+.aws-sam/
+samconfig.*

@@ -5,5 +5,8 @@
   "main": "index.js",
   "author": "Brendan Quinn & Michael Klein",
   "license": "Apache-2.0",
-  "dependencies": {}
+  "dependencies": {
+    "@middy/core": "^5.0",
+    "@middy/secrets-manager": "^5.0"
+  }
 }

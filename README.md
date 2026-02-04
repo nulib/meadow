@@ -15,7 +15,7 @@
 - Run `mix meadow.setup`. This creates the Sequins pipeline, S3 buckets, and database.
 - Install Node.js dependencies with `mix assets.install`
   - `assets.install` looks for all `package-lock.json` files project-wide and runs `npm install` in each directory found, so you don't need to run `npm install` in individual directories.
-- run `sg open all 3001`
+- run `sgport open all 3001`
 - Start the Phoenix server with `mix phx.server` (or `iex -S mix phx.server` if you want to an interactive shell).
 
 Now you can visit [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001/`](https://[YOURENV].dev.rdc.library.northwestern.edu:3001/) from your browser.
@@ -267,6 +267,43 @@ Edit `config/dev.local.exs` to get the lambdas to use the local copy through the
     mime_type: {:local, {Path.expand("../lambdas/mime-type/index.js"), "handler"}},
     tiff: {:local, {Path.expand("../lambdas/pyramid-tiff/index.js"), "handler"}}
 ```
+
+#### Deploying lambdas with SAM
+
+The lambda functions are defined in `lambdas/template.yaml` and can be deployed with the AWS SAM CLI.
+
+```bash
+cd lambdas
+sam build
+sam deploy --guided
+```
+
+Notes:
+- The template expects the `LambdaLayerBase` parameter (defaults to `s3://nul-public/lambda-layers`).
+- Use the guided deploy once to set the stack name, region, and any required S3 bucket for artifacts.
+
+#### Running lambdas locally with SAM
+
+You can run the lambdas locally via `sam local start-lambda` and point Meadow at the local SAM endpoint.
+
+```bash
+make sam-all
+```
+
+By default the local Lambda endpoint runs on `0.0.0.0:3005`. If you need a different host or port:
+
+```bash
+SAM_HOST=0.0.0.0 SAM_PORT=3005 make sam-all
+SAM_LAMBDA_PORT=3005 USE_SAM_LAMBDAS=true mix phx.server
+```
+
+Then start the app with the SAM override enabled:
+
+```bash
+USE_SAM_LAMBDAS=true mix phx.server
+```
+
+This uses `lambdas/template.local.yaml`, which points layer `ContentUri` values at local zip files downloaded by `make sam-layers`.
 
 ### TypeScript/GraphQL Types
 
