@@ -11,6 +11,10 @@ LOCALSTACK_ENDPOINT ?= https://localhost.localstack.cloud:4566
 
 .PHONY: help pipeline-layers pipeline-build pipeline-start pipeline-clean
 
+env-check:
+	@test -n "$(ENV)" || (echo "Error: ENV is required. Usage: make deploy ENV=production" && exit 1)
+	@echo "Deploying to $(ENV)"
+
 help:
 	echo "make localstack        | start localstack and apply terraform infrastructure"
 	echo "make pipeline-build    | build the SAM template for local lambdas"
@@ -44,3 +48,6 @@ pipeline-start: node-deps pipeline-layers
 pipeline-clean:
 	cd lambdas && rm -rf .aws-sam */node_modules && \
 	cd layers/build && make clean
+
+pipeline-deploy: env-check pipeline-build
+	cd lambdas && sam deploy --config-env $(ENV)

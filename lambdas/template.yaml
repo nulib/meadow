@@ -7,10 +7,13 @@ Parameters:
   ProjectName:
     Type: String
     Description: Project whose S3 buckets this pipeline can access
-  ConfigSecretPath:
+  ConfigPrefix:
     Type: String
     Description: Path to secrets in AWS Secrets Manager
-    Default: config/meadow-pipeline
+  TrustedReferers:
+    Type: String
+    Description: Referring sites that are trusted to authorize streams
+    Default: ""
 Resources:
   exifToolLayer:
     Type: AWS::Serverless::LayerVersion
@@ -209,21 +212,31 @@ Resources:
       Runtime: nodejs22.x
       MemorySize: 128
       Timeout: 5
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
       Policies:
       - Version: "2012-10-17"
         Statement:
           - Effect: Allow
-            Action: "s3:*"
+            Action: "es:ESHttpGet"
             Resource:
-              - !Sub "arn:aws:s3:::*"
-              - !Sub "arn:aws:s3:::*/*"
-            Condition:
-              StringEquals:
-                "aws:ResourceTag/Project": !Ref ProjectName
+              - !Sub "arn:aws:es:*:${AWS::AccountId}:domain/*"
   pipelineConfiguration:
     Type: AWS::SecretsManager::Secret
     Properties:
-      Name: !Ref ConfigSecretPath
+      Name:
+        Fn::Join:
+        - "/"
+        - - !Ref ConfigPrefix
+          - "config/meadow-pipeline"
       Description: Configuration secrets for Meadow Ingest Pipeline
       SecretString:
         Fn::ToJsonString:
@@ -233,3 +246,36 @@ Resources:
           mediainfo: !GetAtt mediainfo.Arn
           mime_type: !GetAtt mimeType.Arn
           tiff: !GetAtt pyramidTiff.Arn
+  streamAuthorizerConfiguration:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref streamAuthorizer
+      SecretString:
+        Fn::ToJsonString:
+          dcApiEndpoint: !Sub '{{resolve:secretsmanager:${ConfigPrefix}/config/dcapi:SecretString:base_url}}'
+          allowedFrom: !Ref TrustedReferers
+  streamAuthorizerConfigurationAccess:
+    Type: AWS::SecretsManager::ResourcePolicy
+    Properties: 
+      BlockPublicPolicy: true
+      ResourcePolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+            Principal:
+              AWS: !GetAtt streamAuthorizerRole.Arn
+            Resource: "*"
+      SecretId: !Ref streamAuthorizerConfiguration
+Outputs:
+  ExecuteFixityArn:
+    Description: ARN of the Execute Fixity Lambda function
+    Value: !GetAtt executeFixity.Arn
+  SecretName:
+    Description: Pipeline Config Secret
+    Value: !Ref pipelineConfiguration
+  StreamAuthorizerArn:
+    Description: ARN of the Stream Authorizer Lambda@Edge function
+    Value: !GetAtt streamAuthorizer.Arn
