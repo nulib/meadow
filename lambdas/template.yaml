@@ -211,6 +211,7 @@ Resources:
       Handler: index.handler
       Runtime: nodejs22.x
       MemorySize: 128
+      AutoPublishAlias: "Latest"
       Timeout: 5
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -278,4 +279,4 @@ Outputs:
     Value: !Ref pipelineConfiguration
   StreamAuthorizerArn:
     Description: ARN of the Stream Authorizer Lambda@Edge function
-    Value: !GetAtt streamAuthorizer.Arn
+    Value: !Ref streamAuthorizer.Version

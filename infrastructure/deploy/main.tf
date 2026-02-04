@@ -20,10 +20,14 @@ provider "aws" {
 }
 
 locals {
-#  environment   = module.core.outputs.stack.environment
-  namespace     = module.core.outputs.stack.namespace
-  prefix        = module.core.outputs.stack.prefix
-  tags          = merge(
+  is_staging          = var.environment == "s" ? true : false
+  is_production       = var.environment == "p" ? true : false
+  environment_name    = local.is_staging ? "staging" : "production"
+  namespace           = module.core.outputs.stack.namespace
+  prefix              = module.core.outputs.stack.prefix
+  meadow_prefix       = join("-", [var.stack_name, var.environment])
+
+  tags = merge(
     module.core.outputs.stack.tags, 
     {
       Component   = "meadow",
@@ -36,15 +40,18 @@ locals {
 module "core" {
   source    = "git::https://github.com/nulib/infrastructure.git//modules/remote_state"
   component = "core"
-  environment = var.environment == "s" ? "staging" : "production"
+  environment = local.environment_name
 }
 
 module "data_services" {
   source    = "git::https://github.com/nulib/infrastructure.git//modules/remote_state"
   component = "data_services"
-  environment = var.environment == "s" ? "staging" : "production"
+  environment = local.environment_name
 }
 
+data "aws_cloudformation_stack" "pipeline_stack" {
+  name = "${local.meadow_prefix}-pipeline"
+}
 
 locals {
   cors_urls = flatten([
@@ -56,7 +63,7 @@ locals {
 }
 
 resource "aws_s3_bucket" "meadow_ingest" {
-  bucket = "${var.stack_name}-${var.environment}-ingest"
+  bucket = "${local.meadow_prefix}-ingest"
   tags   = var.tags
 }
 
@@ -78,7 +85,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_ingest" {
 }
 
 resource "aws_s3_bucket" "meadow_uploads" {
-  bucket = "${var.stack_name}-${var.environment}-uploads"
+  bucket = "${local.meadow_prefix}-uploads"
   tags   = var.tags
 }
 
@@ -107,7 +114,7 @@ resource "aws_s3_bucket_cors_configuration" "meadow_uploads" {
 }
 
 resource "aws_s3_bucket" "meadow_preservation" {
-  bucket = "${var.stack_name}-${var.environment}-preservation"
+  bucket = "${local.meadow_prefix}-preservation"
   tags   = var.tags
 }
 
@@ -120,7 +127,7 @@ resource "aws_s3_bucket_versioning" "meadow_preservation" {
 
 # Staging Preservation Bucket
 resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_staging" {
-  count  = var.environment == "s" ? 1 : 0
+  count  = local.is_staging ? 1 : 0
   bucket = aws_s3_bucket.meadow_preservation.id
 
   rule {
@@ -152,7 +159,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_staging" {
 }
 
 resource "aws_s3_bucket_intelligent_tiering_configuration" "meadow_preservation_production" {
-  count  = var.environment == "p" ? 1 : 0
+  count  = local.is_production ? 1 : 0
   bucket = aws_s3_bucket.meadow_preservation.id
   name   = "intelligent-archive"
 
@@ -164,7 +171,7 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "meadow_preservation_
 
 # Production Preservation Bucket
 resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_production" {
-  count  = var.environment == "p" ? 1 : 0
+  count  = local.is_production ? 1 : 0
   bucket = aws_s3_bucket.meadow_preservation.id
 
   rule {
@@ -196,17 +203,17 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_production
 }
 
 resource "aws_s3_bucket" "meadow_preservation_checks" {
-  bucket = "${var.stack_name}-${var.environment}-preservation-checks"
+  bucket = "${local.meadow_prefix}-preservation-checks"
   tags   = var.tags
 }
 
 resource "aws_s3_bucket" "meadow_derivatives" {
-  bucket = "${var.stack_name}-${var.environment}-derivatives"
+  bucket = "${local.meadow_prefix}-derivatives"
   tags   = var.tags
 }
 
 resource "aws_s3_bucket" "meadow_streaming" {
-  bucket = "${var.stack_name}-${var.environment}-streaming"
+  bucket = "${local.meadow_prefix}-streaming"
   tags   = var.tags
 }
 
@@ -219,7 +226,7 @@ resource "aws_s3_bucket_versioning" "meadow_streaming" {
 
 resource "aws_s3_bucket_lifecycle_configuration" "meadow_streaming" {
   depends_on = [aws_s3_bucket_versioning.meadow_streaming]
-  bucket = "${var.stack_name}-${var.environment}-streaming"
+  bucket = "${local.meadow_prefix}-streaming"
 
   rule {
     id = "intelligent_tiering"

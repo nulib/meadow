@@ -1,5 +1,5 @@
 resource "aws_cloudformation_stack" "serverless_fixity_solution" {
-  name         = "fixity-${var.environment == "s" ? "staging" : "production"}"
+  name         = "fixity-${local.is_staging ? "staging" : "production"}"
   template_url = "https://awsi-megs-guidances-us-east-1.s3.amazonaws.com/serverless-fixity-for-digital-preservation-compliance/latest/serverless-fixity-for-digital-preservation-compliance.template"
   parameters = {
     # The fixity stack won't deploy without an email address, so we'll give it a black hole address

@@ -49,5 +49,5 @@ pipeline-clean:
 	cd lambdas && rm -rf .aws-sam */node_modules && \
 	cd layers/build && make clean
 
-pipeline-deploy: env-check pipeline-build
+pipeline-deploy: env-check lambdas/.aws-sam/build.toml
 	cd lambdas && sam deploy --config-env $(ENV)
