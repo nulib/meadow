@@ -533,7 +533,7 @@ defmodule Meadow.Data.PlannerTest do
       }
 
       assert {:error, error_message} = Planner.create_plan_change(attrs)
-      assert error_message == "#{invalid_plan_id} is invalid"
+      assert error_message == ~s'"#{invalid_plan_id}" is invalid'
     end
   end
 
@@ -595,7 +595,7 @@ defmodule Meadow.Data.PlannerTest do
       assert {:error, error_message} =
                Planner.update_plan_change(change, %{plan_id: invalid_plan_id})
 
-      assert error_message == "#{invalid_plan_id} is invalid"
+      assert error_message == ~s'"#{invalid_plan_id}" is invalid'
     end
   end
 

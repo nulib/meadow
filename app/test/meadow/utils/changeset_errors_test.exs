@@ -50,26 +50,26 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
              accession_number: [%{error: "can't be blank", value: ""}],
              administrative_metadata: %{
                preservation_level: [
-                 %{error: "is an invalid coded term for scheme PRESERVATION_LEVEL", value: "nope"}
+                 %{error: "is an invalid coded term for scheme PRESERVATION_LEVEL", value: ~s'"nope"'}
                ]
              },
              descriptive_metadata: %{
                contributor: [
                  %{
-                   term: [%{error: "is an unknown identifier", value: "missing_id_authority:123"}],
+                   term: [%{error: "is an unknown identifier", value: ~s'"missing_id_authority:123"'}],
                    role: [
-                     %{error: "is an invalid coded term for scheme MARC_RELATOR", value: "nop"}
+                     %{error: "is an invalid coded term for scheme MARC_RELATOR", value: ~s'"nop"'}
                    ]
                  }
                ],
-               date_created: [%{error: "is invalid", value: "[\"1899\", \"bad_date\"]"}],
-               genre: [%{term: [%{error: "is from an unknown authority", value: "wrong"}]}, %{}],
+               date_created: [%{error: "is invalid", value: ~s'["1899", "bad_date"]'}],
+               genre: [%{term: [%{error: "is from an unknown authority", value: ~s'"wrong"'}]}, %{}],
                subject: [
                  %{
                    role: [
                      %{
                        error: "is an invalid coded term for scheme SUBJECT_ROLE",
-                       value: "wrong_coded_term_id"
+                       value: ~s'"wrong_coded_term_id"'
                      }
                    ]
                  }
@@ -83,8 +83,8 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
     # date_created: [%{}, %{edtf: %{error: "is invalid", value: "bad_date"}}]
   end
 
-  def assert_all_equal(a, b) when is_list(a), do: MapSet.new(a) == MapSet.new(b)
-  def assert_all_equal(a, b), do: a == b
+  def assert_all_equal(a, b) when is_list(a), do: assert MapSet.new(a) == MapSet.new(b)
+  def assert_all_equal(a, b), do: assert a == b
 
   test "formats errors for human readability", %{changeset: changeset} do
     fields_to_flatten = [:administrative_metadata, :descriptive_metadata]
@@ -94,13 +94,13 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
     expected = %{
       "accession_number" => "can't be blank",
       "contributor" => [
-        "nop is an invalid coded term for scheme MARC_RELATOR",
-        "missing_id_authority:123 is an unknown identifier"
+        ~s'"nop" is an invalid coded term for scheme MARC_RELATOR',
+        ~s'"missing_id_authority:123" is an unknown identifier'
       ],
-      "date_created" => "[\"1899\", \"bad_date\"] is invalid",
-      "genre#1" => ["wrong is from an unknown authority"],
-      "preservation_level" => "nope is an invalid coded term for scheme PRESERVATION_LEVEL",
-      "subject" => ["wrong_coded_term_id is an invalid coded term for scheme SUBJECT_ROLE"]
+      "date_created" => ~s'["1899", "bad_date"] is invalid',
+      "genre#1" => [~s'"wrong" is from an unknown authority'],
+      "preservation_level" => ~s'"nope" is an invalid coded term for scheme PRESERVATION_LEVEL',
+      "subject" => [~s'"wrong_coded_term_id" is an invalid coded term for scheme SUBJECT_ROLE']
     }
 
     for {k, actual_v} <- actual do

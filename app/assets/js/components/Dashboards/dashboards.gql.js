@@ -166,6 +166,7 @@ export const GET_OBSOLETE_CONTROLLED_TERMS = gql`
       id
       label
       replacedBy
+      replacementLabel
     }
   }
 `
