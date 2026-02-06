@@ -75,6 +75,7 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
 
   alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
+  alias Meadow.Config
   alias Meadow.Data.{CodedTerms, ControlledTerms, Planner}
   alias Meadow.Repo
   require Logger
@@ -128,9 +129,12 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
   end
 
   defp build_attrs(request) do
+    model = Config.ai(:model)
+
     request
     |> Map.take([:add, :delete, :replace, :status, :notes])
     |> enrich_controlled_terms()
+    |> inject_ai_note(model)
     |> validate_coded_terms()
   end
 
@@ -428,6 +432,35 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
   end
 
   defp atomize_keys(value), do: value
+
+  defp inject_ai_note(attrs, model) when is_map(attrs) do
+    current_date = Date.utc_today() |> Date.to_iso8601()
+
+    note_text = case model do
+      nil -> "Some metadata created with the assistance of AI on #{current_date}"
+      model_id -> "Some metadata created with the assistance of AI (#{model_id}) on #{current_date}"
+    end
+
+    ai_note = %{
+      note: note_text,
+      type: %{
+        id: "LOCAL_NOTE",
+        scheme: "note_type",
+        label: "Local Note"
+      }
+    }
+
+    add_section = Map.get(attrs, :add) || %{}
+    descriptive_metadata = Map.get(add_section, :descriptive_metadata) || %{}
+    existing_notes = Map.get(descriptive_metadata, :notes, [])
+
+    updated_descriptive_metadata = Map.put(descriptive_metadata, :notes, existing_notes ++ [ai_note])
+    updated_add_section = Map.put(add_section, :descriptive_metadata, updated_descriptive_metadata)
+
+    Map.put(attrs, :add, updated_add_section)
+  end
+
+  defp inject_ai_note(attrs, _model), do: attrs
 
   # Validation functions for coded terms
 

@@ -9,6 +9,7 @@ defmodule Meadow.Data.FileSets do
   alias Ecto.Multi
 
   alias Meadow.Config
+  alias Meadow.Data.{Transcriber, Works}
   alias Meadow.Data.Schemas.{FileSet, FileSetAnnotation}
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Repo
@@ -590,9 +591,6 @@ defmodule Meadow.Data.FileSets do
   end
 
   defp process_transcription(annotation, opts) do
-    alias Meadow.Data.Transcriber
-
-    # Update to in_progress
     {:ok, annotation} = update_annotation(annotation, %{status: "in_progress"})
 
     case Transcriber.transcribe(annotation.file_set_id, opts) do
@@ -605,7 +603,6 @@ defmodule Meadow.Data.FileSets do
               language: transcription.languages
             })
 
-            # Add AI transcription note to the work
             add_transcription_note(annotation)
 
             result
@@ -619,15 +616,18 @@ defmodule Meadow.Data.FileSets do
     end
   end
 
-  defp add_transcription_note(%{file_set_id: file_set_id}) do
-    alias Meadow.Data.Works
-
+  defp add_transcription_note(%{file_set_id: file_set_id, model: model}) do
     case Repo.get(FileSet, file_set_id) |> Repo.preload(:work) do
       %FileSet{work: work, core_metadata: %{label: label}} when not is_nil(work) ->
         today = Date.utc_today() |> Date.to_iso8601()
 
+        note_text = case model do
+          nil -> "Transcription generated for #{label} by AI on #{today}"
+          model_id -> "Transcription generated for #{label} by AI (#{model_id}) on #{today}"
+        end
+
         new_note = %{
-          note: "Transcription generated for #{label} by AI on #{today}",
+          note: note_text,
           type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
         }
 
