@@ -44,17 +44,22 @@ npm-debug.log
 /app/priv/cert/
 /app/priv/seed_data/
 
+/lambdas/**/*.log
+
 .elixir_ls
 
 *.tfvars
 
+/infrastructure/**/.aws-sam
 /infrastructure/**/.terraform/
 /infrastructure/**/*.tfstate*
 /infrastructure/**/_build/
-/infrastructure/**/build/
+/infrastructure/**/build/*
+!/infrastructure/pipeline/layers/build/*
 /infrastructure/**/builds/
 /infrastructure/**/package/
 /infrastructure/**/*.plan
+/infrastructure/pipeline/layers/*.zip
 
 /app/tmp/
 
@@ -71,6 +76,8 @@ yarn.lock
 .DS_Store
 **/*/.DS_Store
 
+**/*.pid
+
 lambdas/stream-authorizer/config
 .env
 AGENT.md
@@ -83,3 +90,6 @@ AGENT.md
 /app/priv/python/agent/**/*.pyc
 /app/priv/python/agent/**/*.pyo
 /app/priv/python/agent/**/*.pyd
+
+.aws-sam/
+samconfig.*

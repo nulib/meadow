@@ -15,7 +15,7 @@
 - Run `mix meadow.setup`. This creates the Sequins pipeline, S3 buckets, and database.
 - Install Node.js dependencies with `mix assets.install`
   - `assets.install` looks for all `package-lock.json` files project-wide and runs `npm install` in each directory found, so you don't need to run `npm install` in individual directories.
-- run `sg open all 3001`
+- run `sgport open all 3001`
 - Start the Phoenix server with `mix phx.server` (or `iex -S mix phx.server` if you want to an interactive shell).
 
 Now you can visit [`https://[YOURENV].dev.rdc.library.northwestern.edu:3001/`](https://[YOURENV].dev.rdc.library.northwestern.edu:3001/) from your browser.
@@ -28,13 +28,14 @@ You can stop the Phoenix server with `Ctrl + C` twice
 
 If you need to clear your data and reset the entire development environment, from `meadow/app` run:
 
-```
+```bash
 mix ecto.reset
 mix meadow.search.clear
 mix meadow.pipeline.purge
 clean-s3 dev -y
-
+```
 ...then
+```bash
 mix deps.get
 mix meadow.setup
 mix phx.server
@@ -56,36 +57,30 @@ If you would like to interact directly with the database
 
 ### Run the Elixir test suite
 
-#### Start Test Services
+#### Start/Provision Test Environment
 
 In one terminal:
+```bash
+make localstack-provision
 ```
-cd infrastructure/localstack
-docker compose up
-```
-
-#### Provision Test Environment
-
-Watch the logs until the services seem to stabilize. Then, in another terminal:
-```
-cd infrastructure/localstack
-terraform init
-terraform apply -auto-approve \
-  -var-file test.tfvars \
-  -var localstack_endpoint=https://localhost.localstack.cloud:4566
-```
-
-You will probably see `Warning: AWS account ID not found for provider`, but this can be safely ignored.
 
 #### Run Tests
 
-```
+```bash
 cd app
-export AWS_LOCALSTACK=true 
+export AWS_LOCALSTACK=true
 mix test [test args...]
 ```
 
-**Note:** `mix test` can be run repeatedly without re-provisioning as long as the Docker services are running. If you stop the services, you will need to run Terraform again. Also, do not try to run Meadow with `export AWS_LOCALSTACK=true` set.
+**Note:** Do not try to run Meadow with `export AWS_LOCALSTACK=true` set.
+
+#### Stop/Deprovision Test Environment
+
+Back in the meadow root directory:
+
+```bash
+make localstack-stop
+```
 
 ### GraphQL API
 
@@ -113,13 +108,13 @@ To force an Elasticsearch re-index, and not wait for the 2-minute cycle to kick 
 
 Run the interactive shell in a terminal tab
 
-```
+```bash
 iex -S mix
 ```
 
 And force a re-index:
 
-```
+```elixir
 Meadow.Data.Indexer.reindex_all()
 ```
 
@@ -254,18 +249,28 @@ change_b = Enum.at(changes, 1)
 
 ### Doing development on the Meadow Pipeline lambdas
 
-In the AWS developer environment, the lambdas associated with the pipeline are shared amongst developers. In order to do development and see whether it's working you can override the configuration to use your local files instead of the deployed lambdas. Example below (you don't have to override them all. Just the ones you need).
+In the AWS developer environment, the lambdas associated with the pipeline are shared amongst developers. In order to do development and see whether it's working you can override the configuration to use the SAM pipeline the deployed lambdas.
 
-Edit `config/dev.local.exs` to get the lambdas to use the local copy through the port:`
+In one terminal:
+```bash
+make pipeline-start
+```
 
-```elixir
-  config :meadow, :lambda,
-    digester: {:local, {Path.expand("../lambdas/digester/index.js"), "handler"}},
-    exif: {:local, {Path.expand("../lambdas/exif/index.js"), "handler"}},
-    frame_extractor: {:local, {Path.expand("../lambdas/frame-extractor/index.js"), "handler"}},
-    mediainfo: {:local, {Path.expand("../lambdas/mediainfo/index.js"), "handler"}},
-    mime_type: {:local, {Path.expand("../lambdas/mime-type/index.js"), "handler"}},
-    tiff: {:local, {Path.expand("../lambdas/pyramid-tiff/index.js"), "handler"}}
+In another terminal:
+```bash
+cd app
+USE_SAM_LAMBDAS=true iex -S mix phx.server
+```
+
+
+#### Deploying lambdas with SAM
+
+The pipeline infrastructure is defined in `infrastructure/pipeline/template.yaml` and can be deployed with 
+the AWS SAM CLI. There are `make` tasks to assist. Make sure `AWS_PROFILE` is set to the correct admin 
+profile and logged in, and then:
+
+```bash
+make pipeline-deploy ENV=staging
 ```
 
 ### TypeScript/GraphQL Types

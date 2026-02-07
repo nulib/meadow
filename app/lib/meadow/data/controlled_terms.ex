@@ -259,9 +259,10 @@ defmodule Meadow.Data.ControlledTerms do
     try do
       Authoritex.fetch(requested_id, redirect: false)
     rescue
-      e in Exception ->
-        Logger.warning("HTTP error fetching controlled term #{requested_id}: #{e.message}")
-        {:error, e.message}
+      e in _ ->
+        msg = Exception.message(e)
+        Logger.warning("HTTP error fetching controlled term #{requested_id}: #{msg}")
+        {:error, msg}
     end
     |> case do
       {:ok, %{id: ^requested_id, label: label, variants: variants, related: related}} ->

@@ -1,5 +1,3 @@
-const { dcApiEndpoint, allowedFrom } = require("./config/environment.json");
-
 const allowedFromRegexes = ((str) => {
   const configValues = typeof str === "string" ? str.split(";") : [];
   const result = [];
@@ -7,20 +5,20 @@ const allowedFromRegexes = ((str) => {
     result.push(new RegExp(configValues[re]));
   }
   return result;
-})(allowedFrom);
+});
 
-async function authorize(id, referer, cookie) {
-  for (const re of allowedFromRegexes) {
+async function authorize(id, referer, cookie, config) {
+  for (const re of allowedFromRegexes(config.allowedFrom)) {
     if (re.test(referer)) {
       console.log(`Stream authorized: Referred by ${referer}`);
       return true;
     }
   }
 
-  return await getImageAuthorization(id, cookie);
+  return await getImageAuthorization(id, cookie, config);
 }
 
-async function getImageAuthorization(id, cookieHeader) {
+async function getImageAuthorization(id, cookieHeader, config) {
   const opts = {
     headers: {
       cookie: cookieHeader,
@@ -28,7 +26,7 @@ async function getImageAuthorization(id, cookieHeader) {
   };
 
   const response = await fetch(
-    `${dcApiEndpoint}/file-sets/${id}/authorization`,
+    `${config.dcApiEndpoint}/file-sets/${id}/authorization`,
     opts
   );
   if (response.status == 204) {
@@ -40,4 +38,4 @@ async function getImageAuthorization(id, cookieHeader) {
   return false;
 }
 
-module.exports = authorize;
+export default authorize;

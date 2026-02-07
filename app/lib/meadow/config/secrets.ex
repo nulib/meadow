@@ -14,7 +14,7 @@ defmodule Meadow.Config.Secrets do
     index: "infrastructure/index",
     inference: "infrastructure/inference",
     meadow: "config/meadow",
-    meadow_pipeline: "config/meadow-pipeline",
+    pipeline: "config/meadow-pipeline",
     nusso: "infrastructure/nusso",
     wildcard_ssl: "config/wildcard_ssl"
   }

@@ -45,15 +45,6 @@ locals {
       role_arn = aws_iam_role.transcode_role.arn
     }
 
-    pipeline = {
-      digester        = module.pipeline_lambda["digester"].lambda_function_arn
-      exif            = module.pipeline_lambda["exif"].lambda_function_arn
-      frame_extractor = module.pipeline_lambda["frame_extractor"].lambda_function_arn
-      mediainfo       = module.pipeline_lambda["mediainfo"].lambda_function_arn
-      mime_type       = module.pipeline_lambda["mime_type"].lambda_function_arn
-      tiff            = module.pipeline_lambda["tiff"].lambda_function_arn
-    }
-
     scheduler = {
       preservation_check = var.preservation_check_schedule
     }

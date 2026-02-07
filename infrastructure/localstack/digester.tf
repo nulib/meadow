@@ -5,7 +5,7 @@ module "digester_function" {
   function_name = "digest-tag"
   handler       = "index.handler"
   memory_size   = 1024
-  runtime       = "nodejs14.x"
+  runtime       = "nodejs22.x"
   source_dir    = "${path.module}/lambdas/digest-tag"
   timeout       = 120
 }

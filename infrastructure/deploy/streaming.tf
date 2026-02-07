@@ -4,6 +4,7 @@ data "aws_acm_certificate" "wildcard_cert" {
 }
 
 locals {
+  stream_authorizer_arn = data.aws_cloudformation_stack.pipeline.outputs["StreamAuthorizerArn"]
   streaming_cert = coalesce(var.streaming_config.certificate_arn, data.aws_acm_certificate.wildcard_cert.arn)
 }
 
@@ -87,12 +88,12 @@ resource "aws_cloudfront_distribution" "meadow_streaming" {
 
     lambda_function_association {
       event_type = "viewer-request"
-      lambda_arn = aws_lambda_function.stream_authorizer.qualified_arn
+      lambda_arn = local.stream_authorizer_arn
     }
 
     lambda_function_association {
       event_type = "viewer-response"
-      lambda_arn = aws_lambda_function.stream_authorizer.qualified_arn
+      lambda_arn = local.stream_authorizer_arn
     }
   }
 
