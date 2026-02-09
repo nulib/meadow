@@ -2,6 +2,5 @@ nodejs      22.14.0
 erlang      27.3
 elixir      1.18.2-otp-27
 terraform   1.7.4
-tflint      0.34.1
+aws-sam-cli 1.152.0
 #npm 11.6.0
-aws-sam-cli latest

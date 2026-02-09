@@ -55,8 +55,8 @@ jobs:
         run: make localstack-start &
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: "27"
-          elixir-version: "1.18.2"
+          version-file: ./.tool-versions
+          version-type: strict
       - uses: hashicorp/setup-terraform@v3
       - name: Cache Elixir dependencies and build
         uses: actions/cache@v4
