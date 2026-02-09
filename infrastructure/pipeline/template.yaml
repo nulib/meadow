@@ -1,0 +1,297 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform:
+  - AWS::Serverless-2016-10-31
+  - AWS::LanguageExtensions
+Description: Meadow Ingest Pipeline
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Project whose S3 buckets this pipeline can access
+  ConfigPrefix:
+    Type: String
+    Description: Path to secrets in AWS Secrets Manager
+  TrustedReferers:
+    Type: String
+    Description: Referring sites that are trusted to authorize streams
+    Default: ""
+  S3PathStyle:
+    Type: String
+    Description: Whether to use path-style addressing for S3 (for local development with LocalStack)
+    AllowedValues: ["true", "false"]
+    Default: "false"
+  S3Endpoint:
+    Type: String
+    Description: Custom S3 endpoint (for local development with LocalStack)
+    Default: ""
+Resources:
+  exifToolLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleRuntimes: ["nodejs22.x"]
+      ContentUri: ./layers/exifToolLayer.zip
+  ffmpegLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleRuntimes: ["nodejs22.x"]
+      ContentUri: ./layers/ffmpegLayer.zip
+  mediaInfoLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleRuntimes: ["nodejs22.x"]
+      ContentUri: ./layers/mediaInfoLayer.zip
+  perlLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleRuntimes: ["nodejs22.x"]
+      ContentUri: ./layers/perlLayer.zip
+  digester:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Generate FileSet digests
+      CodeUri: ../../lambdas/digester
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 1024
+      Timeout: 240
+      Environment:
+        Variables:
+          AWS_S3_ENDPOINT: !Ref S3Endpoint
+          AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
+  exif:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Extract EXIF metadata from FileSet
+      CodeUri: ../../lambdas/exif
+      Handler: index.handler
+      Runtime: nodejs22.x
+      Layers:
+        - !Ref perlLayer
+        - !Ref exifToolLayer
+      EphemeralStorage:
+        Size: 8192
+      MemorySize: 768
+      Timeout: 120
+      Environment:
+        Variables:
+          AWS_S3_ENDPOINT: !Ref S3Endpoint
+          AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
+          EXIFTOOL: "/opt/bin/exiftool"
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
+  frameExtractor:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Extract frame from video
+      CodeUri: ../../lambdas/frame-extractor
+      Handler: index.handler
+      Runtime: nodejs22.x
+      Layers:
+        - !Ref ffmpegLayer
+      MemorySize: 1024
+      Timeout: 240
+      Environment:
+        Variables:
+          AWS_S3_ENDPOINT: !Ref S3Endpoint
+          AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
+          FFMPEG_PATH: "/opt/bin/ffmpeg"
+          FFPROBE_PATH: "/opt/bin/ffprobe"
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": "IIIF Server"
+  mediainfo:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Extract MediaInfo metadata from FileSet
+      CodeUri: ../../lambdas/mediainfo
+      Handler: index.handler
+      Runtime: nodejs22.x
+      Layers:
+        - !Ref mediaInfoLayer
+      MemorySize: 512
+      Timeout: 240
+      Environment:
+        Variables:
+          AWS_S3_ENDPOINT: !Ref S3Endpoint
+          AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
+          MEDIAINFO_PATH: "/opt/bin/mediainfo"
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
+  mimeType:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Extract MIME type from FileSet
+      CodeUri: ../../lambdas/mime-type
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 256
+      Timeout: 120
+      Environment:
+        Variables:
+          AWS_S3_ENDPOINT: !Ref S3Endpoint
+          AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
+  pyramidTiff:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Create pyramid TIFF derivative
+      CodeUri: ../../lambdas/pyramid-tiff
+      Handler: index.handler
+      Runtime: nodejs22.x
+      Layers:
+        - !Ref ffmpegLayer
+      MemorySize: 8192
+      Timeout: 240
+      Environment:
+        Variables:
+          AWS_S3_ENDPOINT: !Ref S3Endpoint
+          AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
+          NODE_OPTIONS: "--max-old-space-size=8192"
+          VIPS_DISC_THRESHOLD: "3500m"
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": !Ref ProjectName
+          - Effect: Allow
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::*"
+              - !Sub "arn:aws:s3:::*/*"
+            Condition:
+              StringEquals:
+                "aws:ResourceTag/Project": "IIIF Server"
+  streamAuthorizer:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Stream authorizer
+      CodeUri: ../../lambdas/stream-authorizer
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 128
+      AutoPublishAlias: "Latest"
+      Timeout: 5
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "es:ESHttpGet"
+            Resource:
+              - !Sub "arn:aws:es:*:${AWS::AccountId}:domain/*"
+  pipelineConfiguration:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name:
+        Fn::Join:
+        - "/"
+        - - !Ref ConfigPrefix
+          - "config/meadow-pipeline"
+      Description: Configuration secrets for Meadow Ingest Pipeline
+      SecretString:
+        Fn::ToJsonString:
+          digester: !GetAtt digester.Arn
+          exif: !GetAtt exif.Arn
+          frame_extractor: !GetAtt frameExtractor.Arn
+          mediainfo: !GetAtt mediainfo.Arn
+          mime_type: !GetAtt mimeType.Arn
+          tiff: !GetAtt pyramidTiff.Arn
+  streamAuthorizerConfiguration:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Ref streamAuthorizer
+      SecretString:
+        Fn::ToJsonString:
+          dcApiEndpoint: !Sub '{{resolve:secretsmanager:${ConfigPrefix}/config/dcapi:SecretString:base_url}}'
+          allowedFrom: !Ref TrustedReferers
+  streamAuthorizerConfigurationAccess:
+    Type: AWS::SecretsManager::ResourcePolicy
+    Properties: 
+      BlockPublicPolicy: true
+      ResourcePolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:DescribeSecret
+              - secretsmanager:GetSecretValue
+            Principal:
+              AWS: !GetAtt streamAuthorizerRole.Arn
+            Resource: "*"
+      SecretId: !Ref streamAuthorizerConfiguration
+Outputs:
+  SecretName:
+    Description: Pipeline Config Secret
+    Value: !Ref pipelineConfiguration
+  StreamAuthorizerArn:
+    Description: ARN of the Stream Authorizer Lambda@Edge function
+    Value: !Ref streamAuthorizer.Version

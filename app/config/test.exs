@@ -11,7 +11,7 @@ config :ex_aws,
 
 IO.puts("Using localstack services for tests")
 
-[:logs, :mediaconvert, :s3, :secretsmanager, :sns, :sqs]
+[:lambda, :logs, :mediaconvert, :s3, :secretsmanager, :sns, :sqs]
 |> Enum.each(fn service ->
   config :ex_aws, service,
     scheme: "https://",

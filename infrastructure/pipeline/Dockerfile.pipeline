@@ -1,0 +1,13 @@
+FROM amazonlinux:2023
+RUN dnf update -y \
+ && dnf install -y docker unzip
+WORKDIR /tmp
+RUN curl -LO https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip \
+ && unzip aws-sam-cli-linux-x86_64.zip -d sam-installation \
+ && sam-installation/install \
+ && rm -rf aws-sam-cli-linux-x86_64.zip sam-installation
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+WORKDIR /var/opt/infrastructure/pipeline
+EXPOSE 3006
