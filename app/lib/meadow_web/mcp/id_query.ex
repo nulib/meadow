@@ -26,6 +26,8 @@ defmodule MeadowWeb.MCP.IDQuery do
     |> add_size_and_source()
     |> Slice.paginate(SearchConfig.alias_for(Work, 2))
     |> fetch_ids(frame)
+  rescue
+    error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
   end
 
   defp fetch_ids({:error, reason}, frame) do

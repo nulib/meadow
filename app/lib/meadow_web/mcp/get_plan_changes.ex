@@ -78,6 +78,8 @@ defmodule MeadowWeb.MCP.GetPlanChanges do
       {:error, reason} ->
         {:error, MCPError.execution(reason), frame}
     end
+  rescue
+    error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
   end
 
   defp fetch_plan(plan_id) do
