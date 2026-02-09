@@ -6,7 +6,7 @@
   "author": "bmquinn",
   "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.975.0",
+    "@aws-sdk/client-s3": "^3.985.0",
     "tmp-promise": "^3.0.3",
     "uri-js": "^4.4.1"
   }
