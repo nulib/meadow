@@ -5,7 +5,7 @@ provider "aws" {
 
 resource "aws_iam_role" "replication_role" {
   # Only create the role in production env
-  count = var.environment == "p" ? 1 : 0
+  count = local.is_production ? 1 : 0
   name  = "${var.stack_name}-replication-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -48,15 +48,15 @@ resource "aws_iam_role" "replication_role" {
 }
 
 resource "aws_s3_bucket" "meadow_preservation_replica" {
-  count    = var.environment == "p" ? 1 : 0
+  count    = local.is_production ? 1 : 0
   provider = aws.west
-  bucket   = "${var.stack_name}-${var.environment}-preservation-replica-${var.replication_region}"
+  bucket   = "${local.meadow_prefix}-preservation-replica-${var.replication_region}"
 
   tags = var.tags
 }
 
 resource "aws_s3_bucket_versioning" "meadow_preservation_replica" {
-  count    = var.environment == "p" ? 1 : 0
+  count    = local.is_production ? 1 : 0
   provider = aws.west
   bucket   = aws_s3_bucket.meadow_preservation_replica[count.index].id
   versioning_configuration {
@@ -65,7 +65,7 @@ resource "aws_s3_bucket_versioning" "meadow_preservation_replica" {
 }
 
 resource "aws_s3_bucket_replication_configuration" "east_to_west" {
-  count  = var.environment == "p" ? 1 : 0
+  count  = local.is_production ? 1 : 0
   role   = aws_iam_role.replication_role[count.index].arn
   bucket = aws_s3_bucket.meadow_preservation.id
 

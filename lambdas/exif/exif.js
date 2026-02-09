@@ -1,4 +1,4 @@
-const { S3ClientShim, GetObjectCommand } = require("aws-s3-shim");
+const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
 const URI = require("uri-js");
 const fs = require("fs");
 const path = require("path");
@@ -64,7 +64,7 @@ const download = (source) => {
     tmp.file({ template: "/tmp/exif-XXXXXX" }).then((outputFile) => {
       console.log(`Retrieving ${source} to ${outputFile.path}`);
 
-      const s3Client = new S3ClientShim({ httpOptions: { timeout: 600000 } });
+      const s3Client = new S3Client(s3ClientOpts());
       s3Client
         .send(new GetObjectCommand(s3Location))
         .then(({ Body: inputStream }) => {
@@ -119,6 +119,12 @@ const readOutput = (child) => {
       .on("data", (data) => (buffer += data))
       .on("end", () => (buffer = buffer.trimEnd()));
   });
+};
+
+const s3ClientOpts = () => {
+  const forcePathStyle = process.env.AWS_S3_FORCE_PATH_STYLE === "true";
+  const endpoint = process.env.AWS_S3_ENDPOINT;
+  return { endpoint, forcePathStyle, httpOptions: { timeout: 600000 } };
 };
 
 module.exports = { extract, version };

@@ -30,3 +30,14 @@ services:
       - 4566:4566
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+  sam-pipeline:
+    image: nulib/sam-pipeline-test:latest
+    build:
+      context: ../pipeline
+      dockerfile: ../pipeline/Dockerfile.pipeline
+    network_mode: "host"
+    volumes:
+      - ../pipeline:${PWD}/../pipeline:ro
+      - ../../lambdas:${PWD}/../../lambdas:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    working_dir: ${PWD}/../pipeline
