@@ -1,4 +1,6 @@
-const authorize = require("./authorize");
+import authorize from "./authorize.js";
+import middy from "@middy/core";
+import secretsManager from "@middy/secrets-manager";
 
 function getEventHeader(request, header) {
   return request?.headers?.[header]?.[0]?.value;
@@ -19,7 +21,7 @@ function addAccessControlHeaders(request, response) {
   return response;
 }
 
-async function viewerRequestHandler(event) {
+async function viewerRequestHandler(event, { config }) {
   console.log("Initiating stream authorization");
   const request = event.Records[0].cf.request;
 
@@ -31,7 +33,7 @@ async function viewerRequestHandler(event) {
   console.log("Streaming resource ID", id);
   const referer = getEventHeader(request, "referer");
   const cookie = getEventHeader(request, "cookie");
-  const allowed = await authorize(id, referer, cookie);
+  const allowed = await authorize(id, referer, cookie, config);
 
   if (allowed) return request;
 
@@ -48,12 +50,12 @@ async function viewerResponseHandler(event) {
   return addAccessControlHeaders(request, response);
 }
 
-async function handler(event) {
+async function requestHandler(event, context) {
   const { eventType } = event.Records[0].cf.config;
 
   switch (eventType) {
     case "viewer-request":
-      return await viewerRequestHandler(event);
+      return await viewerRequestHandler(event, context);
     case "viewer-response":
       return await viewerResponseHandler(event);
     default:
@@ -61,6 +63,28 @@ async function handler(event) {
   }
 }
 
-module.exports = {
-  handler,
-};
+function functionNameAndRegion() {
+  let nameVar = process.env.AWS_LAMBDA_FUNCTION_NAME;
+  const match = /^(?<functionRegion>[a-z]{2}-[a-z]+-\d+)\.(?<functionName>.+)$/.exec(nameVar);
+  if (match) {
+    return { ...match.groups }
+  } else {
+    return {
+      functionName: nameVar,
+      functionRegion: process.env.AWS_REGION
+    }
+  }
+}
+
+const { functionName, functionRegion } = functionNameAndRegion();
+
+export const handler = 
+  middy()
+    .use(
+      secretsManager({
+        fetchData: { config: functionName },
+        awsClientOptions: { region: functionRegion },
+        setToContext: true
+      })
+    )
+    .handler(requestHandler);

@@ -300,14 +300,30 @@ defmodule Meadow.Config.Runtime do
           "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
         )
 
-    config :meadow, :lambda,
-      digester: {:lambda, get_secret(:meadow, ["pipeline", "digester"], "digester:$LATEST")},
-      exif: {:lambda, get_secret(:meadow, ["pipeline", "exif"], "exif:$LATEST")},
-      frame_extractor:
-        {:lambda, get_secret(:meadow, ["pipeline", "frame_extractor"], "frame-extractor:$LATEST")},
-      mediainfo: {:lambda, get_secret(:meadow, ["pipeline", "mediainfo"], "mediainfo:$LATEST")},
-      mime_type: {:lambda, get_secret(:meadow, ["pipeline", "mime_type"], "mime-type:$LATEST")},
-      tiff: {:lambda, get_secret(:meadow, ["pipeline", "tiff"], "pyramid-tiff:$LATEST")}
+    if System.get_env("USE_SAM_LAMBDAS") do
+      config :ex_aws, :lambda,
+        scheme: "http",
+        host: "localhost",
+        port: 3005
+
+      config :meadow, :lambda,
+        digester: {:lambda, "digester"},
+        exif: {:lambda, "exif"},
+        frame_extractor: {:lambda, "frameExtractor"},
+        mediainfo: {:lambda, "mediainfo"},
+        mime_type: {:lambda, "mimeType"},
+        tiff: {:lambda, "pyramidTiff"}
+    else
+      config :meadow, :lambda,
+        digester: {:lambda, get_secret(:pipeline, ["digester"], "digester:$LATEST")},
+        exif: {:lambda, get_secret(:pipeline, ["exif"], "exif:$LATEST")},
+        frame_extractor:
+          {:lambda,
+           get_secret(:pipeline, ["frame_extractor"], "frame-extractor:$LATEST")},
+        mediainfo: {:lambda, get_secret(:pipeline, ["mediainfo"], "mediainfo:$LATEST")},
+        mime_type: {:lambda, get_secret(:pipeline, ["mime_type"], "mime-type:$LATEST")},
+        tiff: {:lambda, get_secret(:pipeline, ["tiff"], "pyramid-tiff:$LATEST")}
+    end
 
     config :meadow, :livebook, url: System.get_env("LIVEBOOK_URL")
 

@@ -63,10 +63,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
           assert(ActionStates.error?(file_set_id, ExtractMimeType))
         end)
 
-      assert log =~ ~r/Received undefined response from lambda/
-
-      assert log =~
-               ~r"not_a_tiff.tif attempting to fall back to image/tiff but magic number doesn't match."
+      assert log =~ ~r/error in mime-type extraction/
     end
 
     @tag fixture_file: @json_file, file_set_role_id: "P"

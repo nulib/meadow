@@ -29,14 +29,6 @@ defmodule Meadow.ConfigTest do
     assert Config.preservation_check_bucket() == @preservation_check_bucket
   end
 
-  test "lambda_config/1" do
-    assert {:local, {script, handler}} = Config.lambda_config(:exif)
-    assert script =~ ~r(lambdas/exif/index.js$)
-    assert handler == "handler"
-
-    assert Config.lambda_config(:missing) == {:error, :unknown}
-  end
-
   test "buckets/0" do
     [
       @derivatives_bucket,
@@ -67,7 +59,7 @@ defmodule Meadow.ConfigTest do
         assert env |> Map.get(~c"AWS_REGION") == ~c"us-east-1"
         assert env |> Map.get(~c"AWS_SECRET_ACCESS_KEY") == ~c"fake"
         assert env |> Map.get(~c"AWS_ACCESS_KEY_ID") == ~c"fake"
-        assert env |> Map.get(~c"AWS_S3_ENDPOINT") |> Enum.slice(0..16) == ~c"https://localhost"
+        assert env |> Map.get(~c"AWS_ENDPOINT_URL_S3") |> Enum.slice(0..16) == ~c"https://localhost"
       end
     end
   end
