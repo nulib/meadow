@@ -8,7 +8,6 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { resolvers, typeDefs } from "./client-local";
 
-import fetch from "node-fetch";
 import { hasSubscription } from "@jumpn/utils-graphql";
 import { setContext } from "@apollo/client/link/context";
 
@@ -16,7 +15,7 @@ import { setContext } from "@apollo/client/link/context";
 // connection from the Phoenix app's GraphQL API endpoint URL.
 const httpLink = new HttpLink({
   uri: "/api/graphql",
-  fetch,
+  fetch: globalThis.fetch.bind(globalThis),
 });
 
 // Create a WebSocket client using the graphql-ws protocol

@@ -57,30 +57,35 @@ If you would like to interact directly with the database
 
 ### Run the Elixir test suite
 
-#### Start/Provision Test Environment
+#### Recommended: one command
 
-In one terminal:
+From the Meadow root directory:
+
+```bash
+make test
+```
+
+This runs JS tests, starts localstack + pipeline services, provisions test infrastructure, runs Elixir tests with the required environment (`AWS_LOCALSTACK=true`, `USE_SAM_LAMBDAS=true`), and then tears down localstack automatically.
+
+#### Run only Elixir tests with automatic setup/teardown
+
+```bash
+make test-elixir-local
+```
+
+#### Advanced/manual workflow
+
 ```bash
 make localstack-provision
-```
-
-#### Run Tests
-
-```bash
 cd app
 export AWS_LOCALSTACK=true
+export USE_SAM_LAMBDAS=true
 mix test [test args...]
-```
-
-**Note:** Do not try to run Meadow with `export AWS_LOCALSTACK=true` set.
-
-#### Stop/Deprovision Test Environment
-
-Back in the meadow root directory:
-
-```bash
+cd ..
 make localstack-stop
 ```
+
+**Note:** Do not run Meadow with `AWS_LOCALSTACK=true` set in your normal dev shell.
 
 ### GraphQL API
 

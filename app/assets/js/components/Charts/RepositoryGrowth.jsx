@@ -50,7 +50,7 @@ export default function ChartsRepositoryGrowth({
     <div className="box">
       <h3 className="subtitle is-3">Repository Growth</h3>
       <div style={{ width: "100%", height: "400px" }}>
-        <ResponsiveContainer>
+        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
           <LineChart
             width={500}
             height={300}
