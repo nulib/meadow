@@ -7,7 +7,7 @@ import DashboardsLocalAuthoritiesModalBulkAdd from "@js/components/Dashboards/Lo
 import FormDownloadWrapper from "@js/components/UI/Form/DownloadWrapper";
 import { IconAdd, IconAddMany } from "@js/components/Icon";
 import { IconCsv } from "@js/components/Icon";
-import NLogo from "@js/components/northwesternN.svg";
+import NLogo from "@js/components/northwesternN.svg?react";
 import React from "react";
 import UIIconText from "@js/components/UI/IconText";
 import { toastWrapper } from "@js/services/helpers";
