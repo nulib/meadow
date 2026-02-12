@@ -2,6 +2,7 @@ LAMBDAS_DIR ?= ../../lambdas
 SAM_PORT ?= 3005
 SAM_HOST ?= 0.0.0.0
 PIPELINE_LOG_DIR := $(shell mktemp -d)
+PIPELINE_THREADS ?= 4
 
 .PHONY: help layers build start clean
 
@@ -40,7 +41,7 @@ build: layers
 	sam build --use-container --cached
 
 start: deps layers
-	sam local start-lambda --warm-containers=LAZY -p 3005
+	./start_multi.sh $(SAM_PORT) $(PIPELINE_THREADS)
 
 clean:
 	rm -rf .aws-sam $(LAMBDAS_DIR)/*/node_modules && \
