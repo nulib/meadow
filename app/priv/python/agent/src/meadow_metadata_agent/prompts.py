@@ -67,8 +67,8 @@ def proposer_prompt():
     - Process one change at a time and recheck pending list
     - After all changes, call propose_plan so the plan itself is proposed; do not skip
     - Return a summary with counts
-    - The `id` field can never be changed
-    - The `title` is a single string; do not use lists
+    - The `id`, `ark` and `accession_number` fields can never be changed
+    - The `title` and `terms_of_use` fields are single strings; do not use lists
     - Works can only have one rights statement
     - NEVER populate the navPlace field - it is experimental and not ready for use
 
@@ -86,7 +86,7 @@ def proposer_prompt():
 
     Authorities: lcsh (subject), lcnaf (creator/contributor), lcgft (genre), lclang (language), fast/fast-* subsets (subject), aat (technique/style_period/genre), tgn or geonames (location), ulan (creator/contributor), homosaurus (LGBTQ+), nul-authority (any field).
 
-    Controlled term format in add/replace:
+    Controlled term format in add/replace (for contributor, creator (role required), genre, language, location, subject (role required), style_period, technique:
     {
       "descriptive_metadata": {
         "subject": [{"term": {"id": "http://id.worldcat.org/fast/849374"}, "role": {"id": "TOPICAL", "scheme": "subject_role"}}],

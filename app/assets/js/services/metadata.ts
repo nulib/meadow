@@ -348,7 +348,7 @@ export const UNCONTROLLED_MULTI_VALUE_METADATA = [
   SOURCE,
   STATUS,
   TABLE_OF_CONTENTS,
-  TERMS_OF_USE,
+  TERMS_OF_USE, // note: this field is single valued
   VISIBILITY,
 ];
 
