@@ -57,30 +57,27 @@ If you would like to interact directly with the database
 
 ### Run the Elixir test suite
 
-#### Recommended: one command
+#### Full Continuous Integration
 
 From the Meadow root directory:
 
 ```bash
-make test
+make ci
 ```
 
-This runs JS tests, starts localstack + pipeline services, provisions test infrastructure, runs Elixir tests with the required environment (`AWS_LOCALSTACK=true`, `USE_SAM_LAMBDAS=true`), and then tears down localstack automatically.
+This runs JS tests, starts localstack + pipeline services, provisions test infrastructure, runs Elixir tests with the required environment (`AWS_LOCALSTACK=true`), and then tears down localstack automatically.
 
-#### Run only Elixir tests with automatic setup/teardown
+#### Run only Elixir tests with automatic setup
 
 ```bash
-make test-elixir-local
+make app-test
 ```
 
 #### Advanced/manual workflow
 
 ```bash
 make localstack-provision
-cd app
-export AWS_LOCALSTACK=true
-export USE_SAM_LAMBDAS=true
-mix test [test args...]
+make app-test [test args...]
 cd ..
 make localstack-stop
 ```

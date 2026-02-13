@@ -72,7 +72,7 @@ jobs:
           GITHUB_ENV: ${{ env.GITHUB_ENV }}
           SECRETS: ${{ toJSON(secrets) }}
       - name: Extract MEADOW_VERSION from mix.exs
-        run: echo "MEADOW_VERSION=$(make version)" >> $GITHUB_ENV
+        run: echo "MEADOW_VERSION=$(make app-version)" >> $GITHUB_ENV
       - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${CONTAINER_TAG}"
       - name: Tag Meadow Release
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -154,7 +154,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Extract MEADOW_VERSION from mix.exs
-        run: echo "MEADOW_VERSION=$(make version)" >> $GITHUB_ENV
+        run: echo "MEADOW_VERSION=$(make app-version)" >> $GITHUB_ENV
       - name: Configure AWS
         run: .github/scripts/configure_aws.sh
         env:
