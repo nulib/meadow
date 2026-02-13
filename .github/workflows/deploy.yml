@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       deploy_env: ${{ steps.set-deploy-env.outputs.result }}
-      container_tag: ${{ steps.set-container-tag.outputs.result }}
+      image_tag: ${{ steps.set-image-tag.outputs.result }}
       meadow_tenant: ${{ steps.set-meadow-prefix.outputs.result }}
     steps:
       - name: Set DEPLOY_ENV from Branch Name
@@ -30,8 +30,8 @@ jobs:
           fi
         env:
           BRANCH: ${{ github.ref }}
-      - name: Set container tag from DEPLOY_ENV
-        id: set-container-tag
+      - name: Set image tag from DEPLOY_ENV
+        id: set-image-tag
         run: |
           if [[ $DEPLOY_ENV == 'production' || $DEPLOY_ENV == 'staging' ]]; then
             echo "result=latest" >> $GITHUB_OUTPUT
@@ -53,7 +53,7 @@ jobs:
       - name: Output Environment Info
         run: |
           echo "Deploying to environment: ${{ steps.set-deploy-env.outputs.result }}"
-          echo "Using container tag: ${{ steps.set-container-tag.outputs.result }}"
+          echo "Using image tag: ${{ steps.set-image-tag.outputs.result }}"
           echo "Using meadow tenant prefix: ${{ steps.set-meadow-prefix.outputs.result }}"
   build:
     if: ${{ !github.event.pull_request && !contains(github.event.head_commit.message, '[no-deploy]') }}
@@ -61,7 +61,7 @@ jobs:
     needs: get-environment
     env:
       DEPLOY_ENV: ${{ needs.get-environment.outputs.deploy_env }}
-      CONTAINER_TAG: ${{ needs.get-environment.outputs.container_tag }}
+      IMAGE_TAG: ${{ needs.get-environment.outputs.image_tag }}
       MEADOW_TENANT: ${{ needs.get-environment.outputs.meadow_tenant }}
     steps:
       - uses: actions/checkout@v2
@@ -73,7 +73,7 @@ jobs:
           SECRETS: ${{ toJSON(secrets) }}
       - name: Extract MEADOW_VERSION from mix.exs
         run: echo "MEADOW_VERSION=$(make app-version)" >> $GITHUB_ENV
-      - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${CONTAINER_TAG}"
+      - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${IMAGE_TAG}"
       - name: Tag Meadow Release
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
@@ -85,42 +85,45 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Determine container tags
-        id: determine-container-tags
+      - name: Determine image tags
+        id: determine-image-tags
         run: |
           {
             echo "tags<<EOF"
-            echo "${REGISTRY_NAME}/meadow:${CONTAINER_TAG}"
-            if [[ ${CONTAINER_TAG} == "latest" ]]; then
+            echo "${REGISTRY_NAME}/meadow:${IMAGE_TAG}"
+            if [[ ${IMAGE_TAG} == "latest" ]]; then
               echo "${REGISTRY_NAME}/meadow:${MEADOW_VERSION}"
             fi
             echo "EOF"
           } >> $GITHUB_OUTPUT
         env:
           REGISTRY_NAME: ${{ steps.login-ecr.outputs.registry }}
-      - name: Set Meadow Release Name
-        id: meadow-release
-        run: echo "name=meadow-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Set Build Options
+        id: build-options
+        run: |
+          echo "release_name=meadow-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "build_image=$(make build-image)" >> $GITHUB_OUTPUT
+          echo "runtime_image=$(make runtime-image)" >> $GITHUB_OUTPUT
       - uses: docker/build-push-action@v2
         with:
           context: ./app
           push: true
-          tags: ${{ steps.determine-container-tags.outputs.tags }}
+          tags: ${{ steps.determine-image-tags.outputs.tags }}
           build-args: |
-            BUILD_IMAGE=hexpm/elixir:1.18.2-erlang-27.3-debian-bookworm-20250224
-            RUNTIME_IMAGE=node:22-bookworm-slim
+            BUILD_IMAGE=${{ steps.build-options.outputs.build_image }}
+            RUNTIME_IMAGE=${{ steps.build-options.outputs.runtime_image }}
             HONEYBADGER_API_KEY=${{ secrets.HONEYBADGER_API_KEY }}
             HONEYBADGER_API_KEY_FRONTEND=${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
             HONEYBADGER_ENVIRONMENT=${{ env.DEPLOY_ENV }}
             HONEYBADGER_REVISION=${{ github.sha }}
-            RELEASE_NAME=${{ steps.meadow-release.outputs.name }}
+            RELEASE_NAME=${{ steps.build-options.outputs.release_name }}
             MEADOW_TENANT=${{ env.MEADOW_TENANT }}
             MEADOW_VERSION=${{ env.MEADOW_VERSION }}
       - name: Upload Source Maps to Honeybadger
         run: .github/scripts/upload_source_maps.sh
         env:
           DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
-          MEADOW_IMAGE: ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.CONTAINER_TAG }}
+          MEADOW_IMAGE: ${{ steps.login-ecr.outputs.registry }}/meadow:${{ env.IMAGE_TAG }}
           MEADOW_VERSION: ${{ env.MEADOW_VERSION }}
           HONEYBADGER_API_KEY_FRONTEND: ${{ secrets.HONEYBADGER_API_KEY_FRONTEND }}
           HONEYBADGER_REVISION: ${{ github.sha }}
@@ -149,7 +152,7 @@ jobs:
     needs: get-environment
     env:
       DEPLOY_ENV: ${{ needs.get-environment.outputs.deploy_env }}
-      CONTAINER_TAG: ${{ needs.get-environment.outputs.container_tag }}
+      IMAGE_TAG: ${{ needs.get-environment.outputs.image_tag }}
       MEADOW_TENANT: ${{ needs.get-environment.outputs.meadow_tenant }}
     steps:
       - uses: actions/checkout@v2
@@ -166,13 +169,13 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Determine container tags
-        id: determine-container-tags
+      - name: Determine image tags
+        id: determine-image-tags
         run: |
           {
             echo "tags<<EOF"
-            echo "${REGISTRY_NAME}/meadow:livebook-${CONTAINER_TAG}"
-            if [[ ${CONTAINER_TAG} == "latest" ]]; then
+            echo "${REGISTRY_NAME}/meadow:livebook-${IMAGE_TAG}"
+            if [[ ${IMAGE_TAG} == "latest" ]]; then
               echo "${REGISTRY_NAME}/meadow:livebook-${MEADOW_VERSION}"
             fi
             echo "EOF"
@@ -184,7 +187,7 @@ jobs:
           context: .
           file: ./Dockerfile.livebook
           push: true
-          tags: ${{ steps.determine-container-tags.outputs.tags }}
+          tags: ${{ steps.determine-image-tags.outputs.tags }}
   deploy:
     needs: 
       - get-environment
@@ -194,7 +197,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_ENV: ${{ needs.get-environment.outputs.deploy_env }}
-      CONTAINER_TAG: ${{ needs.get-environment.outputs.container_tag }}
+      IMAGE_TAG: ${{ needs.get-environment.outputs.image_tag }}
       MEADOW_TENANT: ${{ needs.get-environment.outputs.meadow_tenant }}
     steps:
       - uses: actions/checkout@v2
