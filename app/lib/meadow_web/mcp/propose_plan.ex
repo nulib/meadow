@@ -35,5 +35,7 @@ defmodule MeadowWeb.MCP.ProposePlan do
       {:error, reason} ->
         {:error, MCPError.execution(reason), frame}
     end
+  rescue
+    error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
   end
 end

@@ -119,6 +119,8 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
       {:error, reason} ->
         {:error, MCPError.execution(reason), frame}
     end
+  rescue
+    error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
   end
 
   defp fetch_plan_change(id) do

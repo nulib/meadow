@@ -310,6 +310,7 @@ defmodule Meadow.Config.Runtime do
         digester: {:lambda, "digester"},
         exif: {:lambda, "exif"},
         frame_extractor: {:lambda, "frameExtractor"},
+        metadataAgent: {:lambda, "metadataAgent"},
         mediainfo: {:lambda, "mediainfo"},
         mime_type: {:lambda, "mimeType"},
         tiff: {:lambda, "pyramidTiff"}
@@ -321,6 +322,7 @@ defmodule Meadow.Config.Runtime do
           {:lambda,
            get_secret(:pipeline, ["frame_extractor"], "frame-extractor:$LATEST")},
         mediainfo: {:lambda, get_secret(:pipeline, ["mediainfo"], "mediainfo:$LATEST")},
+        metadataAgent: {:lambda, get_secret(:pipeline, ["metadata_agent"], "metadata-agent:$LATEST")},
         mime_type: {:lambda, get_secret(:pipeline, ["mime_type"], "mime-type:$LATEST")},
         tiff: {:lambda, get_secret(:pipeline, ["tiff"], "pyramid-tiff:$LATEST")}
     end

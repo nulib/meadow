@@ -35,13 +35,14 @@ layers:
 	cd layers/build && make all
 
 build: layers
-	SHARP_IGNORE_GLOBAL_LIBVIPS=1 sam build
+	sam build --use-container --cached
 
 start: deps layers
 	sam local start-lambda --warm-containers=LAZY -p 3005
 
 clean:
-	rm -rf .aws-sam */node_modules && \
+	rm -rf .aws-sam && \
+	(cd $(LAMBDAS_DIR) && rm -rf */node_modules) && \
 	cd layers/build && make clean
 
 deploy: env-check .aws-sam/build.toml

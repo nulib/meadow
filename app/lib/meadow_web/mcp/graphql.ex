@@ -36,6 +36,8 @@ defmodule MeadowWeb.MCP.GraphQL do
       {:error, reason} ->
         {:reply, Response.tool() |> Response.error(reason), frame}
     end
+  rescue
+    error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
   end
 
   defp run_query(query, variables, context) do
