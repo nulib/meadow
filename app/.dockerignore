@@ -1,5 +1,7 @@
 .dockerignore
 .elixir_ls
+.expert
+.lexical
 .git
 _build
 assets/coverage

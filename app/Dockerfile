@@ -1,24 +1,23 @@
 ARG BUILD_IMAGE
-ARG RUNTIME_IMAGE
 
 # Install elixir & npm dependencies
 FROM ${BUILD_IMAGE} AS build
 LABEL edu.northwestern.library.app=meadow \
-  edu.northwestern.library.cache=true \
-  edu.northwestern.library.stage=deps
-RUN  mix local.hex --force \
-  && mix local.rebar --force
-ENV NODE_VERSION=22
+      edu.northwestern.library.cache=true \
+      edu.northwestern.library.stage=deps
+ARG NODE_VERSION=22
 ENV NPM_VERSION=11.6.0
 ENV ARCH=x64
-RUN apt update -qq \
- && apt install -y ca-certificates curl git gnupg \
- && mkdir -p /etc/apt/keyrings \
- && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
- && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_VERSION}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
- && apt update -qq \
- && apt install -y nodejs \
- && npm install -g npm@$NPM_VERSION
+RUN apt update -qq
+RUN apt install -y ca-certificates curl git gnupg
+RUN mkdir -p /etc/apt/keyrings
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_VERSION}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+RUN apt update -qq
+RUN apt install -y nodejs
+RUN npm install -g npm@$NPM_VERSION
+RUN  mix local.hex --force \
+  && mix local.rebar --force
 ENV MIX_ENV=prod
 COPY . /app
 WORKDIR /app
@@ -45,10 +44,16 @@ ENV RELEASE_NAME=${RELEASE_NAME}
 RUN mix release --overwrite
 
 # Create runtime image
-FROM ${RUNTIME_IMAGE}
+FROM ${BUILD_IMAGE}
 LABEL edu.northwestern.library.app=meadow \
-edu.northwestern.library.stage=runtime
-RUN apt update -qq && apt install -y curl git jq libssl-dev libncurses5-dev
+      edu.northwestern.library.stage=runtime
+ARG NODE_VERSION=22
+RUN apt update -qq && apt install -y ca-certificates curl git gnupg jq libssl-dev libncurses5-dev \
+  && mkdir -p /etc/apt/keyrings \
+  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_VERSION}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+  && apt update -qq \
+  && apt install -y nodejs
 ARG RELEASE_NAME=
 ENV RELEASE_NAME=${RELEASE_NAME}
 ENV LANG=C.UTF-8
