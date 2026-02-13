@@ -73,8 +73,6 @@ jobs:
         working-directory: app
         env:
           MIX_ENV: test
-      - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code
       - name: Elixir Static Analysis
         run: mix credo
         working-directory: app
