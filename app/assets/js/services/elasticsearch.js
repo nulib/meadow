@@ -9,7 +9,7 @@ export const ELASTICSEARCH_COLLECTION_INDEX =
   __ELASTICSEARCH_COLLECTION_INDEX__;
 export const ELASTICSEARCH_FILE_SET_INDEX = __ELASTICSEARCH_FILE_SET_INDEX__;
 
-const fetch = require("node-fetch");
+const fetchJson = (...args) => globalThis.fetch(...args);
 
 export const ELASTICSEARCH_AGGREGATION_FIELDS = {
   contributor: {
@@ -80,7 +80,7 @@ export async function elasticsearchDirectCount(
   index = ELASTICSEARCH_WORK_INDEX,
 ) {
   try {
-    let response = await fetch(elasticsearchUrl(`${index}/_count`), {
+    let response = await fetchJson(elasticsearchUrl(`${index}/_count`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -103,7 +103,7 @@ export async function elasticsearchDirectSearch(
   index = ELASTICSEARCH_WORK_INDEX,
 ) {
   try {
-    let response = await fetch(elasticsearchUrl(`${index}/_search`), {
+    let response = await fetchJson(elasticsearchUrl(`${index}/_search`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

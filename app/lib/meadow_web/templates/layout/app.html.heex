@@ -24,6 +24,6 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <%= @inner_content %>
-    <script type="text/javascript" src={Routes.static_path(@conn, "/js/app.js")}></script>
+    <script type="module" src={Routes.static_path(@conn, "/js/app.js")}></script>
   </body>
 </html>
