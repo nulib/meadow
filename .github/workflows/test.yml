@@ -24,7 +24,7 @@ jobs:
         env:
           NPM_VERSION: 11.6.0
       - name: Frontend CI
-        run: make ci-js
+        run: make app-frontend-ci
   elixir-test:
     runs-on: ubuntu-latest
     env:
@@ -57,11 +57,11 @@ jobs:
             ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
             ${{ runner.os }}-hex-v6-
       - name: Install Elixir dependencies
-        run: make deps compile
+        run: make app-compile
         env:
           MIX_ENV: test
       - name: Elixir Static Analysis
-        run: make lint-elixir
+        run: make app-lint
       - name: Wait for services to be ready
         run: timeout 120 bash -c 'while ! ./all-healthy.sh; do sleep 2; done'
         working-directory: ./infrastructure/localstack
@@ -70,7 +70,7 @@ jobs:
       - name: Provision Localstack using Terraform
         run: make localstack-provision
       - name: Elixir Tests
-        run: make test-elixir
+        run: make app-test
         env:
           AWS_LOCALSTACK: true
           USE_SAM_LAMBDAS: true
