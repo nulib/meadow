@@ -173,6 +173,7 @@ Resources:
       Environment:
         Variables:
           CLAUDE_CODE_USE_BEDROCK: 1
+          CLAUDE_CONFIG_DIR: /tmp
       Policies:
       - Version: "2012-10-17"
         Statement:
