@@ -55,7 +55,5 @@ ENV LANG=C.UTF-8
 EXPOSE 4000 4369 9100-9155
 COPY --from=build /app/_build/prod/rel/meadow /app
 WORKDIR /app
-RUN npm install -g @anthropic-ai/claude-code \
- && bin/meadow eval "MeadowAI.Verification.verify_claude_and_exit()"
 ENTRYPOINT ["./bin/meadow"]
 CMD ["start"]

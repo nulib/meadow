@@ -1,3 +1,5 @@
+LAMBDA_DIR ?= ../../../../lambdas
+REAL_LAMBDA_DIR ?= $(shell realpath $(LAMBDA_DIR))
 LAYER_DIR ?= ..
 TARGET_DIR ?= $(shell realpath $(LAYER_DIR))
 MAKEFLAGS += -j4
