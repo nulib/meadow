@@ -23,6 +23,7 @@ deps: $(LAMBDAS_DIR)/execute-fixity/node_modules
 deps: $(LAMBDAS_DIR)/exif/node_modules 
 deps: $(LAMBDAS_DIR)/frame-extractor/node_modules
 deps: $(LAMBDAS_DIR)/mediainfo/node_modules
+deps: $(LAMBDAS_DIR)/metadata-agent/node_modules
 deps: $(LAMBDAS_DIR)/mime-type/node_modules 
 deps: $(LAMBDAS_DIR)/pyramid-tiff/node_modules
 deps: $(LAMBDAS_DIR)/stream-authorizer/node_modules

@@ -40,10 +40,6 @@ async function executeSimple(model, prompt, context) {
 
 async function executeAgent(model, prompt, contextData, mcp_url, iiif_server_url, additional_headers) {
   const clientOptions = {
-    env: {
-      ...process.env,
-      HOME: "/tmp"
-    },
     model,
     mcpServers: {
       "meadow": { type: "http", url: mcp_url, headers: additional_headers }
