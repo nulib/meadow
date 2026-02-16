@@ -4,6 +4,7 @@ import { screen } from "@testing-library/react";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
+import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql";
 
 jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
@@ -12,8 +13,22 @@ useIsAuthorized.mockReturnValue({
 });
 
 describe("DashboardsCsvTitleBar component", () => {
+  const presignedUrlMock = {
+    request: {
+      query: GET_PRESIGNED_URL,
+      variables: { uploadType: "CSV_METADATA" },
+    },
+    result: {
+      data: {
+        presignedUrl: { url: "https://example.test/presigned.csv" },
+      },
+    },
+  };
+
   beforeEach(() => {
-    renderWithRouterApollo(<DashboardsCsvTitleBar />);
+    renderWithRouterApollo(<DashboardsCsvTitleBar />, {
+      mocks: [presignedUrlMock],
+    });
   });
 
   it("renders", () => {

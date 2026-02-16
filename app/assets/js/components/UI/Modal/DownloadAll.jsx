@@ -6,7 +6,7 @@ import classNames from "classnames";
 import UIFormField from "@js/components/UI/Form/Field";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 import { WORK_ARCHIVER_ENDPOINT } from "@js/components/Work/work.gql";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { toastWrapper } from "@js/services/helpers";
 
 /** @jsx jsx */

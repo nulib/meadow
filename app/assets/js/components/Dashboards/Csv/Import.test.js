@@ -2,10 +2,25 @@ import React from "react";
 import DashboardsCsvImport from "./Import";
 import { screen } from "@testing-library/react";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
+import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql";
 
 describe("DashboardsCsvImport component", () => {
+  const presignedUrlMock = {
+    request: {
+      query: GET_PRESIGNED_URL,
+      variables: { uploadType: "CSV_METADATA" },
+    },
+    result: {
+      data: {
+        presignedUrl: { url: "https://example.test/presigned.csv" },
+      },
+    },
+  };
+
   beforeEach(() => {
-    renderWithRouterApollo(<DashboardsCsvImport />);
+    renderWithRouterApollo(<DashboardsCsvImport />, {
+      mocks: [presignedUrlMock],
+    });
   });
 
   it("renders", () => {

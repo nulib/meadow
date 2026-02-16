@@ -1,7 +1,7 @@
 // js/components/Work/Tabs/Structure/Transcription/Modal.test.jsx
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 import { toastWrapper } from "@js/services/helpers";

@@ -1,7 +1,7 @@
 // js/components/Work/Tabs/Structure/Transcription/Workflow.test.jsx
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 
 import WorkTabsStructureTranscriptionWorkflow from "./Workflow";
 import { TRANSCRIBE_FILE_SET } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";

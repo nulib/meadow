@@ -1,4 +1,4 @@
-import { useSubscription } from "@apollo/client";
+import { useSubscription } from "@apollo/client/react";
 import { PLAN_CHANGES_UPDATED } from "@js/components/Plan/plan.gql";
 
 export function usePlanChanges(planId) {

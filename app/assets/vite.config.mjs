@@ -1,8 +1,11 @@
-const fs = require("node:fs");
-const path = require("node:path");
-const { defineConfig } = require("vite");
-const react = require("@vitejs/plugin-react");
-const svgr = require("vite-plugin-svgr").default;
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import svgr from "vite-plugin-svgr";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const meadowPrefix =
   process.env.MEADOW_TENANT === "meadow"
@@ -31,39 +34,21 @@ const define = {
   __ELASTICSEARCH_FILE_SET_INDEX__: elasticsearchIndex("file-set"),
 };
 
-function resolveTildeImport(url) {
-  const spec = url.slice(1);
-  const parts = spec.split("/");
-  const packageName = spec.startsWith("@")
-    ? parts.slice(0, 2).join("/")
-    : parts[0];
-  const rest = spec.startsWith("@")
-    ? parts.slice(2).join("/")
-    : parts.slice(1).join("/");
-  const packageRoot = path.resolve(__dirname, "node_modules", packageName);
-
-  if (!fs.existsSync(packageRoot)) return spec;
-  if (rest) return path.join(packageRoot, rest);
-
-  const packageJson = path.join(packageRoot, "package.json");
-  if (fs.existsSync(packageJson)) {
-    const pkg = JSON.parse(fs.readFileSync(packageJson, "utf8"));
-    const entry = pkg.sass || pkg.style || pkg.main;
-    if (entry) return path.join(packageRoot, entry);
-  }
-
-  return packageRoot;
-}
-
-module.exports = defineConfig({
+export default defineConfig({
   plugins: [react({ jsxRuntime: "classic" }), svgr({ exportAsDefault: true })],
   define,
   publicDir: "static",
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname),
-      "@js": path.resolve(__dirname, "./js"),
-    },
+    alias: [
+      {
+        find: "@",
+        replacement: path.resolve(__dirname),
+      },
+      {
+        find: "@js",
+        replacement: path.resolve(__dirname, "./js"),
+      },
+    ],
     extensions: [".mjs", ".js", ".jsx", ".json", ".tsx", ".ts"],
   },
   esbuild: {
@@ -73,16 +58,10 @@ module.exports = defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
+        api: "modern-compiler",
         includePaths: [path.resolve(__dirname, "node_modules")],
-        importer: [
-          (url) => {
-            if (url.startsWith("~")) {
-              return { file: resolveTildeImport(url) };
-            }
-
-            return null;
-          },
-        ],
+        quietDeps: true,
+        silenceDeprecations: ["import"],
       },
     },
   },

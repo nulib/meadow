@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useCombobox } from "downshift";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client/react";
 import { AUTHORITIES_SEARCH, GEONAMES_PLACE } from "../../controlledVocabulary.gql";
 import UIFormField from "../../../UI/Form/Field";
 import { IconAdd, IconTrashCan } from "@js/components/Icon";

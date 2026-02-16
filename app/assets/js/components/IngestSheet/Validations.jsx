@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useEffect } from "react";
 import { START_VALIDATION } from "./ingestSheet.gql";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import IngestSheetReport from "./Report";
 
 function IngestSheetValidations({ sheetId, status }) {

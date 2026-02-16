@@ -3,7 +3,7 @@ import {
   ApolloLink,
   HttpLink,
   InMemoryCache,
-} from "@apollo/client";
+} from "@apollo/client/core";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { resolvers, typeDefs } from "./client-local";
@@ -41,7 +41,7 @@ const wsLink = new GraphQLWsLink(wsClient);
 // depending on what type of GraphQL operation is being sent.
 // If it's a subscription, send it over the WebSocket link.
 // Otherwise, if it's a query or mutation, send it over the HTTP link.
-const link = new ApolloLink.split(
+const link = ApolloLink.split(
   (operation) => hasSubscription(operation.query),
   wsLink,
   httpLink

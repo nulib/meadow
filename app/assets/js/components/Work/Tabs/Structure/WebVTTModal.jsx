@@ -6,7 +6,7 @@ import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 import { WebVTTParser } from "webvtt-parser";
 import { GET_WORK, UPDATE_FILE_SET } from "@js/components/Work/work.gql";
 import { toastWrapper } from "@js/services/helpers";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useParams } from "react-router-dom";
 
 function WorkTabsStructureWebVTTModal({ isActive }) {

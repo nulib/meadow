@@ -1,7 +1,7 @@
 // useSendChatMessage.test.jsx
 const React = require("react");
 const { renderHook, act, waitFor } = require("@testing-library/react");
-const { MockedProvider } = require("@apollo/client/testing");
+const { MockedProvider } = require("@apollo/client/testing/react");
 
 const { useSendChatMessage } = require("./useSendChatMessage");
 import { SEND_CHAT_MESSAGE } from "@js/components/Plan/plan.gql";

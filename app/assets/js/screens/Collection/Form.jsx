@@ -4,7 +4,7 @@ import CollectionForm from "@js/components/Collection/Form";
 import Layout from "../Layout";
 import Error from "@js/components/UI/Error";
 import { GET_COLLECTION } from "@js/components/Collection/collection.gql.js";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import UIBreadcrumbs from "@js/components/UI/Breadcrumbs";
 import { ErrorBoundary } from "react-error-boundary";
 import UIFallbackErrorComponent from "@js/components/UI/FallbackErrorComponent";

@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import React, { useEffect } from "react";
 import {
   APPLY_PLAN,

@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import { MockedProvider } from "@apollo/client/testing";
+import { MockedProvider } from "@apollo/client/testing/react";
 import S3ObjectPicker from "./S3ObjectPicker";
 import { LIST_INGEST_BUCKET_OBJECTS } from "@js/components/Work/work.gql.js";
 

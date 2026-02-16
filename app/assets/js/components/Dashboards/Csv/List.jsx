@@ -8,7 +8,7 @@ import React from "react";
 import UIFormInput from "@js/components/UI/Form/Input";
 import UISearchBarRow from "@js/components/UI/SearchBarRow";
 import { formatDate } from "@js/services/helpers";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
 const displayFields = [
   {
