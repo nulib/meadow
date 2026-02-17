@@ -54,6 +54,17 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
       resolve(&Plans.update_plan_change_status/3)
     end
 
+    @desc "Update plan change content (add, replace, delete)"
+    field :update_plan_change, :plan_change do
+      arg(:id, non_null(:id))
+      arg(:add, :json)
+      arg(:replace, :json)
+      arg(:delete, :json)
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Plans.update_plan_change/3)
+    end
+
     @desc "Update all proposed plan change statuses (approve or reject)"
     field :update_proposed_plan_change_statuses, list_of(:plan_change) do
       arg(:plan_id, non_null(:id))
@@ -70,6 +81,14 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Plans.apply_plan/3)
+    end
+
+    @desc "Delete a plan change"
+    field :delete_plan_change, :plan_change do
+      arg(:plan_change_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Plans.delete_plan_change/3)
     end
   end
 

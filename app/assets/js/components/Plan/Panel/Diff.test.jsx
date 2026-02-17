@@ -11,8 +11,15 @@ const mockIsCodedTerm = jest.fn((path) =>
   path === "descriptive_metadata.license"
 );
 
+jest.mock("@apollo/client", () => ({
+  useMutation: () => [jest.fn()],
+}));
+
 jest.mock("@nulib/design-system", () => ({
   Tag: ({ children }) => <span data-testid="tag">{children}</span>,
+  Button: ({ children, onClick, type, ...rest }) => (
+    <button onClick={onClick} type={type || "button"} {...rest}>{children}</button>
+  ),
 }));
 
 jest.mock("@js/components/UI/ControlledTerm/List", () => {
@@ -20,6 +27,19 @@ jest.mock("@js/components/UI/ControlledTerm/List", () => {
     <div data-testid="ctl" data-title={title} data-count={items?.length ?? 0} />
   );
 });
+
+jest.mock("@js/components/UI/Modal/Delete", () => () => <div data-testid="modal-delete" />);
+
+jest.mock("@js/components/Icon", () => ({
+  IconEdit: () => <span data-testid="icon-edit" />,
+  IconDelete: () => <span data-testid="icon-delete" />,
+}));
+
+jest.mock("../plan.gql", () => ({ UPDATE_PLAN_CHANGE: "UPDATE_PLAN_CHANGE" }));
+
+jest.mock("@js/components/Plan/Panel/EditDiffRowForm", () => () => (
+  <div data-testid="edit-diff-row-form" />
+));
 
 jest.mock("@js/components/Plan/Panel/diff-helpers", () => ({
   toArray: (...args) => mockToArray(...args),
