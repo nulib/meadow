@@ -51,6 +51,7 @@ defmodule Meadow.MixProject do
       {:absinthe, "~> 1.7.0"},
       {:absinthe_plug, "~> 1.5.0"},
       {:absinthe_phoenix, "~> 2.0.0"},
+      {:absinthe_graphql_ws, "~> 0.3.6"},
       {:anubis_mcp, "~> 0.14"},
       {:assertions, "~> 0.21.0", only: :test},
       {:atomic_map, "~> 0.8"},

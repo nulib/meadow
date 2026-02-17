@@ -67,7 +67,7 @@ export const proposerPrompt = () => `
     - Always query work data; avoid assumptions
     - Skip deprecated fields
     - Process one change at a time and recheck pending list
-    - After all changes, call propose_plan so the plan itself is proposed; do not skip
+    - CRITICAL: After all changes, you MUST call propose_plan so the plan itself is proposed; do not skip
     - Return a summary with counts
     - The id, ark and accession_number fields can never be changed
     - The title and terms_of_use fields are single strings; do not use lists
