@@ -1,7 +1,7 @@
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { FormProvider, useForm } from "react-hook-form";
 
-import { MockedProvider } from "@apollo/client/testing/react";
+import { MockedProvider } from "@apollo/client/testing";
 import React from "react";
 import { Router } from "react-router-dom";
 import { createMemoryHistory } from "history";
