@@ -1,4 +1,4 @@
-defmodule MeadowWeb.MCP.GetPlanChanges do
+defmodule MeadowWeb.MCP.Tools.GetPlanChanges do
   @moduledoc """
   MCP tool for retrieving PlanChange entries from the database.
 
@@ -31,7 +31,6 @@ defmodule MeadowWeb.MCP.GetPlanChanges do
 
   use Anubis.Server.Component,
     type: :tool,
-    name: "get_plan_changes",
     mime_type: "application/json"
 
   alias Anubis.MCP.Error, as: MCPError
@@ -59,14 +58,15 @@ defmodule MeadowWeb.MCP.GetPlanChanges do
     )
   end
 
-  def name, do: "get_plan_changes"
-
   @impl true
   def execute(%{plan_id: plan_id} = request, frame) do
     Logger.debug("MCP Server getting PlanChanges for plan: #{plan_id}")
 
-    case fetch_plan(plan_id) do
-      {:ok, _plan} ->
+    case Planner.get_plan(plan_id) do
+      nil ->
+        {:error, MCPError.protocol(:invalid_params, %{error: "Plan not found", plan_id: plan_id}), frame}
+
+      _plan ->
         changes =
           plan_id
           |> Planner.list_plan_changes(build_criteria(request))
@@ -74,19 +74,9 @@ defmodule MeadowWeb.MCP.GetPlanChanges do
           |> Enum.map(&serialize_change/1)
 
         {:reply, Response.tool() |> Response.json(%{changes: changes}), frame}
-
-      {:error, reason} ->
-        {:error, MCPError.execution(reason), frame}
     end
   rescue
-    error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
-  end
-
-  defp fetch_plan(plan_id) do
-    case Planner.get_plan(plan_id) do
-      nil -> {:error, "Plan with id #{plan_id} not found"}
-      plan -> {:ok, plan}
-    end
+    error -> {:error, MCPError.protocol(:internal_error, %{error: inspect(error)}), frame}
   end
 
   defp build_criteria(request) do

@@ -4,12 +4,12 @@ const stringifyContext = (contextData = {}) => {
   return hasEntries ? JSON.stringify(contextData, null, 2) : "None";
 };
 
-export const agentPrompt = (userQuery, contextData = {}, iiifServerUrl = "") => {
+export const agentPrompt = (userQuery, contextData = {}) => {
   const planId = contextData?.plan_id;
   if (planId) {
     return agentPromptWithPlan(planId, userQuery, contextData);
   }
-  return agentPromptWithoutPlan(userQuery, contextData, iiifServerUrl);
+  return agentPromptWithoutPlan(userQuery, contextData);
 };
 
 const agentPromptWithPlan = (planId, userQuery, contextData = {}) => `
@@ -18,35 +18,39 @@ const agentPromptWithPlan = (planId, userQuery, contextData = {}) => `
 
     Subagent must:
     1. Get all pending PlanChanges for ${planId}
-    2. Read each work's metadata
-    3. Propose metadata changes per the prompt
-    4. Use authoritiesSearch for controlled vocab fields (subject, creator, contributor, genre, language, location, style_period, technique)
-    5. Update each PlanChange with the proposed changes
+    2. Read each work's metadata using the get_work tool with the work ID
+    3. Propose metadata changes per the prompt.
+    4. Use the authority_search tool for controlled vocab fields (subject, creator, contributor, genre, 
+        language, location, style_period, technique)
+    5. Use the get_code_list tool to get the valid values for coded fields (role, note type, license, rights statement, 
+        related_url label, library unit, preservation level, status) and use those exact values in updates.
+    6. Update each PlanChange with the proposed changes.
 
     Context: ${JSON.stringify(contextData, null, 2)}
 
     CRITICAL: You and the subagent MUST send 3-5 word, user-friendly progress updates via send_status_update.
 
-    IMPORTANT: Always use authoritiesSearch for controlled terms; never invent IDs. For coded fields (roles, note types, etc.),
-    use codeList. Do not touch deprecated fields. NEVER populate the navPlace field (experimental, not ready for use).
+    IMPORTANT: Always use authority_search for controlled terms; never invent IDs. For coded fields (roles, note types, etc.),
+    use get_code_list. Do not touch deprecated fields. NEVER populate the navPlace field (experimental, not ready for use).
+
+    CRITICAL API USAGE:
+    - Works use descriptive_metadata nesting: work.descriptive_metadata.title NOT work.title
+    - Use the get_image tool with the ID of any file set to retrieve its base64 image for analysis.
+    - The work's representative_file_set_id can be used to identify the primary image for the work.
 
     Finish with a concise summary of proposed changes. Keep the summary focused on the changed fields instead of the plan process itself. Do not mention the subagent or anything related to plan status. Do not include headers or introductory text in the summary.
-    
+
     <example summary>
     Added FAST subject heading for penmanship/cursive handwriting with proper topical role
     Replaced description field with visual description of the manuscript based on the image.
     </example summary>
     `;
 
-const agentPromptWithoutPlan = (userQuery, contextData = {}, iiifServerUrl = "") => `
+const agentPromptWithoutPlan = (userQuery, contextData = {}) => `
     Use available tools to answer:
     ${userQuery}
 
     Context: ${stringifyContext(contextData)}
-
-    Tips:
-    - Use call_graphql_endpoint to discover schema before querying/updating data.
-    - fetch_iiif_image returns base64 images; use IIIF server ${iiifServerUrl} + file set ID + \`/full/1000,1000/0/default.jpg\`.
 
     Respond with tool results and analysis.
     `;
@@ -58,7 +62,7 @@ export const proposerPrompt = () => `
     1. get_plan_changes(plan_id: <plan_id>, status: "pending")
     2. If none, stop and return a summary
     3. Take the FIRST pending PlanChange
-    4. Query the work's metadata via graphql
+    4. Query the work's metadata via the get_work tool with the work ID
     5. Propose changes based on the plan prompt and work data
     6. update_plan_change with the PlanChange id, add/delete/replace data, status 'proposed'
     7. Repeat
@@ -89,7 +93,15 @@ export const proposerPrompt = () => `
     - date_created: use simple EDTF strings e.g. ["1985", "2005-06"] - do NOT use {edtf:, humanized:} objects.
     - Do not suggest changes to administrative_metadata fields
 
-    Controlled term fields (must use authoritiesSearch): contributor (role required, marc_relator), subject (role required, subject_role), genre, language, location, creator, style_period, technique.
+    Controlled term fields (must use the authority_search tool for valid values and the get_code_list tool for valid codes):
+    - contributor (role required, marc_relator scheme)
+    - subject (role required, subject_role scheme)
+    - genre
+    - language
+    - location
+    - style_period
+    - technique
+    - creator (no role)
 
     Requirements:
     - Always search for controlled term IDs; never invent them
@@ -97,13 +109,7 @@ export const proposerPrompt = () => `
     - Structure for other controlled terms: {"term": {"id": "controlled-term-id", "label": "Label"}}
     - term is an object with id, not a string; role required for subject and contributor
     - role should never be used for genre, language, location, creator, style_period, and technique
-    - For roles, query codeList(scheme: SUBJECT_ROLE or MARC_RELATOR); use returned ids (e.g., TOPICAL, GEOGRAPHIC, TEMPORAL, pht, art, ctb)
-
-    Examples:
-    authoritiesSearch: query { authoritiesSearch(authority: "lcsh", query: "cats") { id label hint } }
-    codeList: query { codeList(scheme: MARC_RELATOR) { id label } } and query { codeList(scheme: SUBJECT_ROLE) { id label } }
-
-    Authorities: lcsh (subject), lcnaf (creator/contributor), lcgft (genre), lclang (language), fast/fast-* subsets (subject), aat (technique/style_period/genre), tgn or geonames (location), ulan (creator/contributor), homosaurus (LGBTQ+), nul-authority (any field).
+    - For roles, use the get_code_list tool (scheme: subject_role or marc_relator); use returned ids (e.g., TOPICAL, GEOGRAPHIC, TEMPORAL, pht, art, ctb)
 
     Controlled term format in add/replace (for contributor (role required), genre, language, location, subject (role required), style_period, technique, creator:
     {
@@ -116,16 +122,15 @@ export const proposerPrompt = () => `
 
     Add controlled terms by: search for term, lookup role if required, build the nested structure, then call update_plan_change.
 
-    Coded term fields (must use codeList query):
-    - Available schemes: MARC_RELATOR, SUBJECT_ROLE, RIGHTS_STATEMENT, WORK_TYPE, NOTE_TYPE, LICENSE, PRESERVATION_LEVEL, STATUS, LIBRARY_UNIT, RELATED_URL_LABEL
-    - Always query codeList to get the exact id (URI), label, and scheme
-    - CRITICAL: The "id" field must be the exact URI from codeList, NOT a UUID or generated value
+    Coded term fields (must use get_code_list tool for valid codes):
+    - Only use schemes listed in the tool's description
+    - CRITICAL: The "id" field must be the exact URI from the get_code_list tool, NOT a UUID or generated value
     - CRITICAL: The "scheme" field must be LOWERCASE when used in update_plan_change (e.g., "note_type", not "NOTE_TYPE")
-    - Example query: query { codeList(scheme: RIGHTS_STATEMENT) { id label scheme } }
     - Use the exact "id" value returned (e.g., "http://rightsstatements.org/vocab/InC/1.0/")
+    - For related_url labels, the scheme is related_url (not related_url_label)
 
     Example workflow for rights_statement:
-    1. Query: codeList(scheme: RIGHTS_STATEMENT) { id label scheme }
+    1. Query: get_code_list(scheme: "rights_statement")
     2. Find desired term (e.g., "In Copyright" with id "http://rightsstatements.org/vocab/InC/1.0/")
     3. Use exact values in update (IMPORTANT: scheme must be lowercase in update):
     {
@@ -139,7 +144,7 @@ export const proposerPrompt = () => `
     }
 
     Example for notes with type coded term:
-    1. Query: codeList(scheme: NOTE_TYPE) { id label scheme }
+    1. Query: get_code_list(scheme: "note_type")
     2. Find desired type (e.g., "General Note" with id "GENERAL_NOTE")
     3. Use in update (scheme must be lowercase "note_type"):
     {
@@ -156,7 +161,7 @@ export const proposerPrompt = () => `
     }
 
     Example for related_url with label coded term:
-    1. Query: codeList(scheme: RELATED_URL_LABEL) { id label scheme }
+    1. Query: get_code_list(scheme: "related_url")
     2. Find desired label (e.g., "Related Information" with id "RELATED_INFORMATION")
     3. Use in update (scheme must be lowercase "related_url"):
     {
@@ -174,24 +179,24 @@ export const proposerPrompt = () => `
     `;
 
 export const systemPrompt = () => `
-    Answer questions using only the tools available.
+  Answer questions using only the tools available.
 
-    If plan_id is present, delegate to plan_change_proposer to process all pending changes and propose the plan for review.
+  If plan_id is present, delegate to plan_change_proposer to process all pending changes and propose the plan for review.
 
-    Use get_plan_changes to list changes for a plan UUID and work UUID.
+  Use get_plan_changes to list changes for a plan UUID and work UUID.
 
-    For controlled vocabulary fields (subject, creator, contributor, genre, language, location, style_period, technique):
-    1. Use authoritiesSearch for term IDs
-    2. For subject/contributor roles, query codeList (SUBJECT_ROLE or MARC_RELATOR)
-    3. Structure as objects: {"term": {"id": "uri"}, "role": {"id": "role", "scheme": "scheme"}}
-    4. Never use strings for terms; include required roles for subject and contributor
-    5. Never guess IDs; always query
+  For controlled vocabulary fields (subject, creator, contributor, genre, language, location, style_period, technique):
+  1. Use authoritiesSearch for term IDs
+  2. For subject/contributor roles, use get_code_list tool (subject_role or marc_relator)
+  3. Structure as objects: {"term": {"id": "uri"}, "role": {"id": "role", "scheme": "scheme"}}
+  4. Never use strings for terms; include required roles for subject and contributor
+  5. Never guess IDs; always query
 
-    For coded term fields (license, rights_statement, notes, related_url):
-    1. Query codeList with the appropriate scheme (LICENSE, RIGHTS_STATEMENT, NOTE_TYPE, RELATED_URL_LABEL)
-    2. CRITICAL: Use lowercase scheme names in update_plan_change (e.g., "note_type", not "NOTE_TYPE")
-    3. For notes: each entry has a "note" text field and a "type" coded term object
-    4. For related_url: each entry has a "url" text field and a "label" coded term object
+  For coded term fields (license, rights_statement, notes, related_url):
+  1. Query get_code_list tool with the appropriate scheme (license, rights_statement, note_type, related_url)
+  3. CRITICAL: Use lowercase scheme names in update_plan_change (e.g., "note_type", not "NOTE_TYPE")
+  4. For notes: each entry has a "note" text field and a "type" coded term object
+  5. For related_url: each entry has a "url" text field and a "label" coded term object (scheme is "related_url")
 
-    Do not look for information in the file system or local codebase.
-    `;
+  Do not look for information in the file system or local codebase.
+  `;

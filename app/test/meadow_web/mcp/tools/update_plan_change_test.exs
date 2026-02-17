@@ -1,4 +1,4 @@
-defmodule MeadowWeb.MCP.UpdatePlanChangeTest do
+defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
   use MeadowWeb.MCPCase
   use Meadow.AuthorityCase
 
@@ -214,7 +214,6 @@ defmodule MeadowWeb.MCP.UpdatePlanChangeTest do
       assert subject["role"]["label"] == "Topical"
     end
 
-    @tag :skip
     test "returns error when plan change not found" do
       # This test verifies error handling, but the MCP error format is complex
       # The important enrichment tests are all passing
@@ -223,8 +222,9 @@ defmodule MeadowWeb.MCP.UpdatePlanChangeTest do
         "status" => "proposed"
       }
 
-      {status, _error, _frame} = call_tool("update_plan_change", params)
-      assert status == :error
+      {:error, error, _frame} = call_tool("update_plan_change", params)
+      assert error.reason == :execution_error
+      assert error.message == "PlanChange with id #{params["id"]} not found"
     end
 
     test "updates notes field", %{plan_change: plan_change} do
