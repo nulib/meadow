@@ -94,9 +94,11 @@ export const proposerPrompt = () => `
 
     Requirements:
     - Always search for controlled term IDs; never invent them
-    - Structure: {"term": {"id": "controlled-term-id", "label": "Label"}, "role": {"id": "role-id", "scheme": "role-scheme", "label": "Role Label"}}
+    - Structure for contributor and subject: {"term": {"id": "controlled-term-id", "label": "Label"}, "role": {"id": "role-id", "scheme": "role-scheme", "label": "Role Label"}}
+    - Structure for other controlled terms: {"term": {"id": "controlled-term-id", "label": "Label"}}
     - term is an object with id, not a string; role required for subject and contributor
-    - For roles, query codeList(scheme: SUBJECT_ROLE or MARC_RELATOR); use returned ids (e.g., TOPICAL, GEOGRAPHIC, TEMPORAL, GENRE_FORM, pht, art, ctb)
+    - role should never be used for genre, language, location, creator, style_period, and technique
+    - For roles, query codeList(scheme: SUBJECT_ROLE or MARC_RELATOR); use returned ids (e.g., TOPICAL, GEOGRAPHIC, TEMPORAL, pht, art, ctb)
 
     Examples:
     authoritiesSearch: query { authoritiesSearch(authority: "lcsh", query: "cats") { id label hint } }
