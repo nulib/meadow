@@ -82,18 +82,9 @@ defmodule Meadow.NotificationTest do
           heartbeat_pid
         end
 
-      # Collect messages with timestamps as they arrive
-      # We expect 3 of each message type over ~300ms
-      received =
-        for _ <- 1..6 do
-          receive do
-            {:notify, message, %{test: info}} ->
-              {message, info, System.monotonic_time(:millisecond)}
-          after
-            1000 -> flunk("Timeout waiting for heartbeat message")
-          end
-        end
-        |> Enum.group_by(fn {_, info, _} -> info end)
+      # Collect messages with timestamps as they arrive.
+      # Wait until each stream has 3 samples rather than assuming perfect interleaving.
+      received = collect_heartbeats(data, 3, 2_000)
 
       for {info, {message, expected_interval}} <- data do
         messages = Map.get(received, info, [])
@@ -112,6 +103,45 @@ defmodule Meadow.NotificationTest do
 
       for pid <- pids do
         assert :ok = Meadow.Notification.Heartbeat.stop(pid)
+      end
+    end
+  end
+
+  defp collect_heartbeats(data, target_count, timeout_ms) do
+    deadline = System.monotonic_time(:millisecond) + timeout_ms
+    infos = Map.keys(data)
+
+    collect_heartbeats(%{}, infos, target_count, deadline)
+  end
+
+  defp collect_heartbeats(received, infos, target_count, deadline) do
+    if Enum.all?(infos, fn info -> length(Map.get(received, info, [])) >= target_count end) do
+      received
+    else
+      now = System.monotonic_time(:millisecond)
+      timeout = max(deadline - now, 0)
+
+      if timeout == 0 do
+        flunk("Timeout waiting for heartbeat messages")
+      else
+        receive do
+          {:notify, message, %{test: info}} ->
+            ts = System.monotonic_time(:millisecond)
+
+            updated =
+              Map.update(received, info, [{message, info, ts}], fn entries ->
+                if length(entries) < target_count do
+                  entries ++ [{message, info, ts}]
+                else
+                  entries
+                end
+              end)
+
+            collect_heartbeats(updated, infos, target_count, deadline)
+        after
+          timeout ->
+            flunk("Timeout waiting for heartbeat messages")
+        end
       end
     end
   end
