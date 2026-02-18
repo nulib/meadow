@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "10.3.0"
+  @app_version "10.3.1"
 
   def project do
     [
@@ -14,17 +14,22 @@ defmodule Meadow.MixProject do
       aliases: aliases(),
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
+      releases: releases(),
+      listeners: [Phoenix.CodeReloader],
+      xref: [exclude: [Phoenix.View]]
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: [
         coveralls: :test,
         "coveralls.circle": :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test,
         credo: :test
-      ],
-      releases: releases(),
-      listeners: [Phoenix.CodeReloader],
-      xref: [exclude: [Phoenix.View]]
+      ]
     ]
   end
 
@@ -51,6 +56,7 @@ defmodule Meadow.MixProject do
       {:absinthe, "~> 1.7.0"},
       {:absinthe_plug, "~> 1.5.0"},
       {:absinthe_phoenix, "~> 2.0.0"},
+      {:absinthe_graphql_ws, "~> 0.3.6"},
       {:anubis_mcp, "~> 0.14"},
       {:assertions, "~> 0.21.0", only: :test},
       {:atomic_map, "~> 0.8"},

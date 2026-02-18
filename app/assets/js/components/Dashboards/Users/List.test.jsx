@@ -4,10 +4,27 @@ import DashboardsUsersList from "./List";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import { listRolesMock, listUsersMock, setUserRoleMock } from "@js/components/Auth/auth.gql.mock";
 
+const deepClone = (value) => JSON.parse(JSON.stringify(value));
+
+const cloneApolloMock = (mock) => ({
+  request: {
+    ...mock.request,
+    ...(mock.request.variables
+      ? { variables: deepClone(mock.request.variables) }
+      : {}),
+  },
+  ...(mock.result ? { result: { data: deepClone(mock.result.data) } } : {}),
+  ...(mock.error ? { error: mock.error } : {}),
+});
+
 describe("DashboardsUsersList component", () => {
   beforeEach(() => {
     renderWithRouterApollo(<DashboardsUsersList />, {
-      mocks: [listRolesMock, listUsersMock, setUserRoleMock],
+      mocks: [
+        cloneApolloMock(listRolesMock),
+        cloneApolloMock(listUsersMock),
+        cloneApolloMock(setUserRoleMock),
+      ],
     });
   });
 

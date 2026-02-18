@@ -8,9 +8,11 @@ defmodule MeadowWeb.MCP.Server do
     version: "0.1.0",
     capabilities: [:tools]
 
+  component(MCP.FetchIIIFImage)
   component(MCP.GetPlanChanges)
   component(MCP.GraphQL)
   component(MCP.IDQuery)
   component(MCP.ProposePlan)
+  component(MCP.SendStatusUpdate)
   component(MCP.UpdatePlanChange)
 end

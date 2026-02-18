@@ -1,6 +1,6 @@
 import { ActionHeadline, PageTitle } from "@js/components/UI/UI";
 
-import NLogo from "@js/components/northwesternN.svg";
+import NLogo from "@js/components/northwesternN.svg?react";
 import React from "react";
 import UIIconText from "@js/components/UI/IconText";
 

@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import PlanPanelChanges from "./Changes";
 
-jest.mock("@apollo/client", () => ({
+jest.mock("@apollo/client/react", () => ({
   useMutation: () => [jest.fn()],
 }));
 
@@ -63,4 +63,3 @@ describe("PlanPanelChanges", () => {
     expect(screen.getAllByTestId("skeleton").length).toBeGreaterThan(0);
   });
 });
-

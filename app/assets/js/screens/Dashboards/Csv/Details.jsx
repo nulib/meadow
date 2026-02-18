@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import DashboardsCsvDetails from "@js/components/Dashboards/Csv/Details";
 import { ErrorBoundary } from "react-error-boundary";
 import { GET_CSV_METADATA_UPDATE_JOB } from "@js/components/Dashboards/dashboards.gql";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import {
   Breadcrumbs,
   FallbackErrorComponent,

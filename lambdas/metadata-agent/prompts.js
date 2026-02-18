@@ -1,25 +1,29 @@
-import json
+const stringifyContext = (contextData = {}) => {
+  const hasEntries =
+    contextData && typeof contextData === "object" && Object.keys(contextData).length > 0;
+  return hasEntries ? JSON.stringify(contextData, null, 2) : "None";
+};
 
-def agent_prompt(user_query, context_data):
-    plan_id = context_data.get("plan_id")
-    if plan_id:
-        return agent_prompt_with_plan(plan_id, user_query, context_data)
-    else:
-        return agent_prompt_without_plan(user_query, context_data)
+export const agentPrompt = (userQuery, contextData = {}, iiifServerUrl = "") => {
+  const planId = contextData?.plan_id;
+  if (planId) {
+    return agentPromptWithPlan(planId, userQuery, contextData);
+  }
+  return agentPromptWithoutPlan(userQuery, contextData, iiifServerUrl);
+};
 
-def agent_prompt_with_plan(plan_id, user_query, context_data):
-    return f"""
-    Use the plan_change_proposer subagent to process plan {plan_id} for:
-    {user_query}
+const agentPromptWithPlan = (planId, userQuery, contextData = {}) => `
+    Use the plan_change_proposer subagent to process plan ${planId} for:
+    ${userQuery}
 
     Subagent must:
-    1. Get all pending PlanChanges for {plan_id}
+    1. Get all pending PlanChanges for ${planId}
     2. Read each work's metadata
     3. Propose metadata changes per the prompt
     4. Use authoritiesSearch for controlled vocab fields (subject, creator, contributor, genre, language, location, style_period, technique)
     5. Update each PlanChange with the proposed changes
 
-    Context: {json.dumps(context_data, indent=2)}
+    Context: ${JSON.stringify(contextData, null, 2)}
 
     CRITICAL: You and the subagent MUST send 3-5 word, user-friendly progress updates via send_status_update.
 
@@ -32,24 +36,22 @@ def agent_prompt_with_plan(plan_id, user_query, context_data):
     Added FAST subject heading for penmanship/cursive handwriting with proper topical role
     Replaced description field with visual description of the manuscript based on the image.
     </example summary>
-    """
+    `;
 
-def agent_prompt_without_plan(user_query, context_data):
-    return f"""
+const agentPromptWithoutPlan = (userQuery, contextData = {}, iiifServerUrl = "") => `
     Use available tools to answer:
-    {user_query}
+    ${userQuery}
 
-    Context: {json.dumps(context_data, indent=2) if context_data else "None"}
+    Context: ${stringifyContext(contextData)}
 
     Tips:
     - Use call_graphql_endpoint to discover schema before querying/updating data.
-    - fetch_iiif_image returns base64 images; use IIIF server {iiif_server_url} + file set ID + `/full/1000,1000/0/default.jpg`.
+    - fetch_iiif_image returns base64 images; use IIIF server ${iiifServerUrl} + file set ID + \`/full/1000,1000/0/default.jpg\`.
 
     Respond with tool results and analysis.
-    """
+    `;
     
-def proposer_prompt():
-    return """
+export const proposerPrompt = () => `
     You are a metadata plan proposer.
 
     LOOP until no pending changes:
@@ -65,20 +67,38 @@ def proposer_prompt():
     - Always query work data; avoid assumptions
     - Skip deprecated fields
     - Process one change at a time and recheck pending list
-    - After all changes, call propose_plan so the plan itself is proposed; do not skip
+    - CRITICAL: After all changes, you MUST call propose_plan so the plan itself is proposed; do not skip
     - Return a summary with counts
-    - The `id` field can never be changed
-    - The `title` is a single string; do not use lists
+    - The id, ark and accession_number fields can never be changed
+    - The title and terms_of_use fields are single strings; do not use lists
     - Works can only have one rights statement
     - NEVER populate the navPlace field - it is experimental and not ready for use
 
-    Controlled term fields (must use authoritiesSearch): contributor (role required, marc_relator), creator (role optional, marc_relator), genre, language, location, subject (role required, subject_role), style_period, technique.
+    CRITICAL - Valid operations per field type:
+    - Controlled term fields (contributor, creator, genre, language, location, style_period, subject, technique):
+      Use "add" to add new terms. Use "delete" to remove specific existing terms.
+      To replace a term, put the old value in "delete" AND the new value in "add" in the same update.
+      NEVER use "replace" for these fields - it will be ignored.
+    - Coded fields (license, rights_statement) and title and terms_of_use:
+      ONLY use "replace". Never use "add" or "delete" for these fields.
+    - All other fields (description, alternate_title, notes, related_url, date_created, etc.):
+      Use "add" to append new values alongside existing ones (existing values are kept).
+      Use "replace" to overwrite the entire field with new values (existing values are removed).
+      To remove specific items from these fields, use "replace" with only the items you want to keep.
+      To clear a field entirely, use "replace" with an empty array [].
+      NEVER use "delete" for these fields - it will be ignored.
+    - date_created: use simple EDTF strings e.g. ["1985", "2005-06"] - do NOT use {edtf:, humanized:} objects.
+    - Do not suggest changes to administrative_metadata fields
+
+    Controlled term fields (must use authoritiesSearch): contributor (role required, marc_relator), subject (role required, subject_role), genre, language, location, creator, style_period, technique.
 
     Requirements:
     - Always search for controlled term IDs; never invent them
-    - Structure: {"term": {"id": "controlled-term-id", "label": "Label"}, "role": {"id": "role-id", "scheme": "role-scheme", "label": "Role Label"}}
-    - term is an object with id, not a string; role required for subject and contributor, optional for creator
-    - For roles, query codeList(scheme: SUBJECT_ROLE or MARC_RELATOR); use returned ids (e.g., TOPICAL, GEOGRAPHIC, TEMPORAL, GENRE_FORM, pht, art, ctb)
+    - Structure for contributor and subject: {"term": {"id": "controlled-term-id", "label": "Label"}, "role": {"id": "role-id", "scheme": "role-scheme", "label": "Role Label"}}
+    - Structure for other controlled terms: {"term": {"id": "controlled-term-id", "label": "Label"}}
+    - term is an object with id, not a string; role required for subject and contributor
+    - role should never be used for genre, language, location, creator, style_period, and technique
+    - For roles, query codeList(scheme: SUBJECT_ROLE or MARC_RELATOR); use returned ids (e.g., TOPICAL, GEOGRAPHIC, TEMPORAL, pht, art, ctb)
 
     Examples:
     authoritiesSearch: query { authoritiesSearch(authority: "lcsh", query: "cats") { id label hint } }
@@ -86,7 +106,7 @@ def proposer_prompt():
 
     Authorities: lcsh (subject), lcnaf (creator/contributor), lcgft (genre), lclang (language), fast/fast-* subsets (subject), aat (technique/style_period/genre), tgn or geonames (location), ulan (creator/contributor), homosaurus (LGBTQ+), nul-authority (any field).
 
-    Controlled term format in add/replace:
+    Controlled term format in add/replace (for contributor (role required), genre, language, location, subject (role required), style_period, technique, creator:
     {
       "descriptive_metadata": {
         "subject": [{"term": {"id": "http://id.worldcat.org/fast/849374"}, "role": {"id": "TOPICAL", "scheme": "subject_role"}}],
@@ -152,10 +172,9 @@ def proposer_prompt():
         }]
       }
     }
-    """
+    `;
 
-def system_prompt():
-    return """
+export const systemPrompt = () => `
     Answer questions using only the tools available.
 
     If plan_id is present, delegate to plan_change_proposer to process all pending changes and propose the plan for review.
@@ -176,4 +195,4 @@ def system_prompt():
     4. For related_url: each entry has a "url" text field and a "label" coded term object
 
     Do not look for information in the file system or local codebase.
-    """
+    `;

@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { GET_CURRENT_USER_QUERY } from "@js/components/Auth/auth.gql";
 import { Notification } from "@nulib/design-system";
 

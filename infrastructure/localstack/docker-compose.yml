@@ -30,6 +30,11 @@ services:
       - 4566:4566
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${PWD}/.localstack:/var/run/localstack:rw
+    post_start:
+      - command: touch /var/run/localstack/.start-stamp
+    pre_stop:
+      - command: rm -f /var/run/localstack/.start-stamp
   sam-pipeline:
     image: nulib/sam-pipeline-test:latest
     build:

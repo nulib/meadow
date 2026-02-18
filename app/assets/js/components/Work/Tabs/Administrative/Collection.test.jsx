@@ -20,7 +20,23 @@ useIsAuthorized.mockReturnValue({
   isAuthorized: () => true,
 });
 
-const mocks = [getCollectionMock, getCollectionsMock];
+const deepClone = (value) => JSON.parse(JSON.stringify(value));
+
+const cloneApolloMock = (mock) => ({
+  request: {
+    ...mock.request,
+    ...(mock.request.variables
+      ? { variables: deepClone(mock.request.variables) }
+      : {}),
+  },
+  ...(mock.result ? { result: { data: deepClone(mock.result.data) } } : {}),
+  ...(mock.error ? { error: mock.error } : {}),
+});
+
+const buildMocks = () => [
+  cloneApolloMock(getCollectionMock),
+  cloneApolloMock(getCollectionsMock),
+];
 const mockHandleViewAllWorksFn = jest.fn();
 const props = {
   collection: collectionMock,
@@ -33,7 +49,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
   it("renders", async () => {
     const Wrapped = withReactHookForm(WorkTabsAdministrativeCollection, props);
     renderWithApollo(<Wrapped />, {
-      mocks,
+      mocks: buildMocks(),
     });
     expect(await screen.findByTestId("collection-box"));
   });
@@ -45,7 +61,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
         props
       );
       renderWithApollo(<Wrapped />, {
-        mocks,
+        mocks: buildMocks(),
       });
       // The select form element
       expect(await screen.findByTestId("collection-select"));
@@ -63,7 +79,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
         isEditing: false,
       });
       renderWithApollo(<Wrapped />, {
-        mocks,
+        mocks: buildMocks(),
       });
     });
 
@@ -84,7 +100,9 @@ describe("WorkTabsAdministrativeCollection component", () => {
 
     it("toggle is checked when Work is the Collection image", async () => {
       const toggleEl = await screen.findByTestId("featured-image-toggle");
-      expect(toggleEl).toBeChecked();
+      await waitFor(() => {
+        expect(toggleEl).toBeChecked();
+      });
     });
   });
 
@@ -95,7 +113,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
         { ...props, isEditing: false, workId: "FOOBAZ" }
       );
       renderWithApollo(<WrappedNotEditing />, {
-        mocks,
+        mocks: buildMocks(),
       });
       const toggleEl = await screen.findByTestId("featured-image-toggle");
       expect(toggleEl).not.toBeChecked();
@@ -109,7 +127,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
         collection: null,
       });
       renderWithApollo(<Wrapped />, {
-        mocks,
+        mocks: buildMocks(),
       });
       await waitFor(() => {
         const toggleEl = screen.queryByTestId("featured-image-toggle");

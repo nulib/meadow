@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { SEND_CHAT_MESSAGE } from "@js/components/Plan/plan.gql";
 
 type SendChatMessageShape = {

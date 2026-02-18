@@ -19,7 +19,7 @@ import { convertFieldArrayValToHookFormVal } from "@js/services/metadata";
 import { toastWrapper } from "../../services/helpers";
 import { useCodeLists } from "@js/context/code-list-context";
 import { useHistory } from "react-router-dom";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 
 const CollectionForm = ({ collection }) => {
   const history = useHistory();

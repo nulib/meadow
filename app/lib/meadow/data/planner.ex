@@ -55,7 +55,7 @@ defmodule Meadow.Data.Planner do
      ```
   """
   import Ecto.Query, warn: false
-  alias Meadow.Data.CodedTerms
+  alias Meadow.Data.{CodedTerms, Enrichment}
   alias Meadow.Data.Schemas.{Plan, PlanChange}
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
@@ -676,6 +676,13 @@ defmodule Meadow.Data.Planner do
       {:error, "invalid-uuid is invalid"}
   """
   def update_plan_change(%PlanChange{} = change, attrs) do
+    attrs =
+      if Enum.any?([:add, :delete, :replace], &Map.has_key?(attrs, &1)) do
+        Enrichment.enrich_controlled_terms(attrs)
+      else
+        attrs
+      end
+
     changeset = PlanChange.changeset(change, attrs)
 
     case Repo.update(changeset) do
@@ -719,6 +726,21 @@ defmodule Meadow.Data.Planner do
     change
     |> PlanChange.reject(notes)
     |> Repo.update()
+  end
+
+  @doc """
+  Deletes a plan change.
+
+  ## Examples
+
+      iex> delete_plan_change(plan_change)
+      {:ok, %PlanChange{}}
+
+      iex> delete_plan_change(plan_change)
+      {:error, %Ecto.Changeset{}}
+  """
+  def delete_plan_change(%PlanChange{} = plan_change) do
+    Repo.delete(plan_change)
   end
 
   @doc """
@@ -805,18 +827,6 @@ defmodule Meadow.Data.Planner do
       {:error, _} = error ->
         error
     end
-  end
-
-  @doc """
-  Deletes a plan change.
-
-  ## Examples
-
-      iex> delete_plan_change(change)
-      {:ok, %PlanChange{}}
-  """
-  def delete_plan_change(%PlanChange{} = change) do
-    Repo.delete(change)
   end
 
   @doc """

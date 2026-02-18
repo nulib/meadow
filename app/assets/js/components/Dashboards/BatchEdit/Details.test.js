@@ -3,7 +3,7 @@ import { screen, render } from "@testing-library/react";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import DashboardsBatchEditDetails from "./Details";
 import { getBatchMock } from "@js/components/Dashboards/dashboards.gql.mock";
-import { isReference } from "@apollo/client";
+import { isReference } from "@apollo/client/core";
 
 describe("DashboardsBatchEditDetails", () => {
   beforeEach(() => {

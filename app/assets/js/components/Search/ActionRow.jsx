@@ -13,7 +13,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import SearchBatchModal from "@js/components/Search/BatchModal";
 import { buildSelectedItemsQuery } from "@js/services/reactive-search";
-const { inflect } = require("inflection");
+import { inflect } from "inflection";
 
 function ModalButton({ children, icon, label, ...restProps }) {
   return (

@@ -6,6 +6,13 @@ defmodule MeadowWeb.Endpoint do
     websocket: true,
     longpoll: false
 
+  socket "/graphql/ws", MeadowWeb.GraphqlWsSocket,
+    websocket: [
+      check_origin: false,
+      subprotocols: ["graphql-transport-ws", "graphql-ws"]
+    ],
+    longpoll: false
+
   socket "/live", Phoenix.LiveView.Socket
 
   # Serve at "/" the static files from "priv/static" directory.
