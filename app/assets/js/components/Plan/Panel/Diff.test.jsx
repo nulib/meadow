@@ -11,7 +11,7 @@ const mockIsCodedTerm = jest.fn((path) =>
   path === "descriptive_metadata.license"
 );
 
-jest.mock("@apollo/client", () => ({
+jest.mock("@apollo/client/react", () => ({
   useMutation: () => [jest.fn()],
 }));
 

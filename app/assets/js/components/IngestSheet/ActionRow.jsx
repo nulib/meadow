@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import UIModalDelete from "../UI/Modal/Delete";
 import { DELETE_INGEST_SHEET } from "./ingestSheet.gql";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { Button } from "@nulib/design-system";

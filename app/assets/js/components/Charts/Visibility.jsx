@@ -15,7 +15,7 @@ import React from "react";
 export default function ChartsVisibility({ data = [] }) {
   return (
     <div style={{ width: "100%", height: "300px" }}>
-      <ResponsiveContainer>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0}>
         <BarChart
           data={data}
           margin={{

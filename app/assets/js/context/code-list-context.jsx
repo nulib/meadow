@@ -1,6 +1,6 @@
 import React from "react";
 import { CODE_LIST_QUERY } from "@js/components/Work/controlledVocabulary.gql";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
 const CodeListContext = React.createContext();
 

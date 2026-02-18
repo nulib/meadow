@@ -14,17 +14,22 @@ defmodule Meadow.MixProject do
       aliases: aliases(),
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
+      releases: releases(),
+      listeners: [Phoenix.CodeReloader],
+      xref: [exclude: [Phoenix.View]]
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: [
         coveralls: :test,
         "coveralls.circle": :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test,
         credo: :test
-      ],
-      releases: releases(),
-      listeners: [Phoenix.CodeReloader],
-      xref: [exclude: [Phoenix.View]]
+      ]
     ]
   end
 

@@ -19,7 +19,7 @@ import { removeLabelsFromBatchEditPostData } from "@js/services/metadata";
 import { toastWrapper } from "@js/services/helpers";
 import { useCodeLists } from "@js/context/code-list-context";
 import { useHistory } from "react-router-dom";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 
 const verifyInputWrapper = css`
   width: 100%;

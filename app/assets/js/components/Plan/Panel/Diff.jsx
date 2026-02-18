@@ -9,7 +9,7 @@ import {
 import { IconEdit, IconDelete } from "@js/components/Icon";
 import { UPDATE_PLAN_CHANGE } from "../plan.gql";
 import { Button } from "@nulib/design-system";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import EditDiffRowForm from "@js/components/Plan/Panel/EditDiffRowForm";
 
 /**

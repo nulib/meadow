@@ -13,7 +13,7 @@ import {
 } from "@js/components/Work/work.gql.js";
 import React, { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 
 import { ErrorBoundary } from "react-error-boundary";
 import { Helmet } from "react-helmet";

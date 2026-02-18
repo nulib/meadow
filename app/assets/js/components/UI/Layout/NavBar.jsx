@@ -21,7 +21,7 @@ import {
   IconUser,
 } from "@js/components/Icon";
 import IconText from "@js/components/UI/IconText";
-import NLogo from "@js/components/northwesternN.svg";
+import NLogo from "@js/components/northwesternN.svg?react";
 import UIMeadowVersion from "@js/components/UI/MeadowVersion";
 import UIDevBgToggle from "@js/components/UI/DevBgToggle";
 import useEnvironment from "@js/hooks/useEnvironment";

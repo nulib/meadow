@@ -6,7 +6,7 @@ import ProjectForm from "@js/components/Project/Form";
 import { Button } from "@nulib/design-system";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { ErrorBoundary } from "react-error-boundary";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import Error from "@js/components/UI/Error";
 import { IconAdd } from "@js/components/Icon";
 import {
