@@ -49,37 +49,10 @@ deps: deps/.install-stamp
 
 all-deps: deps frontend-deps
 
-container: AWS_ACCOUNT_ID ?= $(shell aws sts get-caller-identity --query Account --output text)
-container: AWS_REGION ?= us-east-1
-container: CONTAINER_TAG ?= latest
-container: ECR_REPO ?= $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
-container: RELEASE_NAME ?= meadow-$(shell git rev-parse --short HEAD)
-container: BUILD_IMAGE ?= hexpm/elixir:1.18.2-erlang-27.3-debian-bookworm-20250224
-container: RUNTIME_IMAGE ?= node:22-bookworm-slim
-container: MEADOW_TENANT ?= meadow
-container: MEADOW_VERSION ?= $(shell make version)
-container:
-	docker build \
-		--build-arg HONEYBADGER_API_KEY=$(HONEYBADGER_API_KEY) \
-		--build-arg HONEYBADGER_API_KEY_FRONTEND=$(HONEYBADGER_API_KEY_FRONTEND) \
-		--build-arg HONEYBADGER_ENVIRONMENT=$(HONEYBADGER_ENVIRONMENT) \
-		--build-arg HONEYBADGER_REVISION=$(HONEYBADGER_REVISION) \
-		--build-arg BUILD_IMAGE=$(BUILD_IMAGE) \
-		--build-arg RUNTIME_IMAGE=$(RUNTIME_IMAGE) \
-		--build-arg MEADOW_TENANT=$(MEADOW_TENANT) \
-		--build-arg MEADOW_VERSION=$(MEADOW_VERSION) \
-		--tag $(ECR_REPO)/meadow:$(CONTAINER_TAG) \
-		--tag $(ECR_REPO)/meadow:$(MEADOW_VERSION) \
-		.
-
-livebook: CONTAINER_TAG ?= latest
-livebook: MEADOW_VERSION ?= $(shell make version)
-livebook:
-	docker build \
-		--tag nulib/meadow:livebook-$(MEADOW_VERSION) \
-		--tag nulib/meadow:livebook-$(CONTAINER_TAG) \
-		-f ../Dockerfile.livebook \
-		..
+images:
+	@echo "Livebook versions: $(LIVEBOOK_VERSIONS)"
+	@echo "Build image: $(BUILD_IMAGE)"
+	@echo "Runtime image: $(RUNTIME_IMAGE)"
 
 compile: deps
 	mix compile
