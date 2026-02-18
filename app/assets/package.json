@@ -17,7 +17,7 @@
   "prettier": "@nulib/prettier-config",
   "dependencies": {
     "@apollo/client": "latest",
-    "@jumpn/utils-graphql": "^0.5.0",
+    "@jumpn/utils-graphql": "^0.6.0",
     "@apollo/react-hooks": "^4.0.0",
     "@apollo/react-testing": "^4.0.0",
     "@appbaseio/reactivesearch": "3.23.1",
