@@ -15,6 +15,7 @@ export const CODE_LIST_QUERY = gql`
     codeList(scheme: $scheme) {
       id
       label
+      scheme
     }
   }
 `;
