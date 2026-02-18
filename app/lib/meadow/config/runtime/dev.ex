@@ -38,9 +38,8 @@ defmodule Meadow.Config.Runtime.Dev do
     config :meadow, MeadowWeb.Endpoint,
       check_origin: false,
       watchers: [
-        npm: [
-          "run",
-          "watch",
+        bash: [
+          "watch.sh",
           cd: Path.join(project_root(), "assets")
         ]
       ],
