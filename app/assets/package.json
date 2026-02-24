@@ -21,7 +21,7 @@
     "@apollo/react-hooks": "^4.0.0",
     "@apollo/react-testing": "^4.0.0",
     "@appbaseio/reactivesearch": "3.23.1",
-    "@aws-sdk/client-s3": "^3.995.0",
+    "@aws-sdk/client-s3": "^3.996.0",
     "@emotion/react": "^11.14.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
