@@ -307,16 +307,15 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   defp validate_rows(other), do: other
 
   defp validate_chunk_of_rows(rows) do
-    with existing_ids <- get_chunk_of_ids(rows) do
-      rows
-      |> Stream.map(fn row ->
-        with changeset <- Work.changeset(%Work{}, row) do
-          if is_nil(row.id),
-            do: Changeset.add_error(changeset, :id, "is required"),
-            else: changeset |> validate_id_and_accession(row, existing_ids)
-        end
-      end)
-    end
+    existing_ids = get_chunk_of_ids(rows)
+
+    Stream.map(rows, fn row ->
+      changeset = Work.changeset(%Work{}, row)
+
+      if is_nil(row.id),
+        do: Changeset.add_error(changeset, :id, "is required"),
+        else: changeset |> validate_id_and_accession(row, existing_ids)
+    end)
   end
 
   defp validate_id_and_accession(changeset, row, existing_ids) do

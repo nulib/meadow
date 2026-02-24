@@ -34,7 +34,7 @@ defmodule Meadow.Search.Slice do
     do: {:error, "Slice number (#{slice_number}) must be between 0 and #{max - 1}"}
 
   def slice(%{query: query, max_slices: max_slices} = struct, slice_number) when max_slices > 1 do
-    %__MODULE__{struct | query: Map.put(query, :slice, %{id: slice_number, max: max_slices})}
+    %{struct | query: Map.put(query, :slice, %{id: slice_number, max: max_slices})}
     |> slice()
   end
 
@@ -70,7 +70,7 @@ defmodule Meadow.Search.Slice do
       |> Enum.into(%{})
 
     case get_count(index, query) do
-      {:ok, count} -> {:ok, %__MODULE__{struct | max_slices: div(count, slice_size) + 1}}
+      {:ok, count} -> {:ok, %{struct | max_slices: div(count, slice_size) + 1}}
       {:error, reason} -> {:error, reason}
     end
   end
@@ -87,7 +87,7 @@ defmodule Meadow.Search.Slice do
 
   defp paginate_query({:ok, %{index: index} = struct}) do
     case create_pit(index) do
-      {:ok, pit_id} -> %__MODULE__{struct | pit_id: pit_id}
+      {:ok, pit_id} -> %{struct | pit_id: pit_id}
       _ -> struct
     end
   end

@@ -103,7 +103,7 @@ defmodule Meadow.Arks do
       "#{new.ark} transitioning from reserved to unavailable - must go through public."
     )
 
-    case update_existing_ark(work, old, %Ark{old | status: "public"}) do
+    case update_existing_ark(work, old, %{old | status: "public"}) do
       {:ok, intermediate} -> update_existing_ark(work, intermediate, new)
       other -> other
     end
@@ -198,8 +198,8 @@ defmodule Meadow.Arks do
          |> Repo.one()
          |> Ark.from_cache() do
       nil -> :noop
-      %{status: "reserved"} = ark -> delete_ark(ark)
-      ark -> Ark.put(%Ark{ark | status: "unavailable | withdrawn", work_id: nil})
+      %Ark{status: "reserved"} = ark -> delete_ark(ark)
+      ark -> Ark.put(%{ark | status: "unavailable | withdrawn", work_id: nil})
     end
   end
 end

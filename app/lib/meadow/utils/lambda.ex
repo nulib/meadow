@@ -207,27 +207,26 @@ defmodule Meadow.Utils.Lambda do
   end
 
   defp spawn_port(script, handler) do
-    with script <- Path.expand(script) do
-      if File.exists?(script) or File.exists?(script <> ".js") do
-        with command <- command_for(script, handler) do
-          Process.flag(:trap_exit, true)
+    script = Path.expand(script)
 
-          port =
-            Port.open({:spawn, command}, [
-              {:env, Config.aws_environment()},
-              {:line, @buffer_size},
-              :binary,
-              :exit_status,
-              :stderr_to_stdout
-            ])
+    if File.exists?(script) or File.exists?(script <> ".js") do
+      command = command_for(script, handler)
+      Process.flag(:trap_exit, true)
 
-          Port.monitor(port)
-          {:new, port}
-        end
-      else
-        Logger.error("Failed to spawn #{script}: No such file")
-        {:error, nil}
-      end
+      port =
+        Port.open({:spawn, command}, [
+          {:env, Config.aws_environment()},
+          {:line, @buffer_size},
+          :binary,
+          :exit_status,
+          :stderr_to_stdout
+        ])
+
+      Port.monitor(port)
+      {:new, port}
+    else
+      Logger.error("Failed to spawn #{script}: No such file")
+      {:error, nil}
     end
   end
 end

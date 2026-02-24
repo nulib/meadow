@@ -56,17 +56,15 @@ defmodule Meadow.Data.SharedLinks do
     docs =
       query
       |> Scroll.results(SearchConfig.alias_for(Work, 2))
-      |> Stream.map(fn %{"_source" => work_doc} ->
-        case work_doc do
-          %{"visibility" => "Public", "published" => true} ->
-            {shared_link_row(work_doc, work_doc["id"], @public_expiration, "items"), nil}
+      |> Stream.map(fn
+        %{"_source" => %{"visibility" => "Public", "published" => true} = work_doc} ->
+          {shared_link_row(work_doc, work_doc["id"], @public_expiration, "items"), nil}
 
-          _ ->
+        %{"_source" => work_doc} ->
             with doc <- shared_link(work_doc["id"], ttl) |> shared_link_document(),
                  row <- shared_link_row(work_doc, doc.shared_link_id, doc.expires, "shared") do
               {row, doc}
             end
-        end
       end)
       |> Enum.to_list()
 

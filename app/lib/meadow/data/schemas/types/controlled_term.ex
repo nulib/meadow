@@ -56,7 +56,7 @@ defmodule Meadow.Data.Types.ControlledTerm do
   def munge_uri("http://sws.geonames.org" <> _ = id) do
     with uri <- URI.parse(id),
          path <- ensure_trailing_slash(uri.path) do
-      %URI{uri | scheme: "https", port: 443, path: path} |> URI.to_string()
+      %{uri | scheme: "https", port: 443, path: path} |> URI.to_string()
     end
   end
 

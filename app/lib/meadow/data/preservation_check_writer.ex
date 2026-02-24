@@ -102,13 +102,12 @@ defmodule Meadow.Data.PreservationCheckWriter do
       Repo.preload(chunk, Work.required_index_preloads())
     end)
     |> Stream.flat_map(fn work ->
-      with work_fields <- work_row_data(work) do
-        work.file_sets
-        |> Stream.map(fn file_set ->
-          work_fields ++
-            file_set_row_data(file_set, cache_key, work.work_type.id)
-        end)
-      end
+      work_fields = work_row_data(work)
+      work.file_sets
+      |> Stream.map(fn file_set ->
+        work_fields ++
+          file_set_row_data(file_set, cache_key, work.work_type.id)
+      end)
     end)
     |> CSV.dump_to_stream()
   end
