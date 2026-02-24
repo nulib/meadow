@@ -3,7 +3,9 @@
 !livebook/**/*
 app/.dockerignore
 app/.elixir_ls
+app/.expert
 app/.git
+app/.lexical
 app/_build
 app/assets/coverage
 app/**/node_modules

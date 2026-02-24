@@ -93,3 +93,4 @@ AGENT.md
 
 .aws-sam/
 samconfig.*
+livebook/versions
