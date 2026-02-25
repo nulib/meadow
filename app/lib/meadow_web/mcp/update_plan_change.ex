@@ -114,6 +114,7 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
          {:ok, attrs} <- build_attrs_result(request),
          {:ok, updated_change} <- Planner.update_plan_change(change, attrs) do
       updated_change = Repo.preload(updated_change, :plan)
+      maybe_auto_propose_plan(updated_change)
       {:reply, Response.tool() |> Response.json(serialize_change(updated_change)), frame}
     else
       {:error, reason} ->
@@ -122,6 +123,22 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
   rescue
     error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
   end
+
+  defp maybe_auto_propose_plan(%{status: :proposed, plan_id: plan_id, plan: %{status: :pending}}) do
+    if Planner.count_pending_plan_changes(plan_id) == 0 do
+      plan = Planner.get_plan(plan_id)
+
+      case Planner.propose_plan(plan) do
+        {:ok, _} ->
+          Logger.debug("Auto-proposed plan #{plan_id} after last pending change was proposed")
+
+        {:error, reason} ->
+          Logger.warning("Failed to auto-propose plan #{plan_id}: #{inspect(reason)}")
+      end
+    end
+  end
+
+  defp maybe_auto_propose_plan(_), do: :ok
 
   defp fetch_plan_change(id) do
     case Planner.get_plan_change(id) do
