@@ -484,6 +484,19 @@ defmodule Meadow.Data.Planner do
   end
 
   @doc """
+  Returns the count of pending plan changes for a plan.
+
+  ## Examples
+
+      iex> count_pending_plan_changes(plan_id)
+      3
+  """
+  def count_pending_plan_changes(plan_id) when is_binary(plan_id) do
+    from(c in PlanChange, where: c.plan_id == ^plan_id and c.status == :pending)
+    |> Repo.aggregate(:count)
+  end
+
+  @doc """
   Returns changes for a plan matching the given criteria.
 
   ## Example Criteria
