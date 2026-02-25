@@ -248,17 +248,16 @@ defmodule Meadow.TestHelpers do
     do: logged?(string, level, Regex.compile!(pattern))
 
   def logged?(string, level, pattern) do
-    with lines <- String.split(string, ~r/\r?\n/) do
-      Enum.any?(lines, fn line ->
-        case Regex.named_captures(~r/\[(?<level>\w+?)\]\s+(?<message>.+)/, line) do
-          %{"level" => found_level, "message" => found_message} ->
-            String.match?(found_level, level) && String.match?(found_message, pattern)
+    lines = String.split(string, ~r/\r?\n/)
+    Enum.any?(lines, fn line ->
+      case Regex.named_captures(~r/\[(?<level>\w+?)\]\s+(?<message>.+)/, line) do
+        %{"level" => found_level, "message" => found_message} ->
+          String.match?(found_level, level) && String.match?(found_message, pattern)
 
-          _ ->
-            false
-        end
-      end)
-    end
+        _ ->
+          false
+      end
+    end)
   end
 
   defp uniqify_ingest_sheet_rows(csv) do

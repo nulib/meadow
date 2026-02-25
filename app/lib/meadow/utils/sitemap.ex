@@ -14,24 +14,23 @@ defmodule Meadow.Utils.Sitemap do
   Generate a sitemap, upload it to the configured bucket
   """
   def generate do
-    with config <- config() do
-      Repo.transaction(
-        fn ->
-          stream()
-          |> Sitemapper.generate(config)
-          |> Stream.map(fn {filename, data} -> {filename, IO.iodata_to_binary(data)} end)
-          |> Stream.flat_map(&persist(&1, config))
-          |> Stream.run()
+    config = config()
+    Repo.transaction(
+      fn ->
+        stream()
+        |> Sitemapper.generate(config)
+        |> Stream.map(fn {filename, data} -> {filename, IO.iodata_to_binary(data)} end)
+        |> Stream.flat_map(&persist(&1, config))
+        |> Stream.run()
 
-          if Keyword.get(config, :gzip, false) do
-            {"sitemap.xml", generate_index(config)}
-            |> persist(config)
-            |> Stream.run()
-          end
-        end,
-        timeout: :infinity
-      )
-    end
+        if Keyword.get(config, :gzip, false) do
+          {"sitemap.xml", generate_index(config)}
+          |> persist(config)
+          |> Stream.run()
+        end
+      end,
+      timeout: :infinity
+    )
   end
 
   defp persist({filename, content}, config) do

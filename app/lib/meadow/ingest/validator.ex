@@ -170,69 +170,68 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_rows(sheet) do
-    with rows <- Rows.list_ingest_sheet_rows(sheet: sheet, state: ["pending"]) do
-      existing_files =
-        Config.ingest_bucket()
-        |> ExAws.S3.list_objects(prefix: sheet.project.folder)
-        |> ExAws.stream!()
-        |> Enum.to_list()
-        |> Enum.map(fn file -> Map.get(file, :key) end)
-        |> MapSet.new()
+    rows = Rows.list_ingest_sheet_rows(sheet: sheet, state: ["pending"])
+    existing_files =
+      Config.ingest_bucket()
+      |> ExAws.S3.list_objects(prefix: sheet.project.folder)
+      |> ExAws.stream!()
+      |> Enum.to_list()
+      |> Enum.map(fn file -> Map.get(file, :key) end)
+      |> MapSet.new()
 
-      duplicate_accession_numbers =
-        rows
-        |> Enum.group_by(& &1.file_set_accession_number)
-        |> Enum.filter(fn {_, rows} -> length(rows) > 1 end)
-        |> Enum.map(fn {accession_number, rows} ->
-          {accession_number, Enum.map(rows, & &1.row)}
-        end)
-        |> Enum.into(%{})
+    duplicate_accession_numbers =
+      rows
+      |> Enum.group_by(& &1.file_set_accession_number)
+      |> Enum.filter(fn {_, rows} -> length(rows) > 1 end)
+      |> Enum.map(fn {accession_number, rows} ->
+        {accession_number, Enum.map(rows, & &1.row)}
+      end)
+      |> Enum.into(%{})
 
-      work_types =
-        rows
-        |> Enum.group_by(&Row.field_value(&1, "work_accession_number"))
-        |> Enum.map(fn {work_accession_number, rows} ->
-          values =
-            Enum.map(rows, &Row.field_value(&1, "work_type"))
-            |> Enum.reject(&(is_nil(&1) or &1 == ""))
-            |> Enum.uniq()
+    work_types =
+      rows
+      |> Enum.group_by(&Row.field_value(&1, "work_accession_number"))
+      |> Enum.map(fn {work_accession_number, rows} ->
+        values =
+          Enum.map(rows, &Row.field_value(&1, "work_type"))
+          |> Enum.reject(&(is_nil(&1) or &1 == ""))
+          |> Enum.uniq()
 
-          {work_accession_number, values}
-        end)
-        |> Enum.into(%{})
+        {work_accession_number, values}
+      end)
+      |> Enum.into(%{})
 
-      context = %{
-        project_folder: sheet.project.folder,
-        existing_files: existing_files,
-        duplicate_accession_numbers: duplicate_accession_numbers,
-        work_types: work_types
-      }
+    context = %{
+      project_folder: sheet.project.folder,
+      existing_files: existing_files,
+      duplicate_accession_numbers: duplicate_accession_numbers,
+      work_types: work_types
+    }
 
-      row_check = fn
-        row, result ->
-          case validate_row(row, context) do
-            "pass" -> result
-            "fail" -> :error
-          end
-      end
+    row_check = fn
+      row, result ->
+        case validate_row(row, context) do
+          "pass" -> result
+          "fail" -> :error
+        end
+    end
 
-      overall_row_result = {
-        rows
-        |> Enum.reduce(:ok, row_check),
-        sheet
-      }
+    overall_row_result = {
+      rows
+      |> Enum.reduce(:ok, row_check),
+      sheet
+    }
 
-      case overall_row_result do
-        {:ok, sheet} ->
-          Logger.info("Ingest sheet: #{sheet.id} is valid")
-          Sheets.update_ingest_sheet_status(sheet, "valid")
-          {:ok, sheet}
+    case overall_row_result do
+      {:ok, sheet} ->
+        Logger.info("Ingest sheet: #{sheet.id} is valid")
+        Sheets.update_ingest_sheet_status(sheet, "valid")
+        {:ok, sheet}
 
-        {:error, sheet} ->
-          Logger.warning("Ingest sheet: #{sheet.id} has failing rows")
-          Sheets.update_ingest_sheet_status(sheet, "row_fail")
-          {:error, sheet}
-      end
+      {:error, sheet} ->
+        Logger.warning("Ingest sheet: #{sheet.id} has failing rows")
+        Sheets.update_ingest_sheet_status(sheet, "row_fail")
+        {:error, sheet}
     end
   end
 

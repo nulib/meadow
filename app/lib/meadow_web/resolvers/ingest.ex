@@ -199,7 +199,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {:ok, sheet_id |> Sheets.ingest_errors()}
   end
 
-  defp update_action_doc(state) do
+  defp update_action_doc(%ActionState{} = state) do
     with mod <- "Elixir.#{state.action}" |> String.to_atom() do
       if Code.ensure_loaded?(mod),
         do: %ActionState{state | action: mod.actiondoc()},

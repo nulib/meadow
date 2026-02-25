@@ -89,22 +89,21 @@ defmodule Meadow.Data.CSV.Import do
   defp decode_row(row) do
     row
     |> Enum.reduce(@empty_work_map, fn {field, value}, map ->
-      with schema <- schema_for(field) do
-        value = if value == "", do: nil, else: value
+      schema = schema_for(field)
+      value = if value == "", do: nil, else: value
 
-        decoded_value =
-          decode_field(schema.__schema__(:type, field), value, field)
-          |> add_scheme(field)
+      decoded_value =
+        decode_field(schema.__schema__(:type, field), value, field)
+        |> add_scheme(field)
 
-        put_path =
-          case schema do
-            Work -> [field]
-            WorkAdministrativeMetadata -> [:administrative_metadata, field]
-            WorkDescriptiveMetadata -> [:descriptive_metadata, field]
-          end
+      put_path =
+        case schema do
+          Work -> [field]
+          WorkAdministrativeMetadata -> [:administrative_metadata, field]
+          WorkDescriptiveMetadata -> [:descriptive_metadata, field]
+        end
 
-        put_in(map, put_path, decoded_value)
-      end
+      put_in(map, put_path, decoded_value)
     end)
   end
 
