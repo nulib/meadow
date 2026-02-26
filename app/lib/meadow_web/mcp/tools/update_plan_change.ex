@@ -1,4 +1,4 @@
-defmodule MeadowWeb.MCP.UpdatePlanChange do
+defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   @moduledoc """
   MCP tool for updating a PlanChange entry with proposed modifications.
 
@@ -70,7 +70,6 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
 
   use Anubis.Server.Component,
     type: :tool,
-    name: "update_plan_change",
     mime_type: "application/json"
 
   alias Anubis.MCP.Error, as: MCPError
@@ -104,8 +103,6 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
     field(:notes, :string, description: "Optional notes about this change")
   end
 
-  def name, do: "update_plan_change"
-
   @impl true
   def execute(%{id: id} = request, frame) do
     Logger.debug("MCP Server updating PlanChange: #{id}")
@@ -121,7 +118,7 @@ defmodule MeadowWeb.MCP.UpdatePlanChange do
         {:error, MCPError.execution(reason), frame}
     end
   rescue
-    error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
+    error -> {:error, MCPError.execution(error), frame}
   end
 
   defp maybe_auto_propose_plan(%{status: :proposed, plan_id: plan_id, plan: %{status: :pending}}) do

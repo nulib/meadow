@@ -1,4 +1,4 @@
-defmodule MeadowWeb.MCP.IDQueryTest do
+defmodule MeadowWeb.MCP.Tools.IDQueryTest do
   use MeadowWeb.MCPCase
   use Meadow.IndexCase
 
@@ -28,8 +28,10 @@ defmodule MeadowWeb.MCP.IDQueryTest do
     test "execute an ID query with an invalid OpenSearch query" do
       query = Jason.encode!(%{qury: %{invalid: %{}}})
 
-      assert {:error, "Query must contain a 'query' field"} =
+      assert {:error, error, _frame} =
                call_tool("id_query", %{"query" => query}) |> parse_response()
+      assert error.reason == :execution_error
+      assert error.message == "Query must contain a 'query' field"
     end
   end
 end

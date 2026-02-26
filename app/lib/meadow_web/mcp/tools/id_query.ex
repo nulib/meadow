@@ -1,4 +1,4 @@
-defmodule MeadowWeb.MCP.IDQuery do
+defmodule MeadowWeb.MCP.Tools.IDQuery do
   @moduledoc """
   Return a list of Work IDs matching a given OpenSearch query.
   """
@@ -8,6 +8,7 @@ defmodule MeadowWeb.MCP.IDQuery do
     name: "id_query",
     mime_type: "application/json"
 
+  alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
   alias Meadow.Data.Schemas.Work
   alias Meadow.Search.Config, as: SearchConfig
@@ -18,8 +19,6 @@ defmodule MeadowWeb.MCP.IDQuery do
     field(:query, :string, description: "The OpenSearch query string.")
   end
 
-  def name, do: "id_query"
-
   @impl true
   def execute(request, frame) do
     Map.get(request, :query)
@@ -27,11 +26,11 @@ defmodule MeadowWeb.MCP.IDQuery do
     |> Slice.paginate(SearchConfig.alias_for(Work, 2))
     |> fetch_ids(frame)
   rescue
-    error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
+    error -> MCPError.protocol(:internal_error, %{error: inspect(error)})
   end
 
   defp fetch_ids({:error, reason}, frame) do
-    {:reply, Response.tool() |> Response.error(format_reason(reason)), frame}
+    {:error, MCPError.execution(format_reason(reason)), frame}
   end
 
   defp fetch_ids(slice, frame) do

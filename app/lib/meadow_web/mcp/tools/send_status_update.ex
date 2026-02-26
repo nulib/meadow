@@ -1,4 +1,4 @@
-defmodule MeadowWeb.MCP.SendStatusUpdate do
+defmodule MeadowWeb.MCP.Tools.SendStatusUpdate do
   @moduledoc """
   Sends a status update message for a specific plan
 
@@ -13,9 +13,9 @@ defmodule MeadowWeb.MCP.SendStatusUpdate do
 
   use Anubis.Server.Component,
     type: :tool,
-    name: "send_status_update",
     mime_type: "application/json"
 
+  alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
   alias Meadow.Notification
   require Logger
@@ -37,8 +37,6 @@ defmodule MeadowWeb.MCP.SendStatusUpdate do
     )
   end
 
-  def name, do: "send_status_update"
-
   @impl true
   def execute(%{plan_id: plan_id, message: message}, frame) do
     case plan_id do
@@ -47,6 +45,7 @@ defmodule MeadowWeb.MCP.SendStatusUpdate do
 
       _ ->
         conversation_id = Cachex.get!(Meadow.Cache.Chat.Conversations, plan_id)
+        Logger.info("Status Update for Plan #{plan_id} (conversation #{conversation_id}): #{message}")
         %{
           conversation_id: conversation_id,
           type: "status_update",
@@ -57,6 +56,6 @@ defmodule MeadowWeb.MCP.SendStatusUpdate do
     end
     {:reply, Response.tool() |> Response.text("ok"), frame}
   rescue
-    error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
+    error -> {:error, MCPError.execution(error), frame}
   end
 end

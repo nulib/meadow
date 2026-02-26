@@ -78,7 +78,7 @@ defmodule Meadow.Utils.LambdaTest do
 
     test "timeout", %{config: config} do
       assert capture_log(fn ->
-               assert Lambda.invoke(config, %{test: "sleep", duration: 250}, 50) ==
+               assert Lambda.invoke(config, %{test: "sleep", duration: 250}, timeout: 50) ==
                         {:error, "Timeout"}
              end) =~ ~r/No response after 50ms/
 

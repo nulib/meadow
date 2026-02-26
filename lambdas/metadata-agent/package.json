@@ -10,6 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.2.38"
+    "@anthropic-ai/claude-agent-sdk": "^0.2.38",
+    "debug": "^4.4.3"
   }
 }

@@ -1,11 +1,10 @@
-defmodule MeadowWeb.MCP.ProposePlan do
+defmodule MeadowWeb.MCP.Tools.ProposePlan do
   @moduledoc """
   MCP tool for changing the status of a Plan to proposed.
   """
 
   use Anubis.Server.Component,
     type: :tool,
-    name: "propose_plan",
     mime_type: "application/json"
 
   alias Anubis.MCP.Error, as: MCPError
@@ -20,14 +19,22 @@ defmodule MeadowWeb.MCP.ProposePlan do
     )
   end
 
-  def name, do: "propose_plan"
-
   @impl true
   def execute(%{plan_id: plan_id}, frame) do
     Logger.debug("MCP Server proposing plan: #{plan_id}")
 
-    plan = Planner.get_plan(plan_id)
+    case Planner.get_plan(plan_id) do
+      nil ->
+        {:error, MCPError.protocol(:invalid_params, %{error: "Plan not found", plan_id: plan_id}), frame}
 
+      plan ->
+        propose_plan(plan, frame)
+    end
+  rescue
+    error -> {:error, MCPError.protocol(:internal_error, %{error: inspect(error)}), frame}
+  end
+
+  defp propose_plan(plan, frame) do
     case Planner.propose_plan(plan) do
       {:ok, updated_plan} ->
         {:reply, Response.tool() |> Response.json(%{plan: updated_plan}), frame}
@@ -35,7 +42,5 @@ defmodule MeadowWeb.MCP.ProposePlan do
       {:error, reason} ->
         {:error, MCPError.execution(reason), frame}
     end
-  rescue
-    error -> MeadowWeb.MCP.Error.error_response(__MODULE__, frame, error)
   end
 end

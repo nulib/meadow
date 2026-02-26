@@ -98,10 +98,6 @@ defmodule MeadowAI.MetadataAgent do
     opts =
       opts
       |> Keyword.put_new(
-        :graphql_endpoint,
-        Routes.page_url(MeadowWeb.Endpoint, :index, ["api", "graphql"])
-      )
-      |> Keyword.put_new(
         :mcp_url,
         Routes.page_url(MeadowWeb.Endpoint, :index, ["api", "mcp"])
       )
@@ -189,12 +185,11 @@ defmodule MeadowAI.MetadataAgent do
         "model" => AIConfig.get(:model),
         "prompt" => prompt,
         "context" => context,
-        "graphql_endpoint" => opts[:graphql_endpoint],
         "mcp_url" => opts[:mcp_url],
-        "iiif_server_url" => Config.iiif_server_url(),
         "additional_headers" => headers
       },
-      900_000
+      timeout: 900_000,
+      retries: 0
     )
     |> process_execution_result()
   rescue
@@ -216,7 +211,12 @@ defmodule MeadowAI.MetadataAgent do
 
   defp process_execution_result({:ok, %{"statusCode" => status_code, "body" => body}}) do
     Logger.error("Lambda execution error: Status #{status_code}, Body: #{body}")
-    {:error, {:lambda_eval_error, status_code, body}}
+    {:error, {:lambda_invocation_failed, status_code, body}}
+  end
+
+  defp process_execution_result({:ok, %{"errorMessage" => error_message}}) do
+    Logger.error("Lambda execution error: #{error_message}")
+    {:error, {:lambda_invocation_failed, error_message}}
   end
 
   defp process_execution_result(result) do

@@ -37,7 +37,9 @@ defmodule Meadow.Utils.Lambda do
   @type lambda_config :: local_lambda_config() | remote_lambda_config()
 
   @buffer_size 512
+
   @timeout 120_000
+  @retries nil
 
   @doc """
   Invoke a Lambda function and return the JSON-decoded result.
@@ -48,14 +50,17 @@ defmodule Meadow.Utils.Lambda do
       - Local NodeJS script: `{:local, {"/path/to/lambda/script.js", "exported_function_name"}}`
       - Remote Lambda function: `{:lambda, "function_name"}
     - payload: A map that will be sent to the Lambda handler as the `event`
-    - timeout: The number of milliseconds to wait for a response (default: 30,000)
+    - opts: A keyword list of options:
+      - timeout: The number of milliseconds to wait for a response (default: 30,000)
   """
-  @spec invoke(config :: lambda_config(), payload :: map(), timeout :: number()) ::
+  @spec invoke(config :: lambda_config(), payload :: map(), opts :: keyword()) ::
           {:ok | :error, any()}
-  def invoke(config, payload, timeout \\ @timeout) do
+  def invoke(config, payload, opts \\ []) do
+    opts = Keyword.validate!(opts, timeout: @timeout, retries: @retries)
+
     case config do
-      {:local, {script, handler}} -> invoke_local(script, handler, payload, timeout)
-      {:lambda, lambda} -> invoke_lambda(lambda, payload, timeout)
+      {:local, {script, handler}} -> invoke_local(script, handler, payload, opts)
+      {:lambda, lambda} -> invoke_lambda(lambda, payload, opts)
     end
   end
 
@@ -87,12 +92,17 @@ defmodule Meadow.Utils.Lambda do
 
   def init(_), do: :noop
 
-  defp invoke_lambda(lambda, payload, timeout) do
+  defp invoke_lambda(lambda, payload, opts) do
     # coveralls-ignore-start
     Logger.metadata(lambda: lambda)
+    request_opts = Enum.reduce(opts, [], fn
+      {:retries, nil}, acc -> acc
+      {:retries, retries}, acc -> [retries: [max_attempts: retries]] ++ acc
+      {:timeout, timeout}, acc -> [http_opts: [receive_timeout: timeout]] ++ acc
+    end)
 
     case ExAws.Lambda.invoke(lambda, payload, %{})
-         |> ExAws.request(http_opts: [receive_timeout: timeout]) do
+         |> ExAws.request(request_opts) do
       {:ok, %{"errorType" => _, "errorMessage" => error_message, "trace" => trace}} ->
         Meadow.Error.report(%Meadow.LambdaError{message: error_message}, __MODULE__, [], %{
           lambda: lambda,
@@ -118,13 +128,14 @@ defmodule Meadow.Utils.Lambda do
     # coveralls-ignore-stop
   end
 
-  defp invoke_local(script, handler, payload, timeout) do
+  defp invoke_local(script, handler, payload, opts) do
     with [script_file | [script_dir | _]] <- Path.split(script) |> Enum.reverse() do
       Logger.metadata(lambda: "#{script_dir}/#{script_file}:#{handler}")
     end
 
     with {_, port} <- find_or_create_port(script, handler),
-         data <- Jason.encode!(payload) <> "\n" do
+         data <- Jason.encode!(payload) <> "\n",
+         timeout <- Keyword.get(opts, :timeout) do
       send(port, {self(), {:command, data}})
       handle_output(port, timeout)
     end
