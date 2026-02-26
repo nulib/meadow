@@ -4,6 +4,7 @@ import debug from "debug";
 
 const log = debug("metadata-agent:execute");
 const logMessage = debug("metadata-agent:all-messages");
+const logVerbose = debug("metadata-agent:verbose");
 const verboseTools = /^(mcp__meadow__|ReadMcpResource)/;
 
 export async function queryClaude(model, prompt, context, mcp_url, additional_headers) {
@@ -79,8 +80,11 @@ async function executeAgent(model, prompt, contextData, mcp_url, additional_head
     },
     systemPrompt: systemPrompt()
   };
+  logVerbose("Client options:", clientOptions);
 
   const enhancedPrompt = agentPrompt(prompt, contextData);
+  logVerbose("Enhanced prompt:", enhancedPrompt);
+
   const result = await query({
     prompt: enhancedPrompt,
     options: clientOptions,

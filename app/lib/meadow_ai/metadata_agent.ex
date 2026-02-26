@@ -101,7 +101,7 @@ defmodule MeadowAI.MetadataAgent do
         :mcp_url,
         Routes.page_url(MeadowWeb.Endpoint, :index, ["api", "mcp"])
       )
-      |> Keyword.put_new(:graphql_auth_token, token)
+      |> Keyword.put_new(:auth_token, token)
       |> Keyword.put_new(
         :firewall_security_header,
         Application.get_env(:meadow, :firewall_security_header)
@@ -164,7 +164,7 @@ defmodule MeadowAI.MetadataAgent do
       |> Map.put_new(:simple, simple)
 
     auth_header =
-      case opts[:graphql_auth_token] do
+      case opts[:auth_token] do
         nil -> {}
         token -> {"Authorization", "Bearer #{token}"}
       end
