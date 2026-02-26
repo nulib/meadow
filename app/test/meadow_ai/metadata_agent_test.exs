@@ -18,7 +18,7 @@ defmodule MeadowAI.MetadataAgentTest do
       assert {:ok, {"test", ^prompt, opts}} = MetadataAgent.query(prompt, test: true, timeout: 1_000)
       assert opts[:test] == true
       assert Keyword.has_key?(opts, :firewall_security_header)
-      assert Keyword.has_key?(opts, :graphql_auth_token)
+      assert Keyword.has_key?(opts, :auth_token)
       assert Keyword.has_key?(opts, :mcp_url)
       assert {:ok, %{request_count: 1, failure_count: 0, last_failure: nil}} = MetadataAgent.status()
 

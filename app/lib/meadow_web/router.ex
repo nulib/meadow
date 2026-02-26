@@ -78,10 +78,14 @@ defmodule MeadowWeb.Router do
       before_send: {Middleware.AssumeRole, :update_user_role}
     )
 
-    forward("/mcp", Anubis.Server.Transport.StreamableHTTP.Plug,
-      server: MeadowWeb.MCP.Server,
-      registry: MeadowWeb.MCP.GlobalRegistry,
-      timeout: 120_000
+    forward("/mcp", MeadowWeb.Plugs.Authorize,
+      require: :editor,
+      forward_to: {
+        Anubis.Server.Transport.StreamableHTTP.Plug,
+        server: MeadowWeb.MCP.Server,
+        registry: MeadowWeb.MCP.GlobalRegistry,
+        timeout: 120_000
+      }
     )
 
     forward("/", Plug.Static,
