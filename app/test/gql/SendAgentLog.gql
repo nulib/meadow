@@ -1,0 +1,8 @@
+mutation SendAgentLog($planId: ID!, $message: String!, $level: String) {
+  sendAgentLog(planId: $planId, message: $message, level: $level) {
+    conversationId
+    type
+    message
+    planId
+  }
+}
