@@ -204,6 +204,21 @@ defmodule Meadow.Ingest.ValidatorTest do
       assert(ingest_sheet.status == "row_fail")
     end
 
+    @tag sheet: "ingest_sheet_add_to_existing.csv"
+    test "passes when work_accession_number exists and add_to_existing is true", context do
+      work_fixture(%{accession_number: "Donohue_001"})
+      assert Validator.result(context.sheet.id) == "pass"
+      ingest_sheet = Validator.validate(context.sheet.id)
+      assert ingest_sheet.status == "valid"
+    end
+
+    @tag sheet: "ingest_sheet_add_to_existing_missing_work.csv"
+    test "fails when add_to_existing is true but work does not exist", context do
+      assert Validator.result(context.sheet.id) == "fail"
+      ingest_sheet = Validator.validate(context.sheet.id)
+      assert ingest_sheet.status == "row_fail"
+    end
+
     @tag sheet: "ingest_sheet_wrong_mime_type.csv"
     test "fails when the a file set has an invalid mime type", context do
       assert(Validator.result(context.sheet.id) == "fail")

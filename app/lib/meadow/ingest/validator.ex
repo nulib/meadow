@@ -90,9 +90,8 @@ defmodule Meadow.Ingest.Validator do
 
   def load_rows(sheet, csv) do
     [headers | rows] = CSV.parse_string(csv, skip_headers: false)
-    sorted_headers = Enum.sort(headers)
 
-    case sheet |> validate_headers(sorted_headers) do
+    case sheet |> validate_headers(headers) do
       {:ok, sheet} ->
         {:ok, sheet} |> update_state("file")
         insert_rows(sheet, [headers | rows])
@@ -109,17 +108,14 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_headers(sheet, headers) do
-    case Enum.sort(headers) do
-      @ingest_sheet_headers ->
-        {:ok, sheet}
+    valid_headers = @ingest_sheet_headers ++ @ingest_sheet_optional_headers
+    missing = check_missing_headers(@ingest_sheet_headers -- headers)
+    invalid = check_invalid_headers(headers -- valid_headers)
 
-      _ ->
-        missing = check_missing_headers(@ingest_sheet_headers -- headers)
-        invalid = check_invalid_headers(headers -- @ingest_sheet_headers)
-
-        errors = missing ++ invalid
+    case missing ++ invalid do
+      [] -> {:ok, sheet}
+      errors ->
         add_file_errors(sheet, errors)
-
         {:error, sheet}
     end
   end
@@ -260,6 +256,15 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
+  defp validate_value(_row, {"add_to_existing", value}, _context) do
+    cond do
+      value in ["", nil] -> :ok
+      Truth.true?(value) -> :ok
+      Truth.false?(value) -> :ok
+      true -> {:error, "add_to_existing", "boolean type required"}
+    end
+  end
+
   defp validate_value(_row, {field_name, value}, _context)
        when byte_size(value) == 0,
        do: {:error, field_name, "cannot be blank"}
@@ -314,13 +319,13 @@ defmodule Meadow.Ingest.Validator do
     end
   end
 
-  defp validate_value(_row, {"work_accession_number", value}, _context) do
-    case Works.accession_exists?(value) do
-      true ->
-        {:error, "work_accession_number", "#{value} already exists in system"}
+  defp validate_value(row, {"work_accession_number", value}, _context) do
+    add_to_existing = row |> Row.field_value("add_to_existing") |> Truth.true?()
 
-      false ->
-        ensure_trimmed(value, "work_accession_number")
+    case {Works.accession_exists?(value), add_to_existing} do
+      {true, false} -> {:error, "work_accession_number", "#{value} already exists in system"}
+      {false, true} -> {:error, "work_accession_number", "#{value} does not exist in system"}
+      _ -> ensure_trimmed(value, "work_accession_number")
     end
   end
 

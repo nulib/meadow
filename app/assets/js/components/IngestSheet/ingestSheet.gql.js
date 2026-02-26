@@ -173,6 +173,7 @@ export const INGEST_SHEET_WORK_COUNT = gql`
     ingestSheetWorkCount(id: $id) {
       totalWorks
       totalFileSets
+      appendedFileSets
       pass
       fail
     }

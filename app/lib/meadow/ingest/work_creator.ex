@@ -93,8 +93,32 @@ defmodule Meadow.Ingest.WorkCreator do
     work
   end
 
-  # Ingest a single work and update its status inside a single atomic transaction
-  defp ingest_work({work_row, file_set_rows}, %{project: %{folder: folder}} = ingest_sheet) do
+  defp send_filesets_to_pipeline(ingest_sheet, file_sets, file_set_rows) do
+    file_sets
+    |> Enum.zip(file_set_rows)
+    |> Enum.each(fn {%FileSet{id: file_set_id, role: role}, %Row{row: row_num}} ->
+      Pipeline.kickoff(file_set_id, %{
+        context: "Sheet",
+        role: role.id,
+        ingest_sheet: ingest_sheet.id,
+        ingest_sheet_row: row_num
+      })
+    end)
+  end
+
+  # Ingest a single work — branch on add_to_existing
+  defp ingest_work({work_row, file_set_rows}, %{project: %{folder: _folder}} = ingest_sheet) do
+    if work_row |> Row.field_value("add_to_existing") |> Truth.true?() do
+      append_to_existing_work({work_row, file_set_rows}, ingest_sheet)
+    else
+      create_new_work({work_row, file_set_rows}, ingest_sheet)
+    end
+  end
+
+  defp ingest_work({work_row, file_set_rows}, ingest_sheet), do:
+    ingest_work({work_row, file_set_rows}, Repo.preload(ingest_sheet, :project))
+
+  defp create_new_work({work_row, file_set_rows}, %{project: %{folder: folder}} = ingest_sheet) do
     accession_number = work_row |> Row.field_value(:work_accession_number)
 
     Logger.info("Creating work #{accession_number} with #{length(file_set_rows)} file sets")
@@ -162,8 +186,78 @@ defmodule Meadow.Ingest.WorkCreator do
     end
   end
 
-  defp ingest_work({work_row, file_set_rows}, ingest_sheet), do:
-    ingest_work({work_row, file_set_rows}, Repo.preload(ingest_sheet, :project))
+  defp append_to_existing_work(
+         {work_row, file_set_rows},
+         %{project: %{folder: folder}} = ingest_sheet
+       ) do
+    accession_number = Row.field_value(work_row, :work_accession_number)
+    Logger.info("Appending #{length(file_set_rows)} file sets to work #{accession_number}")
+
+    work = Works.get_work_by_accession_number!(accession_number)
+    max_rank = Works.max_file_set_rank(work.id)
+    ingest_bucket = Config.ingest_bucket()
+
+    file_set_attrs_list =
+      file_set_rows
+      |> Enum.with_index()
+      |> Enum.map(fn {row, index} ->
+        file_path = Row.field_value(row, :filename)
+
+        structure_file =
+          case Row.field_value(row, :structure) do
+            nil -> nil
+            "" -> nil
+            path -> "s3://#{ingest_bucket}/#{folder}/#{path}"
+          end
+
+        %{
+          work_id: work.id,
+          accession_number: row |> Row.field_value(:file_accession_number),
+          role: %{scheme: "file_set_role", id: row |> Row.field_value(:role)},
+          core_metadata: %{
+            description: row |> Row.field_value(:description),
+            location: "s3://#{ingest_bucket}/#{file_path}",
+            original_filename: Path.basename(file_path),
+            label: row |> Row.field_value(:label)
+          },
+          rank: max_rank + (index + 1) * @initial_rank_interval
+        }
+        |> attach_structure_or_transcription(structure_file)
+      end)
+
+    Repo.transaction(fn ->
+      Enum.map(file_set_attrs_list, &create_file_set_in_transaction/1)
+    end)
+    |> case do
+      {:ok, new_file_sets} ->
+        work = set_work_image(work, file_set_rows)
+        Progress.update_entry(List.first(file_set_rows), "CreateWork", "ok")
+        ActionStates.set_state!(work, "Create Work", "ok")
+        send_filesets_to_pipeline(ingest_sheet, new_file_sets, file_set_rows)
+        work
+
+      {:error, changeset} ->
+        Progress.update_entry(List.first(file_set_rows), "CreateWork", "error")
+
+        file_set_rows
+        |> Enum.each(fn %{row: row_num} ->
+          Progress.abort_remaining_pending_entries(%{
+            ingest_sheet: ingest_sheet.id,
+            ingest_sheet_row: row_num
+          })
+        end)
+
+        create_errors(List.first(file_set_rows), "CreateFileSet", errors_to_strings(changeset.errors))
+        nil
+    end
+  end
+
+  defp create_file_set_in_transaction(attrs) do
+    case FileSets.create_file_set(attrs) do
+      {:ok, file_set} -> file_set
+      {:error, changeset} -> Repo.rollback(changeset)
+    end
+  end
 
   defp attach_structure_or_transcription(file_set_attrs, nil), do: file_set_attrs
 
