@@ -190,7 +190,8 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {:ok,
      %{
        total_works: sheet_id |> Sheets.work_count() || 0,
-       total_file_sets: sheet_id |> Sheets.file_set_count() || 0
+       total_file_sets: sheet_id |> Sheets.file_set_count() || 0,
+       appended_file_sets: sheet_id |> Sheets.appended_file_set_count() || 0
      }
      |> Map.merge(Sheets.list_ingest_sheet_row_success_fail(sheet_id))}
   end
@@ -199,7 +200,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {:ok, sheet_id |> Sheets.ingest_errors()}
   end
 
-  defp update_action_doc(state) do
+  defp update_action_doc(%ActionState{} = state) do
     with mod <- "Elixir.#{state.action}" |> String.to_atom() do
       if Code.ensure_loaded?(mod),
         do: %ActionState{state | action: mod.actiondoc()},

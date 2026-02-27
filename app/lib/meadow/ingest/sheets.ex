@@ -300,43 +300,13 @@ defmodule Meadow.Ingest.Sheets do
 
   def list_ingest_sheet_row_success_fail(id) do
     Row
-    |> select([row], [row.state, count(row)])
+    |> select([row], {row.state, count(row)})
     |> where([row], row.sheet_id == ^id)
     |> group_by([row], [row.state])
     |> order_by([row], asc: row.state)
     |> Meadow.Repo.all()
-    |> Enum.map(fn [state, count] ->
-      case state do
-        "pass" ->
-          %{pass: count}
-
-        "fail" ->
-          %{fail: count}
-
-        _ ->
-          :noop
-      end
-    end)
-    |> Enum.reduce(fn x, acc ->
-      Map.merge(x, acc, fn _key, map1, map2 ->
-        for {k, v1} <- map1, into: %{}, do: {k, v1 + map2[k]}
-      end)
-    end)
-    |> set_default_pass_fail()
-  end
-
-  defp set_default_pass_fail(%{pass: _pass, fail: _fail} = stats), do: stats
-
-  defp set_default_pass_fail(%{pass: pass}) do
-    %{pass: pass, fail: 0}
-  end
-
-  defp set_default_pass_fail(%{fail: fail}) do
-    %{pass: 0, fail: fail}
-  end
-
-  defp set_default_pass_fail(_) do
-    %{pass: 0, fail: 0}
+    |> Enum.map(fn {state, count} -> {String.to_atom(state), count} end)
+    |> Enum.into(%{pass: 0, fail: 0})
   end
 
   def list_ingest_sheet_works(ingest_sheet, limit \\ nil)
@@ -371,6 +341,25 @@ defmodule Meadow.Ingest.Sheets do
     from(w in Work,
       left_join: f in assoc(w, :file_sets),
       where: w.ingest_sheet_id == ^sheet_id
+    )
+    |> Repo.aggregate(:count)
+  end
+
+  def appended_file_set_count(%Sheet{} = ingest_sheet), do: appended_file_set_count(ingest_sheet.id)
+
+  def appended_file_set_count(sheet_id) do
+    from(r in Row,
+      where: r.sheet_id == ^sheet_id,
+      where:
+        fragment(
+          """
+          EXISTS (
+            SELECT 1 FROM jsonb_array_elements(fields) AS f
+            WHERE f->>'header' = 'add_to_existing'
+            AND lower(f->>'value') IN ('true', 'yes', '1', 'on')
+          )
+          """
+        )
     )
     |> Repo.aggregate(:count)
   end

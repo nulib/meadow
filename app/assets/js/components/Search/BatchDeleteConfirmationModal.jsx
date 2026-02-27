@@ -4,7 +4,7 @@ import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormField from "@js/components/UI/Form/Field";
 import { toastWrapper } from "@js/services/helpers";
 import { BATCH_DELETE } from "@js/components/BatchEdit/batch-edit.gql";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useHistory } from "react-router-dom";
 import { Button, Notification } from "@nulib/design-system";
 import { buildSelectedItemsQuery } from "@js/services/reactive-search";

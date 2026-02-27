@@ -32,20 +32,22 @@ defmodule Meadow.Config.Runtime.Dev do
             cipher_suite: :strong,
             certfile: Path.join(project_root(), "priv/cert/cert.pem"),
             keyfile: Path.join(project_root(), "priv/cert/key.pem")
-          ])
+          ]
+        )
 
     config :meadow, MeadowWeb.Endpoint,
       check_origin: false,
       watchers: [
-        node: [
-          "build.js",
-          "--watch",
+        bash: [
+          "watch.sh",
           cd: Path.join(project_root(), "assets")
         ]
       ],
       live_reload: [
         patterns: [
-          ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+          # Vite watch rewrites js/app.js and js/app.css frequently; exclude them
+          # to avoid full-page reloads that interrupt long-running UI workflows.
+          ~r"priv/static/(?!js/app\.(js|css)$).*(js|css|png|jpeg|jpg|gif|svg)$",
           ~r"priv/gettext/.*(po)$",
           ~r"lib/meadow_web/{live,views}/.*(ex)$",
           ~r"lib/meadow_web/templates/.*(eex)$"

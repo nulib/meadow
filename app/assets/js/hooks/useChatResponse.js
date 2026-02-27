@@ -1,4 +1,4 @@
-import { useSubscription } from "@apollo/client";
+import { useSubscription } from "@apollo/client/react";
 import { CHAT_RESPONSE } from "@js/components/Plan/plan.gql";
 
 export function useChatResponse(conversationId) {

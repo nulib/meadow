@@ -51,6 +51,7 @@ npm-debug.log
 *.tfvars
 
 /infrastructure/**/.aws-sam
+/infrastructure/**/.localstack/
 /infrastructure/**/.terraform/
 /infrastructure/**/*.tfstate*
 /infrastructure/**/_build/
@@ -78,18 +79,18 @@ yarn.lock
 
 **/*.pid
 
-lambdas/stream-authorizer/config
 .env
 AGENT.md
 
 # Python build artifacts
-/app/priv/python/agent/build/
-/app/priv/python/agent/dist/
-/app/priv/python/agent/src/*.egg-info/
-/app/priv/python/agent/**/__pycache__/
-/app/priv/python/agent/**/*.pyc
-/app/priv/python/agent/**/*.pyo
-/app/priv/python/agent/**/*.pyd
+/lambdas/metadata-agent/requirements.txt
+/lambdas/metadata-agent/.venv/
+/lambdas/metadata-agent/**/*.egg-info/
+/lambdas/metadata-agent/**/__pycache__/
+/lambdas/metadata-agent/**/*.pyc
+/lambdas/metadata-agent/**/*.pyo
+/lambdas/metadata-agent/**/*.pyd
 
 .aws-sam/
 samconfig.*
+livebook/versions

@@ -4,7 +4,7 @@ import { useForm, useFormContext } from "react-hook-form";
 import { AUTHORITIES_SEARCH } from "../../Work/controlledVocabulary.gql";
 import UIFormSelect from "./Select";
 import { useCombobox } from "downshift";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client/react";
 
 const UIFormControlledTermArrayItem = ({
   authorities,

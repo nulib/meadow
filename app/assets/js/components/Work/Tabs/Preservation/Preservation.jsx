@@ -21,7 +21,7 @@ import {
 } from "@js/components/Icon";
 import React, { useState } from "react";
 import { sortFileSets, toastWrapper } from "@js/services/helpers";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import FilesetActionStatesModal from "./FilesetActionStatesModal";

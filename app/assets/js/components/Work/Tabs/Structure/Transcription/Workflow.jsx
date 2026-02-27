@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Button } from "@nulib/design-system";
 import WorkTabsStructureTranscriptionPane from "@js/components/Work/Tabs/Structure/Transcription/Pane";
 import { TRANSCRIBE_FILE_SET } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useFileSetAnnotation } from "@js/hooks/useFileSetAnnotation";
 import { toastWrapper } from "@js/services/helpers";
 

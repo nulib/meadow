@@ -52,14 +52,14 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatch do
     end
   end
 
-  defp fixup_progress(%{work: %{ingest_sheet: sheet}}, _attributes) when is_nil(sheet), do: :noop
   defp fixup_progress(%{work: work}, _attributes) when is_nil(work), do: :noop
 
   defp fixup_progress(%{work_id: _work_id, work: %{ingest_sheet_id: ingest_sheet_id}} = file_set, attributes) do
-    Rows.get_row_by_file_set_accession_number(ingest_sheet_id, file_set.accession_number)
-    |> Progress.update_entries(
-      Dispatcher.not_my_actions(file_set, attributes),
-      "ok"
-    )
+    sheet_id = Map.get(attributes, :ingest_sheet) || ingest_sheet_id
+
+    case Rows.get_row_by_file_set_accession_number(sheet_id, file_set.accession_number) do
+      nil -> :noop
+      row -> Progress.update_entries(row, Dispatcher.not_my_actions(file_set, attributes), "ok")
+    end
   end
 end

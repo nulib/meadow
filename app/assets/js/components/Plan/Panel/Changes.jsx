@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import React, { useEffect } from "react";
 import {
   APPLY_PLAN,
@@ -14,6 +14,7 @@ const PlanPanelChanges = ({
   changes,
   id,
   loadingMessage,
+  logs = [],
   plan,
   summary,
   originalPrompt,
@@ -24,8 +25,27 @@ const PlanPanelChanges = ({
   const [isApproved, setIsApproved] = React.useState(false);
   const [isApplying, setIsApplying] = React.useState(false);
   const [applyStartedAt, setApplyStartedAt] = React.useState(null);
+  const [showLogs, setShowLogs] = React.useState(false);
 
   const status = plan?.status || "PENDING";
+  const proposedChange = changes?.planChange || null;
+  const hasDiffPayload = Boolean(
+    proposedChange &&
+    ((proposedChange.add &&
+      typeof proposedChange.add === "object" &&
+      Object.keys(proposedChange.add).length > 0) ||
+      (proposedChange.delete &&
+        typeof proposedChange.delete === "object" &&
+        Object.keys(proposedChange.delete).length > 0) ||
+      (proposedChange.replace &&
+        typeof proposedChange.replace === "object" &&
+        Object.keys(proposedChange.replace).length > 0)),
+  );
+  const effectiveStatus =
+    status === "PENDING" &&
+    (proposedChange?.status === "PROPOSED" || hasDiffPayload)
+      ? "PROPOSED"
+      : status;
 
   const [applyPlan] = useMutation(APPLY_PLAN);
   const [updatePlanStatus] = useMutation(UPDATE_PLAN_STATUS);
@@ -34,7 +54,7 @@ const PlanPanelChanges = ({
   );
 
   useEffect(() => {
-    switch (status) {
+    switch (effectiveStatus) {
       case "PENDING":
         setLoading(true);
         // reset UI-phase flags when backing out
@@ -59,24 +79,24 @@ const PlanPanelChanges = ({
         // handled in separate useEffect
         break;
     }
-  }, [status]);
+  }, [effectiveStatus]);
 
   /**
    * Handle terminal states (REJECTED, ERROR, COMPLETED)
    * Reset to initial screen and show toast notification
    */
   useEffect(() => {
-    if (status === "REJECTED") {
+    if (effectiveStatus === "REJECTED") {
       onCompleted?.(originalPrompt, "REJECTED");
       return;
     }
 
-    if (status === "ERROR") {
+    if (effectiveStatus === "ERROR") {
       onCompleted?.(originalPrompt, "ERROR");
       return;
     }
 
-    if (status === "COMPLETED") {
+    if (effectiveStatus === "COMPLETED") {
       // Enforce minimum spinner time of 1s
       if (isApplying && applyStartedAt) {
         const elapsed = Date.now() - applyStartedAt;
@@ -94,7 +114,13 @@ const PlanPanelChanges = ({
         onCompleted?.(null, "COMPLETED");
       }, 500);
     }
-  }, [status, isApplying, applyStartedAt, onCompleted, originalPrompt]);
+  }, [
+    effectiveStatus,
+    isApplying,
+    applyStartedAt,
+    onCompleted,
+    originalPrompt,
+  ]);
 
   const handleApproveChanges = async () => {
     try {
@@ -155,17 +181,23 @@ const PlanPanelChanges = ({
       ) : (
         <div className="plan-panel-changes--content">
           <div className="plan-panel-changes--status">
-            <span data-status={status} data-active={status === "PROPOSED"}>
+            <span
+              data-status={effectiveStatus}
+              data-active={effectiveStatus === "PROPOSED"}
+            >
               Proposed
             </span>
             <hr className="plan-panel-changes--status--divider" />
-            <span data-status={status} data-active={status === "APPROVED"}>
+            <span
+              data-status={effectiveStatus}
+              data-active={effectiveStatus === "APPROVED"}
+            >
               Approved
             </span>
             <hr className="plan-panel-changes--status--divider" />
             <span
-              data-status={status}
-              data-active={status === "COMPLETED"}
+              data-status={effectiveStatus}
+              data-active={effectiveStatus === "COMPLETED"}
             >
               Applied
             </span>
@@ -175,7 +207,7 @@ const PlanPanelChanges = ({
             <h3 className="mb-5">Changes</h3>
             <div>
               {/* Approve Changes button only shown when proposed */}
-              {status === "PROPOSED" && (
+              {effectiveStatus === "PROPOSED" && (
                 <>
                   <button onClick={handleRejectChanges} data-variant="reject">
                     Reject Changes
@@ -187,7 +219,7 @@ const PlanPanelChanges = ({
               )}
 
               {/* Apply Changes button only shown when approved */}
-              {status === "APPROVED" && !isApplying && (
+              {effectiveStatus === "APPROVED" && !isApplying && (
                 <>
                   <button onClick={handleRejectChanges} data-variant="reject">
                     Reject Changes
@@ -232,9 +264,38 @@ const PlanPanelChanges = ({
               <UISkeleton type="text" rows={3} />
             </div>
           )}
-          <PlanPanelChangesDiff proposedChanges={changes?.planChange || {}} />
+          <PlanPanelChangesDiff
+            proposedChanges={changes?.planChange || {}}
+            planChangeId={changes?.planChange?.id}
+          />
         </div>
       )}
+      <div className="plan-panel-changes--logs">
+        <button
+          type="button"
+          onClick={() => setShowLogs((current) => !current)}
+          data-variant="secondary"
+        >
+          {showLogs ? "Hide logs" : "Show logs"}
+          {` (${logs.length})`}
+        </button>
+        {showLogs && (
+          <div
+            className="plan-panel-changes--logs--panel"
+            role="log"
+            aria-live="polite"
+          >
+            {logs.length === 0 && (
+              <span className="plan-panel-changes--logs--empty">
+                Waiting for log output...
+              </span>
+            )}
+            {logs.map((entry, index) => (
+              <pre key={`${index}-${entry}`}>{entry}</pre>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -33,7 +33,13 @@ defmodule Mix.Tasks.Assets.IO do
         :stderr_to_stdout
       ])
 
-    handle_output(port)
+    case handle_output(port) do
+      0 ->
+        :ok
+
+      status ->
+        Mix.raise("Command failed with exit status #{status}: #{cmd} [#{path}]")
+    end
   end
 
   defp log("warning " <> data), do: Logger.warning(data)
@@ -56,7 +62,7 @@ defmodule Mix.Tasks.Assets.Install do
       end)
       |> Enum.map(&Path.dirname/1)
       |> Enum.each(fn path ->
-        Mix.Tasks.Assets.IO.run("npm install --force --no-fund", path)
+        Mix.Tasks.Assets.IO.run("npm install --force --no-fund --include=dev", path)
       end)
     end)
   end
@@ -72,6 +78,6 @@ defmodule Mix.Tasks.Assets.Build do
   @shortdoc @moduledoc
   def run(_) do
     Install.run(0)
-    Mix.Tasks.Assets.IO.run("npm run-script deploy -- --production", "assets")
+    Mix.Tasks.Assets.IO.run("npm run-script deploy", "assets")
   end
 end

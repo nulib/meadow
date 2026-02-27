@@ -4,6 +4,7 @@ defmodule MeadowWeb.Resolvers.Chat do
 
   """
   alias Meadow.Data.Planner
+  alias Meadow.Notification
   require Logger
 
   def send_chat_message(
@@ -66,6 +67,32 @@ defmodule MeadowWeb.Resolvers.Chat do
 
       {:error, changeset} ->
         {:error, message: "Failed to create plan", details: changeset}
+    end
+  end
+
+  def send_agent_log(_, %{plan_id: plan_id, message: message, level: level}, _) do
+    case Cachex.get!(Meadow.Cache.Chat.Conversations, plan_id) do
+      nil ->
+        {:error, message: "Conversation not found for plan"}
+
+      conversation_id ->
+        Notification.publish(
+          %{
+            conversation_id: conversation_id,
+            message: "[#{level}] #{message}",
+            type: "agent_log",
+            plan_id: plan_id
+          },
+          chat_response: "conversation:#{conversation_id}"
+        )
+
+        {:ok,
+         %{
+           conversation_id: conversation_id,
+           message: message,
+           type: "agent_log",
+           plan_id: plan_id
+         }}
     end
   end
 end

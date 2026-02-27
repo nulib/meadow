@@ -217,6 +217,14 @@ defmodule Meadow.Data.Works do
   end
 
   @doc """
+  Returns the maximum rank of file sets belonging to the given work,
+  or 0 if the work has no file sets.
+  """
+  def max_file_set_rank(work_id) do
+    Repo.one(from(f in FileSet, where: f.work_id == ^work_id, select: max(f.rank))) || 0
+  end
+
+  @doc """
   Creates a work.
 
   ## Examples

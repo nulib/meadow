@@ -1,15 +1,32 @@
 defmodule MeadowAI.MetadataAgentTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
-  describe "init/1" do
+  alias MeadowAI.MetadataAgent
+
+  describe "query/2" do
     setup do
-      start_supervised!({MeadowAI.MetadataAgent, []})
+      start_supervised!(MetadataAgent)
+      start_supervised!({Task.Supervisor, name: MeadowAI.MetadataAgent.TaskSupervisor})
       :ok
     end
 
-    test "properly initializes the Pythonx environment" do
-      {result, _} = Pythonx.eval("import os; os.getenv('CLAUDE_CODE_USE_BEDROCK')", %{})
-      assert Pythonx.decode(result) == "1"
+    test "test queries return expected responses" do
+      prompt = "Test prompt"
+
+      # Success
+      assert {:ok, %{request_count: 0, failure_count: 0, last_failure: nil}} = MetadataAgent.status()
+      assert {:ok, {"test", ^prompt, opts}} = MetadataAgent.query(prompt, test: true, timeout: 1_000)
+      assert opts[:test] == true
+      assert Keyword.has_key?(opts, :firewall_security_header)
+      assert Keyword.has_key?(opts, :auth_token)
+      assert Keyword.has_key?(opts, :mcp_url)
+      assert {:ok, %{request_count: 1, failure_count: 0, last_failure: nil}} = MetadataAgent.status()
+
+      # Failure
+      assert {:error, :timeout} = MetadataAgent.query(prompt, test: true, timeout: 250)
+
+      assert {:ok, %{request_count: 2, failure_count: 1, last_failure: %DateTime{}}} =
+               MetadataAgent.status()
     end
   end
 end

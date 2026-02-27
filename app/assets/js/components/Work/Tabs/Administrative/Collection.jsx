@@ -4,7 +4,7 @@ import {
   SET_COLLECTION_IMAGE,
 } from "@js/components/Collection/collection.gql.js";
 import { sortItemsArray, toastWrapper } from "@js/services/helpers";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import PropTypes from "prop-types";
@@ -52,10 +52,6 @@ function WorkTabsAdministrativeCollection({
     { called, loading: loadingLoadCollection, data: dataLoadCollection },
   ] = useLazyQuery(GET_COLLECTION, {
     fetchPolicy: "network-only",
-    variables: { id: collection ? collection.id : "" },
-    onCompleted({ collection: { representativeWork } }) {
-      setIsCollectionImage(representativeWork?.id === workId ? true : false);
-    },
     onError({ graphQLErrors, networkError }) {
       console.error("graphQLErrors", graphQLErrors);
       console.error("networkError", networkError);
@@ -76,9 +72,14 @@ function WorkTabsAdministrativeCollection({
     }
     if (called && loadingLoadCollection) return <p>...Loading</p>;
     if (!called) {
-      loadCollection();
+      loadCollection({ variables: { id: collection.id } });
     }
   }, [collection]);
+
+  React.useEffect(() => {
+    const representativeWork = dataLoadCollection?.collection?.representativeWork;
+    setIsCollectionImage(representativeWork?.id === workId ? true : false);
+  }, [dataLoadCollection, workId]);
 
   const handleCollectionImageToggleChange = () => {
     // NOTE we update the state value of the toggle after we fire the mutation

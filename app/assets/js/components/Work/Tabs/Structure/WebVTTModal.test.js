@@ -3,17 +3,13 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 // mock Apollo useMutation so we don't need an ApolloProvider
-jest.mock("@apollo/client", () => {
-  const actual = jest.requireActual("@apollo/client");
-  return {
-    ...actual,
-    // Return a tuple like the real hook: [mutateFn, result]
-    useMutation: () => [
-      jest.fn().mockResolvedValue({ data: { updateFileSet: { id: "fake" } } }),
-      { loading: false, error: undefined, data: undefined },
-    ],
-  };
-});
+jest.mock("@apollo/client/react", () => ({
+  // Return a tuple like the real hook: [mutateFn, result]
+  useMutation: () => [
+    jest.fn().mockResolvedValue({ data: { updateFileSet: { id: "fake" } } }),
+    { loading: false, error: undefined, data: undefined },
+  ],
+}));
 
 import WorkTabsStructureWebVTTModal from "./WebVTTModal";
 import { WorkProvider } from "@js/context/work-context";

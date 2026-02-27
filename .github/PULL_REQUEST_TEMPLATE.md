@@ -4,6 +4,7 @@ Brief high level description of this feature or fix
 # Specific Changes in this PR
 - list changes
 - list changes
+
 # Version bump required by the PR
 
 See [Semantic Versioning 2.0.0](https://semver.org/) for help discerning which is required.
@@ -38,11 +39,10 @@ Also please let developers know if there are any special instructions to test th
 - [ ] Requires data migration
 - [ ] Requires database triggers disabled during deployment/migration
 - [ ] Requires reindex
-- [ ] Terraform changes
-  - [ ] Adds/requires new or changed Terraform variables
-- [ ] Pipeline configuration changes (requires `mix meadow.pipeline.setup` run)
-- [ ] Requires new variable added to `miscellany`
-- [ ] Specific deployment synchronization instructions with other apps/API's
+- [ ] Requires `terraform apply`
+  - [ ] Adds/requires new or changed `ENVIRONMENT.tfvars` variables
+- [ ] Requires `sam deploy`
+  - [ ] Adds/requires new or changed `samconfig.yaml` variables
 - [ ] Other specific instructions/tasks
 
 

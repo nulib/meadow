@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "10.3.0"
+  @app_version "10.3.1"
 
   def project do
     [
@@ -14,17 +14,22 @@ defmodule Meadow.MixProject do
       aliases: aliases(),
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [
+      releases: releases(),
+      listeners: [Phoenix.CodeReloader],
+      xref: [exclude: [Phoenix.View]]
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: [
         coveralls: :test,
         "coveralls.circle": :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test,
         credo: :test
-      ],
-      releases: releases(),
-      listeners: [Phoenix.CodeReloader],
-      xref: [exclude: [Phoenix.View]]
+      ]
     ]
   end
 
@@ -48,29 +53,30 @@ defmodule Meadow.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:absinthe, "~> 1.7.0"},
-      {:absinthe_plug, "~> 1.5.0"},
-      {:absinthe_phoenix, "~> 2.0.0"},
+      {:absinthe, "~> 1.7"},
+      {:absinthe_plug, "~> 1.5"},
+      {:absinthe_phoenix, "~> 2.0"},
+      {:absinthe_graphql_ws, "~> 0.3"},
       {:anubis_mcp, "~> 0.14"},
-      {:assertions, "~> 0.21.0", only: :test},
+      {:assertions, "~> 0.21", only: :test},
       {:atomic_map, "~> 0.8"},
-      {:authoritex, "~> 3.0.0"},
-      {:aws_signature, "~> 0.4.0"},
-      {:briefly, "~> 0.5.0"},
-      {:broadway_dashboard, "~> 0.4.1"},
-      {:broadway_sqs, "~> 0.7.0"},
+      {:authoritex, "~> 3.0"},
+      {:aws_signature, "~> 0.4"},
+      {:briefly, "~> 0.5"},
+      {:broadway_dashboard, "~> 0.4"},
+      {:broadway_sqs, "~> 0.7"},
       {:cachex, "~> 4.0"},
-      {:configparser_ex, "~> 4.0.0"},
-      {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
-      {:dataloader, "~> 1.0.6"},
-      {:ecto_enum, "~> 1.4.0"},
+      {:configparser_ex, "~> 4.0"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dataloader, "~> 1.0"},
+      {:ecto_enum, "~> 1.4"},
       {:ecto_psql_extras, "~> 0.2"},
       {:ecto_ranked, "~> 0.5"},
-      {:ecto_sql, "~> 3.0 and >= 3.4.4"},
+      {:ecto_sql, "~> 3.13"},
       {:edtf, "~> 1.0"},
-      {:elastix, "~> 0.10.0"},
-      {:ets, "~> 0.9.0"},
-      {:ex_aws, "~> 2.5.0"},
+      {:elastix, "~> 0.10"},
+      {:ets, "~> 0.9"},
+      {:ex_aws, "~> 2.5"},
       {:ex_aws_s3, "~> 2.3"},
       {:ex_aws_lambda, "~> 2.0"},
       {:ex_aws_secretsmanager, "~> 2.0"},
@@ -81,40 +87,40 @@ defmodule Meadow.MixProject do
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.17"},
       {:honeybadger, "~> 0.7"},
-      {:horde, "~> 0.10.0"},
-      {:inflex, "~> 2.1.0"},
+      {:horde, "~> 0.10"},
+      {:inflex, "~> 2.1"},
       {:jason, "~> 1.0"},
-      {:jwt, "~> 0.1.11"},
+      {:jwt, "~> 0.1"},
       {:libcluster, "~> 3.3"},
-      {:logger_file_backend, "~> 0.0.11"},
+      {:logger_file_backend, "~> 0.0"},
       {:mox, "~> 1.0", only: :test},
-      {:nimble_csv, "~> 1.3.0"},
-      {:phoenix, "~> 1.8.1"},
+      {:nimble_csv, "~> 1.3"},
+      {:phoenix, "~> 1.8"},
       {:phoenix_html, "~> 4.2"},
       {:phoenix_html_helpers, "~> 1.0"},
-      {:phoenix_live_view, "~> 1.1.2"},
-      {:phoenix_live_dashboard, "~> 0.8.6"},
+      {:phoenix_live_view, "~> 1.1"},
+      {:phoenix_live_dashboard, "~> 0.8"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.1"},
-      {:phoenix_view, "~> 2.0.2"},
+      {:phoenix_view, "~> 2.0"},
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 4.0"},
       {:postgrex, "~> 0.17"},
-      {:pythonx, "~> 0.4.0"},
+      {:pythonx, "~> 0.4"},
       {:quantum, "~> 3.0"},
-      {:req, "~> 0.5.16"},
-      {:retry, "~> 0.19.0"},
+      {:req, "~> 0.5"},
+      {:retry, "~> 0.19"},
       {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
-      {:sitemapper, "~> 0.10.0"},
+      {:sitemapper, "~> 0.10"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
-      {:tzdata, "~> 1.1.0"},
-      {:ueberauth_nusso, "~> 2.3.0"},
-      {:walex, "~> 4.7.0"},
-      {:wait_for_it, "~> 2.1.2"},
-      {:wormwood, "~> 0.1.0"}
+      {:tzdata, "~> 1.1"},
+      {:ueberauth_nusso, "~> 2.3"},
+      {:walex, "~> 4.7"},
+      {:wait_for_it, "~> 2.1"},
+      {:wormwood, "~> 0.1"}
     ]
   end
 
