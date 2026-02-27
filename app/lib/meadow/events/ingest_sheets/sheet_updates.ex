@@ -12,6 +12,8 @@ defmodule Meadow.Events.IngestSheets.SheetUpdates do
 
   on_event(:ingest_sheets, %{}, [{__MODULE__, :handle_notification}], & &1)
 
+  def handle_notification(%{new_record: nil}), do: :noop
+
   def handle_notification(%{name: name, new_record: record}) do
     with_log_metadata module: __MODULE__, id: record.id, name: name do
       Logger.info("Sending notifications for ingest sheet: #{record.id}")
