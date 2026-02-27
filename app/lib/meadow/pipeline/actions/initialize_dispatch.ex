@@ -52,7 +52,6 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatch do
     end
   end
 
-  defp fixup_progress(%{work: %{ingest_sheet: sheet}}, _attributes) when is_nil(sheet), do: :noop
   defp fixup_progress(%{work: work}, _attributes) when is_nil(work), do: :noop
 
   defp fixup_progress(%{work_id: _work_id, work: %{ingest_sheet_id: ingest_sheet_id}} = file_set, attributes) do

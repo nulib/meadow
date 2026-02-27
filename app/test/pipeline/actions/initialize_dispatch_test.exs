@@ -117,6 +117,72 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
     end
   end
 
+  describe "process/2 appending to a work without ingest sheet" do
+    setup do
+      sheet = ingest_sheet_rows_fixture(@fixture) |> Repo.preload(:ingest_sheet_rows)
+      [_ | [row | _]] = Rows.list_ingest_sheet_rows(sheet: sheet)
+
+      work =
+        work_fixture(%{
+          accession_number: MapList.get(row.fields, :header, :value, :work_accession_number),
+          work_type: %{id: "IMAGE", scheme: "work_type"}
+        })
+
+      file_set =
+        file_set_fixture(%{
+          accession_number: row.file_set_accession_number,
+          role: %{id: "P", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            location: "s3://#{@bucket}/#{@key}",
+            original_filename: "test.tif"
+          },
+          work_id: work.id
+        })
+
+      {:ok, %{row: row, file_set: file_set, sheet: sheet}}
+    end
+
+    @tag s3: [%{bucket: @bucket, key: @key, content: File.read!(@content)}]
+    test "sets unused progress entries to :ok when work has no ingest sheet", %{
+      row: row,
+      file_set: %{id: file_set_id},
+      sheet: sheet
+    } do
+      Progress.initialize_entry(row, true)
+      assert Progress.get_entry(row, "CreateWork") |> Map.get(:status) == "pending"
+
+      assert Progress.get_entry(row, Meadow.Pipeline.Actions.CreatePyramidTiff)
+             |> Map.get(:status) == "pending"
+
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(IngestFileSet, %{file_set_id: file_set_id}, %{
+            context: "Sheet",
+            ingest_sheet: sheet.id
+          })
+      )
+
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(ExtractMimeType, %{file_set_id: file_set_id}, %{
+            context: "Sheet",
+            ingest_sheet: sheet.id
+          })
+      )
+
+      assert(
+        {:ok, %{id: ^file_set_id}, %{}} =
+          send_test_message(InitializeDispatch, %{file_set_id: file_set_id}, %{
+            context: "Sheet",
+            ingest_sheet: sheet.id
+          })
+      )
+
+      assert Progress.get_entry(row, Meadow.Pipeline.Actions.CreatePyramidTiff)
+             |> Map.get(:status) == "ok"
+    end
+  end
+
   describe "process/2 with invalid file set role + mime type" do
     setup do
       sheet = ingest_sheet_rows_fixture(@fixture) |> Repo.preload(:ingest_sheet_rows)
