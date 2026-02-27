@@ -345,6 +345,25 @@ defmodule Meadow.Ingest.Sheets do
     |> Repo.aggregate(:count)
   end
 
+  def appended_file_set_count(%Sheet{} = ingest_sheet), do: appended_file_set_count(ingest_sheet.id)
+
+  def appended_file_set_count(sheet_id) do
+    from(r in Row,
+      where: r.sheet_id == ^sheet_id,
+      where:
+        fragment(
+          """
+          EXISTS (
+            SELECT 1 FROM jsonb_array_elements(fields) AS f
+            WHERE f->>'header' = 'add_to_existing'
+            AND lower(f->>'value') IN ('true', 'yes', '1', 'on')
+          )
+          """
+        )
+    )
+    |> Repo.aggregate(:count)
+  end
+
   def ingest_errors(%Sheet{} = ingest_sheet), do: ingest_errors(ingest_sheet.id)
 
   def ingest_errors(sheet_id) do
