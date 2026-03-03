@@ -179,7 +179,7 @@ defmodule Meadow.Utils.Lambda do
     :continue
   end
 
-  defp handle_output(port, timeout, buffer \\ "", on_log \\ nil) do
+  defp handle_output(port, timeout, buffer, on_log) do
     receive do
       {^port, {:data, {:eol, data}}} ->
         case handle_buffer(buffer <> data, on_log) do

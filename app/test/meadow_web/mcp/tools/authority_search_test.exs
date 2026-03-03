@@ -7,7 +7,7 @@ defmodule MeadowWeb.MCP.Tools.AuthoritySearchTest do
       {:ok, [{:text, response} | _]} =
         call_tool("authority_search", %{"authority_code" => "mock", "query" => "test"}) |> parse_response()
 
-      assert result = Jason.decode!(response)
+      assert %{"results" => result} = Jason.decode!(response)
       assert is_list(result)
       assert length(result) == 5
     end
