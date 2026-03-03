@@ -9,49 +9,42 @@ defmodule MeadowWeb.Plugs.BearerAuth do
   def init(opts), do: opts
 
   def call(conn, _default) do
-    case get_req_header(conn, "authorization") do
-      [] ->
-        conn
-      ["Bearer " <> token] ->
-        validate_dc_api_token(conn, token)
-
-    end
+    get_req_header(conn, "authorization")
+    |> validate_auth_header(conn)
   end
 
-  def validate_dc_api_token(conn, token) do
+  defp validate_auth_header([], conn), do: conn
+  defp validate_auth_header(["Bearer " <> token], conn), do: validate_jwt(conn, token)
+
+  defp validate_jwt(conn, token) do
     api_config = Application.get_env(:meadow, :dc_api)[:v2]
-    {:ok, token} = :jwt.decode(token, api_config["api_token_secret"])
+    :jwt.decode(token, api_config["api_token_secret"])
+    |> validate_decoded_token(conn)
+  end
 
-    case token do
-      %{"exp" => exp, "isSuperUser" => is_superuser} ->
-        current_time = DateTime.utc_now() |> DateTime.to_unix()
+  defp validate_decoded_token({:ok, %{"isSuperUser" => true} = token}, conn),
+    do: add_user_to_session(token, conn)
 
-        if exp > current_time and is_superuser do
-          user = %Meadow.Accounts.User{
-            id: token["sub"],
-            email: token["email"],
-            role: :editor,
-            display_name: token["name"],
-            username: token["sub"]
-          }
-          conn
-          |> fetch_session()
-          |> put_session(:current_user, user)
-          |> configure_session(renew: true)
-        else
-          conn
-          |> put_resp_content_type("application/json")
-          |> resp(401, "Unauthorized - invalid claims")
-          |> send_resp()
-          |> halt()
-        end
+  defp validate_decoded_token({:ok, %{"scopes" => scopes} = token}, conn) when is_list(scopes) do
+    if Enum.any?(scopes, &String.starts_with?(&1, "meadow:")),
+      do: add_user_to_session(token, conn),
+      else: conn
+  end
 
-      _ ->
-        conn
-        |> put_resp_content_type("application/json")
-        |> resp(401, "Unauthorized - invalid token")
-        |> send_resp()
-        |> halt()
-    end
+  defp validate_decoded_token(_, conn), do: conn
+
+  defp add_user_to_session(token, conn) do
+    user = %Meadow.Accounts.User{
+      id: token["sub"],
+      email: token["email"],
+      role: :editor,
+      display_name: token["name"],
+      username: token["sub"]
+    }
+
+    conn
+    |> fetch_session()
+    |> put_session(:current_user, user)
+    |> configure_session(renew: true)
   end
 end
