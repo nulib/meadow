@@ -1,0 +1,4 @@
+work_type,work_accession_number,file_accession_number,filename,description,role,label,work_image,structure,add_to_existing
+IMAGE,Donohue_001,Donohue_001_01,coffee.tif,"Letter, page 1",A,"The label",,,true
+IMAGE,Donohue_001,Donohue_001_02,coffee.tif,"Letter, page 2",A,"The label",,,true
+IMAGE,Donohue_002,Donohue_002_01,coffee.tif,"Other page",A,"The label",,,

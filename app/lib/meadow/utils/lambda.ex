@@ -56,7 +56,7 @@ defmodule Meadow.Utils.Lambda do
   @spec invoke(config :: lambda_config(), payload :: map(), opts :: keyword()) ::
           {:ok | :error, any()}
   def invoke(config, payload, opts \\ []) do
-    opts = Keyword.validate!(opts, timeout: @timeout, retries: @retries)
+    opts = Keyword.validate!(opts, timeout: @timeout, retries: @retries, on_log: nil)
 
     case config do
       {:local, {script, handler}} -> invoke_local(script, handler, payload, opts)
@@ -95,11 +95,15 @@ defmodule Meadow.Utils.Lambda do
   defp invoke_lambda(lambda, payload, opts) do
     # coveralls-ignore-start
     Logger.metadata(lambda: lambda)
-    request_opts = Enum.reduce(opts, [], fn
-      {:retries, nil}, acc -> acc
-      {:retries, retries}, acc -> [retries: [max_attempts: retries]] ++ acc
-      {:timeout, timeout}, acc -> [http_opts: [receive_timeout: timeout]] ++ acc
-    end)
+
+    request_opts =
+      Enum.reduce(opts, [], fn
+        {:retries, nil}, acc -> acc
+        {:retries, retries}, acc -> [retries: [max_attempts: retries]] ++ acc
+        {:timeout, timeout}, acc -> [http_opts: [receive_timeout: timeout]] ++ acc
+        {:on_log, _on_log}, acc -> acc
+        _, acc -> acc
+      end)
 
     case ExAws.Lambda.invoke(lambda, payload, %{})
          |> ExAws.request(request_opts) do
@@ -135,15 +139,17 @@ defmodule Meadow.Utils.Lambda do
 
     with {_, port} <- find_or_create_port(script, handler),
          data <- Jason.encode!(payload) <> "\n",
-         timeout <- Keyword.get(opts, :timeout) do
+         timeout <- Keyword.get(opts, :timeout),
+         on_log <- Keyword.get(opts, :on_log) do
       send(port, {self(), {:command, data}})
-      handle_output(port, timeout)
+      handle_output(port, timeout, "", on_log)
     end
   end
 
-  defp handle_message(message) do
+  defp handle_message(message, on_log) do
     case ~r"^\[(?<level>.+?)\] (?<message>.+)$" |> Regex.named_captures(message) do
       %{"level" => level, "message" => message} ->
+        maybe_notify_log(on_log, String.to_atom(level), message)
         Logger.log(String.to_atom(level), message)
 
       _ ->
@@ -151,37 +157,38 @@ defmodule Meadow.Utils.Lambda do
     end
   end
 
-  defp handle_buffer("[return] undefined") do
+  defp handle_buffer("[return] undefined", _on_log) do
     Logger.warning("Received undefined response from lambda")
     {:ok, nil}
   end
 
-  defp handle_buffer("[return] " <> value) do
+  defp handle_buffer("[return] " <> value, _on_log) do
     {:ok, Jason.decode!(value)}
   end
 
-  defp handle_buffer("[fatal] " <> message) do
+  defp handle_buffer("[fatal] " <> message, on_log) do
+    maybe_notify_log(on_log, :error, message)
     Logger.error(message)
     {:error, message}
   end
 
-  defp handle_buffer("[debug] ping"), do: :continue
+  defp handle_buffer("[debug] ping", _on_log), do: :continue
 
-  defp handle_buffer(message) do
-    handle_message(message)
+  defp handle_buffer(message, on_log) do
+    handle_message(message, on_log)
     :continue
   end
 
-  defp handle_output(port, timeout, buffer \\ "") do
+  defp handle_output(port, timeout, buffer \\ "", on_log \\ nil) do
     receive do
       {^port, {:data, {:eol, data}}} ->
-        case handle_buffer(buffer <> data) do
-          :continue -> handle_output(port, timeout)
+        case handle_buffer(buffer <> data, on_log) do
+          :continue -> handle_output(port, timeout, "", on_log)
           other -> other
         end
 
       {^port, {:data, {:noeol, data}}} ->
-        handle_output(port, timeout, buffer <> data)
+        handle_output(port, timeout, buffer <> data, on_log)
 
       {^port, {:exit_status, status}} ->
         Logger.error("exit_status: #{status}")
@@ -193,6 +200,18 @@ defmodule Meadow.Utils.Lambda do
         {:error, "Timeout"}
     end
   end
+
+  defp maybe_notify_log(nil, _level, _message), do: :ok
+
+  defp maybe_notify_log(on_log, level, message) when is_function(on_log, 2) do
+    on_log.(level, message)
+  rescue
+    error ->
+      Logger.warning("Lambda on_log callback raised: #{Exception.message(error)}")
+      :ok
+  end
+
+  defp maybe_notify_log(_on_log, _level, _message), do: :ok
 
   defp command_for(script, handler),
     do: [Config.priv_path("nodejs/lambda/index.js"), script, handler] |> Enum.join(" ")

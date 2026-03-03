@@ -58,7 +58,8 @@ defmodule MeadowAI.MetadataAgent do
           {:error, reason}
       end
     end)
-    |> Task.await(:infinity) # Rely on the earlier timeout
+    # Rely on the earlier timeout
+    |> Task.await(:infinity)
   end
 
   @doc """
@@ -108,12 +109,14 @@ defmodule MeadowAI.MetadataAgent do
       )
 
     Task.Supervisor.start_child(MeadowAI.MetadataAgent.TaskSupervisor, fn ->
-      result = if Keyword.get(opts, :test, false) do
-        :timer.sleep(500)
-        {:ok, {"test", prompt, opts}}
-      else
-        check_prompt_and_execute(prompt, opts)
-      end
+      result =
+        if Keyword.get(opts, :test, false) do
+          :timer.sleep(500)
+          {:ok, {"test", prompt, opts}}
+        else
+          check_prompt_and_execute(prompt, opts)
+        end
+
       send(caller, {:query_result, ref, result})
     end)
 

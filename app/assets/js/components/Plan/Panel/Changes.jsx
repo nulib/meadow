@@ -14,6 +14,7 @@ const PlanPanelChanges = ({
   changes,
   id,
   loadingMessage,
+  logs = [],
   plan,
   summary,
   originalPrompt,
@@ -24,23 +25,25 @@ const PlanPanelChanges = ({
   const [isApproved, setIsApproved] = React.useState(false);
   const [isApplying, setIsApplying] = React.useState(false);
   const [applyStartedAt, setApplyStartedAt] = React.useState(null);
+  const [showLogs, setShowLogs] = React.useState(false);
 
   const status = plan?.status || "PENDING";
   const proposedChange = changes?.planChange || null;
   const hasDiffPayload = Boolean(
     proposedChange &&
-      ((proposedChange.add &&
-        typeof proposedChange.add === "object" &&
-        Object.keys(proposedChange.add).length > 0) ||
-        (proposedChange.delete &&
-          typeof proposedChange.delete === "object" &&
-          Object.keys(proposedChange.delete).length > 0) ||
-        (proposedChange.replace &&
-          typeof proposedChange.replace === "object" &&
-          Object.keys(proposedChange.replace).length > 0))
+    ((proposedChange.add &&
+      typeof proposedChange.add === "object" &&
+      Object.keys(proposedChange.add).length > 0) ||
+      (proposedChange.delete &&
+        typeof proposedChange.delete === "object" &&
+        Object.keys(proposedChange.delete).length > 0) ||
+      (proposedChange.replace &&
+        typeof proposedChange.replace === "object" &&
+        Object.keys(proposedChange.replace).length > 0)),
   );
   const effectiveStatus =
-    status === "PENDING" && (proposedChange?.status === "PROPOSED" || hasDiffPayload)
+    status === "PENDING" &&
+    (proposedChange?.status === "PROPOSED" || hasDiffPayload)
       ? "PROPOSED"
       : status;
 
@@ -111,7 +114,13 @@ const PlanPanelChanges = ({
         onCompleted?.(null, "COMPLETED");
       }, 500);
     }
-  }, [effectiveStatus, isApplying, applyStartedAt, onCompleted, originalPrompt]);
+  }, [
+    effectiveStatus,
+    isApplying,
+    applyStartedAt,
+    onCompleted,
+    originalPrompt,
+  ]);
 
   const handleApproveChanges = async () => {
     try {
@@ -172,11 +181,17 @@ const PlanPanelChanges = ({
       ) : (
         <div className="plan-panel-changes--content">
           <div className="plan-panel-changes--status">
-            <span data-status={effectiveStatus} data-active={effectiveStatus === "PROPOSED"}>
+            <span
+              data-status={effectiveStatus}
+              data-active={effectiveStatus === "PROPOSED"}
+            >
               Proposed
             </span>
             <hr className="plan-panel-changes--status--divider" />
-            <span data-status={effectiveStatus} data-active={effectiveStatus === "APPROVED"}>
+            <span
+              data-status={effectiveStatus}
+              data-active={effectiveStatus === "APPROVED"}
+            >
               Approved
             </span>
             <hr className="plan-panel-changes--status--divider" />
@@ -255,6 +270,32 @@ const PlanPanelChanges = ({
           />
         </div>
       )}
+      <div className="plan-panel-changes--logs">
+        <button
+          type="button"
+          onClick={() => setShowLogs((current) => !current)}
+          data-variant="secondary"
+        >
+          {showLogs ? "Hide logs" : "Show logs"}
+          {` (${logs.length})`}
+        </button>
+        {showLogs && (
+          <div
+            className="plan-panel-changes--logs--panel"
+            role="log"
+            aria-live="polite"
+          >
+            {logs.length === 0 && (
+              <span className="plan-panel-changes--logs--empty">
+                Waiting for log output...
+              </span>
+            )}
+            {logs.map((entry, index) => (
+              <pre key={`${index}-${entry}`}>{entry}</pre>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -28,6 +28,16 @@ defmodule MeadowWeb.Schema.ChatTypes do
 
       resolve(&Resolvers.Chat.send_chat_message/3)
     end
+
+    field :send_agent_log, type: :chat_response do
+      arg(:plan_id, non_null(:id))
+      arg(:message, non_null(:string))
+      arg(:level, :string, default_value: "info")
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+
+      resolve(&Resolvers.Chat.send_agent_log/3)
+    end
   end
 
   object :chat_message do
@@ -39,7 +49,7 @@ defmodule MeadowWeb.Schema.ChatTypes do
 
   object :chat_response do
     field(:conversation_id, :id)
-    field(:type, :string, description: "Type of message, e.g. 'chat', 'plan_id'")
+    field(:type, :string, description: "Type of message, e.g. 'chat', 'plan_id', 'agent_log'")
     field(:message, :string, description: "AI response message")
     field(:plan_id, :id, description: "The ID of the plan created for this chat message")
   end
