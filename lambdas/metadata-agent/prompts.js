@@ -16,16 +16,17 @@ const agentPromptWithPlan = (planId, userQuery, contextData = {}) => `
   Use the plan_change_proposer subagent to process plan ${planId} for:
   ${userQuery}
 
-  Subagent must:
-  1. Get all pending PlanChanges for ${planId}
-  2. Read each work's metadata using the get_work tool with the work ID
-  3. Read the "file://schema/work.json" resource for documented field types and structure
-  4. Propose metadata changes per the prompt.
-  5. Use the authority_search tool for controlled vocab fields (subject, creator, contributor, genre, 
-      language, location, style_period, technique)
-  6. Use the get_code_list tool to get the valid values for coded fields (role, note type, license, rights statement, 
-      related_url label, library unit, preservation level, status) and use those exact values in updates.
-  7. Update each PlanChange with the proposed changes.
+    Subagent must:
+    1. Get all pending PlanChanges for ${planId}
+    2. Read each work's metadata using the get_work tool with the work ID
+    3. Read the "file://schema/work.json" resource for documented field types and structure
+       and follow "_mcp_constraints" exactly
+    4. Propose metadata changes per the prompt.
+    5. Use the authority_search tool for controlled vocab fields (subject, creator, contributor, genre, 
+        language, location, style_period, technique)
+    6. Use the get_code_list tool to get the valid values for coded fields (role, note type, license, rights statement, 
+        related_url label, library unit, preservation level, status) and use those exact values in updates.
+    7. Update each PlanChange with the proposed changes.
 
   Context: ${JSON.stringify(contextData, null, 2)}
 
@@ -34,11 +35,13 @@ const agentPromptWithPlan = (planId, userQuery, contextData = {}) => `
   IMPORTANT: Always use authority_search for controlled terms; never invent IDs. For coded fields (roles, note types, etc.),
   use get_code_list. Do not touch deprecated fields. NEVER populate the navPlace field (experimental, not ready for use).
 
-  CRITICAL API USAGE:
-  - Make sure you follow the retrived schema, e.g., DO NOT invent JSON/nested structures that aren't in the schema; 
-    use the exact structure from the schema resource
-  - Use the get_image tool with the ID of any file set to retrieve its base64 image for analysis.
-  - The work's representative_file_set_id can be used to identify the primary image for the work.
+    CRITICAL API USAGE:
+    - Make sure you follow the retrieved schema, e.g., DO NOT invent JSON/nested structures that aren't in the schema; 
+      use the exact structure from the schema resource
+    - Title changes must be plain strings only. Never send title as objects/arrays and never send JSON-serialized
+      blobs like "{\\"description\\":\\"...\\",\\"primary\\":true}".
+    - Use the get_image tool with the ID of any file set to retrieve its base64 image for analysis.
+    - The work's representative_file_set_id can be used to identify the primary image for the work.
 
   Finish with a concise summary of proposed changes. Keep the summary focused on the changed fields instead of the plan 
   process itself. Do not mention the subagent or anything related to plan status. Do not include headers or introductory 
@@ -138,10 +141,10 @@ export const systemPrompt = () => `
   Use get_plan_changes to list changes for a plan UUID and work UUID.
 
   For controlled vocabulary fields (subject, creator, contributor, genre, language, location, style_period, technique):
-  1. Use authoritiesSearch for term IDs
+  1. Use authority_search for term IDs
   2. For subject/contributor roles, use get_code_list tool (subject_role or marc_relator)
   3. Structure as objects: {"term": {"id": "uri"}, "role": {"id": "role", "scheme": "scheme"}}
-  4. Never use strings for terms; include required roles for subject and contributor
+  4. Never use strings for terms; include required roles for subject and contributor; do not include roles for creator, genre, language, location, style_period, or technique
   5. Never guess IDs; always query
 
   For coded term fields (license, rights_statement, notes, related_url):
@@ -149,6 +152,11 @@ export const systemPrompt = () => `
   3. CRITICAL: Use lowercase scheme names in update_plan_change (e.g., "note_type", not "NOTE_TYPE")
   4. For notes: each entry has a "note" text field and a "type" coded term object
   5. For related_url: each entry has a "url" text field and a "label" coded term object (scheme is "related_url")
+
+  For title:
+  1. Use replace only
+  2. Value must be a plain string
+  3. Never pass JSON objects/arrays or stringified JSON as title values
 
   Do not look for information in the file system or local codebase.
 `;
