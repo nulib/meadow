@@ -3,7 +3,7 @@ defmodule MeadowWeb.MCP.Tools.AuthoritySearch do
   Return a work resource
   """
 
-alias Anubis.MCP.Error, as: MCPError
+  alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
   require Logger
 
@@ -26,7 +26,7 @@ alias Anubis.MCP.Error, as: MCPError
     Logger.info("Executing authority search of `#{params.authority_code}` with query: `#{params.query}`")
     case Authoritex.search(params.authority_code, params.query) do
       {:ok, result} ->
-        {:reply, Response.tool() |> Response.json(result), frame}
+        {:reply, Response.tool() |> Response.structured(%{results: result}), frame}
       {:error, "Unknown authority:" <> _} ->
         {:error, MCPError.protocol(:invalid_params, %{error: "Unknown authority", authority_code: params.authority_code}), frame}
       {:error, reason} ->

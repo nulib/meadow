@@ -112,7 +112,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
          {:ok, updated_change} <- Planner.update_plan_change(change, attrs) do
       updated_change = Repo.preload(updated_change, :plan)
       maybe_auto_propose_plan(updated_change)
-      {:reply, Response.tool() |> Response.json(serialize_change(updated_change)), frame}
+      {:reply, Response.tool() |> Response.structured(serialize_change(updated_change)), frame}
     else
       {:error, reason} ->
         {:error, MCPError.execution(reason), frame}

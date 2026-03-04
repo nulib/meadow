@@ -12,6 +12,7 @@ defmodule MeadowWeb.MCP.Tools.GetImage do
   alias Meadow.Utils.DCAPI
   require Logger
 
+  @iiif_image_path "full/%5E!1024,1024/0/default.jpg"
   @timeout 600_000
 
   schema do
@@ -26,7 +27,7 @@ defmodule MeadowWeb.MCP.Tools.GetImage do
     uri =
       Meadow.Config.iiif_server_url()
       |> Path.join(file_set_id)
-      |> Path.join("full/!1024,1024/0/default.jpg")
+      |> Path.join(@iiif_image_path)
 
     {:ok, %{token: token}} =
       DCAPI.token(@timeout,
