@@ -24,7 +24,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
     test "updates a plan change with simple metadata", %{plan_change: plan_change} do
       params = %{
         "id" => plan_change.id,
-        "add" => %{
+        "replace" => %{
           "descriptive_metadata" => %{
             "title" => "Updated Title"
           }
@@ -32,12 +32,103 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
         "status" => "proposed"
       }
 
-      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
 
       result = Jason.decode!(response)
       assert result["id"] == plan_change.id
       assert result["status"] == "proposed"
-      assert get_in(result, ["add", "descriptive_metadata", "title"]) == "Updated Title"
+      assert get_in(result, ["replace", "descriptive_metadata", "title"]) == "Updated Title"
+    end
+
+    test "rejects title objects", %{plan_change: plan_change} do
+      params = %{
+        "id" => plan_change.id,
+        "replace" => %{
+          "descriptive_metadata" => %{
+            "title" => %{"description" => "Bad shape", "primary" => true}
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:error, _error, _frame} = call_tool("update_plan_change", params)
+    end
+
+    test "rejects JSON-serialized title strings", %{plan_change: plan_change} do
+      params = %{
+        "id" => plan_change.id,
+        "replace" => %{
+          "descriptive_metadata" => %{
+            "title" => ~s({"description":"Bad shape","primary":true})
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:error, _error, _frame} = call_tool("update_plan_change", params)
+    end
+
+    test "rejects replace operation for controlled fields", %{plan_change: plan_change} do
+      params = %{
+        "id" => plan_change.id,
+        "replace" => %{
+          "descriptive_metadata" => %{
+            "creator" => [
+              %{
+                "term" => %{"id" => "mock1:result2"},
+                "role" => %{"id" => "aut", "scheme" => "marc_relator"}
+              }
+            ]
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:error, _error, _frame} = call_tool("update_plan_change", params)
+    end
+
+    test "rejects roles in creator entries", %{plan_change: plan_change} do
+      params = %{
+        "id" => plan_change.id,
+        "add" => %{
+          "descriptive_metadata" => %{
+            "creator" => [
+              %{
+                "term" => %{"id" => "mock1:result2"},
+                "role" => %{"id" => "aut", "scheme" => "marc_relator"}
+              }
+            ]
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:error, _error, _frame} = call_tool("update_plan_change", params)
+    end
+
+    test "returns creator-role validation error even with mixed metadata keys", %{
+      plan_change: plan_change
+    } do
+      params = %{
+        "id" => plan_change.id,
+        "add" => %{
+          "descriptive_metadata" => %{
+            "creator" => [
+              %{
+                "term" => %{"id" => "mock1:result2"},
+                "role" => %{"id" => "aut", "scheme" => "marc_relator"}
+              }
+            ],
+            "description" => ["A description value"]
+          }
+        },
+        "status" => "proposed"
+      }
+
+      {:error, error, _frame} = call_tool("update_plan_change", params)
+      assert error.message =~ "'add.descriptive_metadata.creator[0].role' must be omitted for creator"
+      refute error.message =~ "mixed keys"
     end
 
     test "enriches controlled terms with labels from authority", %{plan_change: plan_change} do
@@ -56,7 +147,8 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
         "status" => "proposed"
       }
 
-      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
 
       result = Jason.decode!(response)
       subject = get_in(result, ["add", "descriptive_metadata", "subject"]) |> List.first()
@@ -98,7 +190,8 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
         "status" => "proposed"
       }
 
-      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
 
       result = Jason.decode!(response)
       metadata = get_in(result, ["add", "descriptive_metadata"])
@@ -126,7 +219,11 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
             "subject" => [
               %{
                 "term" => %{"id" => "mock1:result1", "label" => "Custom Label"},
-                "role" => %{"id" => "TOPICAL", "scheme" => "subject_role", "label" => "Custom Role"}
+                "role" => %{
+                  "id" => "TOPICAL",
+                  "scheme" => "subject_role",
+                  "label" => "Custom Role"
+                }
               }
             ]
           }
@@ -134,7 +231,8 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
         "status" => "proposed"
       }
 
-      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
 
       result = Jason.decode!(response)
       subject = get_in(result, ["add", "descriptive_metadata", "subject"]) |> List.first()
@@ -145,6 +243,9 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
     end
 
     test "handles enrichment for delete and replace operations", %{plan_change: plan_change} do
+      valid_license = Meadow.Data.CodedTerms.list_coded_terms("license") |> List.first()
+      assert valid_license, "No license terms found in database"
+
       params = %{
         "id" => plan_change.id,
         "delete" => %{
@@ -159,30 +260,33 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
         },
         "replace" => %{
           "descriptive_metadata" => %{
-            "creator" => [
-              %{
-                "term" => %{"id" => "mock1:result2"},
-                "role" => %{"id" => "aut", "scheme" => "marc_relator"}
-              }
-            ]
+            "license" => %{
+              "id" => valid_license.id,
+              "scheme" => "license"
+            }
           }
         },
         "status" => "proposed"
       }
 
-      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
 
       result = Jason.decode!(response)
 
       # Verify delete operation enrichment
-      delete_subject = get_in(result, ["delete", "descriptive_metadata", "subject"]) |> List.first()
+      delete_subject =
+        get_in(result, ["delete", "descriptive_metadata", "subject"]) |> List.first()
+
       assert delete_subject["term"]["label"] == "First Result"
       assert delete_subject["role"]["label"] == "Topical"
 
       # Verify replace operation enrichment
-      replace_creator = get_in(result, ["replace", "descriptive_metadata", "creator"]) |> List.first()
-      assert replace_creator["term"]["label"] == "Second Result"
-      assert replace_creator["role"]["label"] == "Author"
+      assert get_in(result, ["replace", "descriptive_metadata", "license", "id"]) ==
+               valid_license.id
+
+      assert get_in(result, ["replace", "descriptive_metadata", "license", "label"]) ==
+               valid_license.label
     end
 
     test "handles gracefully when term lookup fails", %{plan_change: plan_change} do
@@ -202,7 +306,8 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
       }
 
       # Should not error, just log warning and continue without label
-      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
 
       result = Jason.decode!(response)
       subject = get_in(result, ["add", "descriptive_metadata", "subject"]) |> List.first()
@@ -230,12 +335,14 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
     test "updates notes field", %{plan_change: plan_change} do
       params = %{
         "id" => plan_change.id,
-        "add" => %{},  # Need at least one of add/delete/replace
+        # Need at least one of add/delete/replace
+        "add" => %{},
         "notes" => "These are my notes",
         "status" => "proposed"
       }
 
-      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
 
       result = Jason.decode!(response)
       assert result["notes"] == "These are my notes"
@@ -259,10 +366,10 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
       {:ok, plan: plan, plan_change: plan_change, work: work}
     end
 
-    test "rejects invalid license term in add operation", %{plan_change: plan_change} do
+    test "rejects invalid license term in replace operation", %{plan_change: plan_change} do
       params = %{
         "id" => plan_change.id,
-        "add" => %{
+        "replace" => %{
           "descriptive_metadata" => %{
             "license" => %{
               "id" => "http://invalid-license.com/",
@@ -321,7 +428,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
 
       params = %{
         "id" => plan_change.id,
-        "add" => %{
+        "replace" => %{
           "descriptive_metadata" => %{
             "license" => %{
               "id" => valid_license.id,
@@ -332,11 +439,16 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
         "status" => "proposed"
       }
 
-      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
 
       result = Jason.decode!(response)
-      assert get_in(result, ["add", "descriptive_metadata", "license", "id"]) == valid_license.id
-      assert get_in(result, ["add", "descriptive_metadata", "license", "label"]) == valid_license.label
+
+      assert get_in(result, ["replace", "descriptive_metadata", "license", "id"]) ==
+               valid_license.id
+
+      assert get_in(result, ["replace", "descriptive_metadata", "license", "label"]) ==
+               valid_license.label
     end
 
     test "accepts valid role coded terms", %{plan_change: plan_change} do
@@ -355,7 +467,8 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
         "status" => "proposed"
       }
 
-      assert {:ok, [{:text, response}]} = call_tool("update_plan_change", params) |> parse_response()
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
 
       result = Jason.decode!(response)
       subject = get_in(result, ["add", "descriptive_metadata", "subject"]) |> List.first()
@@ -363,8 +476,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
       assert subject["role"]["label"] == "Topical"
     end
 
-    test "does not validate coded terms in delete operations", %{plan_change: plan_change} do
-      # Delete operations should not be validated since we're removing data
+    test "rejects delete for non-controlled fields", %{plan_change: plan_change} do
       params = %{
         "id" => plan_change.id,
         "delete" => %{
@@ -378,8 +490,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
         "status" => "proposed"
       }
 
-      # Should succeed even though license is invalid - we're just deleting it
-      assert {:ok, [{:text, _response}]} = call_tool("update_plan_change", params) |> parse_response()
+      assert {:error, _error, _frame} = call_tool("update_plan_change", params)
     end
   end
 end
