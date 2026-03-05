@@ -341,19 +341,17 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
 
   defp dedupe_ai_notes(notes) do
     notes
-    |> Enum.reduce({[], false}, fn note, {acc, seen_ai_note?} ->
-      if same_ai_note?(note, nil) do
-        if seen_ai_note? do
-          {acc, true}
-        else
-          {[note | acc], true}
-        end
-      else
-        {[note | acc], seen_ai_note?}
-      end
-    end)
+    |> Enum.reduce({[], false}, &dedupe_ai_note_entry/2)
     |> elem(0)
     |> Enum.reverse()
+  end
+
+  defp dedupe_ai_note_entry(note, {acc, seen_ai_note?}) do
+    case {same_ai_note?(note, nil), seen_ai_note?} do
+      {true, true} -> {acc, true}
+      {true, false} -> {[note | acc], true}
+      {false, _} -> {[note | acc], seen_ai_note?}
+    end
   end
 
   # Validation functions for coded terms
@@ -608,27 +606,37 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
 
   defp validate_controlled_entry_role(field, entry, path) do
     role = map_value(entry, :role)
+    role_path = "#{path}.role"
 
+    case {role_requirement(field), role} do
+      {:required, nil} ->
+        {:error, "'#{role_path}' is required for #{field}"}
+
+      {:forbidden, nil} ->
+        :ok
+
+      {:forbidden, _role} ->
+        {:error, "'#{role_path}' must be omitted for #{field}"}
+
+      {_requirement, nil} ->
+        :ok
+
+      {_requirement, role_value} ->
+        validate_role_object_and_scheme(field, role_value, role_path)
+    end
+  end
+
+  defp role_requirement(field) do
     cond do
-      role_required_field?(field) and is_nil(role) ->
-        {:error, "'#{path}.role' is required for #{field}"}
+      role_required_field?(field) -> :required
+      role_optional_field?(field) -> :optional
+      true -> :forbidden
+    end
+  end
 
-      role_optional_field?(field) and is_nil(role) ->
-        :ok
-
-      not role_required_field?(field) and
-        not role_optional_field?(field) and
-          not is_nil(role) ->
-        {:error, "'#{path}.role' must be omitted for #{field}"}
-
-      is_nil(role) ->
-        :ok
-
-      true ->
-        with :ok <- validate_coded_object(role, "#{path}.role"),
-             :ok <- validate_role_scheme(field, role, "#{path}.role") do
-          :ok
-        end
+  defp validate_role_object_and_scheme(field, role, role_path) do
+    with :ok <- validate_coded_object(role, role_path) do
+      validate_role_scheme(field, role, role_path)
     end
   end
 

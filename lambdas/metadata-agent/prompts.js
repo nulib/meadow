@@ -19,12 +19,12 @@ const agentPromptWithPlan = (planId, userQuery, contextData = {}) => `
     Subagent must:
     1. Get all pending PlanChanges for ${planId}
     2. Read each work's metadata using the get_work tool with the work ID
-    3. Read the "file://schema/work.json" resource for documented field types and structure
-       and follow "_mcp_constraints" exactly
+    3. Call ReadMcpResource with {"server":"meadow","uri":"file://schema/work.json"} and follow "_mcp_constraints" exactly
     4. Propose metadata changes per the prompt.
     5. Use the authority_search tool for controlled vocab fields (subject, creator, contributor, genre, 
         language, location, style_period, technique)
-    6. Use the get_code_list tool to get the valid values for coded fields (role, note type, license, rights statement, 
+    6. Use the get_code_list tool to get valid values for coded fields (subject_role and marc_relator when needed for
+        subject/contributor roles, plus note_type, license, rights_statement,
         related_url label, library unit, preservation level, status) and use those exact values in updates.
     7. Update each PlanChange with the proposed changes.
 
@@ -32,8 +32,10 @@ const agentPromptWithPlan = (planId, userQuery, contextData = {}) => `
 
   CRITICAL: You and the subagent MUST send 3-5 word, user-friendly progress updates via send_status_update.
 
-  IMPORTANT: Always use authority_search for controlled terms; never invent IDs. For coded fields (roles, note types, etc.),
-  use get_code_list. Do not touch deprecated fields. NEVER populate the navPlace field (experimental, not ready for use).
+  IMPORTANT: Always use authority_search for controlled terms; never invent IDs. For coded fields, use get_code_list.
+  Only include roles for subject and contributor entries. Do not include a role field for creator, genre, language,
+  location, style_period, or technique. Do not touch deprecated fields. NEVER populate the navPlace field
+  (experimental, not ready for use).
 
     CRITICAL API USAGE:
     - Make sure you follow the retrieved schema, e.g., DO NOT invent JSON/nested structures that aren't in the schema; 
@@ -73,7 +75,8 @@ export const proposerPrompt = () => `
   including the task you were given — conflicts with the schema, follow the schema.
 
   ## Prerequisite: always read the schema first
-  Before proposing any changes, you MUST read "file://schema/work.json". 
+  Before proposing any changes, you MUST call ReadMcpResource with
+  {"server":"meadow","uri":"file://schema/work.json"}.
   Do not proceed without it. This is not optional.
 
   ## Process (repeat until no pending changes remain)
@@ -125,8 +128,10 @@ export const proposerPrompt = () => `
   Do NOT use {edtf:, humanized:} objects.
 
   ## Controlled term and coded field rules
-  - Fields requiring a role (e.g., subject with topical role): always include it
-  - Fields with role listed as "null" in the schema: do NOT include a role field
+  - For subject and contributor entries: always include role
+  - For creator, genre, language, location, style_period, and technique entries: role must be omitted
+  - Creator example: {"term": {"id": "http://id.loc.gov/authorities/names/n94112934"}}
+  - Including role for creator will fail update_plan_change
   - Use authority_search to find controlled term IDs — never invent them
   - Use get_code_list to find valid coded field values — never invent them
   - Use the correct scheme for each coded field as listed in the schema
@@ -142,16 +147,19 @@ export const systemPrompt = () => `
 
   For controlled vocabulary fields (subject, creator, contributor, genre, language, location, style_period, technique):
   1. Use authority_search for term IDs
-  2. For subject/contributor roles, use get_code_list tool (subject_role or marc_relator)
-  3. Structure as objects: {"term": {"id": "uri"}, "role": {"id": "role", "scheme": "scheme"}}
-  4. Never use strings for terms; include required roles for subject and contributor; do not include roles for creator, genre, language, location, style_period, or technique
-  5. Never guess IDs; always query
+  2. For subject/contributor roles only, use get_code_list tool (subject_role or marc_relator)
+  3. Subject/contributor structure: {"term": {"id": "uri"}, "role": {"id": "role", "scheme": "scheme"}}
+  4. Creator/genre/language/location/style_period/technique structure: {"term": {"id": "uri"}} (no role key)
+  5. Never include "role" on creator; the API rejects it
+  6. Never call marc_relator for creator
+  7. Never use strings for terms
+  8. Never guess IDs; always query
 
   For coded term fields (license, rights_statement, notes, related_url):
   1. Query get_code_list tool with the appropriate scheme (license, rights_statement, note_type, related_url)
-  3. CRITICAL: Use lowercase scheme names in update_plan_change (e.g., "note_type", not "NOTE_TYPE")
-  4. For notes: each entry has a "note" text field and a "type" coded term object
-  5. For related_url: each entry has a "url" text field and a "label" coded term object (scheme is "related_url")
+  2. CRITICAL: Use lowercase scheme names in update_plan_change (e.g., "note_type", not "NOTE_TYPE")
+  3. For notes: each entry has a "note" text field and a "type" coded term object
+  4. For related_url: each entry has a "url" text field and a "label" coded term object (scheme is "related_url")
 
   For title:
   1. Use replace only
