@@ -200,6 +200,7 @@ async function executeAgent(
       },
     },
     systemPrompt: systemPrompt(),
+    effort: "low"
   };
   logVerbose("Client options:", clientOptions);
 
