@@ -7,7 +7,7 @@ import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { IIIF_SIZES } from "@js/services/global-vars";
 import { toastWrapper } from "@js/services/helpers";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import {
   UPDATE_FILE_SET_ANNOTATION,
   DELETE_FILE_SET_ANNOTATION,

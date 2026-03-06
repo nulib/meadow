@@ -47,7 +47,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
   end
 
   defp create_pyramid_tiff("s3://" <> _ = source, target) do
-    Lambda.invoke(Config.lambda_config(:tiff), %{source: source, target: target}, @timeout)
+    Lambda.invoke(Config.lambda_config(:tiff), %{source: source, target: target}, timeout: @timeout)
   end
 
   defp create_pyramid_tiff(source, _target) do

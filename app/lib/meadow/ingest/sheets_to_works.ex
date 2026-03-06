@@ -32,18 +32,18 @@ defmodule Meadow.Ingest.SheetsToWorks do
   end
 
   def initialize_progress(ingest_sheet) do
-    with groups <- group_by_works(ingest_sheet) do
-      groups
-      |> Enum.flat_map(fn {_, rows} ->
-        rows
-        |> Enum.with_index()
-        |> Enum.map(fn {row, index} ->
-          {row.id, index == 0}
-        end)
-      end)
-      |> Progress.initialize_entries()
+    groups = group_by_works(ingest_sheet)
 
-      groups
-    end
+    groups
+    |> Enum.flat_map(fn {_, rows} ->
+      rows
+      |> Enum.with_index()
+      |> Enum.map(fn {row, index} ->
+        {row.id, index == 0}
+      end)
+    end)
+    |> Progress.initialize_entries()
+
+    groups
   end
 end

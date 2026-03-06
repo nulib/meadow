@@ -86,11 +86,11 @@ defmodule Mix.Tasks.Meadow.InitializeDerivatives do
         |> where(fragment("core_metadata ->> 'mime_type' LIKE 'image/%'"))
         |> Repo.stream()
         |> Stream.each(fn file_set ->
-          with pyramid_location <- FileSets.pyramid_uri_for(file_set) do
-            file_set
-            |> FileSet.changeset(%{derivatives: %{pyramid_tiff: pyramid_location}})
-            |> Repo.update()
-          end
+          pyramid_location = FileSets.pyramid_uri_for(file_set)
+
+          file_set
+          |> FileSet.changeset(%{derivatives: %{pyramid_tiff: pyramid_location}})
+          |> Repo.update()
         end)
         |> Stream.run()
       end,

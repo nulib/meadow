@@ -38,7 +38,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
   end
 
   defp extract_exif_metadata("s3://" <> _ = source) do
-    Lambda.invoke(Config.lambda_config(:exif), %{source: source}, @timeout)
+    Lambda.invoke(Config.lambda_config(:exif), %{source: source}, timeout: @timeout)
   end
 
   defp extract_exif_metadata(source) do

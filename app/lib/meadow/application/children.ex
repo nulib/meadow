@@ -57,7 +57,10 @@ defmodule Meadow.Application.Children do
 
   defp agent_processes do
     %{
-      "metadata" => {MeadowAI.MetadataAgent, []}
+      "metadata" => [
+        {MeadowAI.MetadataAgent, []},
+        {Task.Supervisor, name: MeadowAI.MetadataAgent.TaskSupervisor}
+      ]
     }
   end
 

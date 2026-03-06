@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { Button, Notification } from "@nulib/design-system";
 import { TRANSFER_FILE_SETS_SUBSET } from "@js/components/Work/work.gql.js";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { toastWrapper } from "@js/services/helpers";
 import { useForm, FormProvider } from "react-hook-form";
 import Error from "@js/components/UI/Error";

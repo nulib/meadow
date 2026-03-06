@@ -65,7 +65,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
         destination: destination,
         offset: offset
       },
-      @timeout
+      timeout: @timeout
     )
   end
 end

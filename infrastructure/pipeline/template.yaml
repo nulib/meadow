@@ -161,6 +161,35 @@ Resources:
             Condition:
               StringEquals:
                 "aws:ResourceTag/Project": !Ref ProjectName
+  metadataAgent:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: MeadowAI Metadata Agent
+      CodeUri: ../../lambdas/metadata-agent
+      Handler: index.handler
+      Runtime: nodejs22.x
+      MemorySize: 512
+      Timeout: 300
+      Environment:
+        Variables:
+          CLAUDE_CODE_USE_BEDROCK: 1
+          CLAUDE_CONFIG_DIR: /tmp
+          DEBUG: metadata-agent:execute
+      Policies:
+      - Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "bedrock:InvokeModel"
+              - "bedrock:InvokeModelWithResponseStream"
+            Resource: 
+              - "arn:aws:bedrock:*::foundation-model/*"
+              - "arn:aws:bedrock:*:*:inference-profile/*"
+              - "arn:aws:bedrock:*:*:application-inference-profile/*"
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ../../lambdas/metadata-agent
+      DockerTag: latest
   mimeType:
     Type: AWS::Serverless::Function
     Properties:
@@ -263,6 +292,7 @@ Resources:
           exif: !GetAtt exif.Arn
           frame_extractor: !GetAtt frameExtractor.Arn
           mediainfo: !GetAtt mediainfo.Arn
+          metadata_agent: !GetAtt metadataAgent.Arn
           mime_type: !GetAtt mimeType.Arn
           tiff: !GetAtt pyramidTiff.Arn
   streamAuthorizerConfiguration:

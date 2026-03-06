@@ -1,11 +1,8 @@
 // useChatResponse.test.jsx
 const React = require("react");
 const { act, renderHook, waitFor } = require("@testing-library/react");
-const {
-  ApolloClient,
-  InMemoryCache,
-  ApolloProvider,
-} = require("@apollo/client");
+const { ApolloClient, InMemoryCache } = require("@apollo/client/core");
+const { ApolloProvider } = require("@apollo/client/react");
 const { MockSubscriptionLink } = require("@apollo/client/testing");
 
 const { useChatResponse } = require("./useChatResponse");

@@ -15,7 +15,7 @@ defmodule Meadow.Data.Transcriber do
 
   @default_max_tokens 64_000
   @image_variant "full/^!2048,2048/0/default.jpg"
-  @default_model "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+  @default_model "us.anthropic.claude-sonnet-4-6"
   @image_request_headers [{"Accept", "image/jpeg"}]
   @image_request_opts [redirect: true, receive_timeout: 30_000, raw: true]
 

@@ -9,7 +9,7 @@ import {
 } from "@js/components/UI/Dialog/Dialog.styled";
 import { Icon, Tag } from "@nulib/design-system";
 import React, { useEffect } from "react";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client/react";
 
 import { ACTION_STATES } from "@js/components/Work/work.gql";
 import UIDate from "@js/components/UI/Date";

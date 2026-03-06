@@ -78,12 +78,30 @@ defmodule Meadow.Utils.LambdaTest do
 
     test "timeout", %{config: config} do
       assert capture_log(fn ->
-               assert Lambda.invoke(config, %{test: "sleep", duration: 250}, 50) ==
+               assert Lambda.invoke(config, %{test: "sleep", duration: 250}, timeout: 50) ==
                         {:error, "Timeout"}
              end) =~ ~r/No response after 50ms/
 
       assert Lambda.close(config) == :noop
       assert {:new, _port} = Lambda.init(config)
+    end
+
+    test "supports streaming log callbacks", %{config: config} do
+      test_pid = self()
+
+      assert {:ok, %{"type" => "complex"}} =
+               Lambda.invoke(config, %{boolean: true},
+                 on_log: fn level, message ->
+                   send(test_pid, {:lambda_log, level, message})
+                 end
+               )
+
+      assert_receive {:lambda_log, :info, "This is a log message with level `log`"}
+      assert_receive {:lambda_log, :warning, "This is a log message with level `warn`"}
+      assert_receive {:lambda_log, :error, "This is a log message with level `error`"}
+      assert_receive {:lambda_log, :debug, "This is a log message with level `debug`"}
+      assert_receive {:lambda_log, :info, "This is a log message with level `info`"}
+      refute_receive {:lambda_log, :debug, "ping"}
     end
   end
 

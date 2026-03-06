@@ -95,29 +95,28 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   end
 
   defp upload_chunks({:ok, %__MODULE__{} = op}) do
-    with chunk_size <- extract_chunk_size(op),
-         chunks <- Float.ceil(op.content_length / chunk_size) |> trunc() do
-      Logger.debug("Splitting into #{chunks} #{chunk_size}-byte parts")
+    chunk_size = extract_chunk_size(op)
+    chunks = Float.ceil(op.content_length / chunk_size) |> trunc()
+    Logger.debug("Splitting into #{chunks} #{chunk_size}-byte parts")
 
-      parts =
-        1..chunks
-        |> Task.async_stream(&upload_chunk(op, &1),
-          timeout: :infinity,
-          max_concurrency: Config.multipart_upload_concurrency()
-        )
-        |> Enum.to_list()
+    parts =
+      1..chunks
+      |> Task.async_stream(&upload_chunk(op, &1),
+        timeout: :infinity,
+        max_concurrency: Config.multipart_upload_concurrency()
+      )
+      |> Enum.to_list()
 
-      case parts |> Enum.map(fn {status, _} -> status end) |> Enum.uniq() do
-        [:ok] ->
-          {parts
-           |> Enum.with_index(1)
-           |> Enum.map(fn
-             {{:ok, {:ok, etag}}, part_number} -> {part_number, etag}
-           end), op}
+    case parts |> Enum.map(fn {status, _} -> status end) |> Enum.uniq() do
+      [:ok] ->
+        {parts
+          |> Enum.with_index(1)
+          |> Enum.map(fn
+            {{:ok, {:ok, etag}}, part_number} -> {part_number, etag}
+          end), op}
 
-        _ ->
-          {:error, op}
-      end
+      _ ->
+        {:error, op}
     end
   end
 

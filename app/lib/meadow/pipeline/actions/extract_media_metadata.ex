@@ -35,7 +35,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadata do
   end
 
   defp extract_media_metadata("s3://" <> _ = source) do
-    Lambda.invoke(Config.lambda_config(:mediainfo), %{source: source}, @timeout)
+    Lambda.invoke(Config.lambda_config(:mediainfo), %{source: source}, timeout: @timeout)
   end
 
   defp extract_media_metadata(source) do

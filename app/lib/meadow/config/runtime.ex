@@ -297,7 +297,7 @@ defmodule Meadow.Config.Runtime do
         get_secret(
           :meadow,
           ["meadow_ai", "model"],
-          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+          "us.anthropic.claude-sonnet-4-6"
         )
 
     if System.get_env("USE_SAM_LAMBDAS") do
@@ -310,6 +310,7 @@ defmodule Meadow.Config.Runtime do
         digester: {:lambda, "digester"},
         exif: {:lambda, "exif"},
         frame_extractor: {:lambda, "frameExtractor"},
+        metadataAgent: {:lambda, "metadataAgent"},
         mediainfo: {:lambda, "mediainfo"},
         mime_type: {:lambda, "mimeType"},
         tiff: {:lambda, "pyramidTiff"}
@@ -321,6 +322,7 @@ defmodule Meadow.Config.Runtime do
           {:lambda,
            get_secret(:pipeline, ["frame_extractor"], "frame-extractor:$LATEST")},
         mediainfo: {:lambda, get_secret(:pipeline, ["mediainfo"], "mediainfo:$LATEST")},
+        metadataAgent: {:lambda, get_secret(:pipeline, ["metadata_agent"], "metadata-agent:$LATEST")},
         mime_type: {:lambda, get_secret(:pipeline, ["mime_type"], "mime-type:$LATEST")},
         tiff: {:lambda, get_secret(:pipeline, ["tiff"], "pyramid-tiff:$LATEST")}
     end
@@ -358,11 +360,8 @@ defmodule Meadow.Config.Runtime do
         get_secret(
           :meadow,
           ["meadow_ai", "model"],
-          "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
-        ),
-      pythonx_env: %{
-        "CLAUDE_CODE_USE_BEDROCK" => "1"
-      }
+          "us.anthropic.claude-sonnet-4-6"
+        )
 
     Logger.info("Configuring ueberauth for NU SSO")
 

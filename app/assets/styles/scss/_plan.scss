@@ -182,6 +182,52 @@
       margin-bottom: unset !important;
     }
   }
+
+  &--logs {
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 3rem 2rem;
+
+    button {
+      margin: 0;
+      padding: calc(0.5rem - 1px) 1rem;
+      min-height: 40px;
+      border: 1px solid $rich-black-10;
+      background: $white;
+      color: $rich-black-50;
+      font-size: 1rem;
+      font-family: $AkkuratProRegular;
+      cursor: pointer;
+    }
+
+    &--panel {
+      margin-top: 0.75rem;
+      border: 1px solid $rich-black-10;
+      border-radius: 0.5rem;
+      background: $light-grey;
+      max-height: 320px;
+      overflow: auto;
+      padding: 0.75rem 1rem;
+
+      pre {
+        margin: 0;
+        padding: 0.25rem 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family:
+          Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 0.8333rem;
+        line-height: 1.4;
+      }
+    }
+
+    &--empty {
+      display: block;
+      color: $rich-black-50;
+      font-family: $AkkuratProItalic;
+      margin-bottom: 0.5rem;
+    }
+  }
 }
 
 .plan-placeholder {

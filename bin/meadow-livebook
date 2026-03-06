@@ -8,7 +8,7 @@ mkdir -p ${HOME}/.meadow_livebooks
 cp ${ROOT}/livebook/startup.livemd ${HOME}/.meadow_livebooks/_meadow.livemd > /dev/null 2>&1
 
 echo -n "   Opening ports..."
-sg open all 8080 3001 > /dev/null 2>&1
+sgport open all 8080 3001 > /dev/null 2>&1
 echo -e "\r✅"
 
 echo "   Building Livebook (this may take a while)..."

@@ -1,6 +1,6 @@
 import { Notification } from "@nulib/design-system";
 import { LIST_ROLES_QUERY, LIST_USERS_QUERY, SET_USER_ROLE_MUTATION } from "@js/components/Auth/auth.gql";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 
 import React from "react";
 import { toastWrapper } from "@js/services/helpers";
@@ -14,17 +14,25 @@ export default function DashboardsUsersList() {
   const [roles, setRoles] = React.useState([]);
   const [users, setUsers] = React.useState([]);
 
-  const { error: usersError, refetch: refetchUsers } = useQuery(LIST_USERS_QUERY, {
-    onCompleted: (data) => {
-      setUsers([...data.users]);
-    },
-  });
+  const {
+    data: usersData,
+    error: usersError,
+    refetch: refetchUsers,
+  } = useQuery(LIST_USERS_QUERY);
 
-  const { error: rolesError } = useQuery(LIST_ROLES_QUERY, {
-    onCompleted: (data) => {
-      setRoles([...data.roles]);
-    },
-  });
+  const { data: rolesData, error: rolesError } = useQuery(LIST_ROLES_QUERY);
+
+  React.useEffect(() => {
+    if (usersData?.users) {
+      setUsers([...usersData.users]);
+    }
+  }, [usersData]);
+
+  React.useEffect(() => {
+    if (rolesData?.roles) {
+      setRoles([...rolesData.roles]);
+    }
+  }, [rolesData]);
 
   const [setUserRole, { error: updateError, loading: updateLoading }] =
     useMutation(SET_USER_ROLE_MUTATION, {

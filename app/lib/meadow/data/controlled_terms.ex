@@ -180,21 +180,18 @@ defmodule Meadow.Data.ControlledTerms do
       true
   """
   def terms_equal?(a, b) do
-    with term_a <- term_id(a.term),
-         role_a <- Map.get(a, :role),
-         term_b <- term_id(b.term),
-         role_b <- Map.get(b, :role) do
-      if is_nil(role_a) do
+    term_a = term_id(a.term)
+    role_a = Map.get(a, :role)
+    term_b = term_id(b.term)
+    role_b = Map.get(b, :role)
+
+    cond do
+      is_nil(role_a) ->
         is_nil(role_b) and term_a == term_b
-      else
-        if is_nil(role_b) do
-          false
-        else
-          role_a.scheme == role_b.scheme and
-            role_a.id == role_b.id and
-            term_a == term_b
-        end
-      end
+      is_nil(role_b) ->
+        false
+      true ->
+        role_a.scheme == role_b.scheme and role_a.id == role_b.id and term_a == term_b
     end
   end
 

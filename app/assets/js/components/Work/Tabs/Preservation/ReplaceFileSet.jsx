@@ -16,7 +16,7 @@ import React, { useEffect, useState } from "react";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
 import { getFileNameFromS3Uri, s3Location, toastWrapper } from "@js/services/helpers";
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client/react";
 
 import Error from "@js/components/UI/Error";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql.js";

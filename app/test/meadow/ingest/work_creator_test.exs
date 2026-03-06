@@ -5,6 +5,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
   alias Ecto.Adapters.SQL.Sandbox
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Ingest.{Progress, Sheets, SheetsToWorks, WorkCreator}
+  alias Meadow.Ingest.Schemas.Row
   alias Meadow.Pipeline.Dispatcher
   alias Meadow.Repo
 
@@ -99,6 +100,49 @@ defmodule Meadow.Ingest.WorkCreatorTest do
 
     assert Regex.scan(~r/Creating work [A-Z0-9]+_Donohue_001 with 4 file sets/, log)
            |> length() == 1
+  end
+
+  describe "append to existing work" do
+    setup do
+      sheet = ingest_sheet_rows_fixture("test/fixtures/ingest_sheet_add_to_existing.csv")
+
+      sheet
+      |> Sheets.change_ingest_sheet_validation_state!(%{file: "pass", rows: "pass", overall: "pass"})
+      |> Repo.preload(:ingest_sheet_rows)
+      |> Map.get(:ingest_sheet_rows)
+      |> Enum.each(fn row -> Meadow.Ingest.Rows.change_ingest_sheet_row_validation_state(row, "pass") end)
+
+      {:ok, ingest_sheet: sheet}
+    end
+
+    setup %{ingest_sheet: sheet} do
+      sheet_with_project = Sheets.get_ingest_sheet_with_project!(sheet.id)
+
+      on_exit(fn ->
+        empty_bucket(@ingest_bucket)
+      end)
+
+      {:ok, ingest_sheet: sheet_with_project}
+    end
+
+    test "appends filesets to existing work when add_to_existing is true", %{ingest_sheet: sheet} do
+      prefixed_accession =
+        sheet
+        |> Repo.preload(:ingest_sheet_rows)
+        |> Map.get(:ingest_sheet_rows)
+        |> Enum.find_value(fn row ->
+          accession = Row.field_value(row, :work_accession_number)
+          if String.ends_with?(accession, "Donohue_001"), do: accession
+        end)
+
+      existing_work = work_fixture(%{accession_number: prefixed_accession})
+      SheetsToWorks.create_works_from_ingest_sheet(sheet)
+      assert WorkCreator.create_works(@state) == {:noreply, @state}
+
+      assert Works.list_works() |> length() == 2
+      updated_work = Works.with_file_sets(existing_work.id)
+      assert length(updated_work.file_sets) == 2
+    end
   end
 
   describe "transcription annotations from ingest sheet" do

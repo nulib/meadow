@@ -16,7 +16,7 @@ import { formatDate } from "@js/services/helpers";
 import { toastWrapper } from "@js/services/helpers";
 import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 import useIsEditing from "@js/hooks/useIsEditing";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import usePassedInSearchTerm from "@js/hooks/usePassedInSearchTerm";
 
 const WorkTabsAdministrative = ({ work }) => {

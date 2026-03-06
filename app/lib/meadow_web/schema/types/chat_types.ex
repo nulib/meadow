@@ -29,15 +29,14 @@ defmodule MeadowWeb.Schema.ChatTypes do
       resolve(&Resolvers.Chat.send_chat_message/3)
     end
 
-    @desc "Publish a chat response to subscribed clients (for internal use by agents)"
-    field :publish_chat_response, type: :chat_response do
-      arg(:conversation_id, non_null(:id))
+    field :send_agent_log, type: :chat_response do
+      arg(:plan_id, non_null(:id))
       arg(:message, non_null(:string))
-      arg(:type, non_null(:string))
-      arg(:plan_id, :id)
+      arg(:level, :string, default_value: "info")
       middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
 
-      resolve(&Resolvers.Chat.publish_chat_response/3)
+      resolve(&Resolvers.Chat.send_agent_log/3)
     end
   end
 
@@ -50,7 +49,7 @@ defmodule MeadowWeb.Schema.ChatTypes do
 
   object :chat_response do
     field(:conversation_id, :id)
-    field(:type, :string, description: "Type of message, e.g. 'chat', 'plan_id'")
+    field(:type, :string, description: "Type of message, e.g. 'chat', 'plan_id', 'agent_log'")
     field(:message, :string, description: "AI response message")
     field(:plan_id, :id, description: "The ID of the plan created for this chat message")
   end

@@ -1,0 +1,16 @@
+{
+  "name": "metadata-agent",
+  "version": "0.1.0",
+  "description": "Run the metadata agent.",
+  "type": "module",
+  "main": "index.js",
+  "author": "mbk",
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.38",
+    "debug": "^4.4.3"
+  }
+}

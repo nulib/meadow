@@ -193,19 +193,18 @@ defmodule Meadow.TestSupport.MetadataGenerator do
 
   defp random_number_of(field) do
     min = if field == :creator, do: 1, else: 0
+    pool = @values[field]
 
-    with pool <- @values[field] do
-      0..Enum.random(min..5)
-      |> Enum.map(fn _ ->
-        with value <- Enum.random(pool) do
-          case field do
-            :contributor -> %{role: random_role("marc_relator"), term: %{id: value.id}}
-            :subject -> %{role: random_role("subject_role"), term: %{id: value.id}}
-            _ -> %{role: nil, term: %{id: value.id}}
-          end
-        end
-      end)
-    end
+    0..Enum.random(min..5)
+    |> Enum.map(fn _ ->
+      value = Enum.random(pool)
+
+      case field do
+        :contributor -> %{role: random_role("marc_relator"), term: %{id: value.id}}
+        :subject -> %{role: random_role("subject_role"), term: %{id: value.id}}
+        _ -> %{role: nil, term: %{id: value.id}}
+      end
+    end)
     |> Enum.uniq()
   end
 

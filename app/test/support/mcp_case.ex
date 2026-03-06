@@ -45,6 +45,14 @@ defmodule MeadowWeb.MCPCase do
   end
 
   @doc """
+  Read a resource from the MCP endpoint.
+  """
+  def read_resource(uri, context \\ []) do
+    Frame.new(context)
+    |> call_mcp("resources/read", %{"uri" => uri})
+  end
+
+  @doc """
   Parse the response from an MCP tool call.
 
   Returns `{:ok, content}` or `{:error, reason}`, where `content` is a
@@ -53,12 +61,23 @@ defmodule MeadowWeb.MCPCase do
   def parse_response(%{"isError" => true, "content" => [%{"text" => reason} | _]}),
     do: {:error, reason}
 
-  def parse_response(%{"content" => content}) do
-    {:ok,
-     Enum.map(content, fn %{"type" => type} = item ->
-       {String.to_atom(type), item[type]}
-     end)}
+  def parse_response(%{"type" => type} = item) do
+    {String.to_atom(type), item[type]}
   end
+
+  def parse_response(%{"mimeType" => _} = item) do
+    item
+  end
+
+  def parse_response(%{"content" => content}) do
+    {:ok, Enum.map(content, &parse_response/1)}
+  end
+
+  def parse_response(%{"contents" => contents}) do
+    {:ok, Enum.map(contents, &parse_response/1)}
+  end
+
+  def parse_response(other), do: other
 
   defp call_mcp(frame, method, params \\ %{}) do
     request = %{"method" => method, "params" => params}

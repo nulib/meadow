@@ -278,29 +278,27 @@ defmodule Meadow.Utils.AWS.BedrockStream do
   defp process_chunk(body) do
     # ConverseStream sends plain JSON, Messages API sends double-encoded
     # Try ConverseStream format first (plain JSON)
-    case Jason.decode(body) do
-      {:ok, payload} when is_map(payload) ->
-        # Check if it's Messages API format (has "bytes" key with base64)
-        case payload do
-          %{"bytes" => bytes} when is_binary(bytes) ->
-            # Messages API: decode base64 then parse inner JSON
-            with {:ok, json} <- Base.decode64(bytes),
-                 {:ok, inner_payload} <- Jason.decode(json) do
-              {:ok, inner_payload}
-            else
-              _ -> {:ok, payload}
-            end
+    Jason.decode(body)
+    |> process_decoded_chunk()
+  end
 
-          _ ->
-            # ConverseStream: already decoded
-            {:ok, payload}
+  defp process_decoded_chunk({:ok, payload}) when is_map(payload) do
+    case payload do
+      %{"bytes" => bytes} when is_binary(bytes) ->
+        # Messages API: decode base64 then parse inner JSON
+        with {:ok, json} <- Base.decode64(bytes),
+              {:ok, inner_payload} <- Jason.decode(json) do
+          {:ok, inner_payload}
+        else
+          _ -> {:ok, payload}
         end
 
-      {:error, error} ->
-        {:error, error}
-
-      other ->
-        {:error, other}
+      _ ->
+        # ConverseStream: already decoded
+        {:ok, payload}
     end
   end
+
+  defp process_decoded_chunk({:error, error}), do: {:error, error}
+  defp process_decoded_chunk(other), do: {:error, other}
 end

@@ -14,10 +14,12 @@ const conversationId = uuidv4();
 const Plan = ({ works }) => {
   const query = works.map((work) => `id:(${work.id})`).join(" OR ");
   const [planId, setPlanId] = React.useState(null);
-  const [loadingMessage, setLoadingMessage] =
-    React.useState("Initializing plan");
   const [summary, setSummary] = React.useState(null);
   const [originalPrompt, setOriginalPrompt] = React.useState(null);
+  const [agentLogs, setAgentLogs] = React.useState([]);
+
+  const [loadingMessage, setLoadingMessage] =
+    React.useState("Initializing plan");
 
   const { data: planChanges, error: planChangesError } = usePlanChanges(planId);
   const { data: plan, error: planError } = usePlan(planId);
@@ -51,6 +53,7 @@ const Plan = ({ works }) => {
 
   const handleSubmitMessage = async (text) => {
     setOriginalPrompt(text);
+    setAgentLogs([]);
     try {
       await sendChatMessage({
         conversationId,
@@ -66,15 +69,24 @@ const Plan = ({ works }) => {
   React.useEffect(() => {
     if (!chatResponseMessage) return;
 
-    if (chatResponseMessage.type === "plan_id")
-      setPlanId(chatResponseMessage.planId);
-
-    if (chatResponseMessage.type === "status_update")
-      setLoadingMessage(chatResponseMessage.message);
-
-    // Capture all non-status messages as the summary (last one wins)
-    if (chatResponseMessage.type !== "status_update" && chatResponseMessage.type !== "plan_id")
-      setSummary(chatResponseMessage.message);
+    switch (chatResponseMessage.type) {
+      case "plan_id":
+        setPlanId(chatResponseMessage.planId);
+        break;
+      case "status_update":
+        setLoadingMessage(chatResponseMessage.message);
+        break;
+      case "agent_log":
+        if (chatResponseMessage.message) {
+          setAgentLogs((current) => [...current, chatResponseMessage.message]);
+        }
+        break;
+      case "chat":
+        setSummary(chatResponseMessage.message);
+        break;
+      default:
+        break;
+    }
   }, [chatResponseMessage]);
 
   // Reset to initial screen when plan is completed
@@ -82,16 +94,23 @@ const Plan = ({ works }) => {
     setPlanId(null);
     setLoadingMessage("Initializing plan");
     setSummary(null);
+    setAgentLogs([]);
 
-    if (!rejectedPrompt){
+    if (!rejectedPrompt) {
       setOriginalPrompt(null);
     }
 
     // Show toast notifications after returning to initial screen
     if (status === "COMPLETED") {
-      toastWrapper("is-success", "Your changes have been applied. Refresh your browser to see the changes.");
+      toastWrapper(
+        "is-success",
+        "Your changes have been applied. Refresh your browser to see the changes.",
+      );
     } else if (status === "REJECTED") {
-      toastWrapper("is-warning", "Your changes have been cancelled. Please adjust your prompt and try again.");
+      toastWrapper(
+        "is-warning",
+        "Your changes have been cancelled. Please adjust your prompt and try again.",
+      );
     } else if (status === "ERROR") {
       toastWrapper("is-danger", "An error occurred. Please try again.");
     }
@@ -106,7 +125,9 @@ const Plan = ({ works }) => {
         {showInitialForm ? (
           <div className="plan-placeholder">
             {targetThumbnails}
-            <p className="is-6" style={{ marginBottom: "4rem" }}>{targetTitle}</p>
+            <p className="is-6" style={{ marginBottom: "4rem" }}>
+              {targetTitle}
+            </p>
             <p className="subtitle is-6">
               Describe the changes you want to make to this work, and an AI
               assistant will help you make those changes.
@@ -124,6 +145,7 @@ const Plan = ({ works }) => {
             plan={plan}
             loadingMessage={loadingMessage}
             summary={summary}
+            logs={agentLogs}
             originalPrompt={originalPrompt}
             target={{
               title: targetTitle,

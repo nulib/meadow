@@ -2,7 +2,7 @@ import { Button, Notification } from "@nulib/design-system";
 import { GET_OBSOLETE_CONTROLLED_TERMS } from "@js/components/Dashboards/dashboards.gql";
 import { IconImages } from "@js/components/Icon";
 import { useHistory } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 
 import React from "react";
 

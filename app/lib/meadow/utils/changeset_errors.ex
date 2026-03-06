@@ -39,7 +39,11 @@ defmodule Meadow.Utils.ChangesetErrors do
               to_string(type)
 
             other ->
-              to_string(other)
+              if String.Chars.impl_for(value) do
+                to_string(value)
+              else
+                inspect(other)
+              end
           end
         rescue
           Protocol.UndefinedError -> inspect(value)

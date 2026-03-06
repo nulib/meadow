@@ -1,6 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import PropTypes from "prop-types";
 import {
   INGEST_SHEET_WORKS,
@@ -12,7 +12,7 @@ import IngestSheetCompletedErrors from "./Completed/Errors";
 import UIPreviewItems from "../UI/PreviewItems";
 import { Button } from "@nulib/design-system";
 import { IconImages } from "@js/components/Icon";
-import { ActionHeadline, LevelItem, Skeleton } from "@js/components/UI/UI";
+import { ActionHeadline, Skeleton } from "@js/components/UI/UI";
 
 const IngestSheetCompleted = ({ sheetId, title }) => {
   const history = useHistory();
@@ -86,28 +86,62 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
                 <>
                   <div>
                     <h3 className="title is-size-4">
-                      Preview of ingest sheet works...
+                      {workCountData.ingestSheetWorkCount.totalWorks > 0
+                        ? "Preview of ingest sheet works created..."
+                        : "No new works were created from this sheet."}
                     </h3>
                     <p className="subtitle">
-                      <strong>
-                        {workCountData.ingestSheetWorkCount.totalFileSets}
-                      </strong>{" "}
-                      file_sets in{" "}
-                      <strong>
-                        {workCountData.ingestSheetWorkCount.totalWorks}
-                      </strong>{" "}
-                      works{" "}
+                      {workCountData.ingestSheetWorkCount.totalWorks > 0 && (
+                        <>
+                          <strong>
+                            {workCountData.ingestSheetWorkCount.totalFileSets}
+                          </strong>{" "}
+                          {workCountData.ingestSheetWorkCount.totalFileSets ===
+                          1
+                            ? "file_set"
+                            : "file_sets"}{" "}
+                          in{" "}
+                          <strong>
+                            {workCountData.ingestSheetWorkCount.totalWorks}
+                          </strong>{" "}
+                          {workCountData.ingestSheetWorkCount.totalWorks === 1
+                            ? "work"
+                            : "works"}{" "}
+                        </>
+                      )}
+                      {workCountData.ingestSheetWorkCount.appendedFileSets >
+                        0 && (
+                        <>
+                          {workCountData.ingestSheetWorkCount.totalWorks >
+                            0 && <>&bull; </>}
+                          <strong>
+                            {
+                              workCountData.ingestSheetWorkCount
+                                .appendedFileSets
+                            }
+                          </strong>{" "}
+                          {workCountData.ingestSheetWorkCount.appendedFileSets ===
+                          1
+                            ? "file_set"
+                            : "file_sets"}{" "}
+                          added to existing works
+                        </>
+                      )}
                     </p>
                   </div>
 
-                  <Button isPrimary onClick={handleClick}>
-                    <IconImages />
-                    <span>View ingest sheet works</span>
-                  </Button>
+                  {workCountData.ingestSheetWorkCount.totalWorks > 0 && (
+                    <Button isPrimary onClick={handleClick}>
+                      <IconImages />
+                      <span>View ingest sheet works</span>
+                    </Button>
+                  )}
                 </>
               </ActionHeadline>
             </div>
-            <UIPreviewItems items={works} />
+            {workCountData.ingestSheetWorkCount.totalWorks > 0 && (
+              <UIPreviewItems items={works} />
+            )}
           </>
         )}
       </div>

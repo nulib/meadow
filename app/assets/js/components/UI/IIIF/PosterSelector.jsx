@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@nulib/design-system";
-import { useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
 import { useParams } from "react-router-dom";
 import { useWorkState } from "@js/context/work-context";
 import { GET_WORK, UPDATE_FILE_SET } from "@js/components/Work/work.gql";
