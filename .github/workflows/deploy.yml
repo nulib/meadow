@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 permissions:
   actions: write
+  contents: write
 jobs:
   get-environment:
     if: ${{ !github.event.pull_request && !contains(github.event.head_commit.message, '[no-deploy]') }}
@@ -64,7 +65,10 @@ jobs:
       IMAGE_TAG: ${{ needs.get-environment.outputs.image_tag }}
       MEADOW_TENANT: ${{ needs.get-environment.outputs.meadow_tenant }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          fetch-tags: true
       - name: Configure AWS
         run: .github/scripts/configure_aws.sh
         env:
@@ -135,6 +139,13 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           git push origin v${MEADOW_VERSION}
+      - name: Generate Release Notes
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: .github/scripts/generate_release_notes.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MEADOW_VERSION: ${{ env.MEADOW_VERSION }}
+          AWS_REGION: us-east-1
       - name: Dispatch New Production PR
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions/github-script@v6
