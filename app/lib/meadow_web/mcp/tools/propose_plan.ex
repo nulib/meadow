@@ -37,7 +37,7 @@ defmodule MeadowWeb.MCP.Tools.ProposePlan do
   defp propose_plan(plan, frame) do
     case Planner.propose_plan(plan) do
       {:ok, updated_plan} ->
-        {:reply, Response.tool() |> Response.json(%{plan: updated_plan}), frame}
+        {:reply, Response.tool() |> Response.structured(%{plan: updated_plan}), frame}
 
       {:error, reason} ->
         {:error, MCPError.execution(reason), frame}

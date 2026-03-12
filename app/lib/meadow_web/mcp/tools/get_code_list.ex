@@ -26,7 +26,7 @@ defmodule MeadowWeb.MCP.Tools.GetCodeList do
         {:error, MCPError.protocol(:invalid_params, %{error: "Unknown scheme", scheme: params.scheme}), frame}
       code_list ->
         result = Enum.map(code_list, & &1.id)
-        {:reply, Response.tool() |> Response.json(result), frame}
+        {:reply, Response.tool() |> Response.structured(%{results: result}), frame}
     end
   end
 end
