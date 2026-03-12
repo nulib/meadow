@@ -6,7 +6,7 @@ defmodule MeadowWeb.MCP.Tools.GetCodeListTest do
       {:ok, [{:text, response} | _]} =
         call_tool("get_code_list", %{"scheme" => "note_type"}) |> parse_response()
 
-      assert result = Jason.decode!(response)
+      assert %{"results" => result} = Jason.decode!(response)
       assert is_list(result)
       assert Enum.member?(result, "GENERAL_NOTE")
       assert Enum.member?(result, "STATEMENT_OF_RESPONSIBILITY")

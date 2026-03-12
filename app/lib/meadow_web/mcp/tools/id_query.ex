@@ -39,7 +39,7 @@ defmodule MeadowWeb.MCP.Tools.IDQuery do
       |> Enum.chunk_every(10)
       |> Enum.flat_map(fn chunk -> fetch_chunk(chunk, slice) end)
 
-    {:reply, Response.tool() |> Response.json(%{ids: ids}), frame}
+    {:reply, Response.tool() |> Response.structured(%{ids: ids}), frame}
   after
     Slice.finish(slice)
   end

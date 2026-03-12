@@ -73,7 +73,7 @@ defmodule MeadowWeb.MCP.Tools.GetPlanChanges do
           |> Repo.preload(:plan)
           |> Enum.map(&serialize_change/1)
 
-        {:reply, Response.tool() |> Response.json(%{changes: changes}), frame}
+        {:reply, Response.tool() |> Response.structured(%{changes: changes}), frame}
     end
   rescue
     error -> {:error, MCPError.protocol(:internal_error, %{error: inspect(error)}), frame}

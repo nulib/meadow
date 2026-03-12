@@ -40,5 +40,6 @@ backend b
 $BACKENDS"
 
 PIDS+=($TAIL_PID)
+echo " * Logging to $LOGDIR/*.log"
 echo " * Running on http://127.0.0.1:$PORT/ (Press CTRL+C to quit)"
 echo "$CONFIG" | haproxy -f /dev/stdin

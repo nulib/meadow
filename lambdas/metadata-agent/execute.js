@@ -147,7 +147,34 @@ async function executeAgent(
 ) {
   emitAgentLog("mode: agent");
   emitAgentLog("connecting to MCP tools");
+  const schemaUri = "file://schema/work.json";
+  let schemaRead = false;
+
+  const canUseTool = async (toolName, input) => {
+    const payload = input && typeof input === "object" ? input : {};
+
+    if (
+      toolName === "ReadMcpResource" &&
+      payload.server === "meadow" &&
+      payload.uri === schemaUri
+    ) {
+      schemaRead = true;
+      emitAgentLog(`schema resource read: ${schemaUri}`);
+      return { behavior: "allow" };
+    }
+
+    if (toolName === "mcp__meadow__update_plan_change" && !schemaRead) {
+      const message = `Before update_plan_change, call ReadMcpResource with {"server":"meadow","uri":"${schemaUri}"}.`;
+      emitAgentLog(`blocked tool_call: ${toolName} (schema not read)`, "warning");
+      return { behavior: "deny", message };
+    }
+
+    return { behavior: "allow" };
+  };
+
   const allowedTools = [
+    "ReadMcpResource",
+    "ListMcpResources",
     "mcp__meadow__authority_search",
     "mcp__meadow__get_code_list",
     "mcp__meadow__get_image",
@@ -157,7 +184,7 @@ async function executeAgent(
     "mcp__meadow__send_status_update",
     "mcp__meadow__update_plan_change",
   ];
-  const disallowedTools = ["Bash", "Glob", "Grep", "Read", "WebFetch", "Write"];
+  const disallowedTools = ["Bash", "Glob", "Grep", "WebFetch", "Write"];
   const clientOptions = {
     model,
     mcpServers: {
@@ -165,6 +192,7 @@ async function executeAgent(
     },
     allowedTools,
     disallowedTools,
+    canUseTool,
     agents: {
       plan_change_proposer: {
         prompt: proposerPrompt(),
@@ -172,6 +200,7 @@ async function executeAgent(
       },
     },
     systemPrompt: systemPrompt(),
+    effort: "low"
   };
   logVerbose("Client options:", clientOptions);
 
