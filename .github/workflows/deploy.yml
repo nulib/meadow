@@ -141,11 +141,20 @@ jobs:
           git push origin v${MEADOW_VERSION}
       - name: Generate Release Notes
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: .github/scripts/generate_release_notes.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MEADOW_VERSION: ${{ env.MEADOW_VERSION }}
-          AWS_REGION: us-east-1
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'release_notes.yml',
+              ref: 'main',
+              inputs: {
+                current_tag: `v${process.env.MEADOW_VERSION}`,
+                previous_tag: '',
+                draft: 'false',
+              },
+            })
       - name: Dispatch New Production PR
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions/github-script@v6

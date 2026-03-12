@@ -7,16 +7,21 @@
 #
 # Required env vars:
 #   GITHUB_TOKEN      - GitHub token with contents:write and pull-requests:read
-#   MEADOW_VERSION    - Version being released (e.g. "1.2.3")
 #   AWS_REGION        - AWS region for Bedrock (e.g. "us-east-1")
 #
 # Optional env vars:
+#   CURRENT_TAG       - Tag being released (e.g. "v1.2.3"); derived from MEADOW_VERSION if not set
+#   MEADOW_VERSION    - Version being released (e.g. "1.2.3"); used only if CURRENT_TAG is unset
+#   PREVIOUS_TAG      - Previous release tag; auto-detected from git if not set
+#   DRAFT_RELEASE     - Set to "true" to create a draft GitHub Release
 #   GITHUB_REPOSITORY - Set automatically by GitHub Actions (owner/repo)
 #   DRY_RUN           - Set to "true" to skip release creation and print output only
 #
 # Local testing (dry run):
+# (For local testing you must set CURRENT_TAG and PREVIOUS_TAG explicitly)
 #   export GITHUB_TOKEN=<your-pat>
-#   export MEADOW_VERSION=<existing-tag-without-v, e.g. "1.2.3">
+#   export CURRENT_TAG=v1.2.3
+#   export PREVIOUS_TAG=v1.1.4
 #   export AWS_REGION=us-east-1
 #   export GITHUB_REPOSITORY=nulib/meadow
 #   export DRY_RUN=true
@@ -25,8 +30,10 @@
 set -euo pipefail
 
 REPO="${GITHUB_REPOSITORY}"
-CURRENT_TAG="v${MEADOW_VERSION}"
+CURRENT_TAG="${CURRENT_TAG:-v${MEADOW_VERSION}}"
+PREVIOUS_TAG="${PREVIOUS_TAG:-}"
 MODEL_ID="us.anthropic.claude-sonnet-4-6"
+DRAFT_RELEASE="${DRAFT_RELEASE:-false}"
 DRY_RUN="${DRY_RUN:-false}"
 
 # Initialize so these are always set even if all PRs are filtered out
@@ -55,17 +62,21 @@ else
   # ---------------------------------------------------------------------------
   # 1. Find the previous production tag
   # ---------------------------------------------------------------------------
-  echo "==> Finding previous tag..."
-
-  PREVIOUS_TAG=$(git tag \
-    --sort=-creatordate \
-    --list "v*" \
-    | grep -v "^${CURRENT_TAG}$" \
-    | head -1)
-
   if [[ -z "$PREVIOUS_TAG" ]]; then
-    echo "No previous tag found. Skipping release notes generation."
-    exit 0
+    echo "==> Finding previous tag..."
+
+    PREVIOUS_TAG=$(git tag \
+      --sort=-creatordate \
+      --list "v*" \
+      | grep -v "^${CURRENT_TAG}$" \
+      | head -1 || true)
+
+    if [[ -z "$PREVIOUS_TAG" ]]; then
+      echo "No previous tag found. Skipping release notes generation."
+      exit 0
+    fi
+  else
+    echo "==> Using provided previous tag: ${PREVIOUS_TAG}"
   fi
 
   echo "    Previous tag: ${PREVIOUS_TAG}"
@@ -218,11 +229,12 @@ RELEASE_PAYLOAD=$(jq -n \
   --arg tag "$CURRENT_TAG" \
   --arg name "Meadow ${CURRENT_TAG}" \
   --arg body "$RELEASE_BODY" \
+  --argjson draft "$([[ "$DRAFT_RELEASE" == "true" ]] && echo "true" || echo "false")" \
   '{
     tag_name: $tag,
     name: $name,
     body: $body,
-    draft: false,
+    draft: $draft,
     prerelease: false
   }')
 
