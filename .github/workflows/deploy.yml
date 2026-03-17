@@ -10,9 +10,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 permissions:
+  id-token: write
   contents: write
   actions: write
-  contents: write
 jobs:
   get-environment:
     if: ${{ !github.event.pull_request && !contains(github.event.head_commit.message, '[no-deploy]') }}
