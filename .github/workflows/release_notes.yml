@@ -19,17 +19,16 @@ permissions:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           fetch-tags: true
-      - name: Configure AWS
-        run: .github/scripts/configure_aws.sh
-        env:
-          DEPLOY_ENV: production
-          GITHUB_ENV: ${{ env.GITHUB_ENV }}
-          SECRETS: ${{ toJSON(secrets) }}
+      - uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AwsAccount }}:role/github-actions-role
+          aws-region: us-east-1
       - name: Generate Release Notes
         run: .github/scripts/generate_release_notes.sh
         env:
