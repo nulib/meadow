@@ -15,10 +15,16 @@ on:
         type: boolean
         default: false
 permissions:
+  id-token: write
   contents: write
+  actions: write
 jobs:
   generate:
     runs-on: ubuntu-latest
+    permissions:          
+      id-token: write
+      contents: write
+      actions: write
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     steps:
       - uses: actions/checkout@v3
