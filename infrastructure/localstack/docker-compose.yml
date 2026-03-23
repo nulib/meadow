@@ -15,7 +15,11 @@ services:
       DISABLE_SECURITY_PLUGIN: true
       discovery.type: single-node
     healthcheck:
-      test: ["CMD-SHELL", "curl -s -f http://localhost:9200/_cluster/health | grep -q 'green\\|yellow'"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -f http://localhost:9200/_cluster/health | grep -q 'green\\|yellow'",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,6 +30,7 @@ services:
     environment:
       DOCKER_HOST: unix:///var/run/docker.sock
       GATEWAY_LISTEN: 0.0.0.0:4566
+      LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT: 1
     ports:
       - 4566:4566
     volumes:
