@@ -107,7 +107,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMimeTypeTest do
       assert(ActionStates.ok?(file_set_id, ExtractMimeType))
 
       file_set = FileSets.get_file_set!(file_set_id)
-      assert(file_set.core_metadata.mime_type == "video/matroska")
+      assert(file_set.core_metadata.mime_type == "video/x-matroska")
 
       assert capture_log(fn ->
                send_test_message(ExtractMimeType, %{file_set_id: file_set_id}, %{})

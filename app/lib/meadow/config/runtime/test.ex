@@ -32,6 +32,14 @@ defmodule Meadow.Config.Runtime.Test do
       host: "localhost",
       port: 3006
 
+    config :meadow, :lambda,
+      digester: {:lambda, "digester"},
+      exif: {:lambda, "exif"},
+      frame_extractor: {:lambda, "frameExtractor"},
+      mediainfo: {:lambda, "mediainfo"},
+      mime_type: {:lambda, "mimeType"},
+      tiff: {:lambda, "pyramidTiff"}
+
     config :meadow,
       checksum_notification: %{
         arn: "arn:aws:lambda:us-east-1:000000000000:function:digest-tag",
@@ -39,6 +47,7 @@ defmodule Meadow.Config.Runtime.Test do
       },
       required_checksum_tags: ["computed-md5"],
       checksum_wait_timeout: 15_000
+
 
     config :meadow, :elasticsearch_retry,
       interval: 100,
