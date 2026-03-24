@@ -1,5 +1,5 @@
 const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
-const FileType = require("file-type");
+const { fileTypeFromStream, supportedMimeTypes } = require("file-type");
 const path = require("path");
 
 
@@ -20,14 +20,12 @@ const extractMimeType = async (event) => {
     const s3Client = new S3Client(s3ClientOpts());
     const cmd = new GetObjectCommand({
       Bucket: event.bucket,
-      Key: event.key,
-      Range: "bytes=0-1023"
+      Key: event.key
     });
     const { Body } = await s3Client.send(cmd);
-    const firstK = await readBody(Body);
 
     // response: {"ext":"jpg","mime":"image/jpeg"}
-    const fileType = await FileType.fromBuffer(firstK);
+    const fileType = await fileTypeFromStream(Body);
     if (fileType) {
       console.log('identified file as', JSON.stringify(fileType));
       return { ...fileType, verified: true };  
@@ -47,7 +45,7 @@ const fallback = (event) => {
   if (mime === undefined) 
     return { ext, mime: "application/octet-stream", verified: false }
 
-  if (mime && (! mime.match(/xml$/)) && FileType.mimeTypes.has(mime)) {
+  if (mime && (! mime.match(/xml$/)) && supportedMimeTypes.has(mime)) {
     console.warn(`${path.basename(event.key)} attempting to fall back to ${mime} but magic number doesn't match.`);
     return undefined;
   }
