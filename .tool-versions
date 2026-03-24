@@ -1,4 +1,4 @@
-nodejs      22.14.0
+nodejs      24.11.1
 erlang      28.1.1
 elixir      1.19.3-otp-28
 terraform   1.7.4
