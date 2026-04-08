@@ -70,6 +70,7 @@ defmodule MeadowWeb.Schema.AccountTypes do
   enum :user_role do
     value(:superuser, description: "superuser")
     value(:administrator, description: "administrator")
+    value(:supermanager, description: "supermanager")
     value(:manager, description: "manager")
     value(:editor, description: "editor")
     value(:user, description: "user")

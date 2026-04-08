@@ -10,7 +10,7 @@ function AuthDisplayAuthorized({ level, children }) {
 }
 
 AuthDisplayAuthorized.propTypes = {
-  level: PropTypes.oneOf(["USER", "EDITOR", "MANAGER", "ADMINISTRATOR", "SUPERUSER"]),
+  level: PropTypes.oneOf(["USER", "EDITOR", "MANAGER", "SUPERMANAGER", "ADMINISTRATOR", "SUPERUSER"]),
   children: PropTypes.node,
 };
 
