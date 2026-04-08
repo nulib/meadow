@@ -21,7 +21,7 @@
     "@apollo/react-hooks": "^4.0.0",
     "@apollo/react-testing": "^4.0.0",
     "@appbaseio/reactivesearch": "3.23.1",
-    "@aws-sdk/client-s3": "^3.1014.0",
+    "@aws-sdk/client-s3": "^3.1026.0",
     "@emotion/react": "^11.14.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
@@ -43,12 +43,12 @@
     "chonky-icon-fontawesome": "^2.3.2",
     "classnames": "^2.5.1",
     "downshift": "^9.3.2",
-    "edtf": "^4.10.1",
+    "edtf": "^4.11.0",
     "faker": "^5.5.3",
     "file-saver": "^2.0.5",
-    "graphql": "^16.13.1",
+    "graphql": "^16.13.2",
     "graphql-tag": "^2.12.6",
-    "graphql-ws": "^6.0.7",
+    "graphql-ws": "^6.0.8",
     "hls.js": "^1.6.15",
     "inflection": "^3.0.2",
     "jest-environment-jsdom": "^30.3.0",
@@ -66,7 +66,7 @@
     "react-hook-form": "^7.33.1",
     "react-icons": "^5.6.0",
     "react-json-pretty": "^2.2.0",
-    "recharts": "^3.8.0",
+    "recharts": "^3.8.1",
     "use-clipboard-copy": "^0.2.0",
     "uuid": "^13.0.0",
     "webvtt-parser": "^2.2.0"
@@ -112,9 +112,9 @@
     "react-router-prop-types": "^1.0.5",
     "sass": "^1.98.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "use-phoenix-channel": "^1.1.1",
-    "vite": "^7.3.1",
-    "vite-plugin-svgr": "^4.5.0"
+    "vite": "^7.3.2",
+    "vite-plugin-svgr": "^5.2.0"
   }
 }
