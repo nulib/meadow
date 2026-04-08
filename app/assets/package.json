@@ -46,7 +46,7 @@
     "edtf": "^4.11.0",
     "faker": "^5.5.3",
     "file-saver": "^2.0.5",
-    "graphql": "^16.13.1",
+    "graphql": "^16.13.2",
     "graphql-tag": "^2.12.6",
     "graphql-ws": "^6.0.8",
     "hls.js": "^1.6.15",
