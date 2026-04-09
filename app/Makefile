@@ -4,6 +4,7 @@ help:
 	@echo "make all-deps          | fetch Elixir and front-end dependencies"
 	@echo "make all-lint          | run JS and Elixir lint checks"
 	@echo "make all-test          | run Elixir and JS tests"
+	@echo "make cluster           | start a local two-node Meadow cluster with HAProxy load balancer"
 	@echo "make compile           | compile Elixir code"
 	@echo "make container         | build Meadow release container"
 	@echo "make deps              | fetch Elixir dependencies"
@@ -17,6 +18,24 @@ help:
 	@echo "make livebook          | build Livebook+Meadow release container"
 	@echo "make server            | run Phoenix server"
 	@echo "make test              | run Elixir tests"
+
+priv/cert/cert.pem:
+	@echo "Fetching SSL certificate from AWS Secrets Manager..."
+	@aws secretsmanager get-secret-value \
+		--secret-id "dev-environment/config/wildcard_ssl" \
+		--query SecretString --output text \
+		| jq '.certificate' -r > $@
+
+priv/cert/key.pem:
+	@echo "Fetching SSL private key from AWS Secrets Manager..."
+	@aws secretsmanager get-secret-value \
+		--secret-id "dev-environment/config/wildcard_ssl" \
+		--query SecretString --output text \
+		| jq '.key' -r > $@
+
+priv/cert/combined.pem: priv/cert/cert.pem priv/cert/key.pem
+	@echo "Combining SSL certificate and private key..."
+	@cat $^ > $@
 
 assets/node_modules/.install-stamp: assets/package.json assets/package-lock.json
 	npm install --force --prefix assets
@@ -65,10 +84,21 @@ lint: deps
 
 all-lint: lint frontend-lint
 
-iex-server: deps frontend-deps
+.ONESHELL:
+cluster: priv/cert/combined.pem
+	PIDFILE=$$(mktemp)
+	trap 'kill -QUIT $$(cat $$PIDFILE) 2>/dev/null || true' EXIT INT TERM
+	for i in 1 2; do \
+		echo "Starting Meadow node $$i..."; \
+		CLUSTER_ENABLED=true MEADOW_NO_SSL=true PORT=$$((3999 + i)) elixir --sname meadow$$i -S mix phx.server &
+		echo $$! >> $$PIDFILE; \
+	done
+	haproxy -f ../extras/haproxy/cluster.cfg
+
+iex-server: deps frontend-deps priv/cert/cert.pem priv/cert/key.pem
 	iex -S mix phx.server
 
-server: deps frontend-deps
+server: deps frontend-deps priv/cert/cert.pem priv/cert/key.pem
 	mix phx.server
 
 test: deps
