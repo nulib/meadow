@@ -110,6 +110,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
       arg(:title, non_null(:string))
       arg(:project_id, non_null(:id))
       arg(:filename, non_null(:string))
+      arg(:ai_ingest, :boolean)
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Ingest.create_ingest_sheet/3)
@@ -191,6 +192,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     field :title, non_null(:string)
     @desc "Overall Status of the Ingest Sheet"
     field :status, :ingest_sheet_status
+    field :ai_ingest, :boolean
     field :state, list_of(:sheet_state)
     field :filename, non_null(:string)
     field :inserted_at, non_null(:datetime)
@@ -219,6 +221,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     value(:file_fail, as: "file_fail", description: "Errors validating csv file")
     value(:row_fail, as: "row_fail", description: "Errors in content rows")
     value(:valid, as: "valid", description: "Passes validation")
+    value(:awaiting_approval, as: "awaiting_approval", description: "Valid AI ingest sheet awaiting supermanager approval")
     value(:approved, as: "approved", description: "Approved, ingest in progress")
     value(:completed, as: "completed", description: "Ingest completed")
     value(:completed_error, as: "completed_error", description: "Ingest completed (with errors)")

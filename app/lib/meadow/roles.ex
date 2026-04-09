@@ -39,6 +39,9 @@ defmodule Meadow.Roles do
   def authorized?(:superuser, _role), do: true
   def authorized?(:administrator, :superuser), do: false
   def authorized?(:administrator, _role), do: true
+  def authorized?(:supermanager, :manager), do: true
+  def authorized?(:supermanager, :editor), do: true
+  def authorized?(:supermanager, :user), do: true
   def authorized?(:manager, :editor), do: true
   def authorized?(:manager, :user), do: true
   def authorized?(:editor, :user), do: true

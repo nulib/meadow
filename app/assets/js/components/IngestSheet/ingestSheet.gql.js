@@ -34,15 +34,18 @@ export const CREATE_INGEST_SHEET = gql`
     $title: String!
     $projectId: ID!
     $filename: String!
+    $aiIngest: Boolean
   ) {
     createIngestSheet(
       title: $title
       projectId: $projectId
       filename: $filename
+      aiIngest: $aiIngest
     ) {
       id
       title
       status
+      aiIngest
       project {
         id
         title

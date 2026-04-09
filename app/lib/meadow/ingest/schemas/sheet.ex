@@ -12,7 +12,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     %{name: "overall", state: "pending"}
   ]
 
-  @statuses ~w(uploaded file_fail row_fail valid approved completed completed_error deleted)
+  @statuses ~w(uploaded file_fail row_fail valid awaiting_approval approved completed completed_error deleted)
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID
@@ -21,6 +21,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     field :title, :string
     field :filename, :string
     field :status, :string, default: "uploaded"
+    field :ai_ingest, :boolean, default: false
     field :file_errors, {:array, :string}, default: []
 
     embeds_many :state, State, primary_key: {:name, :string, []} do
@@ -43,7 +44,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
         else: attrs
 
     ingest_sheet
-    |> cast(attrs, [:title, :filename, :project_id, :file_errors, :status, :updated_at])
+    |> cast(attrs, [:title, :filename, :project_id, :file_errors, :status, :ai_ingest, :updated_at])
     |> cast_embed(:state, with: &state_changeset/2)
     |> cast_assoc(:works)
     |> validate_required([:title, :filename, :project_id])
