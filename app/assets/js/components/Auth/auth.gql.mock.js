@@ -81,6 +81,7 @@ export const listRolesMock = {
       roles: [
         "Superuser",
         "Administrator",
+        "Supermanager",
         "Manager",
         "Editor",
         "User"

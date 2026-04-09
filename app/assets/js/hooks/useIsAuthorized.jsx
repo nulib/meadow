@@ -14,6 +14,7 @@ const userRoleHierarchy = [
   "USER",
   "EDITOR",
   "MANAGER",
+  "SUPERMANAGER",
   "ADMINISTRATOR",
   "SUPERUSER",
 ];
