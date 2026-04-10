@@ -22,7 +22,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     field :filename, :string
     field :status, :string, default: "uploaded"
     field :ai_ingest, :boolean, default: false
-    field :ai_preview, :map
+    field :ai_preview, {:array, :map}
     field :file_errors, {:array, :string}, default: []
 
     embeds_many :state, State, primary_key: {:name, :string, []} do
