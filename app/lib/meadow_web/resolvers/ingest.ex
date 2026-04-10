@@ -6,7 +6,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
   alias Meadow.Config
   alias Meadow.Data.ActionStates
   alias Meadow.Data.Schemas.ActionState
-  alias Meadow.Ingest.{Projects, Rows, Sheets, SheetsToWorks}
+  alias Meadow.Ingest.{AIPreview, Projects, Rows, Sheets, SheetsToWorks}
   alias Meadow.Ingest.Sheets
   alias Meadow.Ingest.Validator
   alias Meadow.Roles
@@ -106,7 +106,11 @@ defmodule MeadowWeb.Resolvers.Ingest do
   end
 
   defp approve_ingest_sheet(%{status: "valid", ai_ingest: true} = ingest_sheet) do
-    Sheets.update_ingest_sheet_status(ingest_sheet, "awaiting_approval")
+    {:ok, sheet} = Sheets.update_ingest_sheet_status(ingest_sheet, "generating_preview")
+
+    Meadow.Async.run_once("preview:#{sheet.id}", fn ->
+      AIPreview.generate_and_store(sheet)
+    end)
   end
 
   defp approve_ingest_sheet(%{status: status} = ingest_sheet)

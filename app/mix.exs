@@ -86,6 +86,7 @@ defmodule Meadow.MixProject do
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.17"},
+      {:image, "~> 0.54"},
       {:honeybadger, "~> 0.7"},
       {:horde, "~> 0.10"},
       {:inflex, "~> 2.1"},

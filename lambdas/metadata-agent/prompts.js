@@ -1,7 +1,8 @@
 const stringifyContext = (contextData = {}) => {
+  const { system_prompt: _omit, ...rest } = contextData || {};
   const hasEntries =
-    contextData && typeof contextData === "object" && Object.keys(contextData).length > 0;
-  return hasEntries ? JSON.stringify(contextData, null, 2) : "None";
+    rest && typeof rest === "object" && Object.keys(rest).length > 0;
+  return hasEntries ? JSON.stringify(rest, null, 2) : "None";
 };
 
 export const agentPrompt = (userQuery, contextData = {}) => {
@@ -55,14 +56,18 @@ const agentPromptWithPlan = (planId, userQuery, contextData = {}) => `
   </example summary>
 `;
 
-const agentPromptWithoutPlan = (userQuery, contextData = {}) => `
+const agentPromptWithoutPlan = (userQuery, contextData = {}) => {
+  const context = stringifyContext(contextData);
+  const footer = contextData?.system_prompt
+    ? ""
+    : "\n  Respond with tool results and analysis.";
+  return `
   Use available tools to answer:
   ${userQuery}
 
-  Context: ${stringifyContext(contextData)}
-
-  Respond with tool results and analysis.
+  Context: ${context}${footer}
 `;
+};
 
 export const proposerPrompt = () => `
   You are a Meadow metadata proposer. Your sole responsibility is to propose 

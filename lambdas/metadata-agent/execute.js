@@ -178,6 +178,7 @@ async function executeAgent(
     "mcp__meadow__authority_search",
     "mcp__meadow__get_code_list",
     "mcp__meadow__get_image",
+    "mcp__meadow__get_ingest_image",
     "mcp__meadow__get_plan_changes",
     "mcp__meadow__get_work",
     "mcp__meadow__propose_plan",
@@ -199,7 +200,7 @@ async function executeAgent(
         tools: allowedTools,
       },
     },
-    systemPrompt: systemPrompt(),
+    systemPrompt: contextData?.system_prompt || systemPrompt(),
     effort: "low"
   };
   logVerbose("Client options:", clientOptions);

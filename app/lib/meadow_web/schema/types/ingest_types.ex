@@ -193,6 +193,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     @desc "Overall Status of the Ingest Sheet"
     field :status, :ingest_sheet_status
     field :ai_ingest, :boolean
+    field :ai_preview, :json
     field :state, list_of(:sheet_state)
     field :filename, non_null(:string)
     field :inserted_at, non_null(:datetime)
@@ -221,6 +222,7 @@ defmodule MeadowWeb.Schema.IngestTypes do
     value(:file_fail, as: "file_fail", description: "Errors validating csv file")
     value(:row_fail, as: "row_fail", description: "Errors in content rows")
     value(:valid, as: "valid", description: "Passes validation")
+    value(:generating_preview, as: "generating_preview", description: "AI preview generation in progress")
     value(:awaiting_approval, as: "awaiting_approval", description: "Valid AI ingest sheet awaiting supermanager approval")
     value(:approved, as: "approved", description: "Approved, ingest in progress")
     value(:completed, as: "completed", description: "Ingest completed")
