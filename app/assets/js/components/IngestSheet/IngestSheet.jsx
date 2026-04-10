@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import IngestSheetValidations from "./Validations";
 import PropTypes from "prop-types";
 import IngestSheetApprovedInProgress from "./ApprovedInProgress";
+import IngestSheetAwaitingApproval from "./AwaitingApproval";
 import IngestSheetCompleted from "./Completed";
 import { INGEST_SHEET_SUBSCRIPTION } from "@js/components/IngestSheet/ingestSheet.gql";
 
@@ -42,6 +43,12 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
       {["ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) > -1 && (
         <div className="box">
           <IngestSheetValidations sheetId={id} status={status} />
+        </div>
+      )}
+
+      {status === "AWAITING_APPROVAL" && (
+        <div className="box">
+          <IngestSheetAwaitingApproval sheetId={id} />
         </div>
       )}
     </>
