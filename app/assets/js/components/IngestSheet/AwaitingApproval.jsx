@@ -2,24 +2,13 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useMutation } from "@apollo/client/react";
 import { START_VALIDATION } from "./ingestSheet.gql";
-import IngestSheetUnapprovedState from "./UnapprovedState";
-import { useQuery } from "@apollo/client/react";
-import { INGEST_SHEET_ROWS } from "./ingestSheet.gql";
-import UISkeleton from "@js/components/UI/Skeleton";
-import Error from "@js/components/UI/Error";
 import { Button, Notification } from "@nulib/design-system";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-function IngestSheetAwaitingApproval({ sheetId }) {
+function IngestSheetAwaitingApproval({ sheetId, aiPreview }) {
   const [understood, setUnderstood] = useState(false);
   const { isAuthorized } = useIsAuthorized();
   const canApprove = isAuthorized("SUPERMANAGER");
-
-  const { loading, error, data } = useQuery(INGEST_SHEET_ROWS, {
-    variables: { sheetId, limit: 100, state: "PASS" },
-    fetchPolicy: "network-only",
-    skip: !canApprove,
-  });
 
   const [approveIngestSheet, { loading: approving }] = useMutation(
     START_VALIDATION,
@@ -34,9 +23,6 @@ function IngestSheetAwaitingApproval({ sheetId }) {
     );
   }
 
-  if (loading) return <UISkeleton rows={15} />;
-  if (error) return <Error error={error} />;
-
   return (
     <div>
       <Notification>
@@ -44,8 +30,49 @@ function IngestSheetAwaitingApproval({ sheetId }) {
         below before approving.
       </Notification>
 
-      {data && (
-        <IngestSheetUnapprovedState rows={data.ingestSheetRows} />
+      {aiPreview && aiPreview.length > 0 && (
+        <div className="mb-5">
+          <h2 className="title is-5">AI-Generated Previews</h2>
+          <div className="columns is-multiline">
+            {aiPreview.map((preview) => (
+              <div key={preview.work_accession_number} className="column is-one-third">
+                <div className="card">
+                  {preview.thumbnail && (
+                    <div className="card-image">
+                      <figure className="image">
+                        <img
+                          src={`data:image/jpeg;base64,${preview.thumbnail}`}
+                          alt={preview.work_accession_number}
+                        />
+                      </figure>
+                    </div>
+                  )}
+                  <div className="card-content">
+                    <p className="subtitle is-6 mb-2">
+                      <strong>{preview.work_accession_number}</strong>
+                    </p>
+                    <p className="heading">Description</p>
+                    <p className="is-size-7 mb-3">{preview.description}</p>
+                    {preview.subjects && preview.subjects.length > 0 && (
+                      <>
+                        <p className="heading">Subjects</p>
+                        <ul>
+                          {preview.subjects.map((subject) => (
+                            <li key={subject.id} className="is-size-7">
+                              <a href={subject.id} target="_blank" rel="noreferrer">
+                                {subject.label}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       <div className="field mt-5">
@@ -76,6 +103,7 @@ function IngestSheetAwaitingApproval({ sheetId }) {
 
 IngestSheetAwaitingApproval.propTypes = {
   sheetId: PropTypes.string.isRequired,
+  aiPreview: PropTypes.arrayOf(PropTypes.object),
 };
 
 export default IngestSheetAwaitingApproval;
