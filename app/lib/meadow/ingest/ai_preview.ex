@@ -2,11 +2,11 @@ defmodule Meadow.Ingest.AIPreview do
   @moduledoc """
   Generates AI metadata previews for AI ingest sheets.
 
-  Finds up to 3 IMAGE works (using the first Access/A role row per work), sends
-  all of them to the metadata agent in a single call. The agent uses
-  get_ingest_image and authority_search for each work, then returns a JSON array
-  of previews. Results are stored in ai_preview on the sheet and the status
-  transitions to awaiting_approval.
+  Finds up to 3 IMAGE works (using the first Access/A role row per work) and
+  sends them to the metadata agent. The agent calls get_ingest_image and
+  authority_search for each work, then submits the structured results via the
+  submit_ai_previews MCP tool, which writes them directly to the sheet.
+  The sheet status is then transitioned to awaiting_approval.
   """
 
   require Logger
@@ -15,9 +15,8 @@ defmodule Meadow.Ingest.AIPreview do
 
   @system_prompt """
   You are a digital library metadata specialist generating structured previews for ingest review.
-  Use the available tools to gather information about each work, then respond with ONLY a valid
-  JSON array — no preamble, no explanation, no markdown code fences. Your entire response must
-  be a single JSON array.
+  Use the available tools to gather information about each work, then call submit_ai_previews
+  to store the results. Do not return the results as text.
   """
 
   @prompt_header """
@@ -32,22 +31,6 @@ defmodule Meadow.Ingest.AIPreview do
   Works to preview:
   """
 
-  @prompt_footer """
-
-  Respond with ONLY a valid JSON array — no preamble, no explanation, no markdown:
-  [
-    {
-      "work_accession_number": "<accession>",
-      "subjects": [
-        {"id": "<authority URI>", "label": "<label>"},
-        {"id": "<authority URI>", "label": "<label>"},
-        {"id": "<authority URI>", "label": "<label>"}
-      ],
-      "description": "<description>"
-    }
-  ]
-  """
-
   @doc """
   Generate previews for up to 3 IMAGE works in the sheet and store them,
   then transition the sheet to awaiting_approval.
@@ -57,21 +40,18 @@ defmodule Meadow.Ingest.AIPreview do
 
     works = find_preview_works(sheet)
 
-    previews =
-      case works do
-        [] ->
-          Logger.info("AIPreview: no IMAGE works with role A found in sheet #{sheet.id}")
-          []
+    case works do
+      [] ->
+        Logger.info("AIPreview: no IMAGE works with role A found in sheet #{sheet.id}")
 
-        works ->
-          case invoke_agent(works) do
-            {:ok, results} -> attach_filenames(results, works)
-            {:error, reason} -> error_previews(works, reason)
-          end
-      end
+      works ->
+        case invoke_agent(works, sheet.id) do
+          {:ok, _} -> :ok
+          {:error, reason} -> Logger.warning("AIPreview: agent call failed: #{inspect(reason)}")
+        end
+    end
 
-    Logger.info("AIPreview: storing #{length(previews)} preview(s) for sheet #{sheet.id}")
-    Sheets.update_ingest_sheet(sheet, %{ai_preview: previews, status: "awaiting_approval"})
+    Sheets.update_ingest_sheet_status(sheet, "awaiting_approval")
   rescue
     error ->
       Logger.error(
@@ -102,7 +82,7 @@ defmodule Meadow.Ingest.AIPreview do
     |> Enum.take(3)
   end
 
-  defp invoke_agent(works) do
+  defp invoke_agent(works, sheet_id) do
     work_lines =
       works
       |> Enum.with_index(1)
@@ -111,55 +91,29 @@ defmodule Meadow.Ingest.AIPreview do
       end)
       |> Enum.join("\n")
 
-    prompt = @prompt_header <> work_lines <> @prompt_footer
+    prompt =
+      @prompt_header <>
+        work_lines <>
+        """
+
+
+        When you have finished analyzing all works, call `submit_ai_previews` with:
+          - sheet_id: "#{sheet_id}"
+          - previews: an array with one entry per work, each containing:
+              - work_accession_number
+              - filename (the S3 URI from the work listing above)
+              - description
+              - subjects (array of {id, label} from authority_search)
+        """
 
     case MeadowAI.query(prompt, context: %{system_prompt: String.trim(@system_prompt)}) do
       {:ok, response} ->
-        Logger.debug("AIPreview: raw agent response: #{inspect(response)}")
-        parse_response(response)
+        Logger.debug("AIPreview: agent response: #{inspect(response)}")
+        {:ok, response}
 
       {:error, reason} ->
         Logger.warning("AIPreview: agent call failed: #{inspect(reason)}")
         {:error, reason}
     end
-  end
-
-  defp parse_response(text) do
-    json_text =
-      case Regex.run(~r/\[[\s\S]*\]/U, text) do
-        [match] -> match
-        _ -> text
-      end
-
-    case Jason.decode(json_text) do
-      {:ok, results} when is_list(results) ->
-        {:ok, results}
-
-      _ ->
-        Logger.warning("AIPreview: could not parse JSON array from agent response")
-        {:error, :parse_failed}
-    end
-  end
-
-  # Attach the filename to each parsed result, matching on work_accession_number.
-  defp attach_filenames(results, works) do
-    filename_map = Map.new(works, fn {accession, s3_uri} -> {accession, s3_uri} end)
-
-    Enum.map(results, fn result ->
-      accession = Map.get(result, "work_accession_number", "")
-      Map.put(result, "filename", Map.get(filename_map, accession, ""))
-    end)
-  end
-
-  defp error_previews(works, reason) do
-    Enum.map(works, fn {accession, s3_uri} ->
-      %{
-        "work_accession_number" => accession,
-        "filename" => s3_uri,
-        "subjects" => [],
-        "description" => "",
-        "error" => inspect(reason)
-      }
-    end)
   end
 end

@@ -21,4 +21,5 @@ defmodule MeadowWeb.MCP.Server do
   component(Tools.ProposePlan)
   component(Tools.SendStatusUpdate)
   component(Tools.UpdatePlanChange)
+  component(Tools.SubmitAIPreviews)
 end

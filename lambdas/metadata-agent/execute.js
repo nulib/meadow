@@ -184,6 +184,7 @@ async function executeAgent(
     "mcp__meadow__propose_plan",
     "mcp__meadow__send_status_update",
     "mcp__meadow__update_plan_change",
+    "mcp__meadow__submit_ai_previews",
   ];
   const disallowedTools = ["Bash", "Glob", "Grep", "WebFetch", "Write"];
   const clientOptions = {

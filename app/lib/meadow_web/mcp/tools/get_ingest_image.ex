@@ -57,7 +57,7 @@ defmodule MeadowWeb.MCP.Tools.GetIngestImage do
     case Image.from_binary(binary) do
       {:ok, img} ->
         with {:ok, resized} <- Image.thumbnail(img, @max_dimension),
-             {:ok, jpeg_binary, _} <- Image.write(resized, :memory, suffix: ".jpg", quality: 85) do
+             {:ok, jpeg_binary} <- Image.write(resized, :memory, suffix: ".jpg", quality: 85) do
           {:ok, Base.encode64(jpeg_binary)}
         end
 
