@@ -86,10 +86,9 @@ defmodule Meadow.Ingest.AIPreview do
     work_lines =
       works
       |> Enum.with_index(1)
-      |> Enum.map(fn {{accession, s3_uri}, idx} ->
+      |> Enum.map_join("\n", fn {{accession, s3_uri}, idx} ->
         "#{idx}. Work accession: #{accession} | Image: #{s3_uri}"
       end)
-      |> Enum.join("\n")
 
     prompt =
       @prompt_header <>

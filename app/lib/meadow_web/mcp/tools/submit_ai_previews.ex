@@ -82,20 +82,21 @@ defmodule MeadowWeb.MCP.Tools.SubmitAIPreviews do
 
   defp fetch_thumbnail(bucket, key) do
     case ExAws.S3.get_object(bucket, key) |> ExAws.request() do
-      {:ok, %{body: body}} ->
-        case Image.from_binary(body) do
-          {:ok, img} ->
-            with {:ok, resized} <- Image.thumbnail(img, @max_dimension),
-                 {:ok, jpeg_binary} <- Image.write(resized, :memory, suffix: ".jpg", quality: 85) do
-              {:ok, Base.encode64(jpeg_binary)}
-            end
+      {:ok, %{body: body}} -> encode_thumbnail(body)
+      {:error, reason} -> {:error, reason}
+    end
+  end
 
-          {:error, _} ->
-            {:error, :unsupported_format}
+  defp encode_thumbnail(body) do
+    case Image.from_binary(body) do
+      {:ok, img} ->
+        with {:ok, resized} <- Image.thumbnail(img, @max_dimension),
+             {:ok, jpeg_binary} <- Image.write(resized, :memory, suffix: ".jpg", quality: 85) do
+          {:ok, Base.encode64(jpeg_binary)}
         end
 
-      {:error, reason} ->
-        {:error, reason}
+      {:error, _} ->
+        {:error, :unsupported_format}
     end
   end
 end

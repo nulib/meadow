@@ -94,10 +94,7 @@ defmodule MeadowWeb.Resolvers.Ingest do
         {response, pid} =
           Meadow.Async.run_once("validate:#{sheet_id}", fn ->
             sheet_id |> Validator.result()
-
-            with sheet <- sheet_id |> Sheets.get_ingest_sheet!() do
-              approve_ingest_sheet(sheet)
-            end
+            sheet_id |> Sheets.get_ingest_sheet!() |> approve_ingest_sheet()
           end)
 
         pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
