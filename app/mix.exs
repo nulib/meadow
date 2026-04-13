@@ -107,7 +107,6 @@ defmodule Meadow.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:poison, "~> 4.0"},
       {:postgrex, "~> 0.17"},
-      {:pythonx, "~> 0.4"},
       {:quantum, "~> 3.0"},
       {:req, "~> 0.5"},
       {:retry, "~> 0.19"},
