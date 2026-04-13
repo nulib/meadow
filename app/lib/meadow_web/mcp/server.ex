@@ -13,6 +13,7 @@ defmodule MeadowWeb.MCP.Server do
   component(Resources.Schemas.Collection)
   component(Tools.AuthoritySearch)
   component(Tools.GetImage)
+  component(Tools.GetIngestImage)
   component(Tools.GetWork)
   component(Tools.GetCodeList)
   component(Tools.GetPlanChanges)
@@ -20,4 +21,5 @@ defmodule MeadowWeb.MCP.Server do
   component(Tools.ProposePlan)
   component(Tools.SendStatusUpdate)
   component(Tools.UpdatePlanChange)
+  component(Tools.SubmitAIPreviews)
 end

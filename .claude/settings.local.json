@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(AWS_LOCALSTACK=true mix test test/meadow/data/planner_test.exs:611 test/meadow/data/planner_test.exs:712 --trace)",
+      "Bash(git rm:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(node -e:*)",
+      "Bash(cd:*)",
+      "Bash(npx jest:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

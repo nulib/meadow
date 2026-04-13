@@ -178,11 +178,13 @@ async function executeAgent(
     "mcp__meadow__authority_search",
     "mcp__meadow__get_code_list",
     "mcp__meadow__get_image",
+    "mcp__meadow__get_ingest_image",
     "mcp__meadow__get_plan_changes",
     "mcp__meadow__get_work",
     "mcp__meadow__propose_plan",
     "mcp__meadow__send_status_update",
     "mcp__meadow__update_plan_change",
+    "mcp__meadow__submit_ai_previews",
   ];
   const disallowedTools = ["Bash", "Glob", "Grep", "WebFetch", "Write"];
   const clientOptions = {
@@ -199,7 +201,7 @@ async function executeAgent(
         tools: allowedTools,
       },
     },
-    systemPrompt: systemPrompt(),
+    systemPrompt: contextData?.system_prompt || systemPrompt(),
     effort: "low"
   };
   logVerbose("Client options:", clientOptions);

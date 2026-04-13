@@ -34,15 +34,18 @@ export const CREATE_INGEST_SHEET = gql`
     $title: String!
     $projectId: ID!
     $filename: String!
+    $aiIngest: Boolean
   ) {
     createIngestSheet(
       title: $title
       projectId: $projectId
       filename: $filename
+      aiIngest: $aiIngest
     ) {
       id
       title
       status
+      aiIngest
       project {
         id
         title
@@ -99,6 +102,8 @@ export const INGEST_SHEET_COMPLETED_ERRORS = gql`
 export const INGEST_SHEET_QUERY = gql`
   query IngestSheetQuery($sheetId: ID!) {
     ingestSheet(id: $sheetId) {
+      aiIngest
+      aiPreview
       fileErrors
       filename
       id
@@ -136,6 +141,7 @@ export const INGEST_SHEET_ROWS = gql`
 export const INGEST_SHEET_SUBSCRIPTION = gql`
   subscription OnIngestSheetUpdate($sheetId: ID!) {
     ingestSheetUpdate(sheetId: $sheetId) {
+      aiIngest
       fileErrors
       filename
       id
