@@ -60,6 +60,7 @@ defmodule Meadow.AccountsTest do
     |> assert_lists_equal([
       "Superuser",
       "Administrator",
+      "Supermanager",
       "Manager",
       "Editor",
       "User"

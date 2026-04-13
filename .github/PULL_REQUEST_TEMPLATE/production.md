@@ -1,8 +1,3 @@
-# :open_book: Changelog
-
-- list changes
-- list changes
-
 # Version bump required by the PR
 
 See [Semantic Versioning 2.0.0](https://semver.org/) for help discerning which is required.

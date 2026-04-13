@@ -82,6 +82,13 @@ const RoleNavDropdown = () => {
           <a
             href="#"
             className="dropdown-item"
+            onClick={() => handleRoleChange("SUPERMANAGER")}
+          >
+            Supermanager
+          </a>
+          <a
+            href="#"
+            className="dropdown-item"
             onClick={() => handleRoleChange("MANAGER")}
           >
             Manager

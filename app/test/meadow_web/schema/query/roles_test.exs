@@ -11,7 +11,7 @@ defmodule MeadowWeb.Schema.Query.RolesTest do
     test "should return Meadow roles" do
       result = query_gql(context: gql_context())
 
-      expected_roles = ["Superuser", "Administrator", "Manager", "Editor", "User"]
+      expected_roles = ["Superuser", "Administrator", "Supermanager", "Manager", "Editor", "User"]
 
       assert {:ok, %{data: %{"roles" => roles}}} = result
       assert Enum.sort(roles) == Enum.sort(expected_roles)

@@ -8,6 +8,7 @@ defmodule Meadow.Accounts.Schemas.User do
   @roles [
     superuser: "Superuser",
     administrator: "Administrator",
+    supermanager: "Supermanager",
     manager: "Manager",
     editor: "Editor",
     user: "User"

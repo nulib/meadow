@@ -10,6 +10,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 permissions:
+  id-token: write
+  contents: write
   actions: write
 jobs:
   get-environment:
@@ -63,14 +65,20 @@ jobs:
       DEPLOY_ENV: ${{ needs.get-environment.outputs.deploy_env }}
       IMAGE_TAG: ${{ needs.get-environment.outputs.image_tag }}
       MEADOW_TENANT: ${{ needs.get-environment.outputs.meadow_tenant }}
+    permissions:
+      id-token: write
+      contents: write
+      actions: write
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Configure AWS
-        run: .github/scripts/configure_aws.sh
-        env:
-          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
-          GITHUB_ENV: ${{ env.GITHUB_ENV }}
-          SECRETS: ${{ toJSON(secrets) }}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AwsAccount }}:role/github-actions-role
+          aws-region: us-east-1
       - name: Extract MEADOW_VERSION from mix.exs
         run: echo "MEADOW_VERSION=$(make app-version)" >> $GITHUB_ENV
       - run: echo "Building Meadow v${MEADOW_VERSION} as nulib/meadow:${IMAGE_TAG}"
@@ -135,6 +143,22 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           git push origin v${MEADOW_VERSION}
+      - name: Generate Release Notes
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'release_notes.yml',
+              ref: 'main',
+              inputs: {
+                current_tag: `v${process.env.MEADOW_VERSION}`,
+                previous_tag: '',
+                draft: 'false',
+              },
+            })
       - name: Dispatch New Production PR
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions/github-script@v6
@@ -154,16 +178,19 @@ jobs:
       DEPLOY_ENV: ${{ needs.get-environment.outputs.deploy_env }}
       IMAGE_TAG: ${{ needs.get-environment.outputs.image_tag }}
       MEADOW_TENANT: ${{ needs.get-environment.outputs.meadow_tenant }}
+    permissions:
+      id-token: write
+      contents: write
+      actions: write
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     steps:
       - uses: actions/checkout@v2
       - name: Extract MEADOW_VERSION from mix.exs
         run: echo "MEADOW_VERSION=$(make app-version)" >> $GITHUB_ENV
-      - name: Configure AWS
-        run: .github/scripts/configure_aws.sh
-        env:
-          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
-          GITHUB_ENV: ${{ env.GITHUB_ENV }}
-          SECRETS: ${{ toJSON(secrets) }}
+      - uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AwsAccount }}:role/github-actions-role
+          aws-region: us-east-1
       - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
       - name: Login to Amazon ECR
@@ -189,7 +216,7 @@ jobs:
           push: true
           tags: ${{ steps.determine-image-tags.outputs.tags }}
   deploy:
-    needs: 
+    needs:
       - get-environment
       - build
       - build-livebook
@@ -199,16 +226,19 @@ jobs:
       DEPLOY_ENV: ${{ needs.get-environment.outputs.deploy_env }}
       IMAGE_TAG: ${{ needs.get-environment.outputs.image_tag }}
       MEADOW_TENANT: ${{ needs.get-environment.outputs.meadow_tenant }}
+    permissions:
+      id-token: write
+      contents: write
+      actions: write
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - name: Configure AWS
-        run: .github/scripts/configure_aws.sh
-        env:
-          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
-          GITHUB_ENV: ${{ env.GITHUB_ENV }}
-          SECRETS: ${{ toJSON(secrets) }}
+      - uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AwsAccount }}:role/github-actions-role
+          aws-region: us-east-1
       - name: Set Service and Task Names
         id: set-service-task
         run: |
