@@ -35,6 +35,22 @@ defmodule Meadow.Search.ClientTest do
       assert reason =~ "BAD_INDEX"
     end
 
+    test "reindex/2", %{work_count: count} do
+      alias = SearchConfig.alias_for(Work, 2)
+
+      log =
+        capture_log(fn ->
+          Client.hot_swap(Work, 2, fn index ->
+            assert {:ok, response} = Client.reindex(alias, index)
+            assert response["total"] == count
+            {:ok, response}
+          end)
+        end)
+
+      assert log =~ ~r"Reindexing in progress: 0/\d+ \(\d+.\d+%\) complete"
+      assert log =~ ~r"Reindexed #{count} documents in \d+\.\d{2} seconds"
+    end
+
     test "search/2" do
       with target <- SearchConfig.alias_for(Work, 2),
            query <- %{query: %{match_all: %{}}} do

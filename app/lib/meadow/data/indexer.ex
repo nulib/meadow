@@ -17,6 +17,30 @@ defmodule Meadow.Data.Indexer do
 
   import Ecto.Query
 
+  def quick_reindex do
+    SearchConfig.index_versions()
+    |> Enum.each(&quick_reindex/1)
+  end
+
+  def quick_reindex(version) do
+    quick_reindex(version, [Collection, Work, FileSet])
+  end
+
+  def quick_reindex(version, schemas) when is_list(schemas) do
+    schemas
+    |> Enum.uniq()
+    |> Enum.each(&quick_reindex(version, &1))
+  end
+
+  def quick_reindex(version, schema) do
+    source = SearchConfig.alias_for(schema, version)
+
+    SearchClient.hot_swap(schema, version, fn index ->
+      SearchClient.reindex(source, index)
+      |> clean(schema, version)
+    end)
+  end
+
   def reindex_all do
     SearchConfig.index_versions()
     |> Enum.each(&reindex_all/1)
