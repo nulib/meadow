@@ -163,6 +163,63 @@ defmodule Meadow.Search.Client do
     end
   end
 
+  def reindex(source, target, query \\ %{match_all: %{}}) do
+    Logger.debug("Reindexing from #{source} to #{target} with query #{inspect(query)}")
+
+    body = %{
+      source: %{
+        index: source,
+        query: query
+      },
+      dest: %{
+        index: target
+      }
+    }
+
+    HTTP.post(["_reindex?wait_for_completion=false"], body)
+    |> await_reindex_result(target)
+  end
+
+  defp await_reindex_result({:ok, %{body: %{"task" => task}}}, index) do
+    case HTTP.get(["_tasks", task]) do
+      {:ok, %{body: %{"completed" => true, "response" => response} = body}} ->
+        log_reindex_status(body, index)
+        {:ok, response}
+
+      {:ok, %{body: %{"completed" => false} = body}} ->
+        log_reindex_status(body, index)
+        :timer.sleep(SearchConfig.reindex_poll_interval())
+        await_reindex_result({:ok, %{body: %{"task" => task}}}, index)
+
+      {:ok, %{body: %{"error" => %{"reason" => reason}}}} ->
+        {:error, reason}
+
+      {:error, reason} ->
+        {:error, inspect(reason)}
+    end
+  end
+
+  defp await_reindex_result({:ok, %{body: %{"error" => %{"reason" => reason}}}}, _index),
+    do: {:error, reason}
+
+  defp log_reindex_status(%{"completed" => true, "response" => response}, index) do
+    total_documents = get_in(response, ["total"])
+
+    time_in_seconds =
+      get_in(response, ["took"])
+      |> Kernel./(1000.0)
+      |> Float.round(2)
+
+    Logger.info("[#{index}] Reindexed #{total_documents} documents in #{time_in_seconds} seconds")
+  end
+
+  defp log_reindex_status(%{"completed" => false, "task" => %{"status" => status}}, index) do
+    total = status["total"] || 0
+    created = status["created"] || 0
+    completed = if total > 0, do: Float.round(created / total * 100, 2), else: 0.0
+    Logger.info("[#{index}] Reindexing in progress: #{created}/#{total} (#{completed}%) complete")
+  end
+
   def search(target, query)
 
   def search(target, query)

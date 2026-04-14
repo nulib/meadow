@@ -50,7 +50,7 @@ defmodule MeadowWeb.MCP.Tools.AuthoritySearch do
   defp error_message(reason) when is_atom(reason), do: Atom.to_string(reason)
 
   defp error_message(%_{} = reason) do
-    if Exception.exception?(reason), do: Exception.message(reason), else: inspect(reason)
+    if is_exception(reason), do: Exception.message(reason), else: inspect(reason)
   end
 
   defp error_message(reason), do: inspect(reason)

@@ -2,11 +2,16 @@
 
 echo "Looking for index changes between ${GITHUB_SHA} and ${PRIOR_HEAD}"
 changed_files=$(git diff --name-only ${GITHUB_SHA} ${PRIOR_HEAD})
-reindex_changes='lib/meadow/indexing/|priv/search/|config/releases.exs'
-reindex=false
-if grep -E $reindex_changes > /dev/null <<< $changed_files; then
-  reindex=true
+full_reindex_changes='lib/meadow/indexing/'
+quick_reindex_changes='priv/search/'
+
+reindex=:none
+if grep -E $full_reindex_changes > /dev/null <<< $changed_files; then
+  reindex=:full
+elif grep -E $quick_reindex_changes > /dev/null <<< $changed_files; then
+  reindex=:quick
 fi
+
 echo "Reindex: ${reindex}"
 
 networkconfig=$(aws ecs describe-services --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} | jq -cM '.services[0].networkConfiguration')
