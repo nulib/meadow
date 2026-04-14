@@ -18,6 +18,7 @@ defmodule MeadowAI do
   - prompt: Natural language query (required)
   - opts: Keyword list of options (optional)
     - :context - Map containing contextual information like works, collections, etc.
+    - :metadata - Additional metadata to be logged with the response
     - :timeout - Request timeout in milliseconds (default: 30_000)
 
   ## Examples
