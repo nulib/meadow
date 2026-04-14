@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "10.3.2"
+  @app_version "10.3.3"
 
   def project do
     [
@@ -57,7 +57,7 @@ defmodule Meadow.MixProject do
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_phoenix, "~> 2.0"},
       {:absinthe_graphql_ws, "~> 0.3"},
-      {:anubis_mcp, "~> 0.14"},
+      {:anubis_mcp, "~> 1.0"},
       {:assertions, "~> 0.21", only: :test},
       {:atomic_map, "~> 0.8"},
       {:authoritex, "~> 3.0"},
@@ -86,6 +86,7 @@ defmodule Meadow.MixProject do
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:gettext, "~> 0.11"},
       {:hackney, "~> 1.17"},
+      {:image, "~> 0.54"},
       {:honeybadger, "~> 0.7"},
       {:horde, "~> 0.10"},
       {:inflex, "~> 2.1"},

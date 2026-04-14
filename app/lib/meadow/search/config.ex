@@ -112,4 +112,9 @@ defmodule Meadow.Search.Config do
     |> String.split(".")
     |> List.last()
   end
+
+  def reindex_poll_interval do
+    Application.get_env(:meadow, Meadow.Search.Cluster)
+    |> Keyword.get(:reindex_poll_interval, 5_000)
+  end
 end

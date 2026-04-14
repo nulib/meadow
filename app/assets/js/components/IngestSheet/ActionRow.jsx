@@ -49,7 +49,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
   return (
     <>
       <div className="buttons">
-        {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
+        {["VALID", "AWAITING_APPROVAL", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
           -1 && (
           <Button onClick={onOpenModal}>
             <IconTrashCan />

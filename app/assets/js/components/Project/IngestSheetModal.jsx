@@ -9,6 +9,7 @@ import { GET_PROJECT } from "@js/components/Project/project.gql.js";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { s3Location, toastWrapper } from "@js/services/helpers";
 import { useHistory } from "react-router-dom";
+import { AuthContext } from "@js/components/Auth/Auth";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -17,10 +18,15 @@ const dropZone = css`
   border: 3px dashed #ccc;
 `;
 
+const AI_INGEST_ROLES = ["SUPERUSER", "ADMINISTRATOR", "SUPERMANAGER"];
+
 function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
   const history = useHistory();
+  const currentUser = React.useContext(AuthContext);
   const [currentFile, setCurrentFile] = React.useState();
   const [displayError, setDisplayError] = React.useState();
+  const [aiIngest, setAiIngest] = React.useState(false);
+  const canAiIngest = AI_INGEST_ROLES.includes(currentUser?.role);
 
   const {
     loading: urlLoading,
@@ -83,6 +89,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
 
   const handleCancelClick = () => {
     setCurrentFile(null);
+    setAiIngest(false);
     closeModal();
   };
 
@@ -97,6 +104,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
                 title: currentFile.name,
                 projectId,
                 filename: s3Location(urlData.presignedUrl.url),
+                aiIngest: canAiIngest ? aiIngest : false,
               },
             });
           },
@@ -203,6 +211,19 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
                 </tbody>
               </table>
             </React.Fragment>
+          )}
+          {canAiIngest && (
+            <div className="field mt-4">
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  checked={aiIngest}
+                  onChange={(e) => setAiIngest(e.target.checked)}
+                  className="mr-2"
+                />
+                AI Ingest
+              </label>
+            </div>
           )}
         </section>
         <footer className="modal-card-foot is-justify-content-flex-end">

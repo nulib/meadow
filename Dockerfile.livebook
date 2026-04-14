@@ -13,7 +13,9 @@ RUN mix deps.get --only prod \
 
 # Copy the source and build
 COPY ./app/ ./
-RUN mix compile
+
+RUN mix deps.get --only prod \
+ && mix compile
 
 RUN find _build/prod/lib -type l | while read -r link; do \
       target=$(readlink -f "$link") && \

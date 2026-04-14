@@ -20,7 +20,7 @@ defmodule Meadow.ReleaseTasks do
 
   require Logger
 
-  def migrate(reindex? \\ false) do
+  def migrate(reindex \\ false) do
     Logger.info("Starting Meadow")
     System.put_env("MEADOW_PROCESSES", "none")
     Application.ensure_all_started(@app)
@@ -33,14 +33,24 @@ defmodule Meadow.ReleaseTasks do
     end
 
     seed("seeds.exs")
-
-    if reindex? do
-      Logger.info("Hot swapping all search indices")
-      Indexer.reindex_all()
-    end
+    do_reindex(reindex)
   after
     resume!()
   end
+
+  defp do_reindex(true) do
+    Logger.info("Hot swapping all search indices with full reindex")
+    Indexer.reindex_all()
+  end
+
+  defp do_reindex(:full), do: do_reindex(true)
+
+  defp do_reindex(:quick) do
+    Logger.info("Hot swapping all search indices with quick reindex")
+    Indexer.quick_reindex()
+  end
+
+  defp do_reindex(_), do: :noop
 
   def seed(name) do
     with_log_level :info do

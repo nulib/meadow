@@ -48,7 +48,6 @@ defmodule Meadow.Config.Runtime.Test do
       required_checksum_tags: ["computed-md5"],
       checksum_wait_timeout: 15_000
 
-
     config :meadow, :elasticsearch_retry,
       interval: 100,
       max_retries: 3
@@ -73,7 +72,8 @@ defmodule Meadow.Config.Runtime.Test do
     config :meadow, Meadow.Search.Cluster,
       bulk_page_size: 3,
       bulk_wait_interval: 2,
-      embedding_model_id: nil
+      embedding_model_id: nil,
+      reindex_poll_interval: 250
 
     config :meadow,
       dc_api: [

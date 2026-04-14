@@ -55,6 +55,12 @@
         "search_analyzer": "stopword_analyzer",
         "search_quote_analyzer": "full_analyzer"
       },
+      "all_controlled_variants": {
+        "type": "text",
+        "analyzer": "full_analyzer",
+        "search_analyzer": "stopword_analyzer",
+        "search_quote_analyzer": "full_analyzer"
+      },
       "all_controlled_terms": {
         "type": "keyword"
       },
@@ -143,14 +149,27 @@
       },
       {
         "labels": {
-          "path_match": "^contributor.label$|^creator.label$|^language.label$|^location.label$|^genre.label$|^style_period.label$|^technique.label$",
+          "path_match": "^contributor.label$|^creator.label$|^language.label$|^location.label$|^genre.label$|^style_period.label$|^subject.label$|^technique.label$",
           "match_pattern": "regex",
           "mapping": {
             "type": "keyword",
             "copy_to": [
               "all_text",
               "all_controlled_terms",
-              "all_controlled_labels"
+              "all_controlled_labels",
+              "all_controlled_variants"
+            ]
+          }
+        }
+      },
+      {
+        "variants": {
+          "path_match": "^contributor.variants$|^creator.variants$|^language.variants$|^location.variants$|^genre.variants$|^style_period.variants$|^subject.variants$|^technique.variants$",
+          "match_pattern": "regex",
+          "mapping": {
+            "type": "keyword",
+            "copy_to": [
+              "all_controlled_variants"
             ]
           }
         }

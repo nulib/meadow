@@ -6,9 +6,10 @@ defmodule MeadowWeb.Resolvers.Ingest do
   alias Meadow.Config
   alias Meadow.Data.ActionStates
   alias Meadow.Data.Schemas.ActionState
-  alias Meadow.Ingest.{Projects, Rows, Sheets, SheetsToWorks}
+  alias Meadow.Ingest.{AIPreview, Projects, Rows, Sheets, SheetsToWorks}
   alias Meadow.Ingest.Sheets
   alias Meadow.Ingest.Validator
+  alias Meadow.Roles
   alias Meadow.Utils.{AWS, ChangesetErrors}
 
   def projects(_, args, _) do
@@ -77,21 +78,40 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {:ok, %{validations: [%{id: "sheet", object: %{errors: [], status: "pending"}}]}}
   end
 
-  def validate_ingest_sheet(_, args, _) do
-    {response, pid} =
-      Meadow.Async.run_once("validate:#{args[:sheet_id]}", fn ->
-        args[:sheet_id] |> Validator.result()
+  def validate_ingest_sheet(_, %{sheet_id: sheet_id} = _args, %{context: %{current_user: user}}) do
+    sheet = Sheets.get_ingest_sheet!(sheet_id)
 
-        with sheet <- args[:sheet_id] |> Sheets.get_ingest_sheet!() do
+    case sheet.status do
+      "awaiting_approval" ->
+        if Roles.authorized?(user, :supermanager) do
           approve_ingest_sheet(sheet)
+          {:ok, %{message: "approved"}}
+        else
+          {:error, message: "You must be a supermanager to approve AI ingest sheets"}
         end
-      end)
 
-    pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
-    {:ok, %{message: to_string(response) <> " : " <> pid_string}}
+      _ ->
+        {response, pid} =
+          Meadow.Async.run_once("validate:#{sheet_id}", fn ->
+            sheet_id |> Validator.result()
+            sheet_id |> Sheets.get_ingest_sheet!() |> approve_ingest_sheet()
+          end)
+
+        pid_string = pid |> :erlang.pid_to_list() |> List.to_string()
+        {:ok, %{message: to_string(response) <> " : " <> pid_string}}
+    end
   end
 
-  defp approve_ingest_sheet(%{status: "valid"} = ingest_sheet) do
+  defp approve_ingest_sheet(%{status: "valid", ai_ingest: true} = ingest_sheet) do
+    {:ok, sheet} = Sheets.update_ingest_sheet_status(ingest_sheet, "generating_preview")
+
+    Meadow.Async.run_once("preview:#{sheet.id}", fn ->
+      AIPreview.generate_and_store(sheet)
+    end)
+  end
+
+  defp approve_ingest_sheet(%{status: status} = ingest_sheet)
+       when status in ["valid", "awaiting_approval"] do
     case Sheets.update_ingest_sheet_status(ingest_sheet, "approved") do
       {:error, changeset} ->
         {
@@ -118,7 +138,14 @@ defmodule MeadowWeb.Resolvers.Ingest do
     }
   end
 
-  def create_ingest_sheet(_, args, _) do
+  def create_ingest_sheet(_, args, %{context: %{current_user: user}}) do
+    args =
+      if Map.get(args, :ai_ingest, false) and not Roles.authorized?(user, :supermanager) do
+        Map.put(args, :ai_ingest, false)
+      else
+        args
+      end
+
     case Sheets.create_ingest_sheet(args) do
       {:error, changeset} ->
         {:error,
