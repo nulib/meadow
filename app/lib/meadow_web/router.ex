@@ -83,7 +83,6 @@ defmodule MeadowWeb.Router do
       forward_to: {
         Anubis.Server.Transport.StreamableHTTP.Plug,
         server: MeadowWeb.MCP.Server,
-        registry: MeadowWeb.MCP.GlobalRegistry,
         timeout: 120_000
       }
     )

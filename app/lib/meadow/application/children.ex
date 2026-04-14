@@ -44,10 +44,11 @@ defmodule Meadow.Application.Children do
         MeadowWeb.Endpoint,
         {Absinthe.Subscription, MeadowWeb.Endpoint},
         MeadowWeb.Subscription,
-        MeadowWeb.MCP.GlobalRegistry,
         {MeadowWeb.MCP.Server,
-         transport: :streamable_http, registry: MeadowWeb.MCP.GlobalRegistry}
-        |> distributed()
+         transport: :streamable_http,
+         registry:
+           {MeadowWeb.MCP.GlobalRegistry,
+            [name: Anubis.Server.Registry.registry_name(MeadowWeb.MCP.Server)]}}
       ],
       "web.notifiers" => [
         {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()}
@@ -101,7 +102,11 @@ defmodule Meadow.Application.Children do
   end
 
   defp specs(:test) do
-    [finch_spec(), mock_server(Meadow.Ark.MockServer, 3944), mock_server(Meadow.Directory.MockServer, 3946)] ++
+    [
+      finch_spec(),
+      mock_server(Meadow.Ark.MockServer, 3944),
+      mock_server(Meadow.Directory.MockServer, 3946)
+    ] ++
       workers(["web.server"])
   end
 
