@@ -153,6 +153,12 @@
           "match_pattern": "regex",
           "mapping": {
             "type": "keyword",
+            "fields": {
+              "text": {
+                "type": "text",
+                "analyzer": "standard"
+              }
+            },
             "copy_to": [
               "all_text",
               "all_controlled_terms",
