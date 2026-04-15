@@ -9,7 +9,9 @@ terraform.tfstate: .localstack/.start-stamp test.tfvars
 
 .localstack/.start-stamp: docker-compose.yml
 	(cd ../pipeline && $(MAKE) deps layers)
+	@mkdir -p $(@D)
 	docker compose up -d
+	@touch $@
 
 help:
 	@echo "make start      | start localstack"
@@ -25,4 +27,5 @@ stop:
 	docker compose down -v
 
 clean: stop
-	rm -rf .localstack .terraform terraform.tfstate* *.plan
+	sudo rm -rf .localstack
+	rm -rf .terraform terraform.tfstate* *.plan
