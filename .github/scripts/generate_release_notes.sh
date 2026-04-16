@@ -220,6 +220,16 @@ if [[ "$DRY_RUN" == "true" ]]; then
   echo "--- END RELEASE BODY ---"
   echo ""
   echo "==> DRY RUN complete. No release was created."
+
+  if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+    {
+      echo "current_tag=${CURRENT_TAG}"
+      echo "release_url=DRY_RUN"
+      echo "release_body<<__RELEASE_BODY__"
+      echo "${RELEASE_BODY}"
+      echo "__RELEASE_BODY__"
+    } >> "$GITHUB_OUTPUT"
+  fi
   exit 0
 fi
 
@@ -254,3 +264,13 @@ if [[ "$RELEASE_URL" == "null" || -z "$RELEASE_URL" ]]; then
 fi
 
 echo "==> Release created successfully: ${RELEASE_URL}"
+
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  {
+    echo "current_tag=${CURRENT_TAG}"
+    echo "release_url=${RELEASE_URL}"
+    echo "release_body<<__RELEASE_BODY__"
+    echo "${RELEASE_BODY}"
+    echo "__RELEASE_BODY__"
+  } >> "$GITHUB_OUTPUT"
+fi
