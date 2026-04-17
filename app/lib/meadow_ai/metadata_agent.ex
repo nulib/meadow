@@ -112,7 +112,7 @@ defmodule MeadowAI.MetadataAgent do
       result =
         if Keyword.get(opts, :test, false) do
           :timer.sleep(500)
-          {:ok, {"test", prompt, opts}}
+          {:ok, {%{"result" => "test"}, prompt, opts}}
         else
           check_prompt_and_execute(prompt, opts)
         end
@@ -194,49 +194,54 @@ defmodule MeadowAI.MetadataAgent do
       timeout: 900_000,
       retries: 0
     )
-    |> process_execution_result()
+    |> process_execution_result(opts)
   rescue
     error ->
       Logger.error("Error executing Claude query: #{Exception.message(error)}")
       {:error, {:query_execution_error, error}}
   end
 
-  defp process_execution_result({:ok, %{"statusCode" => 200, "body" => body}}) do
+  defp process_execution_result({:ok, %{"statusCode" => 200, "body" => body}}, opts) do
     case Jason.decode(body) do
       {:ok, decoded} ->
-        log_metrics(decoded)
-        {:ok, decoded["result"]}
+        log_metrics(decoded, Keyword.get(opts, :metadata, %{}))
+        {:ok, Map.take(decoded, ["result", "model", "total_cost_usd"])}
 
       error ->
         {:error, {:invalid_response, error}}
     end
   end
 
-  defp process_execution_result({:ok, %{"statusCode" => status_code, "body" => body}}) do
+  defp process_execution_result({:ok, %{"statusCode" => status_code, "body" => body}}, _opts) do
     Logger.error("Lambda execution error: Status #{status_code}, Body: #{body}")
     {:error, {:lambda_invocation_failed, status_code, body}}
   end
 
-  defp process_execution_result({:ok, %{"errorMessage" => error_message}}) do
+  defp process_execution_result({:ok, %{"errorMessage" => error_message}}, _opts) do
     Logger.error("Lambda execution error: #{error_message}")
     {:error, {:lambda_invocation_failed, error_message}}
   end
 
-  defp process_execution_result(result) do
+  defp process_execution_result(result, _opts) do
     Logger.error("Lambda invocation returned unknown result: #{inspect(result)}")
     {:error, {:lambda_invocation_failed, result}}
   end
 
-  defp log_metrics(message) do
+  defp log_metrics(message, metadata) do
     config = AIConfig.get(:metrics_log)
 
     CloudwatchLogs.create_log_stream(config[:group], config[:stream])
     |> ExAws.request()
 
+    cloudwatch_message =
+      message
+      |> Map.put("metadata", metadata)
+      |> Map.put("model", AIConfig.get(:model))
+
     CloudwatchLogs.put_log_events(config[:group], config[:stream], [
       %{
         "timestamp" => DateTime.utc_now() |> DateTime.to_unix(:millisecond),
-        "message" => Jason.encode!(Map.put(message, "model", AIConfig.get(:model)))
+        "message" => Jason.encode!(cloudwatch_message)
       }
     ])
     |> ExAws.request()

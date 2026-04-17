@@ -14,7 +14,7 @@ import { Button } from "@nulib/design-system";
 import { IconImages } from "@js/components/Icon";
 import { ActionHeadline, Skeleton } from "@js/components/UI/UI";
 
-const IngestSheetCompleted = ({ sheetId, title }) => {
+const IngestSheetCompleted = ({ sheetId, title, aiCostActual, aiCostEstimate }) => {
   const history = useHistory();
   const {
     loading: worksLoading,
@@ -64,6 +64,20 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
 
   return (
     <>
+      {aiCostActual && (
+        <div className="box">
+          <div className="notification is-info">
+            <h2 className="title is-5">AI Ingest Cost</h2>
+            <p>
+              Actual cost: <strong>${aiCostActual.toFixed(4)}</strong>
+              {aiCostEstimate && (
+                <> (estimated: ${aiCostEstimate.toFixed(2)})</>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+
       {ingestSheetErrors.length > 0 && (
         <div className="box">
           <IngestSheetCompletedErrors
@@ -152,6 +166,8 @@ const IngestSheetCompleted = ({ sheetId, title }) => {
 IngestSheetCompleted.propTypes = {
   sheetId: PropTypes.string,
   title: PropTypes.string,
+  aiCostActual: PropTypes.number,
+  aiCostEstimate: PropTypes.number,
 };
 
 export default IngestSheetCompleted;

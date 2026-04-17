@@ -14,13 +14,19 @@ defmodule MeadowAI.MetadataAgentTest do
       prompt = "Test prompt"
 
       # Success
-      assert {:ok, %{request_count: 0, failure_count: 0, last_failure: nil}} = MetadataAgent.status()
-      assert {:ok, {"test", ^prompt, opts}} = MetadataAgent.query(prompt, test: true, timeout: 1_000)
+      assert {:ok, %{request_count: 0, failure_count: 0, last_failure: nil}} =
+               MetadataAgent.status()
+
+      assert {:ok, {%{"result" => "test"}, ^prompt, opts}} =
+               MetadataAgent.query(prompt, test: true, timeout: 1_000)
+
       assert opts[:test] == true
       assert Keyword.has_key?(opts, :firewall_security_header)
       assert Keyword.has_key?(opts, :auth_token)
       assert Keyword.has_key?(opts, :mcp_url)
-      assert {:ok, %{request_count: 1, failure_count: 0, last_failure: nil}} = MetadataAgent.status()
+
+      assert {:ok, %{request_count: 1, failure_count: 0, last_failure: nil}} =
+               MetadataAgent.status()
 
       # Failure
       assert {:error, :timeout} = MetadataAgent.query(prompt, test: true, timeout: 250)

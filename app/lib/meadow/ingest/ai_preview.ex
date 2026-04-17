@@ -24,12 +24,15 @@ defmodule Meadow.Ingest.AIPreview do
 
   For EACH work listed below:
   1. Call `get_ingest_image` with the S3 URI to view the image.
-  2. Call `authority_search` (authority_code: "lcsh") to find 3 appropriate subject headings
-     based on what you see — people, places, events, topics, or objects in the image.
+  2. Call `authority_search`  to find 3 appropriate subject headings
+    based on what you see — people, places, events, topics, or objects in the image.
+    Use authority_code: "lcnaf" for names and "fast" for everything else.
   3. Write a concise descriptive summary (1-3 sentences).
 
   Works to preview:
   """
+
+  @estimate_fudge_factor 1.3
 
   @doc """
   Generate previews for up to 3 IMAGE works in the sheet and store them,
@@ -38,7 +41,7 @@ defmodule Meadow.Ingest.AIPreview do
   def generate_and_store(%{id: _} = sheet) do
     Logger.info("AIPreview: generating previews for sheet #{sheet.id}")
 
-    works = find_preview_works(sheet)
+    works = find_image_works(sheet) |> Enum.take(3)
 
     case works do
       [] ->
@@ -46,8 +49,12 @@ defmodule Meadow.Ingest.AIPreview do
 
       works ->
         case invoke_agent(works, sheet.id) do
-          {:ok, _} -> :ok
-          {:error, reason} -> Logger.warning("AIPreview: agent call failed: #{inspect(reason)}")
+          {:ok, response} ->
+            update_cost_estimate(sheet, works, response)
+            :ok
+
+          {:error, reason} ->
+            Logger.warning("AIPreview: agent call failed: #{inspect(reason)}")
         end
     end
 
@@ -62,9 +69,7 @@ defmodule Meadow.Ingest.AIPreview do
       {:error, error}
   end
 
-  # Find up to 3 IMAGE works that have at least one Access (A) role row,
-  # taking the lowest-numbered row per work as the representative image.
-  defp find_preview_works(sheet) do
+  defp find_image_works(sheet) do
     bucket = Config.ingest_bucket()
 
     Rows.list_ingest_sheet_rows(sheet_id: sheet.id)
@@ -79,7 +84,6 @@ defmodule Meadow.Ingest.AIPreview do
       s3_uri = "s3://#{bucket}/#{relative_path}"
       {accession, s3_uri}
     end)
-    |> Enum.take(3)
   end
 
   defp invoke_agent(works, sheet_id) do
@@ -114,5 +118,20 @@ defmodule Meadow.Ingest.AIPreview do
         Logger.warning("AIPreview: agent call failed: #{inspect(reason)}")
         {:error, reason}
     end
+  end
+
+  defp update_cost_estimate(sheet, works, response) do
+    cost = Map.get(response, "total_cost_usd", 0.0)
+    cost_per_work = if works == [], do: 0.0, else: cost / length(works)
+    work_count = find_image_works(sheet) |> Enum.count()
+    estimated_cost = Float.round(cost_per_work * work_count * @estimate_fudge_factor, 2)
+
+    Sheets.update_ingest_sheet(sheet, %{
+      ai_cost_estimate: estimated_cost
+    })
+
+    Logger.info(
+      "AIPreview: estimated cost for sheet #{sheet.id} with #{work_count} works: $#{estimated_cost}"
+    )
   end
 end

@@ -22,4 +22,5 @@ defmodule MeadowWeb.MCP.Server do
   component(Tools.SendStatusUpdate)
   component(Tools.UpdatePlanChange)
   component(Tools.SubmitAIPreviews)
+  component(Tools.ApplyWorkMetadata)
 end

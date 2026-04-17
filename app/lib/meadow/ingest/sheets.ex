@@ -47,6 +47,34 @@ defmodule Meadow.Ingest.Sheets do
   end
 
   @doc """
+  Updates the AI cost for a sheet by a given delta.
+
+  ## Examples
+      iex> cost_delta(sheet, 10.0)
+      :ok
+
+      iex> cost_delta(sheet_id, -5.0)
+      :ok
+  """
+  def cost_delta(%Sheet{} = ingest_sheet, delta) do
+    cost_delta(ingest_sheet.id, delta)
+  end
+
+  def cost_delta(sheet_id, delta) when is_binary(sheet_id) do
+    Repo.transaction(fn ->
+      Repo.query!("SET LOCAL lock_timeout = '30s'")
+
+      locked_sheet =
+        from(s in Sheet, where: s.id == ^sheet_id, lock: "FOR UPDATE")
+        |> Repo.one!()
+
+      locked_sheet
+      |> Sheet.changeset(%{ai_cost_actual: (locked_sheet.ai_cost_actual || 0.0) + delta})
+      |> Repo.update!()
+    end)
+  end
+
+  @doc """
   Deletes an Sheet.
   Set the status to 'DELETED' and send a notification before deleting
   ## Examples
