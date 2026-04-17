@@ -5,7 +5,7 @@ import { START_VALIDATION } from "./ingestSheet.gql";
 import { Button, Notification } from "@nulib/design-system";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-function IngestSheetAwaitingApproval({ sheetId, aiPreview }) {
+function IngestSheetAwaitingApproval({ sheetId, aiCostEstimate, aiPreview }) {
   const [understood, setUnderstood] = useState(false);
   const { isAuthorized } = useIsAuthorized();
   const canApprove = isAuthorized("SUPERMANAGER");
@@ -30,12 +30,25 @@ function IngestSheetAwaitingApproval({ sheetId, aiPreview }) {
         below before approving.
       </Notification>
 
+      {aiCostEstimate && (
+        <div className="notification is-warning">
+          <h2 className="title is-5">AI Cost Estimate</h2>
+          <p>
+            This AI-enhanced ingest has an estimated cost of <strong>${aiCostEstimate.toFixed(2)}</strong> based 
+            on the cost of the preview generation. The actual cost may vary.
+          </p>
+        </div>
+      )}
+
       {aiPreview && aiPreview.length > 0 && (
         <div className="mb-5">
           <h2 className="title is-5">AI-Generated Previews</h2>
           <div className="columns is-multiline">
             {aiPreview.map((preview) => (
-              <div key={preview.work_accession_number} className="column is-one-third">
+              <div
+                key={preview.work_accession_number}
+                className="column is-one-third"
+              >
                 <div className="card">
                   {preview.thumbnail && (
                     <div className="card-image">
@@ -59,7 +72,11 @@ function IngestSheetAwaitingApproval({ sheetId, aiPreview }) {
                         <ul>
                           {preview.subjects.map((subject) => (
                             <li key={subject.id} className="is-size-7">
-                              <a href={subject.id} target="_blank" rel="noreferrer">
+                              <a
+                                href={subject.id}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
                                 {subject.label}
                               </a>
                             </li>

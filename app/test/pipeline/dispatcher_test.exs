@@ -11,6 +11,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
     ExtractExifMetadata,
     ExtractMimeType,
     FileSetComplete,
+    GenerateAIMetadata,
     GenerateFileSetDigests,
     IngestFileSet,
     InitializeDispatch,
@@ -114,6 +115,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
                CopyFileToPreservation,
                AttachTranscription,
                CreatePyramidTiff,
+               GenerateAIMetadata,
                FileSetComplete
              ]
     end

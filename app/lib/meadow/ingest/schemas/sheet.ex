@@ -22,7 +22,9 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     field :filename, :string
     field :status, :string, default: "uploaded"
     field :ai_ingest, :boolean, default: false
-    field :ai_preview, {:array, :map}
+    field :ai_cost_actual, :float, default: 0.0
+    field :ai_cost_estimate, :float, default: 0.0
+    field :ai_preview, {:array, :map}, default: []
     field :file_errors, {:array, :string}, default: []
 
     embeds_many :state, State, primary_key: {:name, :string, []} do
@@ -45,7 +47,18 @@ defmodule Meadow.Ingest.Schemas.Sheet do
         else: attrs
 
     ingest_sheet
-    |> cast(attrs, [:title, :filename, :project_id, :file_errors, :status, :ai_ingest, :ai_preview, :updated_at])
+    |> cast(attrs, [
+      :title,
+      :filename,
+      :project_id,
+      :file_errors,
+      :status,
+      :ai_ingest,
+      :ai_cost_actual,
+      :ai_cost_estimate,
+      :ai_preview,
+      :updated_at
+    ])
     |> cast_embed(:state, with: &state_changeset/2)
     |> cast_assoc(:works)
     |> validate_required([:title, :filename, :project_id])

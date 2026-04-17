@@ -7,7 +7,8 @@ import IngestSheetCompleted from "./Completed";
 import { INGEST_SHEET_SUBSCRIPTION } from "@js/components/IngestSheet/ingestSheet.gql";
 
 const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
-  const { aiPreview, id, status, title } = ingestSheetData;
+  const { aiCostActual, aiCostEstimate, aiPreview, id, status, title } =
+    ingestSheetData;
 
   useEffect(() => {
     subscribeToIngestSheetUpdates({
@@ -36,7 +37,12 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
 
       {isCompleted && (
         <>
-          <IngestSheetCompleted sheetId={ingestSheetData.id} title={title} />
+          <IngestSheetCompleted
+            sheetId={ingestSheetData.id}
+            title={title}
+            aiCostActual={aiCostActual}
+            aiCostEstimate={aiCostEstimate}
+          />
         </>
       )}
 
@@ -48,7 +54,7 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
 
       {status === "AWAITING_APPROVAL" && (
         <div className="box">
-          <IngestSheetAwaitingApproval sheetId={id} aiPreview={aiPreview} />
+          <IngestSheetAwaitingApproval sheetId={id} aiCostEstimate={aiCostEstimate} aiPreview={aiPreview} />
         </div>
       )}
     </>
