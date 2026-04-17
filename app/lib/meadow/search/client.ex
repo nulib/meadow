@@ -172,7 +172,8 @@ defmodule Meadow.Search.Client do
         query: query
       },
       dest: %{
-        index: target
+        index: target,
+        pipeline: "_none"
       }
     }
 

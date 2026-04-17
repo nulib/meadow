@@ -112,7 +112,7 @@
     "react-router-prop-types": "^1.0.5",
     "sass": "^1.99.0",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.2",
+    "typescript": "^6.0.3",
     "use-phoenix-channel": "^1.1.1",
     "vite": "^7.3.2",
     "vite-plugin-svgr": "^5.2.0"

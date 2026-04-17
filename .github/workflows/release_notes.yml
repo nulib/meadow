@@ -36,6 +36,7 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AwsAccount }}:role/github-actions-role
           aws-region: us-east-1
       - name: Generate Release Notes
+        id: generate
         run: .github/scripts/generate_release_notes.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,3 +44,52 @@ jobs:
           PREVIOUS_TAG: ${{ inputs.previous_tag }}
           DRAFT_RELEASE: ${{ inputs.draft }}
           AWS_REGION: us-east-1
+      - name: Notify Teams
+        if: steps.generate.outputs.release_body != ''
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          RELEASE_URL: ${{ steps.generate.outputs.release_url }}
+          RELEASE_BODY: ${{ steps.generate.outputs.release_body }}
+          CURRENT_TAG: ${{ steps.generate.outputs.current_tag }}
+          IS_DRAFT: ${{ inputs.draft }}
+        run: |
+          if [[ "$IS_DRAFT" == "true" ]]; then
+            TITLE="🚀 [DRAFT] Meadow ${CURRENT_TAG}"
+          else
+            TITLE="🚀 Meadow ${CURRENT_TAG} Released"
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg title "$TITLE" \
+            --arg body "$RELEASE_BODY" \
+            --arg url "$RELEASE_URL" \
+            '{
+              type: "message",
+              attachments: [{
+                contentType: "application/vnd.microsoft.card.adaptive",
+                content: {
+                  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                  type: "AdaptiveCard",
+                  version: "1.2",
+                  body: [
+                    {type: "TextBlock", size: "large", weight: "bolder", text: $title, wrap: true},
+                    {type: "TextBlock", text: $body, wrap: true}
+                  ],
+                  actions: [
+                    {type: "Action.OpenUrl", title: "View Release", url: $url}
+                  ]
+                }
+              }]
+            }')
+
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "$TEAMS_WEBHOOK_URL")
+
+          if [[ "$HTTP_STATUS" != "200" && "$HTTP_STATUS" != "202" ]]; then
+            echo "WARNING: Teams notification returned HTTP ${HTTP_STATUS}"
+          else
+            echo "==> Teams notification sent"
+          fi
