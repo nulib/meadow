@@ -1,0 +1,6 @@
+mutation TranscribeFileSet($fileSetId: ID!) {
+  transcribeFileSet(fileSetId: $fileSetId) {
+    id
+    status
+  }
+}
