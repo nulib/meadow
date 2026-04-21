@@ -3,6 +3,8 @@ defmodule Meadow.Data.Transcriber do
   Facilitates image transcription by invoking the configured AWS Bedrock model.
   """
 
+  @behaviour Meadow.Data.TranscriberBehaviour
+
   alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.FileSet
@@ -32,8 +34,7 @@ defmodule Meadow.Data.Transcriber do
 
   Note: This function uses Bedrock's streaming API for better performance and real-time feedback.
   """
-  @spec transcribe(binary(), keyword()) ::
-          {:ok, %{text: binary(), raw: map(), streamed_chunks: list()}} | {:error, term()}
+  @impl Meadow.Data.TranscriberBehaviour
   def transcribe(file_set_id, opts \\ []) when is_binary(file_set_id) do
     previous_metadata = Logger.metadata()
     Logger.metadata(id: file_set_id)
@@ -293,11 +294,7 @@ defmodule Meadow.Data.Transcriber do
     end
   end
 
-  # ConverseStream final events (text extracted from chunks, not final payload)
-  defp extract_transcription_data(%{"messageStop" => _}), do: %{text: "", languages: []}
-  defp extract_transcription_data(%{"metadata" => _}), do: %{text: "", languages: []}
-  defp extract_transcription_data(%{"usage" => _}), do: %{text: "", languages: []}
-  defp extract_transcription_data(%{"metrics" => _}), do: %{text: "", languages: []}
+  # ConverseStream final events carry metadata only; text comes from chunk accumulation.
   defp extract_transcription_data(_), do: %{text: "", languages: []}
 
   defp extract_data_from_chunks(chunks) do

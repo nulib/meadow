@@ -15,6 +15,8 @@ defmodule Meadow.Data.FileSets do
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
 
+  require Logger
+
   @doc """
   Returns the list of FileSets.
 
@@ -292,11 +294,15 @@ defmodule Meadow.Data.FileSets do
   @doc """
   Get the pyramid path for a file set
   """
-  def pyramid_uri_for(%FileSet{role: %{id: "A"}, core_metadata: %{mime_type: "image/" <> _thing}} = file_set),
-    do: pyramid_uri_from_id(file_set.id)
+  def pyramid_uri_for(
+        %FileSet{role: %{id: "A"}, core_metadata: %{mime_type: "image/" <> _thing}} = file_set
+      ),
+      do: pyramid_uri_from_id(file_set.id)
 
-  def pyramid_uri_for(%FileSet{role: %{id: "X"}, core_metadata: %{mime_type: "image/" <> _thing}} = file_set),
-    do: pyramid_uri_from_id(file_set.id)
+  def pyramid_uri_for(
+        %FileSet{role: %{id: "X"}, core_metadata: %{mime_type: "image/" <> _thing}} = file_set
+      ),
+      do: pyramid_uri_from_id(file_set.id)
 
   def pyramid_uri_for(_), do: nil
 
@@ -505,7 +511,8 @@ defmodule Meadow.Data.FileSets do
       {:ok, "s3://bucket/path/to/file.txt"}
 
   """
-  def write_annotation_content(%FileSetAnnotation{} = annotation, content) when is_binary(content) do
+  def write_annotation_content(%FileSetAnnotation{} = annotation, content)
+      when is_binary(content) do
     location = annotation_location(annotation)
     %URI{host: bucket, path: "/" <> key} = URI.parse(location)
 
@@ -547,7 +554,8 @@ defmodule Meadow.Data.FileSets do
       {:ok, "This is the transcription text"}
 
   """
-  def read_annotation_content(%FileSetAnnotation{s3_location: location}) when is_binary(location) do
+  def read_annotation_content(%FileSetAnnotation{s3_location: location})
+      when is_binary(location) do
     %URI{host: bucket, path: "/" <> key} = URI.parse(location)
 
     case ExAws.S3.get_object(bucket, key) |> ExAws.request() do
@@ -590,30 +598,56 @@ defmodule Meadow.Data.FileSets do
     end
   end
 
-  defp process_transcription(annotation, opts) do
+  @doc false
+  def process_transcription(annotation, opts) do
     {:ok, annotation} = update_annotation(annotation, %{status: "in_progress"})
 
-    case Transcriber.transcribe(annotation.file_set_id, opts) do
-      {:ok, transcription} ->
-        case write_annotation_content(annotation, transcription.text) do
-          {:ok, s3_location} ->
-            result = update_annotation(annotation, %{
-              status: "completed",
-              s3_location: s3_location,
-              language: transcription.languages
-            })
+    handle_transcription_result(
+      annotation,
+      transcriber().transcribe(annotation.file_set_id, opts)
+    )
+  end
 
-            add_transcription_note(annotation)
+  defp transcriber do
+    Application.get_env(:meadow, :transcriber, Transcriber)
+  end
 
-            result
+  defp handle_transcription_result(annotation, {:ok, %{text: ""}}),
+    do: mark_blank_transcription_error(annotation)
 
-          {:error, _reason} ->
-            update_annotation(annotation, %{status: "error"})
-        end
+  defp handle_transcription_result(annotation, {:ok, %{text: nil}}),
+    do: mark_blank_transcription_error(annotation)
+
+  defp handle_transcription_result(annotation, {:ok, %{text: text} = transcription})
+       when is_binary(text) do
+    case write_annotation_content(annotation, transcription.text) do
+      {:ok, s3_location} ->
+        result =
+          update_annotation(annotation, %{
+            status: "completed",
+            s3_location: s3_location,
+            language: transcription.languages
+          })
+
+        add_transcription_note(annotation)
+
+        result
 
       {:error, _reason} ->
         update_annotation(annotation, %{status: "error"})
     end
+  end
+
+  defp handle_transcription_result(annotation, {:error, _reason}) do
+    update_annotation(annotation, %{status: "error"})
+  end
+
+  defp mark_blank_transcription_error(annotation) do
+    Logger.warning(
+      "Transcription for file set #{annotation.file_set_id} returned blank text; marking annotation as error"
+    )
+
+    update_annotation(annotation, %{status: "error"})
   end
 
   defp add_transcription_note(%{file_set_id: file_set_id, model: model}) do
@@ -621,10 +655,11 @@ defmodule Meadow.Data.FileSets do
       %FileSet{work: work, core_metadata: %{label: label}} when not is_nil(work) ->
         today = Date.utc_today() |> Date.to_iso8601()
 
-        note_text = case model do
-          nil -> "Transcription generated for #{label} by AI on #{today}"
-          model_id -> "Transcription generated for #{label} by AI (#{model_id}) on #{today}"
-        end
+        note_text =
+          case model do
+            nil -> "Transcription generated for #{label} by AI on #{today}"
+            model_id -> "Transcription generated for #{label} by AI (#{model_id}) on #{today}"
+          end
 
         new_note = %{
           note: note_text,
@@ -654,7 +689,7 @@ defmodule Meadow.Data.FileSets do
   defp fetch_file_set_for_transcription(file_set_id) do
     case Repo.get(FileSet, file_set_id) |> Repo.preload(work: []) do
       nil ->
-        {:error, :file_set_not_found}
+        {:error, {:file_set_not_found, file_set_id}}
 
       %FileSet{role: %{id: role_id}} when role_id != "A" ->
         {:error, :invalid_role}
@@ -699,17 +734,12 @@ defmodule Meadow.Data.FileSets do
 
   """
   def update_annotation_content(annotation_id, content, opts \\ %{}) when is_binary(content) do
-    case get_annotation(annotation_id) do
-      nil ->
-        {:error, :not_found}
-
-      annotation ->
-        update_attrs = %{s3_location: nil}
-        update_attrs = if opts[:language], do: Map.put(update_attrs, :language, opts[:language]), else: update_attrs
-
-        with {:ok, s3_location} <- write_annotation_content(annotation, content) do
-          update_annotation(annotation, Map.put(update_attrs, :s3_location, s3_location))
-        end
+    with %FileSetAnnotation{} = annotation <-
+           get_annotation(annotation_id) || {:error, :not_found},
+         {:ok, s3_location} <- write_annotation_content(annotation, content) do
+      opts = Enum.into(opts, %{})
+      attrs = Map.merge(%{s3_location: s3_location}, Map.take(opts, [:language]))
+      update_annotation(annotation, attrs)
     end
   end
 
