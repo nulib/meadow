@@ -22,6 +22,7 @@ defmodule Meadow.Pipeline.Dispatcher do
     ExtractMediaMetadata,
     ExtractMimeType,
     FileSetComplete,
+    GenerateAIMetadata,
     GenerateFileSetDigests,
     IngestFileSet,
     InitializeDispatch,
@@ -44,6 +45,7 @@ defmodule Meadow.Pipeline.Dispatcher do
     CopyFileToPreservation,
     AttachTranscription,
     CreatePyramidTiff,
+    GenerateAIMetadata,
     FileSetComplete
   ]
 

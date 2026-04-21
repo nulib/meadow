@@ -41,8 +41,11 @@ defmodule MeadowWeb.Resolvers.Chat do
         # Run agent in background
         Task.start(fn ->
           try do
-            case MeadowAI.query(prompt, context: %{query: query, plan_id: plan.id}) do
-              {:ok, ai_response} ->
+            case MeadowAI.query(prompt,
+                   context: %{query: query, plan_id: plan.id},
+                   metadata: %{query_type: "chat"}
+                 ) do
+              {:ok, %{"result" => ai_response}} ->
                 # Publish final agent response as chat message
                 Meadow.Notification.publish(
                   %{

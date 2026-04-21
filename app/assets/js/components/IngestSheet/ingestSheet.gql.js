@@ -103,6 +103,8 @@ export const INGEST_SHEET_QUERY = gql`
   query IngestSheetQuery($sheetId: ID!) {
     ingestSheet(id: $sheetId) {
       aiIngest
+      aiCostActual
+      aiCostEstimate
       aiPreview
       fileErrors
       filename
