@@ -10,6 +10,7 @@ import { useQuery, useMutation } from "@apollo/client/react";
 import { s3Location, toastWrapper } from "@js/services/helpers";
 import { useHistory } from "react-router-dom";
 import { AuthContext } from "@js/components/Auth/Auth";
+import UICheckbox from "@js/components/UI/Checkbox";
 
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
@@ -212,27 +213,25 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
               </table>
             </React.Fragment>
           )}
-          {canAiIngest && (
-            <div className="field mt-4">
-              <label className="checkbox">
-                <input
-                  type="checkbox"
-                  checked={aiIngest}
-                  onChange={(e) => setAiIngest(e.target.checked)}
-                  className="mr-2"
-                />
-                AI Ingest
-              </label>
-            </div>
-          )}
         </section>
-        <footer className="modal-card-foot is-justify-content-flex-end">
-          <Button isText onClick={handleCancelClick}>
-            Cancel
-          </Button>
-          <Button isPrimary onClick={handleUploadClick} disabled={!currentFile}>
-            Upload
-          </Button>
+        <footer className="modal-card-foot is-justify-content-space-between">
+          {canAiIngest ? (
+            <UICheckbox
+              checked={aiIngest}
+              onChange={setAiIngest}
+              label="Enable AI-generated metadata"
+            />
+          ) : (
+            <div></div>
+          )}
+          <div>
+            <Button isText onClick={handleCancelClick}>
+              Cancel
+            </Button>
+            <Button isPrimary onClick={handleUploadClick} disabled={!currentFile}>
+              Upload
+            </Button>
+          </div>
         </footer>
       </div>
     </div>
