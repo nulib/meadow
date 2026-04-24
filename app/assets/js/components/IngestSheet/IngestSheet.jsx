@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import IngestSheetApprovedInProgress from "./ApprovedInProgress";
 import IngestSheetAwaitingApproval from "./AwaitingApproval";
 import IngestSheetCompleted from "./Completed";
+import GeneratingAIPreview from "./GeneratingAIPreview";
 import { INGEST_SHEET_SUBSCRIPTION } from "@js/components/IngestSheet/ingestSheet.gql";
 
 const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
@@ -51,6 +52,8 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
           <IngestSheetValidations sheetId={id} status={status} />
         </div>
       )}
+
+      {status === "GENERATING_PREVIEW" && <GeneratingAIPreview />}
 
       {status === "AWAITING_APPROVAL" && (
         <div className="box">
