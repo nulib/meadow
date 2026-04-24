@@ -78,6 +78,8 @@ export const TEMP_USER_FRIENDLY_STATUS = {
   ROW_FAIL: "Validation Errors",
   FILE_FAIL: "Validation Errors",
   VALID: "Valid, waiting for approval",
+  GENERATING_PREVIEW: "Generating AI preview...",
+  AWAITING_APPROVAL: "Awaiting approval",
   APPROVED: "Ingest in progress...",
   COMPLETED: "Ingest Complete",
   COMPLETED_ERROR: "Ingest Complete (with errors)",
