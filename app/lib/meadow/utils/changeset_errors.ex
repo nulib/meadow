@@ -22,6 +22,7 @@ defmodule Meadow.Utils.ChangesetErrors do
   defp format_value(%{edtf: value}), do: format_value(value)
   defp format_value(nil), do: nil
   defp format_value(""), do: ""
+  defp format_value([]), do: []
   defp format_value(value), do: inspect(value)
 
   defp format_error({404, _opts}), do: "is an unknown identifier"
