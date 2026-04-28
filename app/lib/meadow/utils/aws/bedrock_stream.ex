@@ -8,11 +8,13 @@ defmodule Meadow.Utils.AWS.BedrockStream do
   """
 
   alias ExAws.Request.Url
+  alias Meadow.Config
 
   require Logger
 
   @content_type "application/vnd.amazon.eventstream"
-  @default_timeout 120_000
+  @default_timeout 900_000
+  @default_connect_timeout 30_000
 
   @uint32_size 4
   @checksum_size 4
@@ -38,12 +40,14 @@ defmodule Meadow.Utils.AWS.BedrockStream do
               message: "Failed to sign Bedrock streaming request: #{inspect(reason)}"
         end
 
+      timeout = stream_timeout()
+
       hackney_opts =
         Application.get_env(:ex_aws, :hackney_opts, [])
         |> Keyword.merge(
           async: :once,
-          recv_timeout: 120_000,
-          connect_timeout: 30_000,
+          recv_timeout: timeout,
+          connect_timeout: @default_connect_timeout,
           ssl_options: [verify: :verify_peer]
         )
 
@@ -59,13 +63,13 @@ defmodule Meadow.Utils.AWS.BedrockStream do
               message: "Failed to initiate Bedrock streaming request: #{inspect(reason)}"
         end
 
-      ref = await_status!(ref)
+      ref = await_status!(ref, timeout)
       :ok = :hackney.stream_next(ref)
-      ref = await_headers!(ref)
+      ref = await_headers!(ref, timeout)
 
       stream =
         Stream.resource(
-          fn -> {:streaming, ref} end,
+          fn -> {:streaming, ref, timeout} end,
           &next_chunk/1,
           &close_stream/1
         )
@@ -73,7 +77,7 @@ defmodule Meadow.Utils.AWS.BedrockStream do
       Stream.flat_map(stream, &decode_chunk/1)
     end
 
-    defp next_chunk({:streaming, ref}) do
+    defp next_chunk({:streaming, ref, timeout}) do
       :ok = :hackney.stream_next(ref)
 
       receive do
@@ -88,10 +92,11 @@ defmodule Meadow.Utils.AWS.BedrockStream do
           raise ExAws.Error, message: "Bedrock streaming error: #{inspect(reason)}"
 
         {:hackney_response, ^ref, data} ->
-          {[data], {:streaming, ref}}
+          {[data], {:streaming, ref, timeout}}
       after
-        @default_timeout ->
-          raise ExAws.Error, message: "Bedrock streaming timed out waiting for data"
+        timeout ->
+          raise ExAws.Error,
+            message: "Bedrock streaming timed out waiting for data after #{timeout}ms"
       end
     end
 
@@ -99,11 +104,11 @@ defmodule Meadow.Utils.AWS.BedrockStream do
       {:halt, {:closed, ref}}
     end
 
-    defp close_stream({:streaming, ref}), do: :hackney.stop_async(ref)
+    defp close_stream({:streaming, ref, _timeout}), do: :hackney.stop_async(ref)
     defp close_stream({:closed, ref}), do: :hackney.stop_async(ref)
     defp close_stream(_), do: :ok
 
-    defp await_status!(ref) do
+    defp await_status!(ref, timeout) do
       Logger.debug("Waiting for Bedrock streaming status")
 
       receive do
@@ -118,12 +123,13 @@ defmodule Meadow.Utils.AWS.BedrockStream do
         {:hackney_response, ^ref, {:error, reason}} ->
           raise ExAws.Error, message: "Bedrock streaming connection error: #{inspect(reason)}"
       after
-        @default_timeout ->
-          raise ExAws.Error, message: "Timed out waiting for Bedrock streaming status"
+        timeout ->
+          raise ExAws.Error,
+            message: "Timed out waiting for Bedrock streaming status after #{timeout}ms"
       end
     end
 
-    defp await_headers!(ref) do
+    defp await_headers!(ref, timeout) do
       Logger.debug("Waiting for Bedrock streaming headers")
 
       receive do
@@ -137,14 +143,13 @@ defmodule Meadow.Utils.AWS.BedrockStream do
 
         {:hackney_response, ^ref, other} ->
           Logger.debug("Unexpected message while waiting for headers: #{inspect(other)}")
-          await_headers!(ref)
+          await_headers!(ref, timeout)
       after
-        @default_timeout ->
-          Logger.error(
-            "Timed out waiting for Bedrock streaming headers after #{@default_timeout}ms"
-          )
+        timeout ->
+          Logger.error("Timed out waiting for Bedrock streaming headers after #{timeout}ms")
 
-          raise ExAws.Error, message: "Timed out waiting for Bedrock streaming headers"
+          raise ExAws.Error,
+            message: "Timed out waiting for Bedrock streaming headers after #{timeout}ms"
       end
     end
 
@@ -194,6 +199,22 @@ defmodule Meadow.Utils.AWS.BedrockStream do
     [hackney_agent, "meadow/#{meadow_version}", "bedrock-stream/0.1.0"]
     |> Enum.join(" ")
   end
+
+  defp stream_timeout do
+    Config.ai(:transcriber_stream_timeout, @default_timeout)
+    |> normalize_timeout()
+  end
+
+  defp normalize_timeout(timeout) when is_integer(timeout) and timeout > 0, do: timeout
+
+  defp normalize_timeout(timeout) when is_binary(timeout) do
+    case Integer.parse(timeout) do
+      {int, _} when int > 0 -> int
+      _ -> @default_timeout
+    end
+  end
+
+  defp normalize_timeout(_), do: @default_timeout
 
   @doc false
   @spec decode_chunk(binary()) ::
@@ -287,7 +308,7 @@ defmodule Meadow.Utils.AWS.BedrockStream do
       %{"bytes" => bytes} when is_binary(bytes) ->
         # Messages API: decode base64 then parse inner JSON
         with {:ok, json} <- Base.decode64(bytes),
-              {:ok, inner_payload} <- Jason.decode(json) do
+             {:ok, inner_payload} <- Jason.decode(json) do
           {:ok, inner_payload}
         else
           _ -> {:ok, payload}

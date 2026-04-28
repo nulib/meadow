@@ -75,6 +75,20 @@ defmodule Meadow.Data.FileSetAnnotationsTest do
       assert [] = FileSets.list_annotations(file_set)
     end
 
+    test "update_annotation/2 returns a changeset error for stale annotations", %{
+      file_set: file_set
+    } do
+      {:ok, annotation} =
+        FileSets.create_annotation(file_set, %{type: "transcription", status: "pending"})
+
+      assert {:ok, _deleted} = FileSets.delete_annotation(annotation)
+
+      assert {:error, changeset} =
+               FileSets.update_annotation(annotation, %{status: "error"})
+
+      assert %{id: ["is stale"]} = errors_on(changeset)
+    end
+
     test "write_annotation_content/2 writes content to S3", %{file_set: file_set} do
       {:ok, annotation} =
         FileSets.create_annotation(file_set, %{type: "transcription", status: "pending"})

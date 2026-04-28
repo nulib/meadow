@@ -850,7 +850,7 @@ defmodule Meadow.Data.FileSets do
   def update_annotation(%FileSetAnnotation{} = annotation, attrs) do
     annotation
     |> FileSetAnnotation.changeset(attrs)
-    |> Repo.update()
+    |> Repo.update(stale_error_field: :id)
   end
 
   @doc """
