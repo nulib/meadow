@@ -159,9 +159,21 @@ defmodule MeadowWeb.Resolvers.Data do
         {:error, message: "Transcription is only available for Image works"}
 
       {:error, reason} ->
-        {:error, message: "Could not transcribe file_set", details: inspect(reason)}
+        {
+          :error,
+          message: "Could not transcribe file_set",
+          details: transcribe_file_set_error_details(reason)
+        }
     end
   end
+
+  defp transcribe_file_set_error_details(%Ecto.Changeset{} = changeset),
+    do: ChangesetErrors.humanize_errors(changeset)
+
+  defp transcribe_file_set_error_details({:file_set_not_found, _file_set_id}),
+    do: %{"file_set" => "was not found"}
+
+  defp transcribe_file_set_error_details(reason), do: inspect(reason)
 
   def update_file_set_annotation(_, args, _) do
     opts = if args[:language], do: %{language: args[:language]}, else: %{}
@@ -174,7 +186,9 @@ defmodule MeadowWeb.Resolvers.Data do
         {:error, message: "Annotation not found"}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:error, message: "Could not update annotation", details: ChangesetErrors.humanize_errors(changeset)}
+        {:error,
+         message: "Could not update annotation",
+         details: ChangesetErrors.humanize_errors(changeset)}
 
       {:error, reason} ->
         {:error, message: "Could not update annotation", details: inspect(reason)}
@@ -192,7 +206,9 @@ defmodule MeadowWeb.Resolvers.Data do
             {:ok, annotation}
 
           {:error, %Ecto.Changeset{} = changeset} ->
-            {:error, message: "Could not delete annotation", details: ChangesetErrors.humanize_errors(changeset)}
+            {:error,
+             message: "Could not delete annotation",
+             details: ChangesetErrors.humanize_errors(changeset)}
 
           {:error, reason} ->
             {:error, message: "Could not delete annotation", details: inspect(reason)}

@@ -18,6 +18,7 @@ defmodule Meadow.Data.Schemas.FileSetAnnotation do
     field(:model, :string)
     field(:s3_location, :string)
     field(:status, :string)
+    field(:error, :string, virtual: true)
 
     belongs_to(:file_set, FileSet)
 

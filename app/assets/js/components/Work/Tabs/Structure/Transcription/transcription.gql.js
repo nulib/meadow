@@ -11,6 +11,7 @@ export const FILE_SET_ANNOTATION = gql`
       model
       s3Location
       status
+      error
       type
       updatedAt
     }
