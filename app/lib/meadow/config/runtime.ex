@@ -26,6 +26,7 @@ defmodule Meadow.Config.Runtime do
       )
 
     Logger.info("Configuring authoritex")
+
     config :authoritex,
       connection_pool: Meadow.FinchPool,
       geonames_username: get_secret(:meadow, ["geonames", "username"])
@@ -95,7 +96,14 @@ defmodule Meadow.Config.Runtime do
       database: get_secret(:meadow, ["db", "database"], prefix("meadow")),
       port: get_secret(:meadow, ["db", "port"]),
       publication: "events",
-      subscriptions: ["works", "file_sets", "file_set_annotations", "collections", "ingest_sheets", "projects"],
+      subscriptions: [
+        "works",
+        "file_sets",
+        "file_set_annotations",
+        "collections",
+        "ingest_sheets",
+        "projects"
+      ],
       modules: [
         Meadow.Events.FileSets.Annotations,
         Meadow.Events.FileSets.Cleanup,
@@ -319,10 +327,10 @@ defmodule Meadow.Config.Runtime do
         digester: {:lambda, get_secret(:pipeline, ["digester"], "digester:$LATEST")},
         exif: {:lambda, get_secret(:pipeline, ["exif"], "exif:$LATEST")},
         frame_extractor:
-          {:lambda,
-           get_secret(:pipeline, ["frame_extractor"], "frame-extractor:$LATEST")},
+          {:lambda, get_secret(:pipeline, ["frame_extractor"], "frame-extractor:$LATEST")},
         mediainfo: {:lambda, get_secret(:pipeline, ["mediainfo"], "mediainfo:$LATEST")},
-        metadataAgent: {:lambda, get_secret(:pipeline, ["metadata_agent"], "metadata-agent:$LATEST")},
+        metadataAgent:
+          {:lambda, get_secret(:pipeline, ["metadata_agent"], "metadata-agent:$LATEST")},
         mime_type: {:lambda, get_secret(:pipeline, ["mime_type"], "mime-type:$LATEST")},
         tiff: {:lambda, get_secret(:pipeline, ["tiff"], "pyramid-tiff:$LATEST")}
     end
@@ -350,7 +358,8 @@ defmodule Meadow.Config.Runtime do
         # at a time (to avoid overwhelming downstream authorities on re-fetch).
         {
           get_secret(:meadow, ["scheduler", "controlled_terms_expire"], "0 0 * * *"),
-          {Meadow.Data.ControlledTerms, :expire!, [14 * 24 * 60 * 60, [limit: 2_500]]}
+          {Meadow.Data.ControlledTerms, :expire!,
+           [14 * 24 * 60 * 60, [limit: 2_500, exclude_prefix: "http://vocab.getty.edu/"]]}
         }
       ]
 

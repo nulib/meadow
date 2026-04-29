@@ -123,28 +123,32 @@ defmodule Meadow.Data.ControlledTerms do
   def expire!(age_in_seconds, opts \\ []) do
     Cachex.clear!(Meadow.Cache.ControlledTerms)
 
-    opts = Keyword.validate!(opts, prefix: nil, limit: nil)
+    opts = Keyword.validate!(opts, exclude_prefix: nil, prefix: nil, limit: nil)
 
     timestamp = NaiveDateTime.utc_now() |> NaiveDateTime.add(-age_in_seconds)
 
-    query = Enum.reduce(opts, ControlledTermCache, fn
-      {:prefix, prefix}, query when not is_nil(prefix) ->
-        from(e in query, where: like(e.id, ^(prefix <> "%")))
+    query =
+      Enum.reduce(opts, ControlledTermCache, fn
+        {:exclude_prefix, prefix}, query when not is_nil(prefix) ->
+          from(e in query, where: not like(e.id, ^(prefix <> "%")))
 
-      {:limit, limit}, query when not is_nil(limit) ->
-        id_query =
-          from(c in query,
-            where: c.updated_at < ^timestamp,
-            order_by: [asc: c.updated_at],
-            limit: ^limit,
-            select: %{id: c.id}
-          )
-        from(e in query, join: s in subquery(id_query), on: e.id == s.id)
+        {:prefix, prefix}, query when not is_nil(prefix) ->
+          from(e in query, where: like(e.id, ^(prefix <> "%")))
 
-      _, query ->
-        query
-    end)
+        {:limit, limit}, query when not is_nil(limit) ->
+          id_query =
+            from(c in query,
+              where: c.updated_at < ^timestamp,
+              order_by: [asc: c.updated_at],
+              limit: ^limit,
+              select: %{id: c.id}
+            )
 
+          from(e in query, join: s in subquery(id_query), on: e.id == s.id)
+
+        _, query ->
+          query
+      end)
 
     from(e in query, where: e.updated_at < ^timestamp)
     |> Repo.delete_all()
@@ -188,8 +192,10 @@ defmodule Meadow.Data.ControlledTerms do
     cond do
       is_nil(role_a) ->
         is_nil(role_b) and term_a == term_b
+
       is_nil(role_b) ->
         false
+
       true ->
         role_a.scheme == role_b.scheme and role_a.id == role_b.id and term_a == term_b
     end
@@ -199,18 +205,19 @@ defmodule Meadow.Data.ControlledTerms do
   List obsolete/replaced controlled terms stored in the cache
   """
   def list_obsolete_terms(limit \\ 100) do
-      from(obsolete in ControlledTermCache,
-        join: replacement in ControlledTermCache,
-        on: obsolete.replaced_by == replacement.id,
-        where: not is_nil(obsolete.replaced_by),
-        select: %{
-          id: obsolete.id,
-          label: obsolete.label,
-          replaced_by: replacement.id,
-          replacement_label: replacement.label
-        },
-        limit: ^limit)
-      |> Repo.all()
+    from(obsolete in ControlledTermCache,
+      join: replacement in ControlledTermCache,
+      on: obsolete.replaced_by == replacement.id,
+      where: not is_nil(obsolete.replaced_by),
+      select: %{
+        id: obsolete.id,
+        label: obsolete.label,
+        replaced_by: replacement.id,
+        replacement_label: replacement.label
+      },
+      limit: ^limit
+    )
+    |> Repo.all()
   end
 
   defp term_id(%{id: id}), do: id
@@ -279,7 +286,11 @@ defmodule Meadow.Data.ControlledTerms do
 
   defp try_to_save(id, label, variants, replaced_by) do
     %ControlledTermCache{id: id}
-    |> ControlledTermCache.changeset(%{label: label, variants: variants, replaced_by: replaced_by})
+    |> ControlledTermCache.changeset(%{
+      label: label,
+      variants: variants,
+      replaced_by: replaced_by
+    })
     |> Repo.insert(on_conflict: :nothing)
   rescue
     e in Postgrex.Error ->
