@@ -301,6 +301,7 @@ defmodule Meadow.Config.Runtime do
 
     config :meadow, :ai,
       metrics_log: log_configuration(),
+      transcriber_stream_timeout: 900_000,
       transcriber_model:
         get_secret(
           :meadow,
