@@ -37,6 +37,30 @@ defmodule Meadow.Data.CodedTermsTest do
       end
     end
 
+    test "lists only available authorities" do
+      old_authorities = Application.get_env(:authoritex, :authorities)
+
+      try do
+        Application.put_env(:authoritex, :authorities, [
+          Authoritex.FAST.Personal,
+          Authoritex.LOC.Names,
+          NUL.Authority,
+          Authoritex.GeoNames
+        ])
+
+        with results <- CodedTerms.list_coded_terms("authority") do
+          assert_lists_equal(results |> Enum.map(& &1.id), [
+            "fast-personal",
+            "lcnaf",
+            "nul-authority",
+            "geonames"
+          ])
+        end
+      after
+        Application.put_env(:authoritex, :authorities, old_authorities)
+      end
+    end
+
     test "returns an empty term list for an unknown scheme" do
       assert CodedTerms.list_coded_terms("nope_not_here") == []
     end
