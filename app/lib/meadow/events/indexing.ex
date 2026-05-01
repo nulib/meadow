@@ -68,7 +68,8 @@ defmodule Meadow.Events.Indexing do
       IndexBatcher.reindex([collection_id], :collections)
     end
 
-    if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:works_file_sets])) do
+    if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:works_file_sets])) or
+         work_title_changed?(changes) do
       from(fs in FileSet, where: fs.work_id == ^id)
       |> send_to_batcher(:file_sets)
     end
@@ -131,6 +132,13 @@ defmodule Meadow.Events.Indexing do
   defp do_delete_indexing(_, _) do
     :noop
   end
+
+  defp work_title_changed?(%{descriptive_metadata: %{old_value: old, new_value: new}})
+       when is_map(old) and is_map(new) do
+    Map.get(old, "title") != Map.get(new, "title")
+  end
+
+  defp work_title_changed?(_), do: false
 
   defp send_to_batcher(queryable, schema) do
     query = queryable |> select([q], q.id)
