@@ -238,6 +238,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field(:model, :string)
     field(:s3_location, :string)
     field(:status, non_null(:string))
+    field(:error, :string)
     field(:inserted_at, non_null(:datetime))
     field(:updated_at, non_null(:datetime))
 

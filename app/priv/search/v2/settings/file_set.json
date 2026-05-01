@@ -16,6 +16,16 @@
           "tokenizer": "standard",
           "char_filter": ["html_strip"],
           "filter": ["lowercase", "asciifolding", "english_stop"]
+        },
+        "fulltext_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "asciifolding"]
+        },
+        "fulltext_stopword_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "asciifolding", "english_stop"]
         }
       },
       "filter": {
@@ -42,6 +52,17 @@
             "analyzer": "full_analyzer",
             "search_analyzer": "stopword_analyzer",
             "search_quote_analyzer": "full_analyzer"
+          }
+        }
+      },
+      {
+        "annotation_content": {
+          "path_match": "annotations.content",
+          "mapping": {
+            "type": "text",
+            "analyzer": "fulltext_analyzer",
+            "search_analyzer": "fulltext_stopword_analyzer",
+            "search_quote_analyzer": "fulltext_analyzer"
           }
         }
       },

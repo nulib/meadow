@@ -144,6 +144,9 @@ export const INGEST_SHEET_SUBSCRIPTION = gql`
   subscription OnIngestSheetUpdate($sheetId: ID!) {
     ingestSheetUpdate(sheetId: $sheetId) {
       aiIngest
+      aiCostActual
+      aiCostEstimate
+      aiPreview
       fileErrors
       filename
       id

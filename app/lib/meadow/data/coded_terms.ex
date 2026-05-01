@@ -52,11 +52,19 @@ defmodule Meadow.Data.CodedTerms do
     with scheme <- normalize(scheme) do
       from(ct in CodedTerm,
         where: ct.scheme == ^scheme,
+        where: ^additional_where(scheme),
         order_by: ct.label
       )
       |> Repo.all()
     end
   end
+
+  defp additional_where("authority") do
+    available_authorities = Authoritex.authorities() |> Enum.map(fn {_, id, _} -> id end)
+    dynamic([ct], ct.id in ^available_authorities)
+  end
+
+  defp additional_where(_), do: []
 
   @doc """
   Retrieve a coded term by id and scheme

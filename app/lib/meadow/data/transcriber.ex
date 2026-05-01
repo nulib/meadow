@@ -3,6 +3,8 @@ defmodule Meadow.Data.Transcriber do
   Facilitates image transcription by invoking the configured AWS Bedrock model.
   """
 
+  @behaviour Meadow.Data.TranscriberBehaviour
+
   alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.FileSet
@@ -32,8 +34,7 @@ defmodule Meadow.Data.Transcriber do
 
   Note: This function uses Bedrock's streaming API for better performance and real-time feedback.
   """
-  @spec transcribe(binary(), keyword()) ::
-          {:ok, %{text: binary(), raw: map(), streamed_chunks: list()}} | {:error, term()}
+  @impl Meadow.Data.TranscriberBehaviour
   def transcribe(file_set_id, opts \\ []) when is_binary(file_set_id) do
     previous_metadata = Logger.metadata()
     Logger.metadata(id: file_set_id)
@@ -142,7 +143,6 @@ defmodule Meadow.Data.Transcriber do
       |> Keyword.get(:max_tokens, @default_max_tokens)
       |> normalize_max_tokens()
 
-    # Determine image format from MIME type
     image_format =
       case mime_type do
         "image/jpeg" -> "jpeg"
@@ -178,20 +178,34 @@ defmodule Meadow.Data.Transcriber do
             "toolSpec" => %{
               "name" => "provide_exact_transcription",
               "description" =>
-                "Extract the text content and detected languages from the provided image with exact fidelity.",
+                "Transcribe only the intentional recto (front-side) text from a document image. " <>
+                  "EXCLUDE any mirrored, reversed, or bleed-through text visible from the verso (back side) — " <>
+                  "such text appears fainter, reads right-to-left, and sits between or behind primary lines; treat it as paper texture. " <>
+                  "EXCLUDE color calibration targets, color bars, rulers, and scanning artifacts. " <>
+                  "EXCLUDE cataloger annotations — handwritten identifiers (typically in pencil) " <>
+                  "consisting of uppercase letters, digits, and underscores in a structured pattern " <>
+                  "(e.g., \"BFMF_B25_F04_034\"). These are archival control numbers added after the fact, " <>
+                  "not part of the original document. " <>
+                  "Blank pages (including blank versos) should be reported with transcribed_text set to \"[blank page]\".",
               "inputSchema" => %{
                 "json" => %{
                   "type" => "object",
                   "properties" => %{
                     "transcribed_text" => %{
                       "type" => "string",
-                      "description" => "The exact text transcribed from the image"
+                      "description" =>
+                        "The full and exact text from the front (recto) of the document, " <>
+                          "preserving original line breaks and top-to-bottom, left-to-right order. " <>
+                          "Do NOT include reversed or mirrored bleed-through text from the verso, " <>
+                          "color bars, rulers, or any scanning artifact. " <>
+                          "Do NOT add bracketed placeholders like [reversed text] or [illegible] " <>
+                          "for excluded bleed-through content. Never abbreviate or truncate."
                     },
                     "detected_languages" => %{
                       "type" => "array",
                       "items" => %{"type" => "string"},
                       "description" =>
-                        "ISO 639 language codes for languages detected in the text (e.g., ['en', 'lg', 'fr'])"
+                        "ISO 639 language codes for languages detected in the transcribed recto text (e.g., [\"en\", \"fr\"])"
                     }
                   },
                   "required" => ["transcribed_text", "detected_languages"]
@@ -215,7 +229,33 @@ defmodule Meadow.Data.Transcriber do
 
   defp default_prompt(_file_set_id) do
     """
-    Use the provide_exact_transcription tool to provide a FULL and EXACT text transcription for this image without any preamble, explanation, excision, truncation, abbreviation, or summarization. Include every column, heading, caption, and any other legible text exactly as it appears. Also detect the language(s) used in the text. Never abbreviate the transcription with bracketed text or summary information. ALWAYS TRANSCRIBE THE TEXT IN FULL!!! You have a massive 64K output token limit so there is NO EXCUSE for omitting any text. If the text is very long, you MUST still provide it ALL without omission. Preserve line breaks when they clarify structure and keep the original order (top-to-bottom, left-to-right).
+    Use the provide_exact_transcription tool to transcribe this image.
+
+    WHAT TO EXCLUDE (do this first, before anything else):
+    - Mirrored, reversed, or horizontally-flipped text that is visible because it
+      has bled through or shown through from the reverse side of the paper. This
+      text typically appears fainter or lighter than the primary writing, reads
+      right-to-left, and may sit between or behind the primary lines. Treat it as
+      part of the paper texture. Do NOT transcribe it. Do NOT note its presence.
+      Do NOT add bracketed placeholders like [reversed text] or [illegible].
+    - Color calibration targets, color bars, rulers, and scanning artifacts.
+      These are never part of the resource.
+    - Cataloger annotations: handwritten identifiers, almost always in pencil,
+      made up of uppercase letters, digits, and underscores in a structured
+      pattern such as `BFMF_B25_F04_034` or `MS_017_B02`. These are archival
+      control numbers added by staff after the fact and are NOT part of the
+      resource. Do not transcribe them and do not note their presence.
+
+    WHAT TO TRANSCRIBE:
+    Provide a FULL and EXACT transcription of the text intentionally written or
+    printed on the front (recto) of the image — every column, heading, caption,
+    and legible mark, exactly as it appears. Preserve line breaks when they
+    clarify structure and keep the original order (top-to-bottom, left-to-right).
+    Also detect the language(s) used.
+
+    Never abbreviate, summarize, or truncate. You have a 64K output token limit,
+    so there is NO EXCUSE for omitting any recto text. Blank pages — including
+    blank versos — should be transcribed simply as [blank page].
     """
     |> String.trim()
   end
@@ -293,32 +333,24 @@ defmodule Meadow.Data.Transcriber do
     end
   end
 
-  # ConverseStream final events (text extracted from chunks, not final payload)
-  defp extract_transcription_data(%{"messageStop" => _}), do: %{text: "", languages: []}
-  defp extract_transcription_data(%{"metadata" => _}), do: %{text: "", languages: []}
-  defp extract_transcription_data(%{"usage" => _}), do: %{text: "", languages: []}
-  defp extract_transcription_data(%{"metrics" => _}), do: %{text: "", languages: []}
+  # ConverseStream final events carry metadata only; text comes from chunk accumulation.
   defp extract_transcription_data(_), do: %{text: "", languages: []}
 
   defp extract_data_from_chunks(chunks) do
-    # Accumulate tool use input chunks
     json_chunks =
       chunks
       |> Enum.reduce([], &gather_stream_text/2)
       |> Enum.reverse()
       |> Enum.join()
 
-    # Try to parse as JSON tool input
     case Jason.decode(json_chunks) do
       {:ok, %{"transcribed_text" => text, "detected_languages" => languages}} ->
         %{text: String.trim(text), languages: languages}
 
       {:ok, %{"transcribed_text" => text}} ->
-        # Fallback if no languages detected (backward compatibility)
         %{text: String.trim(text), languages: ["en"]}
 
       _ ->
-        # Fallback to treating as plain text (for backward compatibility)
         %{text: String.trim(json_chunks), languages: ["en"]}
     end
   end
@@ -329,7 +361,6 @@ defmodule Meadow.Data.Transcriber do
          acc
        )
        when is_binary(input) do
-    # Tool use input is streamed as JSON string chunks
     [input | acc]
   end
 

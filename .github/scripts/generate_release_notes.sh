@@ -130,8 +130,8 @@ else
       [
         .[] |
         select(
-          (.title | ascii_downcase | test("^(dependabot|chore:|ci:|build:|bump version|increment version|deploy v|dependency rollup)") | not) and
-          ((.labels | map(ascii_downcase) | any(. == "dependencies" or . == "chore" or . == "ci")) | not)
+          (.title | ascii_downcase | test("^(dependabot|chore:|ci:|ignore:|build:|bump version|increment version|deploy v|dependency rollup)") | not) and
+          ((.labels | map(ascii_downcase) | any(. == "dependencies" or . == "chore" or . == "ci" or . == "ignore")) | not)
         )
       ]
     ')

@@ -32,7 +32,8 @@ defmodule Meadow.Indexing.V2.FileSet do
       role: file_set.role.label,
       streaming_url: FileSets.distribution_streaming_uri_for(file_set),
       visibility: file_set.work.visibility.label,
-      work_id: file_set.work_id
+      work_id: file_set.work_id,
+      work_title: file_set.work.descriptive_metadata.title
     }
     |> Meadow.Utils.Map.nillify_empty()
   end

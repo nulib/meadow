@@ -26,6 +26,7 @@ jest.mock("@nulib/design-system", () => {
   const React = require("react");
   return {
     Button: ({ children, ...props }) => <button {...props}>{children}</button>,
+    Notification: ({ children, ...props }) => <div {...props}>{children}</div>,
   };
 });
 
@@ -164,6 +165,73 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
 
     // Still no Pane yet (annotation will appear on a subsequent fetch)
     expect(screen.queryByTestId("transcription-pane")).not.toBeInTheDocument();
+  });
+
+  it("renders GraphQL errors from TRANSCRIBE_FILE_SET when transcription fails", async () => {
+    const details = { model: "is invalid" };
+    const workMocks = [
+      {
+        request: {
+          query: GET_WORK,
+          variables: { id: workId },
+        },
+        result: {
+          data: {
+            work: baseWork,
+          },
+        },
+      },
+      {
+        request: {
+          query: GET_WORK,
+          variables: { id: workId },
+        },
+        result: {
+          data: {
+            work: baseWork,
+          },
+        },
+      },
+      {
+        request: {
+          query: TRANSCRIBE_FILE_SET,
+          variables: { fileSetId },
+        },
+        result: {
+          data: {
+            transcribeFileSet: null,
+          },
+          errors: [
+            {
+              message: "Could not transcribe file_set",
+              details,
+              path: ["transcribeFileSet"],
+            },
+          ],
+        },
+      },
+    ];
+
+    renderWorkflow({ mocks: workMocks });
+
+    const button = await screen.findByRole("button", {
+      name: /generate transcription/i,
+    });
+
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(toastWrapper).toHaveBeenCalledWith(
+        "is-danger",
+        expect.stringMatching(/Could not transcribe file set.*Model:.*is invalid/i),
+      );
+    });
+    const toastMessage = toastWrapper.mock.calls.find(
+      ([type]) => type === "is-danger",
+    )?.[1];
+    expect(toastMessage).toBe(
+      "Could not transcribe file set — Model: is invalid",
+    );
   });
 
   it("renders Pane when an annotation already exists", async () => {
