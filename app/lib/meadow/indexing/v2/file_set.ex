@@ -13,6 +13,7 @@ defmodule Meadow.Indexing.V2.FileSet do
       annotations: encode_annotations(file_set),
       api_link: Path.join([api_url(), "file-sets", file_set.id]),
       api_model: "FileSet",
+      collection: collection(file_set.work.collection),
       create_date: file_set.inserted_at,
       digests: file_set.core_metadata.digests,
       description: file_set.core_metadata.description,
@@ -63,6 +64,9 @@ defmodule Meadow.Indexing.V2.FileSet do
       annotations -> annotations
     end
   end
+
+  def collection(%{id: id, title: title}), do: %{id: id, title: title}
+  def collection(_), do: %{}
 
   def api_url, do: Application.get_env(:meadow, :dc_api) |> get_in([:v2, "base_url"])
 
