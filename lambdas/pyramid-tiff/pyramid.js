@@ -1,14 +1,15 @@
 const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
 const concat = require("concat-stream");
 const sharp = require("sharp");
-const URI = require("uri-js");
+
+const MAX_DIMENSION = 15000;
+const TILE_SIZE = 256;
 
 const createPyramidTiff = (source, dest) => {
   return new Promise((resolve, reject) => {
     console.log(`Creating pyramid from ${source}`);
     streamFromS3(source)
     .then((inputStream) => {
-      let metadata;
       const transformStream = sharp({
         limitInputPixels: false,
         sequentialRead: true,
@@ -16,8 +17,8 @@ const createPyramidTiff = (source, dest) => {
       })
       .removeAlpha()
       .resize({
-        width: 15000,
-        height: 15000,
+        width: MAX_DIMENSION,
+        height: MAX_DIMENSION,
         fit: "inside",
         withoutEnlargement: true
       })
@@ -26,54 +27,62 @@ const createPyramidTiff = (source, dest) => {
         compression: "jpeg",
         quality: 75,
         tile: true,
-        tileHeight: 256,
-        tileWidth: 256,
+        tileHeight: TILE_SIZE,
+        tileWidth: TILE_SIZE,
         pyramid: true
       })
-      .withMetadata()
-      .on("info", (info) => (metadata = info));
+      .withMetadata();
 
       const uploadStream = concat((data) => {
+        sharp(data)
+          .metadata()
+          .then((metadata) => {
+            uploadToS3(data, dest, metadata)
+              .then((result) => resolve(result));
+          });
         console.log(`Saving to ${dest}`);
-        uploadToS3(data, dest, metadata)
-          .then((result) => resolve(result))
-          .catch((err) => reject(err));
       });
 
       inputStream.pipe(transformStream).pipe(uploadStream);
-    })
-    .catch((err) => reject(err));
+    });
   });
 };
 
 const streamFromS3 = async (location) => {
-  const uri = URI.parse(location);
+  const s3Location = getS3Location(location);
   const s3Client = new S3Client(s3ClientOpts());
-  const cmd = new GetObjectCommand({ Bucket: uri.host, Key: getS3Key(uri) });
+  const cmd = new GetObjectCommand(s3Location);
   const { Body } = await s3Client.send(cmd);
   return Body;
 };
 
-const uploadToS3 = (data, location, { width, height }) => {
-  let uri = URI.parse(location);
+const uploadToS3 = (data, location, { width, height, pages }) => {
+  const s3Location = getS3Location(location);
   return new Promise((resolve, reject) => {
     const s3Client = new S3Client(s3ClientOpts());
     const cmd = new PutObjectCommand({
-      Bucket: uri.host,
-      Key: getS3Key(uri),
+      ...s3Location,
       Body: data,
-      Metadata: { width: width.toString(), height: height.toString() }
+      ContentType: "image/tiff",
+      Metadata: {
+        width: width.toString(),
+        height: height.toString(),
+        pages: pages.toString(),
+        tilesize: TILE_SIZE.toString()
+      }
     });
 
     s3Client
       .send(cmd)
-      .then((_data) => resolve(location))
-      .catch((err) => reject(err));
+      .then((_data) => resolve(location));
   });
 };
 
-const getS3Key = (uri) => {
-  return uri.path.replace(/^\/+/, "");
+const getS3Location = (location) => {
+  const uri = new URL(location);
+  const Bucket = uri.host;
+  const Key = uri.pathname.slice(1);
+  return { Bucket, Key };
 };
 
 const s3ClientOpts = () => {

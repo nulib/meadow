@@ -15,6 +15,7 @@ defmodule Meadow.Events.Indexing do
   @cascade_fields %{
     file_sets_works:
       ~w[core_metadata derivatives extracted_metadata group_with poster_offset rank role structural_metadata]a,
+    collections_file_sets: ~w[title]a,
     collections_works: ~w[title description]a,
     ingest_sheets_works: ~w[title]a,
     works_collections: ~w[representative_file_set_id]a,
@@ -59,6 +60,11 @@ defmodule Meadow.Events.Indexing do
       from(w in Work, where: w.collection_id == ^id)
       |> send_to_batcher(:works)
     end
+
+    if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:collections_file_sets])) do
+      from(fs in FileSet, join: w in Work, on: fs.work_id == w.id, where: w.collection_id == ^id)
+      |> send_to_batcher(:file_sets)
+    end
   end
 
   defp do_update_indexing(%{id: id, collection_id: collection_id}, :works, changes)
@@ -68,7 +74,8 @@ defmodule Meadow.Events.Indexing do
       IndexBatcher.reindex([collection_id], :collections)
     end
 
-    if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:works_file_sets])) do
+    if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:works_file_sets])) or
+         work_title_changed?(changes) do
       from(fs in FileSet, where: fs.work_id == ^id)
       |> send_to_batcher(:file_sets)
     end
@@ -131,6 +138,13 @@ defmodule Meadow.Events.Indexing do
   defp do_delete_indexing(_, _) do
     :noop
   end
+
+  defp work_title_changed?(%{descriptive_metadata: %{old_value: old, new_value: new}})
+       when is_map(old) and is_map(new) do
+    Map.get(old, "title") != Map.get(new, "title")
+  end
+
+  defp work_title_changed?(_), do: false
 
   defp send_to_batcher(queryable, schema) do
     query = queryable |> select([q], q.id)
