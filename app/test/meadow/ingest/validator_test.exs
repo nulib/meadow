@@ -71,6 +71,15 @@ defmodule Meadow.Ingest.ValidatorTest do
       assert(ingest_sheet.status == "valid")
     end
 
+    @tag sheet: "ingest_sheet_1000.csv"
+    test "validates a large ingest sheet", context do
+      assert(Validator.result(context.sheet.id))
+      ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.file_errors == [])
+
+      assert(ingest_sheet.status == "valid")
+    end
+
     @tag sheet: "ingest_sheet_wrong_headers.csv"
     test "fails an ingest sheet when the headers are wrong", context do
       assert(Validator.result(context.sheet.id) == "fail")
