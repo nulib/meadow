@@ -1,14 +1,14 @@
-defmodule GettyLocal.GettyTerms do
+defmodule LocalAuthority.Terms do
   @moduledoc """
   Context module for querying Getty local authority records
   """
 
-  alias GettyLocal.Schemas.GettyTerm
+  alias LocalAuthority.Schemas.Term
   alias Meadow.Repo
   import Ecto.Query
 
   def get_term(id) do
-    GettyTerm
+    Term
     |> where([t], t.uri == ^id)
     |> select([t], %{
       uri: t.uri,
@@ -27,7 +27,7 @@ defmodule GettyLocal.GettyTerms do
     starts_with_term = "#{query}%"
 
     subquery =
-      from(g in GettyTerm,
+      from(g in Term,
         where:
           g.authority == ^authority and
             (ilike(g.label, ^contains_term) or ilike(g.variants, ^contains_term)),
