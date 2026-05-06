@@ -79,7 +79,7 @@ defmodule Meadow.Ingest.Validator do
             {:error, add_file_errors(sheet, ["Could not load ingest sheet from S3"])}
 
           i ->
-            :timer.sleep(@sleep_time)
+            :timer.sleep(@sleep_time * trunc(:math.pow(2, i - 1)))
             load_file(sheet, i + 1)
         end
 
@@ -113,7 +113,9 @@ defmodule Meadow.Ingest.Validator do
     invalid = check_invalid_headers(headers -- valid_headers)
 
     case missing ++ invalid do
-      [] -> {:ok, sheet}
+      [] ->
+        {:ok, sheet}
+
       errors ->
         add_file_errors(sheet, errors)
         {:error, sheet}
@@ -166,7 +168,9 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_rows(sheet) do
-    rows = Rows.list_ingest_sheet_rows(sheet: sheet, state: ["pending"])
+    all_rows = Rows.list_ingest_sheet_rows(sheet: sheet)
+    pending_rows = Enum.filter(all_rows, &(&1.state == "pending"))
+
     existing_files =
       Config.ingest_bucket()
       |> ExAws.S3.list_objects(prefix: sheet.project.folder)
@@ -176,7 +180,7 @@ defmodule Meadow.Ingest.Validator do
       |> MapSet.new()
 
     duplicate_accession_numbers =
-      rows
+      all_rows
       |> Enum.group_by(& &1.file_set_accession_number)
       |> Enum.filter(fn {_, rows} -> length(rows) > 1 end)
       |> Enum.map(fn {accession_number, rows} ->
@@ -185,7 +189,7 @@ defmodule Meadow.Ingest.Validator do
       |> Enum.into(%{})
 
     work_types =
-      rows
+      all_rows
       |> Enum.group_by(&Row.field_value(&1, "work_accession_number"))
       |> Enum.map(fn {work_accession_number, rows} ->
         values =
@@ -201,34 +205,100 @@ defmodule Meadow.Ingest.Validator do
       project_folder: sheet.project.folder,
       existing_files: existing_files,
       duplicate_accession_numbers: duplicate_accession_numbers,
-      work_types: work_types
+      work_types: work_types,
+      tag_cache: fetch_tag_cache(pending_rows),
+      structure_cache: fetch_structure_cache(pending_rows, sheet.project.folder)
     }
 
-    row_check = fn
-      row, result ->
-        case validate_row(row, context) do
-          "pass" -> result
-          "fail" -> :error
-        end
-    end
+    initial_result = if Enum.any?(all_rows, &(&1.state == "fail")), do: :error, else: :ok
 
-    overall_row_result = {
-      rows
-      |> Enum.reduce(:ok, row_check),
-      sheet
-    }
+    {row_result, crash_count} =
+      pending_rows
+      |> Task.async_stream(&validate_row(&1, context),
+        max_concurrency: 20,
+        timeout: 30_000,
+        on_timeout: :kill_task
+      )
+      |> Enum.reduce({initial_result, 0}, fn
+        {:ok, "pass"}, {acc, crashes} ->
+          {acc, crashes}
 
-    case overall_row_result do
-      {:ok, sheet} ->
+        {:ok, "fail"}, {_, crashes} ->
+          {:error, crashes}
+
+        {:exit, reason}, {acc, crashes} ->
+          Logger.error("Row validation task crashed: #{inspect(reason)}")
+          {acc, crashes + 1}
+      end)
+
+    case {row_result, crash_count} do
+      {_, n} when n > 0 ->
+        {:incomplete, sheet}
+
+      {:ok, 0} ->
         Logger.info("Ingest sheet: #{sheet.id} is valid")
         Sheets.update_ingest_sheet_status(sheet, "valid")
         {:ok, sheet}
 
-      {:error, sheet} ->
+      {:error, 0} ->
         Logger.warning("Ingest sheet: #{sheet.id} has failing rows")
         Sheets.update_ingest_sheet_status(sheet, "row_fail")
         {:error, sheet}
     end
+  end
+
+  defp fetch_tag_cache(rows) do
+    rows
+    |> Enum.map(&Row.field_value(&1, "filename"))
+    |> Enum.reject(&is_nil/1)
+    |> Enum.uniq()
+    |> Task.async_stream(&{&1, check_tags(&1)},
+      max_concurrency: 20,
+      timeout: 30_000,
+      on_timeout: :kill_task
+    )
+    |> Enum.reduce(%{}, fn
+      {:ok, {path, result}}, acc -> Map.put(acc, path, result)
+      {:exit, _}, acc -> acc
+    end)
+  end
+
+  defp check_tags(path) do
+    case ExAws.S3.get_object_tagging(Config.ingest_bucket(), path) |> ExAws.request() do
+      {:ok, %{status_code: 200, body: %{tags: actual_tags}}} ->
+        existing = Enum.map(actual_tags, &Map.get(&1, :key))
+        Config.required_checksum_tags() -- existing == []
+
+      {:error, {:http_error, 404, _}} ->
+        false
+
+      other ->
+        raise "Unexpected response checking tags for #{path}: #{inspect(other)}"
+    end
+  end
+
+  defp fetch_structure_cache(rows, project_folder) do
+    rows
+    |> Enum.map(&Row.field_value(&1, "structure"))
+    |> Enum.reject(&(is_nil(&1) || String.trim(&1) == ""))
+    |> Enum.uniq()
+    |> Task.async_stream(
+      fn name ->
+        result =
+          Config.ingest_bucket()
+          |> ExAws.S3.get_object("#{project_folder}/#{name}")
+          |> ExAws.request()
+
+        {name, result}
+      end,
+      max_concurrency: 20,
+      timeout: 30_000,
+      on_timeout: :kill_task
+    )
+    |> Enum.reduce(%{}, fn
+      {:ok, {name, result}}, acc -> Map.put(acc, name, result)
+      {:exit, _}, acc -> acc
+    end)
   end
 
   defp validate_value(row, {"work_image", value}, _context) do
@@ -249,10 +319,18 @@ defmodule Meadow.Ingest.Validator do
     else
       work_type = Row.field_value(row, "work_type")
 
-      Meadow.Config.ingest_bucket()
-      |> ExAws.S3.get_object("#{context.project_folder}/#{value}")
-      |> ExAws.request()
-      |> validate_structure_value(value, work_type)
+      s3_result =
+        case Map.fetch(context.structure_cache, value) do
+          {:ok, cached} ->
+            cached
+
+          :error ->
+            Config.ingest_bucket()
+            |> ExAws.S3.get_object("#{context.project_folder}/#{value}")
+            |> ExAws.request()
+        end
+
+      validate_structure_value(s3_result, value, work_type)
     end
   end
 
@@ -330,7 +408,8 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_value(row, {"filename", value}, %{
-         existing_files: existing_files
+         existing_files: existing_files,
+         tag_cache: tag_cache
        }) do
     role = Row.field_value(row, "role")
     work_type = Row.field_value(row, "work_type")
@@ -345,15 +424,22 @@ defmodule Meadow.Ingest.Validator do
          "Mime-type: #{value}, not accepted for work type: #{work_type} and file set role: #{role}."}
 
       true ->
-        if AWS.check_object_tags!(
-             Config.ingest_bucket(),
-             value,
-             Config.required_checksum_tags()
-           ) do
-          :ok
-        else
-          {:error, "filename", "#{value} missing computed-md5 tag"}
-        end
+        has_tags =
+          case Map.fetch(tag_cache, value) do
+            {:ok, result} ->
+              result
+
+            :error ->
+              AWS.check_object_tags!(
+                Config.ingest_bucket(),
+                value,
+                Config.required_checksum_tags()
+              )
+          end
+
+        if has_tags,
+          do: :ok,
+          else: {:error, "filename", "#{value} missing computed-md5 tag"}
     end
   end
 
@@ -398,7 +484,8 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_structure_extension(extension, work_type, _content, _value) do
-    {:error, "structure", "Invalid structure file extension #{extension} for work type #{work_type}"}
+    {:error, "structure",
+     "Invalid structure file extension #{extension} for work type #{work_type}"}
   end
 
   defp validate_row(%Row{state: "pending"} = row, context) do
