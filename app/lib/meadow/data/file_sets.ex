@@ -779,7 +779,11 @@ defmodule Meadow.Data.FileSets do
          {:ok, s3_location} <- write_annotation_content(annotation, content) do
       opts = Enum.into(opts, %{})
       attrs = Map.merge(%{s3_location: s3_location}, Map.take(opts, [:language]))
-      update_annotation(annotation, attrs)
+
+      annotation
+      |> FileSetAnnotation.changeset(attrs)
+      |> Ecto.Changeset.force_change(:s3_location, s3_location)
+      |> Repo.update(stale_error_field: :id)
     end
   end
 
