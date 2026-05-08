@@ -21,7 +21,7 @@ defmodule MeadowWeb.MCP.Tools.GetCodeList do
 
   @impl true
   def execute(params, frame) do
-    Logger.info("Executing get_code_list with scheme: #{params.scheme}")
+    Logger.info("Executing get_code_list with scheme: #{params.scheme} on node #{Node.self()}")
 
     case CodedTerms.list_coded_terms(params.scheme) do
       [] ->
