@@ -18,7 +18,8 @@ defmodule MeadowWeb.MCP.Tools.AuthoritySearch do
       description: "The search query to send to the authority (e.g. 'Shakespeare')"
     )
 
-    field(:authority_code, :required,
+    field(:authority_code, :string,
+      required: true,
       description: "The code for the authority to search (e.g. 'lcsh')",
       enum: Authoritex.authorities() |> Enum.map(fn {_, code, _} -> code end)
     )
