@@ -9,7 +9,8 @@
       "Bash(grep:*)",
       "Bash(node -e:*)",
       "Bash(cd:*)",
-      "Bash(npx jest:*)"
+      "Bash(npx jest:*)",
+      "Bash(make app-test *)"
     ],
     "deny": [],
     "ask": []

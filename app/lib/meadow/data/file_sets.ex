@@ -479,92 +479,49 @@ defmodule Meadow.Data.FileSets do
   def supplemental?(_), do: false
 
   @doc """
-  Get the S3 location for an annotation file.
-
-  ## Examples
-
-      iex> annotation_location(%FileSetAnnotation{id: "123", file_set_id: "456", type: "transcription"})
-      "s3://bucket-name/annotations/45/6-/transcription-123.txt"
-
-  """
-  def annotation_location(%FileSetAnnotation{id: id, file_set_id: file_set_id, type: type}) do
-    dest_bucket = Config.derivatives_bucket()
-    dest_key = annotation_key(file_set_id, id, type)
-    %URI{scheme: "s3", host: dest_bucket, path: "/#{dest_key}"} |> URI.to_string()
-  end
-
-  @doc """
-  Get the S3 key (path) for an annotation file.
-  """
-  def annotation_key(file_set_id, annotation_id, type) do
-    # Using pairtree for file_set_id to avoid too many files in one directory
-    pairtree = Pairtree.generate!(file_set_id)
-    "annotations/#{pairtree}/#{type}-#{annotation_id}.txt"
-  end
-
-  @doc """
-  Write annotation content to S3.
+  Write annotation content to the database.
 
   ## Examples
 
       iex> write_annotation_content(%FileSetAnnotation{}, "This is the transcription text")
-      {:ok, "s3://bucket/path/to/file.txt"}
+      {:ok, %FileSetAnnotation{}}
 
   """
   def write_annotation_content(%FileSetAnnotation{} = annotation, content)
       when is_binary(content) do
-    location = annotation_location(annotation)
-    %URI{host: bucket, path: "/" <> key} = URI.parse(location)
-
-    case ExAws.S3.put_object(bucket, key, content, content_type: "text/plain; charset=utf-8")
-         |> ExAws.request() do
-      {:ok, _} -> {:ok, location}
-      {:error, reason} -> {:error, reason}
-    end
+    update_annotation(annotation, %{content: content})
   end
 
   @doc """
-  Copy annotation content from a source S3 location to the annotation's destination.
+  Copy annotation content from a source S3 location into the database.
 
   ## Examples
 
       iex> copy_annotation_content(%FileSetAnnotation{}, "source-bucket", "path/to/source.txt")
-      {:ok, "s3://dest-bucket/path/to/annotation.txt"}
+      {:ok, %FileSetAnnotation{}}
 
   """
   def copy_annotation_content(%FileSetAnnotation{} = annotation, source_bucket, source_key) do
-    location = annotation_location(annotation)
-    %URI{host: dest_bucket, path: "/" <> dest_key} = URI.parse(location)
-
-    case ExAws.S3.put_object_copy(dest_bucket, dest_key, source_bucket, source_key,
-           content_type: "text/plain; charset=utf-8"
-         )
-         |> ExAws.request() do
-      {:ok, _} -> {:ok, location}
+    case ExAws.S3.get_object(source_bucket, source_key) |> ExAws.request() do
+      {:ok, %{body: body}} -> write_annotation_content(annotation, body)
       {:error, reason} -> {:error, reason}
     end
   end
 
   @doc """
-  Read annotation content from S3.
+  Read annotation content from the database.
 
   ## Examples
 
-      iex> read_annotation_content(%FileSetAnnotation{s3_location: "s3://..."})
+      iex> read_annotation_content(%FileSetAnnotation{content: "This is the transcription text"})
       {:ok, "This is the transcription text"}
 
   """
-  def read_annotation_content(%FileSetAnnotation{s3_location: location})
-      when is_binary(location) do
-    %URI{host: bucket, path: "/" <> key} = URI.parse(location)
+  def read_annotation_content(%FileSetAnnotation{content: content})
+      when is_binary(content),
+      do: {:ok, content}
 
-    case ExAws.S3.get_object(bucket, key) |> ExAws.request() do
-      {:ok, %{body: body}} -> {:ok, body}
-      {:error, reason} -> {:error, reason}
-    end
-  end
-
-  def read_annotation_content(_), do: {:error, :no_s3_location}
+  def read_annotation_content(_), do: {:error, :no_content}
 
   @doc """
   Transcribes a file set using AI and stores the result as an annotation.
@@ -654,24 +611,15 @@ defmodule Meadow.Data.FileSets do
 
   defp handle_transcription_result(annotation, {:ok, %{text: text} = transcription})
        when is_binary(text) do
-    case write_annotation_content(annotation, transcription.text) do
-      {:ok, s3_location} ->
-        result =
-          update_annotation(annotation, %{
-            status: "completed",
-            s3_location: s3_location,
-            language: transcription.languages
-          })
+    result =
+      update_annotation(annotation, %{
+        status: "completed",
+        content: transcription.text,
+        language: transcription.languages
+      })
 
-        add_transcription_note(annotation)
-
-        result
-
-      {:error, reason} ->
-        result = update_annotation(annotation, %{status: "error"})
-        publish_annotation_error(annotation, reason)
-        result
-    end
+    add_transcription_note(annotation)
+    result
   end
 
   defp handle_transcription_result(annotation, {:error, reason}) do
@@ -775,15 +723,10 @@ defmodule Meadow.Data.FileSets do
   """
   def update_annotation_content(annotation_id, content, opts \\ %{}) when is_binary(content) do
     with %FileSetAnnotation{} = annotation <-
-           get_annotation(annotation_id) || {:error, :not_found},
-         {:ok, s3_location} <- write_annotation_content(annotation, content) do
+           get_annotation(annotation_id) || {:error, :not_found} do
       opts = Enum.into(opts, %{})
-      attrs = Map.merge(%{s3_location: s3_location}, Map.take(opts, [:language]))
-
-      annotation
-      |> FileSetAnnotation.changeset(attrs)
-      |> Ecto.Changeset.force_change(:s3_location, s3_location)
-      |> Repo.update(stale_error_field: :id)
+      attrs = Map.merge(%{content: content}, Map.take(opts, [:language]))
+      update_annotation(annotation, attrs)
     end
   end
 

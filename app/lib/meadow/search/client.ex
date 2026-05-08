@@ -124,11 +124,19 @@ defmodule Meadow.Search.Client do
     )
   end
 
-  def indexed_doc_count(schema, version),
+  def indexed_doc_count(schema, version) when is_atom(schema),
     do: indexed_doc_count(SearchConfig.alias_for(schema, version))
 
   def indexed_doc_count(target) do
     case HTTP.get([target, "_count"]) do
+      {:ok, %{body: %{"count" => count}}} -> {:ok, count}
+      {:ok, %{body: %{"error" => %{"reason" => reason}}}} -> {:error, reason}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def indexed_doc_count(target, query) do
+    case HTTP.post([target, "_count"], query) do
       {:ok, %{body: %{"count" => count}}} -> {:ok, count}
       {:ok, %{body: %{"error" => %{"reason" => reason}}}} -> {:error, reason}
       {:error, reason} -> {:error, reason}

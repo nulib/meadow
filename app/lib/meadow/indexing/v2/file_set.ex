@@ -40,23 +40,15 @@ defmodule Meadow.Indexing.V2.FileSet do
   end
 
   defp encode_annotations(file_set) do
-    annotations = FileSets.list_annotations(file_set.id)
-
-    annotations
+    FileSets.list_annotations(file_set.id)
     |> Enum.filter(&(&1.status == "completed"))
     |> Enum.map(fn annotation ->
-      content =
-        case FileSets.read_annotation_content(annotation) do
-          {:ok, content} -> content
-          _ -> nil
-        end
-
       %{
         id: annotation.id,
         type: annotation.type,
         language: annotation.language,
         model: annotation.model,
-        content: content
+        content: annotation.content
       }
     end)
     |> case do
