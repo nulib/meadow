@@ -56,6 +56,24 @@
         }
       },
       {
+        "collection_title": {
+          "path_match": "^collection.title$|^work_title$",
+          "match_pattern": "regex",
+          "mapping": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            },
+            "analyzer": "full_analyzer",
+            "search_analyzer": "stopword_analyzer",
+            "search_quote_analyzer": "full_analyzer"
+          }
+        }
+      },
+      {
         "annotation_content": {
           "path_match": "annotations.content",
           "mapping": {

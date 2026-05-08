@@ -55,28 +55,6 @@ config :meadow,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, json_library: Jason, serve_endpoints: true
 
-config :authoritex,
-  authorities: [
-    Authoritex.FAST.CorporateName,
-    Authoritex.FAST.EventName,
-    Authoritex.FAST.Form,
-    Authoritex.FAST.Geographic,
-    Authoritex.FAST.Personal,
-    Authoritex.FAST.Topical,
-    Authoritex.FAST.UniformTitle,
-    Authoritex.FAST,
-    Authoritex.GeoNames,
-    GettyLocal.AAT,
-    GettyLocal.TGN,
-    GettyLocal.ULAN,
-    Authoritex.Homosaurus,
-    Authoritex.LOC.GenreForms,
-    Authoritex.LOC.Languages,
-    Authoritex.LOC.Names,
-    Authoritex.LOC.SubjectHeadings,
-    NUL.Authority
-  ]
-
 config :ex_aws,
   http_client: ExAws.Request.Req
 

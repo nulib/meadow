@@ -27,7 +27,32 @@ defmodule Meadow.Config.Runtime do
 
     Logger.info("Configuring authoritex")
 
+    # To replace an authority with a local implementation, replace its
+    # entry in the authorities list with the local module, e.g.:
+    # ```
+    # LocalAuthority.create(:AAT, "aat", "http://vocab.getty.edu/aat/", "Getty Art & Architecture Thesaurus")
+    # ```
     config :authoritex,
+      authorities: [
+        Authoritex.FAST.CorporateName,
+        Authoritex.FAST.EventName,
+        Authoritex.FAST.Form,
+        Authoritex.FAST.Geographic,
+        Authoritex.FAST.Personal,
+        Authoritex.FAST.Topical,
+        Authoritex.FAST.UniformTitle,
+        Authoritex.FAST,
+        Authoritex.GeoNames,
+        Authoritex.Getty.AAT,
+        Authoritex.Getty.TGN,
+        Authoritex.Getty.ULAN,
+        Authoritex.Homosaurus,
+        Authoritex.LOC.GenreForms,
+        Authoritex.LOC.Languages,
+        Authoritex.LOC.Names,
+        Authoritex.LOC.SubjectHeadings,
+        NUL.Authority
+      ],
       connection_pool: Meadow.FinchPool,
       geonames_username: get_secret(:meadow, ["geonames", "username"])
 

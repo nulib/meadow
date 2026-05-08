@@ -120,6 +120,59 @@ And force a re-index:
 Meadow.Data.Indexer.reindex_all()
 ```
 
+### Sample ingest mix task
+
+`mix meadow.sample_ingest` creates a project (or reuses one), uploads sample
+fixture media (`coffee.tif`, `small.m4v`, `details.json`,
+`Donohue_002_01.vtt`) and a generated CSV to the current environment's S3
+buckets, then runs an ingest end-to-end. Useful for populating an AWS dev
+environment with realistic ingest sheet data without clicking through the UI.
+
+Work and file set accession numbers in the generated CSV are fresh UUIDs per
+run, so the task can be re-run without uniqueness collisions.
+
+#### Options
+
+| Option | Description |
+| --- | --- |
+| `--title <prefix>` | Sheet title prefix (default: `Sample Ingest <unix-ts>`). |
+| `--project <title>` | Existing project title to ingest into. Reused if it exists; otherwise created. If omitted, a new project is created using `--title`. |
+| `--fixture-dir <path>` | Directory to read source media from (default: `test/fixtures`). |
+| `--ai` | Create the sheet as an AI ingest (`ai_ingest: true`). |
+| `--mode <mode>` | One of: `validate` (stop after validation), `preview` (AI only — runs `AIPreview` and stops at `awaiting_approval`), `ingest` (default — auto-approve and create works). |
+| `--keep-pending` | Alias for `--mode validate`. |
+
+`--mode preview` requires `--ai`. With `--ai --mode ingest`, the AI preview is
+generated synchronously and the sheet is then approved and ingested into
+works.
+
+#### Examples
+
+```bash
+cd app
+
+# Default: new project, full ingest, no AI
+mix meadow.sample_ingest
+
+# Custom title
+mix meadow.sample_ingest --title "Smoke Test"
+
+# Reuse (or create) an existing project
+mix meadow.sample_ingest --project "QA Sandbox"
+
+# Stop after validation, leave sheet for manual UI approval
+mix meadow.sample_ingest --mode validate
+
+# AI ingest, stop at awaiting_approval (test the approval UI)
+mix meadow.sample_ingest --ai --mode preview
+
+# AI ingest, run all the way through to approved + works
+mix meadow.sample_ingest --ai --mode ingest
+```
+
+On validation failure, the task logs `Sheets.ingest_errors/1` and exits
+non-zero.
+
 ### AI Agent Plans
 
 Meadow supports AI agent-generated plans for batch modifications to works. The system uses a two-table structure that allows agents to propose work-specific changes based on high-level prompts.

@@ -15,6 +15,7 @@ defmodule Meadow.Events.Indexing do
   @cascade_fields %{
     file_sets_works:
       ~w[core_metadata derivatives extracted_metadata group_with poster_offset rank role structural_metadata]a,
+    collections_file_sets: ~w[title]a,
     collections_works: ~w[title description]a,
     ingest_sheets_works: ~w[title]a,
     works_collections: ~w[representative_file_set_id]a,
@@ -58,6 +59,11 @@ defmodule Meadow.Events.Indexing do
     if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:collections_works])) do
       from(w in Work, where: w.collection_id == ^id)
       |> send_to_batcher(:works)
+    end
+
+    if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:collections_file_sets])) do
+      from(fs in FileSet, join: w in Work, on: fs.work_id == w.id, where: w.collection_id == ^id)
+      |> send_to_batcher(:file_sets)
     end
   end
 
