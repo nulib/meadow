@@ -242,14 +242,6 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field(:inserted_at, non_null(:datetime))
     field(:updated_at, non_null(:datetime))
 
-    field :content, :string do
-      resolve(fn annotation, _, _ ->
-        case FileSets.read_annotation_content(annotation) do
-          {:ok, content} -> {:ok, content}
-          {:error, :no_s3_location} -> {:ok, nil}
-          {:error, _reason} -> {:ok, nil}
-        end
-      end)
-    end
+    field :content, :string
   end
 end

@@ -16,8 +16,7 @@ defmodule MeadowWeb.Schema.Subscription.FileSetAnnotationTest do
       {:ok, annotation} =
         FileSets.create_annotation(file_set, %{type: "transcription", status: "in_progress"})
 
-      {:ok, s3_location} = FileSets.write_annotation_content(annotation, "Original content")
-      {:ok, annotation} = FileSets.update_annotation(annotation, %{s3_location: s3_location})
+      {:ok, annotation} = FileSets.write_annotation_content(annotation, "Original content")
 
       {:ok,
        %{
