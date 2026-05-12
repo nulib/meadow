@@ -8,6 +8,11 @@ terraform.tfstate: .localstack/.start-stamp test.tfvars
 	@touch $@
 
 .localstack/.start-stamp: docker-compose.yml
+	@if [[ -z "$$LOCALSTACK_AUTH_TOKEN" ]]; then \
+		echo "⚠️ IMPORTANT"; \
+		echo "LocalStack authentication token not found. Please go to https://app.localstack.cloud/settings/auth-tokens to retrieve your Personal Auth Token and add \`export LOCALSTACK_AUTH_TOKEN=<your_token>\` to your shell initialization script." >&2; \
+		exit 1; \
+	fi
 	(cd ../pipeline && $(MAKE) deps layers)
 	docker compose up -d
 
