@@ -152,6 +152,8 @@ defmodule Meadow.Indexing.V2.EncodingTest do
       assert doc |> get_in([:label]) == subject.core_metadata.label
       assert doc |> get_in([:poster_offset]) == 100
       assert doc |> get_in([:rank]) == subject.rank
+      assert doc |> get_in([:width]) |> is_nil()
+      assert doc |> get_in([:height]) |> is_nil()
 
       assert doc |> get_in([:streaming_url]) == Path.join(Config.streaming_url(), "bar.m3u8")
 
