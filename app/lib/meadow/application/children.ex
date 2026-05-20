@@ -47,8 +47,9 @@ defmodule Meadow.Application.Children do
         {MeadowWeb.MCP.Server,
          transport: :streamable_http,
          registry:
-           {MeadowWeb.MCP.GlobalRegistry,
-            [name: Anubis.Server.Registry.registry_name(MeadowWeb.MCP.Server)]}}
+           {MeadowWeb.MCP.HordeRegistry,
+            [name: Anubis.Server.Registry.registry_name(MeadowWeb.MCP.Server)]},
+         supervisor: {MeadowWeb.MCP.HordeSupervisor, []}}
       ],
       "web.notifiers" => [
         {Meadow.Ingest.Progress, interval: Config.progress_ping_interval()}

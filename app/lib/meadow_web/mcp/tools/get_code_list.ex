@@ -13,17 +13,22 @@ defmodule MeadowWeb.MCP.Tools.GetCodeList do
     mime_type: "application/json"
 
   schema do
-    field :scheme, :required,
+    field :scheme, :string,
+      required: true,
       enum: CodedTerms.list_schemes(),
       description: "The code scheme to list codes for"
   end
 
   @impl true
   def execute(params, frame) do
-    Logger.info("Executing get_code_list with scheme: #{params.scheme}")
+    Logger.info("Executing get_code_list with scheme: #{params.scheme} on node #{Node.self()}")
+
     case CodedTerms.list_coded_terms(params.scheme) do
       [] ->
-        {:error, MCPError.protocol(:invalid_params, %{error: "Unknown scheme", scheme: params.scheme}), frame}
+        {:error,
+         MCPError.protocol(:invalid_params, %{error: "Unknown scheme", scheme: params.scheme}),
+         frame}
+
       code_list ->
         result = Enum.map(code_list, & &1.id)
         {:reply, Response.tool() |> Response.structured(%{results: result}), frame}

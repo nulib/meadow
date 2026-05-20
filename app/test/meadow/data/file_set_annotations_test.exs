@@ -89,26 +89,25 @@ defmodule Meadow.Data.FileSetAnnotationsTest do
       assert %{id: ["is stale"]} = errors_on(changeset)
     end
 
-    test "write_annotation_content/2 writes content to S3", %{file_set: file_set} do
+    test "write_annotation_content/2 writes content to DB", %{file_set: file_set} do
       {:ok, annotation} =
         FileSets.create_annotation(file_set, %{type: "transcription", status: "pending"})
 
       content = "This is the transcription text"
 
-      assert {:ok, s3_location} = FileSets.write_annotation_content(annotation, content)
-      assert String.starts_with?(s3_location, "s3://")
+      assert {:ok, updated} = FileSets.write_annotation_content(annotation, content)
+      assert updated.content == content
     end
 
-    test "read_annotation_content/1 reads content from S3", %{file_set: file_set} do
+    test "read_annotation_content/1 reads content from DB", %{file_set: file_set} do
       {:ok, annotation} =
         FileSets.create_annotation(file_set, %{type: "transcription", status: "pending"})
 
       content = "This is the transcription text"
 
-      {:ok, s3_location} = FileSets.write_annotation_content(annotation, content)
-      {:ok, annotation} = FileSets.update_annotation(annotation, %{s3_location: s3_location})
+      {:ok, updated} = FileSets.write_annotation_content(annotation, content)
 
-      assert {:ok, read_content} = FileSets.read_annotation_content(annotation)
+      assert {:ok, read_content} = FileSets.read_annotation_content(updated)
       assert read_content == content
     end
 
@@ -120,8 +119,7 @@ defmodule Meadow.Data.FileSetAnnotationsTest do
           language: ["en"]
         })
 
-      {:ok, s3_location} = FileSets.write_annotation_content(annotation, "Original content")
-      {:ok, annotation} = FileSets.update_annotation(annotation, %{s3_location: s3_location})
+      {:ok, annotation} = FileSets.write_annotation_content(annotation, "Original content")
 
       assert {:ok, updated} =
                FileSets.update_annotation_content(annotation.id, "Updated content",
@@ -142,8 +140,7 @@ defmodule Meadow.Data.FileSetAnnotationsTest do
           language: ["en"]
         })
 
-      {:ok, s3_location} = FileSets.write_annotation_content(annotation, "Original content")
-      {:ok, annotation} = FileSets.update_annotation(annotation, %{s3_location: s3_location})
+      {:ok, annotation} = FileSets.write_annotation_content(annotation, "Original content")
 
       assert {:ok, updated} =
                FileSets.update_annotation_content(annotation.id, "Updated content", %{

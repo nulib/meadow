@@ -17,6 +17,7 @@ defmodule Meadow.Data.Schemas.FileSetAnnotation do
     field(:language, {:array, :string})
     field(:model, :string)
     field(:s3_location, :string)
+    field(:content, :string)
     field(:status, :string)
     field(:error, :string, virtual: true)
 
@@ -27,7 +28,7 @@ defmodule Meadow.Data.Schemas.FileSetAnnotation do
 
   def changeset(annotation \\ %__MODULE__{}, attrs) do
     annotation
-    |> cast(attrs, [:file_set_id, :type, :language, :model, :s3_location, :status])
+    |> cast(attrs, [:file_set_id, :type, :language, :model, :s3_location, :content, :status])
     |> validate_required([:file_set_id, :type, :status])
     |> validate_inclusion(:status, @status)
     |> assoc_constraint(:file_set)

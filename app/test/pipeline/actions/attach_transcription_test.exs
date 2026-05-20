@@ -58,11 +58,7 @@ defmodule Meadow.Pipeline.Actions.AttachTranscriptionTest do
       annotation = List.first(annotations)
       assert annotation.type == "transcription"
       assert annotation.status == "completed"
-      assert annotation.s3_location
-
-      # Verify content was copied to S3
-      {:ok, content} = FileSets.read_annotation_content(annotation)
-      assert content == "This is the transcription for the image!"
+      assert annotation.content == "This is the transcription for the image!"
     end
   end
 

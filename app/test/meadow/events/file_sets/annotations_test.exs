@@ -4,8 +4,6 @@ defmodule Meadow.Events.FileSets.AnnotationsTest do
 
   alias Meadow.Data.FileSets
 
-  import Assertions
-  import ExUnit.CaptureLog
   import Meadow.TestHelpers
 
   @moduletag walex: [Meadow.Events.FileSets.Annotations]
@@ -25,19 +23,10 @@ defmodule Meadow.Events.FileSets.AnnotationsTest do
       {:ok, %{annotation: annotation}}
     end
 
-    test "deleting an annotation removes its S3 object", %{annotation: annotation} do
-      assert object_exists?(annotation.s3_location) == true
-
-      log =
-        capture_log(fn ->
-          {:ok, _} = FileSets.delete_annotation(annotation)
-
-          assert_async(timeout: 2000) do
-            assert object_exists?(annotation.s3_location) == false
-          end
-        end)
-
-      assert log =~ "Deleting annotation S3 object"
+    test "deleting an annotation removes it from the database", %{annotation: annotation} do
+      annotation_id = annotation.id
+      assert {:ok, _} = FileSets.delete_annotation(annotation)
+      assert_raise Ecto.NoResultsError, fn -> FileSets.get_annotation!(annotation_id) end
     end
   end
 end
