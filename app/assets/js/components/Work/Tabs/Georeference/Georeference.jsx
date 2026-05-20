@@ -891,6 +891,7 @@ function WorkTabsGeoreference({ isActive, work }) {
                       showGeoreferencePreview ? previewAnnotation : null
                     }
                     useCrosshairCursor
+                    fitToData={!pendingImageCoords && !pendingGeoCoords}
                   />
                   <label className="checkbox mt-2">
                     <input
