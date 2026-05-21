@@ -114,7 +114,7 @@ defmodule Meadow.Config.Runtime.Dev do
           v2: %{
             "api_token_secret" => get_secret(:dcapi, ["api_token_secret"], "DEV_SECRET"),
             "api_token_ttl" => get_secret(:dcapi, ["api_token_ttl"], 300),
-            "base_url" => "https://#{prefix}.dev.rdc.library.northwestern.edu:3002"
+            "base_url" => "https://#{prefix}.dev.rdc.library.northwestern.edu:3002/api/v2"
           }
         ]
     end
