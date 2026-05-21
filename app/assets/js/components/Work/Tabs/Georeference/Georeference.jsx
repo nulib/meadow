@@ -23,6 +23,7 @@ import {
   controlPointsFromGeoreferenceAnnotation,
   GEOJSON_GEOMETRY_TYPES,
   getDefaultFileSet,
+  getFileSetImageDimensions,
   getImageServiceUrl,
   getFileSetLabel,
   isImageFileSet,
@@ -264,16 +265,20 @@ function WorkTabsGeoreference({ isActive, work }) {
   const navPlaceAnnotation = annotationByType(selectedFileSet, "nav_place");
   const imageServiceUrl = getImageServiceUrl(selectedFileSet);
   const canGeoreference = isImageFileSet(selectedFileSet);
+  const sourceImageDimensions = useMemo(
+    () => getFileSetImageDimensions(selectedFileSet) || imageDimensions,
+    [imageDimensions, selectedFileSet],
+  );
 
   const previewAnnotation = useMemo(() => {
-    if (!canGeoreference || gcpPairs.length < 3 || !imageDimensions)
+    if (!canGeoreference || gcpPairs.length < 3 || !sourceImageDimensions)
       return null;
 
     return buildGeoreferenceAnnotation({
       fileSet: selectedFileSet,
       work,
       pairs: gcpPairs,
-      dimensions: imageDimensions,
+      dimensions: sourceImageDimensions,
       confidence,
       note,
       forPreview: true,
@@ -282,9 +287,9 @@ function WorkTabsGeoreference({ isActive, work }) {
     canGeoreference,
     confidence,
     gcpPairs,
-    imageDimensions,
     note,
     selectedFileSet,
+    sourceImageDimensions,
     work,
   ]);
 
@@ -751,13 +756,14 @@ function WorkTabsGeoreference({ isActive, work }) {
   const hasDraftGeometry = !!draftCoordinates.length || !!draftParts.length;
 
   const saveGeoreference = async () => {
-    if (!selectedFileSet || gcpPairs.length < 3 || !imageDimensions) return;
+    if (!selectedFileSet || gcpPairs.length < 3 || !sourceImageDimensions)
+      return;
 
     const annotation = buildGeoreferenceAnnotation({
       fileSet: selectedFileSet,
       work,
       pairs: gcpPairs,
-      dimensions: imageDimensions,
+      dimensions: sourceImageDimensions,
       confidence,
       note,
     });
@@ -986,7 +992,7 @@ function WorkTabsGeoreference({ isActive, work }) {
                     disabled={
                       !canGeoreference ||
                       gcpPairs.length < 3 ||
-                      !imageDimensions ||
+                      !sourceImageDimensions ||
                       isSaving ||
                       isDeleting
                     }

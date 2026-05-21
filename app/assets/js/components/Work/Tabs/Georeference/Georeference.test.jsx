@@ -93,6 +93,14 @@ jest.mock(
 const imageFileSet = {
   ...mockWork.fileSets[0],
   annotations: [],
+  extractedMetadata: JSON.stringify({
+    exif: {
+      value: {
+        imageWidth: 7337,
+        imageHeight: 9833,
+      },
+    },
+  }),
   representativeImageUrl: "https://iiif.example.test/iiif/3/file-set-1",
   coreMetadata: {
     ...mockWork.fileSets[0].coreMetadata,
@@ -464,8 +472,21 @@ describe("WorkTabsGeoreference", () => {
   });
 
   it("saves a georeference annotation after three GCP pairs", async () => {
+    const validateGeoreferenceContent = jest.fn((variables) => {
+      const content = JSON.parse(variables.content);
+      expect(content.target.source.width).toEqual(7337);
+      expect(content.target.source.height).toEqual(9833);
+      expect(content.target.selector.value).toEqual(
+        '<svg width="7337" height="9833"><polygon points="0,0 7337,0 7337,9833 0,9833" /></svg>',
+      );
+      return true;
+    });
+
     renderWithRouterApollo(<WorkTabsGeoreference isActive work={work} />, {
-      mocks: [upsertMock("georeference"), refetchWorkMock],
+      mocks: [
+        upsertMock("georeference", validateGeoreferenceContent),
+        refetchWorkMock,
+      ],
     });
 
     expect(screen.getByTestId("mock-leaflet-map")).toHaveAttribute(
@@ -481,6 +502,7 @@ describe("WorkTabsGeoreference", () => {
     fireEvent.click(await screen.findByText("Save Georeference"));
 
     await waitFor(() => {
+      expect(validateGeoreferenceContent).toHaveBeenCalled();
       expect(screen.getByText("3")).toBeInTheDocument();
     });
   });
