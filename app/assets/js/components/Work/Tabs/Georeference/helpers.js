@@ -83,9 +83,11 @@ export function getFileSetImageDimensions(fileSet) {
   const metadata = parseExtractedMetadata(fileSet);
   const width =
     validDimension(fileSet?.width) ||
+    validDimension(metadata?.exif?.value?.imageWidth) ||
     validDimension(metadata?.exif?.value?.ImageWidth);
   const height =
     validDimension(fileSet?.height) ||
+    validDimension(metadata?.exif?.value?.imageHeight) ||
     validDimension(metadata?.exif?.value?.ImageHeight);
 
   return width && height ? { width, height } : null;

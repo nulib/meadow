@@ -992,7 +992,7 @@ function WorkTabsGeoreference({ isActive, work }) {
                     disabled={
                       !canGeoreference ||
                       gcpPairs.length < 3 ||
-                      !imageDimensions ||
+                      !sourceImageDimensions ||
                       isSaving ||
                       isDeleting
                     }

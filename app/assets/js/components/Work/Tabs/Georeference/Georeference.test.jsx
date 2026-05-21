@@ -96,8 +96,8 @@ const imageFileSet = {
   extractedMetadata: JSON.stringify({
     exif: {
       value: {
-        ImageWidth: 7337,
-        ImageHeight: 9833,
+        imageWidth: 7337,
+        imageHeight: 9833,
       },
     },
   }),
