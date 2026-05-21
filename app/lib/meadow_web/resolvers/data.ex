@@ -195,6 +195,34 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
+  def upsert_file_set_annotation(_, args, _) do
+    opts = if args[:language], do: %{language: args[:language]}, else: %{}
+
+    case FileSets.upsert_annotation_content(
+           args[:file_set_id],
+           args[:type],
+           args[:content],
+           opts
+         ) do
+      {:ok, annotation} ->
+        {:ok, annotation}
+
+      {:error, :file_set_not_found} ->
+        {:error, message: "File set not found"}
+
+      {:error, {:invalid_annotation_content, message}} ->
+        {:error, message: "Invalid annotation content", details: message}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:error,
+         message: "Could not upsert annotation",
+         details: ChangesetErrors.humanize_errors(changeset)}
+
+      {:error, reason} ->
+        {:error, message: "Could not upsert annotation", details: inspect(reason)}
+    end
+  end
+
   def delete_file_set_annotation(_, args, _) do
     case FileSets.get_annotation(args[:annotation_id]) do
       nil ->

@@ -32,6 +32,8 @@ defmodule MeadowWeb.Resolvers.Data.GeoNames do
       "http://api.geonames.org/getJSON",
       params: [
         geonameId: geoname_id,
+        style: "FULL",
+        inclBbox: "true",
         username: username
       ]
     )
@@ -71,16 +73,19 @@ defmodule MeadowWeb.Resolvers.Data.GeoNames do
         }
         |> maybe_put_summary(summary)
 
-      {:ok,
-       %{
-         "type" => "Feature",
-         "id" => geonames_uri(geoname_id),
-         "geometry" => %{
-           "type" => "Point",
-           "coordinates" => [longitude, latitude]
-         },
-         "properties" => properties
-       }}
+      feature =
+        %{
+          "type" => "Feature",
+          "id" => geonames_uri(geoname_id),
+          "geometry" => %{
+            "type" => "Point",
+            "coordinates" => [longitude, latitude]
+          },
+          "properties" => properties
+        }
+        |> maybe_put_bbox(response)
+
+      {:ok, feature}
     end
   end
 
@@ -130,6 +135,50 @@ defmodule MeadowWeb.Resolvers.Data.GeoNames do
   defp maybe_put_summary(properties, summary) do
     Map.put(properties, "summary", %{"en" => [summary]})
   end
+
+  defp maybe_put_bbox(feature, response) do
+    case parse_bbox(response) do
+      {:ok, bbox} -> Map.put(feature, "bbox", bbox)
+      _ -> feature
+    end
+  end
+
+  defp parse_bbox(%{"bbox" => bbox}) when is_map(bbox) do
+    with {:ok, north} <- parse_float(Map.get(bbox, "north")),
+         {:ok, south} <- parse_float(Map.get(bbox, "south")),
+         {:ok, east} <- parse_float(Map.get(bbox, "east")),
+         {:ok, west} <- parse_float(Map.get(bbox, "west")) do
+      validate_bbox(west, south, east, north)
+    end
+  end
+
+  defp parse_bbox(%{"north" => _, "south" => _, "east" => _, "west" => _} = response) do
+    with {:ok, north} <- parse_float(Map.get(response, "north")),
+         {:ok, south} <- parse_float(Map.get(response, "south")),
+         {:ok, east} <- parse_float(Map.get(response, "east")),
+         {:ok, west} <- parse_float(Map.get(response, "west")) do
+      validate_bbox(west, south, east, north)
+    end
+  end
+
+  defp parse_bbox(_), do: :error
+
+  defp validate_bbox(west, south, east, north) do
+    if valid_bbox_coordinates?(west, south, east, north) do
+      {:ok, [west, south, east, north]}
+    else
+      :error
+    end
+  end
+
+  defp valid_bbox_coordinates?(west, south, east, north) do
+    valid_longitude?(west) and valid_longitude?(east) and valid_latitude?(south) and
+      valid_latitude?(north) and west < east and south < north
+  end
+
+  defp valid_longitude?(value), do: value >= -180 and value <= 180
+
+  defp valid_latitude?(value), do: value >= -90 and value <= 90
 
   defp geonames_uri(geoname_id), do: @http_uri_base <> to_string(geoname_id) <> "/"
 

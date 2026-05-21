@@ -11,8 +11,7 @@ defmodule MeadowWeb.Schema.Mutation.DeleteFileSetAnnotationTest do
   setup do
     file_set = file_set_fixture()
     {:ok, annotation} = FileSets.create_annotation(file_set, %{type: "transcription", status: "completed"})
-    {:ok, s3_location} = FileSets.write_annotation_content(annotation, "Original content")
-    {:ok, annotation} = FileSets.update_annotation(annotation, %{s3_location: s3_location})
+    {:ok, annotation} = FileSets.write_annotation_content(annotation, "Original content")
 
     {:ok, annotation: annotation, file_set: file_set}
   end

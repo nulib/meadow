@@ -5,7 +5,7 @@ defmodule Meadow.Data.Indexer do
   use Meadow.Utils.Logging
 
   alias Meadow.Data.{Collections, Works}
-  alias Meadow.Data.Schemas.{Collection, FileSet, Work}
+  alias Meadow.Data.Schemas.{Collection, FileSet, FileSetAnnotation, Work}
   alias Meadow.Repo
   alias Meadow.Search.Bulk
   alias Meadow.Search.Client, as: SearchClient
@@ -60,6 +60,7 @@ defmodule Meadow.Data.Indexer do
     SearchClient.hot_swap(schema, version, fn index ->
       synchronize_schema(schema, version, index, :all)
       |> check_synchronize_result(schema, index)
+      |> tap(&check_annotation_coverage(&1, schema, index))
       |> clean(schema, version)
     end)
   end
@@ -85,6 +86,32 @@ defmodule Meadow.Data.Indexer do
   end
 
   def check_synchronize_result(other, _, _), do: other
+
+  defp check_annotation_coverage(:ok, FileSet, index) do
+    db_count =
+      from(a in FileSetAnnotation,
+        where: a.status == "completed",
+        select: count(a.file_set_id, :distinct)
+      )
+      |> Repo.one()
+
+    case SearchClient.indexed_doc_count(index, %{query: %{exists: %{field: "annotations"}}}) do
+      {:ok, indexed_count} when indexed_count < db_count ->
+        Logger.warning(
+          "Annotation coverage: #{indexed_count}/#{db_count} file sets indexed with annotations"
+        )
+
+      {:ok, indexed_count} ->
+        Logger.info(
+          "Annotation coverage: #{indexed_count}/#{db_count} file sets indexed with annotations"
+        )
+
+      {:error, reason} ->
+        Logger.warning("Annotation coverage check failed: #{inspect(reason)}")
+    end
+  end
+
+  defp check_annotation_coverage(_, _, _), do: :ok
 
   defp clean(:ok, schema, version) do
     retain =

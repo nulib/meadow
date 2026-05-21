@@ -24,6 +24,7 @@ defmodule MeadowWeb.Resolvers.Data.GeoNamesTest do
       assert place["id"] == "https://sws.geonames.org/4887398/"
       assert place["geometry"]["type"] == "Point"
       assert place["geometry"]["coordinates"] == [-87.65005, 41.85003]
+      assert place["bbox"] == [-87.94011, 41.64454, -87.52414, 42.02304]
       assert place["properties"]["label"]["en"] == ["Chicago"]
       assert place["properties"]["summary"]["en"] == ["Illinois, United States"]
     end

@@ -43,13 +43,14 @@ defmodule Meadow.Pipeline.Actions.AttachTranscription do
              language: ["en"]
            }) do
       case FileSets.copy_annotation_content(annotation, bucket, key) do
-        {:ok, s3_location} ->
-          FileSets.update_annotation(annotation, %{s3_location: s3_location})
+        {:ok, annotation} ->
+          {:ok, annotation}
+
         {:error, reason} ->
           Logger.error("Failed to copy transcription content: #{inspect(reason)}")
           FileSets.delete_annotation(annotation)
           {:error, reason}
-        end
+      end
     else
       {:error, %Ecto.Changeset{} = changeset} ->
         Logger.error("Failed to create annotation: #{inspect(changeset.errors)}")

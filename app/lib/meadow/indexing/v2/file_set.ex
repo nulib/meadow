@@ -30,6 +30,8 @@ defmodule Meadow.Indexing.V2.FileSet do
       published: file_set.work.published,
       rank: file_set.rank,
       representative_image_url: FileSets.representative_image_url_for(file_set),
+      height: representative_dimension(file_set, :height),
+      width: representative_dimension(file_set, :width),
       role: file_set.role.label,
       streaming_url: FileSets.distribution_streaming_uri_for(file_set),
       visibility: file_set.work.visibility.label,
@@ -39,24 +41,48 @@ defmodule Meadow.Indexing.V2.FileSet do
     |> Meadow.Utils.Map.nillify_empty()
   end
 
-  defp encode_annotations(file_set) do
-    annotations = FileSets.list_annotations(file_set.id)
+  defp representative_dimension(file_set, dimension) do
+    dimensions_from_extracted_metadata(file_set.extracted_metadata)
+    |> Map.get(dimension)
+    |> case do
+      value when is_number(value) -> value
+      value when is_binary(value) -> String.to_integer(value)
+      _ -> nil
+    end
+  end
 
-    annotations
+  defp dimensions_from_extracted_metadata(%{"exif" => exif}) when is_map(exif) do
+    exif
+    |> Map.get("value", %{})
+    |> case do
+      %{"ImageWidth" => width, "ImageHeight" => height} -> %{width: width, height: height}
+      _ -> %{}
+    end
+  end
+
+  defp dimensions_from_extracted_metadata(%{"mediainfo" => mediainfo}) when is_map(mediainfo) do
+    mediainfo
+    |> get_in(["value", "media", "track"])
+    |> then(&(&1 || []))
+    |> Enum.find(&(Map.has_key?(&1, "Width") and Map.has_key?(&1, "Height")))
+    |> case do
+      %{"Width" => width, "Height" => height} -> %{width: width, height: height}
+      _ -> %{}
+    end
+  end
+
+  defp dimensions_from_extracted_metadata(_), do: %{}
+
+  defp encode_annotations(file_set) do
+    FileSets.list_annotations(file_set.id)
     |> Enum.filter(&(&1.status == "completed"))
     |> Enum.map(fn annotation ->
-      content =
-        case FileSets.read_annotation_content(annotation) do
-          {:ok, content} -> content
-          _ -> nil
-        end
-
       %{
         id: annotation.id,
         type: annotation.type,
         language: annotation.language,
         model: annotation.model,
-        content: content
+        content: annotation.content
       }
     end)
     |> case do

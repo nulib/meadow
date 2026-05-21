@@ -479,92 +479,49 @@ defmodule Meadow.Data.FileSets do
   def supplemental?(_), do: false
 
   @doc """
-  Get the S3 location for an annotation file.
-
-  ## Examples
-
-      iex> annotation_location(%FileSetAnnotation{id: "123", file_set_id: "456", type: "transcription"})
-      "s3://bucket-name/annotations/45/6-/transcription-123.txt"
-
-  """
-  def annotation_location(%FileSetAnnotation{id: id, file_set_id: file_set_id, type: type}) do
-    dest_bucket = Config.derivatives_bucket()
-    dest_key = annotation_key(file_set_id, id, type)
-    %URI{scheme: "s3", host: dest_bucket, path: "/#{dest_key}"} |> URI.to_string()
-  end
-
-  @doc """
-  Get the S3 key (path) for an annotation file.
-  """
-  def annotation_key(file_set_id, annotation_id, type) do
-    # Using pairtree for file_set_id to avoid too many files in one directory
-    pairtree = Pairtree.generate!(file_set_id)
-    "annotations/#{pairtree}/#{type}-#{annotation_id}.txt"
-  end
-
-  @doc """
-  Write annotation content to S3.
+  Write annotation content to the database.
 
   ## Examples
 
       iex> write_annotation_content(%FileSetAnnotation{}, "This is the transcription text")
-      {:ok, "s3://bucket/path/to/file.txt"}
+      {:ok, %FileSetAnnotation{}}
 
   """
   def write_annotation_content(%FileSetAnnotation{} = annotation, content)
       when is_binary(content) do
-    location = annotation_location(annotation)
-    %URI{host: bucket, path: "/" <> key} = URI.parse(location)
-
-    case ExAws.S3.put_object(bucket, key, content, content_type: "text/plain; charset=utf-8")
-         |> ExAws.request() do
-      {:ok, _} -> {:ok, location}
-      {:error, reason} -> {:error, reason}
-    end
+    update_annotation(annotation, %{content: content})
   end
 
   @doc """
-  Copy annotation content from a source S3 location to the annotation's destination.
+  Copy annotation content from a source S3 location into the database.
 
   ## Examples
 
       iex> copy_annotation_content(%FileSetAnnotation{}, "source-bucket", "path/to/source.txt")
-      {:ok, "s3://dest-bucket/path/to/annotation.txt"}
+      {:ok, %FileSetAnnotation{}}
 
   """
   def copy_annotation_content(%FileSetAnnotation{} = annotation, source_bucket, source_key) do
-    location = annotation_location(annotation)
-    %URI{host: dest_bucket, path: "/" <> dest_key} = URI.parse(location)
-
-    case ExAws.S3.put_object_copy(dest_bucket, dest_key, source_bucket, source_key,
-           content_type: "text/plain; charset=utf-8"
-         )
-         |> ExAws.request() do
-      {:ok, _} -> {:ok, location}
+    case ExAws.S3.get_object(source_bucket, source_key) |> ExAws.request() do
+      {:ok, %{body: body}} -> write_annotation_content(annotation, body)
       {:error, reason} -> {:error, reason}
     end
   end
 
   @doc """
-  Read annotation content from S3.
+  Read annotation content from the database.
 
   ## Examples
 
-      iex> read_annotation_content(%FileSetAnnotation{s3_location: "s3://..."})
+      iex> read_annotation_content(%FileSetAnnotation{content: "This is the transcription text"})
       {:ok, "This is the transcription text"}
 
   """
-  def read_annotation_content(%FileSetAnnotation{s3_location: location})
-      when is_binary(location) do
-    %URI{host: bucket, path: "/" <> key} = URI.parse(location)
+  def read_annotation_content(%FileSetAnnotation{content: content})
+      when is_binary(content),
+      do: {:ok, content}
 
-    case ExAws.S3.get_object(bucket, key) |> ExAws.request() do
-      {:ok, %{body: body}} -> {:ok, body}
-      {:error, reason} -> {:error, reason}
-    end
-  end
-
-  def read_annotation_content(_), do: {:error, :no_s3_location}
+  def read_annotation_content(_), do: {:error, :no_content}
 
   @doc """
   Transcribes a file set using AI and stores the result as an annotation.
@@ -654,24 +611,15 @@ defmodule Meadow.Data.FileSets do
 
   defp handle_transcription_result(annotation, {:ok, %{text: text} = transcription})
        when is_binary(text) do
-    case write_annotation_content(annotation, transcription.text) do
-      {:ok, s3_location} ->
-        result =
-          update_annotation(annotation, %{
-            status: "completed",
-            s3_location: s3_location,
-            language: transcription.languages
-          })
+    result =
+      update_annotation(annotation, %{
+        status: "completed",
+        content: transcription.text,
+        language: transcription.languages
+      })
 
-        add_transcription_note(annotation)
-
-        result
-
-      {:error, reason} ->
-        result = update_annotation(annotation, %{status: "error"})
-        publish_annotation_error(annotation, reason)
-        result
-    end
+    add_transcription_note(annotation)
+    result
   end
 
   defp handle_transcription_result(annotation, {:error, reason}) do
@@ -775,17 +723,220 @@ defmodule Meadow.Data.FileSets do
   """
   def update_annotation_content(annotation_id, content, opts \\ %{}) when is_binary(content) do
     with %FileSetAnnotation{} = annotation <-
-           get_annotation(annotation_id) || {:error, :not_found},
-         {:ok, s3_location} <- write_annotation_content(annotation, content) do
+           get_annotation(annotation_id) || {:error, :not_found} do
       opts = Enum.into(opts, %{})
-      attrs = Map.merge(%{s3_location: s3_location}, Map.take(opts, [:language]))
-
-      annotation
-      |> FileSetAnnotation.changeset(attrs)
-      |> Ecto.Changeset.force_change(:s3_location, s3_location)
-      |> Repo.update(stale_error_field: :id)
+      attrs = Map.merge(%{content: content}, Map.take(opts, [:language]))
+      update_annotation(annotation, attrs)
     end
   end
+
+  @doc """
+  Creates or updates a completed annotation for a file set by type.
+
+  Geographic annotation types are validated before persistence:
+
+    * `nav_place` content must be a GeoJSON FeatureCollection.
+    * `georeference` content must be a IIIF Georeference Annotation.
+  """
+  def upsert_annotation_content(file_set_id, type, content, opts \\ %{})
+      when is_binary(file_set_id) and is_binary(type) and is_binary(content) do
+    with %FileSet{} = file_set <- get_file_set(file_set_id) || {:error, :file_set_not_found},
+         :ok <- validate_annotation_content(type, content) do
+      opts = Enum.into(opts, %{})
+
+      attrs =
+        %{
+          content: content,
+          status: "completed"
+        }
+        |> Map.merge(Map.take(opts, [:language]))
+
+      case Repo.get_by(FileSetAnnotation, file_set_id: file_set.id, type: type) do
+        nil ->
+          create_annotation(file_set, Map.put(attrs, :type, type))
+
+        %FileSetAnnotation{} = annotation ->
+          update_annotation(annotation, attrs)
+      end
+    end
+  end
+
+  defp validate_annotation_content("nav_place", content) do
+    case decode_annotation_json(content) do
+      {:ok, decoded} -> validate_nav_place(decoded)
+      error -> error
+    end
+  end
+
+  defp validate_annotation_content("georeference", content) do
+    case decode_annotation_json(content) do
+      {:ok, decoded} -> validate_georeference(decoded)
+      error -> error
+    end
+  end
+
+  defp validate_annotation_content(_, _), do: :ok
+
+  defp decode_annotation_json(content) do
+    case Jason.decode(content) do
+      {:ok, decoded} -> {:ok, decoded}
+      {:error, _} -> {:error, {:invalid_annotation_content, "content must be valid JSON"}}
+    end
+  end
+
+  defp validate_nav_place(%{"type" => "FeatureCollection", "features" => features})
+       when is_list(features) and features != [] do
+    if Enum.all?(features, &valid_geojson_feature?/1) do
+      :ok
+    else
+      {:error,
+       {:invalid_annotation_content,
+        "nav_place features must include valid GeoJSON geometries with coordinate pairs"}}
+    end
+  end
+
+  defp validate_nav_place(_) do
+    {:error,
+     {:invalid_annotation_content,
+      "nav_place content must be a non-empty GeoJSON FeatureCollection"}}
+  end
+
+  defp validate_georeference(
+         %{
+           "@context" => context,
+           "type" => "Annotation",
+           "motivation" => "georeferencing",
+           "target" => %{"source" => source},
+           "body" => %{"type" => "FeatureCollection", "features" => features}
+         } = annotation
+       )
+       when is_list(features) and features != [] and is_map(source) do
+    cond do
+      not georeference_context?(context) ->
+        {:error,
+         {:invalid_annotation_content,
+          "georeference annotation must include the IIIF georeference context"}}
+
+      is_nil(get_in(annotation, ["target", "source", "id"])) ->
+        {:error,
+         {:invalid_annotation_content, "georeference annotation target source must include an id"}}
+
+      Enum.all?(features, &valid_georeference_feature?/1) ->
+        :ok
+
+      true ->
+        {:error,
+         {:invalid_annotation_content,
+          "georeference features must include geographic coordinates and resourceCoords"}}
+    end
+  end
+
+  defp validate_georeference(_) do
+    {:error,
+     {:invalid_annotation_content,
+      "georeference content must be a IIIF Annotation with georeferencing motivation and a FeatureCollection body"}}
+  end
+
+  defp georeference_context?(context) when is_binary(context),
+    do: String.contains?(context, "georef")
+
+  defp georeference_context?(context) when is_list(context) do
+    Enum.any?(context, fn
+      value when is_binary(value) -> String.contains?(value, "georef")
+      _ -> false
+    end)
+  end
+
+  defp georeference_context?(_), do: false
+
+  defp valid_geojson_feature?(%{
+         "type" => "Feature",
+         "geometry" => nil,
+         "properties" => properties
+       })
+       when is_map(properties) or is_nil(properties),
+       do: true
+
+  defp valid_geojson_feature?(%{
+         "type" => "Feature",
+         "geometry" => geometry,
+         "properties" => properties
+       })
+       when is_map(properties) or is_nil(properties) do
+    valid_geojson_geometry?(geometry)
+  end
+
+  defp valid_geojson_feature?(_), do: false
+
+  defp valid_geojson_geometry?(%{"type" => "Point", "coordinates" => position}),
+    do: valid_geo_position?(position)
+
+  defp valid_geojson_geometry?(%{"type" => "MultiPoint", "coordinates" => positions})
+       when is_list(positions),
+       do: Enum.all?(positions, &valid_geo_position?/1)
+
+  defp valid_geojson_geometry?(%{"type" => "LineString", "coordinates" => positions}),
+    do: valid_geo_line_string?(positions)
+
+  defp valid_geojson_geometry?(%{"type" => "MultiLineString", "coordinates" => lines})
+       when is_list(lines),
+       do: Enum.all?(lines, &valid_geo_line_string?/1)
+
+  defp valid_geojson_geometry?(%{"type" => "Polygon", "coordinates" => rings}),
+    do: valid_geo_polygon?(rings)
+
+  defp valid_geojson_geometry?(%{"type" => "MultiPolygon", "coordinates" => polygons})
+       when is_list(polygons),
+       do: Enum.all?(polygons, &valid_geo_polygon?/1)
+
+  defp valid_geojson_geometry?(%{"type" => "GeometryCollection", "geometries" => geometries})
+       when is_list(geometries),
+       do: Enum.all?(geometries, &valid_geojson_geometry?/1)
+
+  defp valid_geojson_geometry?(_), do: false
+
+  defp valid_georeference_feature?(%{
+         "type" => "Feature",
+         "geometry" => %{"coordinates" => coords},
+         "properties" => %{"resourceCoords" => resource_coords}
+       }) do
+    valid_geo_coordinate_pair?(coords) and valid_numeric_pair?(resource_coords)
+  end
+
+  defp valid_georeference_feature?(_), do: false
+
+  defp valid_geo_line_string?(positions) when is_list(positions) and length(positions) >= 2,
+    do: Enum.all?(positions, &valid_geo_position?/1)
+
+  defp valid_geo_line_string?(_), do: false
+
+  defp valid_geo_polygon?(rings) when is_list(rings) and rings != [],
+    do: Enum.all?(rings, &valid_geo_linear_ring?/1)
+
+  defp valid_geo_polygon?(_), do: false
+
+  defp valid_geo_linear_ring?(positions) when is_list(positions) and length(positions) >= 4 do
+    Enum.all?(positions, &valid_geo_position?/1) and List.first(positions) == List.last(positions)
+  end
+
+  defp valid_geo_linear_ring?(_), do: false
+
+  defp valid_geo_position?([lng, lat | rest])
+       when is_number(lng) and is_number(lat) and is_list(rest) do
+    valid_geo_coordinate_pair?([lng, lat]) and Enum.all?(rest, &is_number/1)
+  end
+
+  defp valid_geo_position?(_), do: false
+
+  defp valid_geo_coordinate_pair?([lng, lat])
+       when is_number(lng) and is_number(lat) and lng >= -180 and lng <= 180 and lat >= -90 and
+              lat <= 90,
+       do: true
+
+  defp valid_geo_coordinate_pair?(_), do: false
+
+  defp valid_numeric_pair?([x, y]) when is_number(x) and is_number(y), do: true
+  defp valid_numeric_pair?(_), do: false
 
   @doc """
   Creates an annotation for a file set.
