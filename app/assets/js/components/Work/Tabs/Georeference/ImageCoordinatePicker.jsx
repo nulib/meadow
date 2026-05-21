@@ -411,62 +411,6 @@ function ImageCoordinatePicker({
         </span>
       </div>
       <div
-        className="georeference-image-actions"
-        aria-label="Image controls"
-        style={{
-          display: "flex",
-          position: "absolute",
-          right: "0.5rem",
-          top: "0.5rem",
-          zIndex: 2,
-        }}
-      >
-        <button
-          type="button"
-          className="button is-small"
-          aria-label="Zoom in"
-          title="Zoom in"
-          onClick={() => zoomBy(1.2)}
-          style={{ borderRadius: 0 }}
-        >
-          <FiZoomIn aria-hidden />
-        </button>
-        <button
-          type="button"
-          className="button is-small"
-          aria-label="Zoom out"
-          title="Zoom out"
-          onClick={() => zoomBy(0.8)}
-          style={{ borderRadius: 0 }}
-        >
-          <FiZoomOut aria-hidden />
-        </button>
-        <button
-          type="button"
-          className="button is-small"
-          aria-label="Reset view"
-          title="Reset view"
-          onClick={goHome}
-          style={{ borderRadius: 0 }}
-        >
-          <FiHome aria-hidden />
-        </button>
-        <button
-          type="button"
-          className="button is-small"
-          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-          onClick={toggleFullscreen}
-          style={{ borderRadius: 0 }}
-        >
-          {isFullscreen ? (
-            <FiMinimize aria-hidden />
-          ) : (
-            <FiMaximize aria-hidden />
-          )}
-        </button>
-      </div>
-      <div
         className={`georeference-image-canvas ${
           isPanning
             ? "is-panning"
