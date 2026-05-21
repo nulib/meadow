@@ -1,0 +1,20 @@
+mutation (
+  $fileSetId: ID!
+  $type: String!
+  $content: String!
+  $language: [String!]
+) {
+  upsertFileSetAnnotation(
+    fileSetId: $fileSetId
+    type: $type
+    content: $content
+    language: $language
+  ) {
+    id
+    fileSetId
+    type
+    language
+    status
+    content
+  }
+}

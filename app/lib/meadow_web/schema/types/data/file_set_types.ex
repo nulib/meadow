@@ -91,6 +91,17 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       resolve(&Resolvers.Data.update_file_set_annotation/3)
     end
 
+    @desc "Create or update a completed FileSet annotation by type"
+    field :upsert_file_set_annotation, :file_set_annotation do
+      arg(:file_set_id, non_null(:id))
+      arg(:type, non_null(:string))
+      arg(:content, non_null(:string))
+      arg(:language, list_of(:string))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.upsert_file_set_annotation/3)
+    end
+
     @desc "Delete a FileSet annotation"
     field :delete_file_set_annotation, :file_set_annotation do
       arg(:annotation_id, non_null(:id))

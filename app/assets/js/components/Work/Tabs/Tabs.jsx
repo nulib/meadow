@@ -4,6 +4,7 @@ import WorkTabStructure from "@js/components/Work/Tabs/Structure/Structure";
 import WorkTabsAdministrative from "@js/components/Work/Tabs/Administrative/Administrative";
 import WorkTabsPreservation from "@js/components/Work/Tabs/Preservation/Preservation";
 import WorkTabsAutoEdit from "@js/components/Work/Tabs/AutoEdit";
+import WorkTabsGeoreference from "@js/components/Work/Tabs/Georeference/Georeference";
 import { IIIFProvider } from "@js/components/IIIF/IIIFProvider";
 import { CodeListProvider } from "@js/context/code-list-context";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
@@ -54,6 +55,19 @@ const WorkTabs = ({ work }) => {
                   Access files
                 </a>
               </li>
+              <AuthDisplayAuthorized level="SUPERUSER">
+                <li
+                  className={`${activeTab === "tab-georeference" && "is-active"}`}
+                >
+                  <a
+                    id="tab-georeference"
+                    data-testid="tab-georeference"
+                    onClick={handleTabClick}
+                  >
+                    Georeference
+                  </a>
+                </li>
+              </AuthDisplayAuthorized>
               <AuthDisplayAuthorized>
                 <li
                   className={`${activeTab === "tab-preservation" && "is-active"}`}
@@ -104,6 +118,19 @@ const WorkTabs = ({ work }) => {
           >
             <WorkTabStructure work={work} />
           </div>
+          <AuthDisplayAuthorized level="SUPERUSER">
+            <div
+              data-testid="tab-georeference-content"
+              className={`${
+                activeTab !== "tab-georeference" ? "is-hidden" : ""
+              }`}
+            >
+              <WorkTabsGeoreference
+                isActive={activeTab === "tab-georeference"}
+                work={work}
+              />
+            </div>
+          </AuthDisplayAuthorized>
           <AuthDisplayAuthorized>
             <div
               data-testid="tab-preservation-content"

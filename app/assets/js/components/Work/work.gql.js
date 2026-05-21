@@ -187,7 +187,6 @@ export const GET_WORK = gql`
             label
           }
         }
-        navPlace
         notes {
           note
           type {
@@ -491,7 +490,6 @@ export const UPDATE_WORK = gql`
             label
           }
         }
-        navPlace
         rightsStatement {
           id
           label
