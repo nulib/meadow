@@ -1,5 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import PropTypes from "prop-types";
+import CloverImage from "@samvera/clover-iiif/image";
 import {
   FiCrosshair,
   FiHome,
@@ -19,13 +26,18 @@ function ImageCoordinatePicker({
   const shellRef = useRef(null);
   const containerRef = useRef(null);
   const viewerRef = useRef(null);
-  const openseadragonRef = useRef(null);
+  const viewerCleanupRef = useRef(null);
+  const imagePointsRef = useRef(imagePoints);
+  const markerFrameRef = useRef(null);
   const interactiveRef = useRef(interactive);
+  const onDimensionsRef = useRef(onDimensions);
   const onPointSelectedRef = useRef(onPointSelected);
   const hasRefreshedInitialTileRef = useRef(false);
+  const hasInitializedViewRef = useRef(false);
   const [viewerReady, setViewerReady] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
+  const [imagePointMarkers, setImagePointMarkers] = useState([]);
   const activeCursor = isPanning
     ? "grabbing"
     : interactive
@@ -37,19 +49,93 @@ function ImageCoordinatePicker({
   }, [interactive]);
 
   useEffect(() => {
+    onDimensionsRef.current = onDimensions;
+  }, [onDimensions]);
+
+  useEffect(() => {
     onPointSelectedRef.current = onPointSelected;
   }, [onPointSelected]);
 
-  const refreshViewer = () => {
+  const updateImagePointMarkers = useCallback(() => {
+    const viewer = viewerRef.current;
+    const container = containerRef.current;
+    const viewerElement = viewer?.element;
+    if (!viewer || !container || !viewerElement || !viewer.viewport) return;
+
+    const item = viewer.world?.getItemAt?.(0);
+    if (!item) {
+      setImagePointMarkers([]);
+      return;
+    }
+
+    const viewerRect = viewerElement.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const offsetLeft = viewerRect.left - containerRect.left;
+    const offsetTop = viewerRect.top - containerRect.top;
+
+    const nextMarkers = imagePointsRef.current
+      .map((point, index) => {
+        if (!point?.coords?.length) return null;
+
+        const viewportPoint = item.imageToViewportCoordinates
+          ? item.imageToViewportCoordinates(
+              point.coords[0],
+              point.coords[1],
+              true,
+            )
+          : viewer.viewport.imageToViewportCoordinates(
+              point.coords[0],
+              point.coords[1],
+            );
+        const pixelPoint = viewer.viewport.pixelFromPoint(viewportPoint, true);
+
+        return {
+          key: `${point.label || index + 1}-${point.coords[0]}-${point.coords[1]}-${point.isPending ? "pending" : "saved"}`,
+          label: point.label || index + 1,
+          isPending: Boolean(point.isPending),
+          left: pixelPoint.x + offsetLeft,
+          top: pixelPoint.y + offsetTop,
+        };
+      })
+      .filter(Boolean);
+
+    setImagePointMarkers((currentMarkers) => {
+      const hasChanged =
+        currentMarkers.length !== nextMarkers.length ||
+        currentMarkers.some((marker, index) => {
+          const nextMarker = nextMarkers[index];
+          return (
+            marker.key !== nextMarker.key ||
+            marker.label !== nextMarker.label ||
+            marker.isPending !== nextMarker.isPending ||
+            Math.abs(marker.left - nextMarker.left) > 0.5 ||
+            Math.abs(marker.top - nextMarker.top) > 0.5
+          );
+        });
+
+      return hasChanged ? nextMarkers : currentMarkers;
+    });
+  }, []);
+
+  const scheduleImagePointMarkerUpdate = useCallback(() => {
+    if (markerFrameRef.current) return;
+
+    markerFrameRef.current = window.requestAnimationFrame(() => {
+      markerFrameRef.current = null;
+      updateImagePointMarkers();
+    });
+  }, [updateImagePointMarkers]);
+
+  const refreshViewer = useCallback(() => {
     const viewer = viewerRef.current;
     if (!viewer) return;
 
     viewer.forceResize();
     viewer.viewport?.applyConstraints();
     viewer.forceRedraw?.();
-  };
+  }, []);
 
-  const queueViewerRefresh = () => {
+  const queueViewerRefresh = useCallback(() => {
     window.requestAnimationFrame(() => {
       refreshViewer();
       window.requestAnimationFrame(refreshViewer);
@@ -57,7 +143,7 @@ function ImageCoordinatePicker({
     window.setTimeout(refreshViewer, 0);
     window.setTimeout(refreshViewer, 100);
     window.setTimeout(refreshViewer, 300);
-  };
+  }, [refreshViewer]);
 
   const applyViewerCursor = useCallback(() => {
     if (!containerRef.current) return;
@@ -74,104 +160,178 @@ function ImageCoordinatePicker({
     applyViewerCursor();
   }, [applyViewerCursor, viewerReady]);
 
-  useEffect(() => {
-    let isMounted = true;
+  const cloverImageConfig = useMemo(
+    () => ({
+      immediateRender: true,
+      showNavigationControl: false,
+      showNavigator: true,
+      showFullPageControl: false,
+      showHomeControl: false,
+      showRotationControl: false,
+      showZoomControl: false,
+      gestureSettingsMouse: {
+        clickToZoom: false,
+        dragToPan: true,
+        scrollToZoom: true,
+      },
+      gestureSettingsPen: {
+        clickToZoom: false,
+        dragToPan: true,
+      },
+      gestureSettingsTouch: {
+        clickToZoom: false,
+        dragToPan: true,
+      },
+    }),
+    [],
+  );
 
-    async function initializeViewer() {
-      if (!containerRef.current || !imageServiceUrl) return;
+  const handleViewerReady = useCallback(() => {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
 
-      const module = await import("openseadragon");
-      if (!isMounted) return;
+    setViewerReady(true);
+    scheduleImagePointMarkerUpdate();
 
-      const OpenSeadragon = module.default || module;
-      openseadragonRef.current = OpenSeadragon;
+    // Home/dimensions only need to run once per loaded image, not on every
+    // tile-loaded event (which would keep snapping the view back to home).
+    if (hasInitializedViewRef.current) return;
+    if (!viewer.world?.getItemCount?.()) return;
+    hasInitializedViewRef.current = true;
 
-      viewerRef.current?.destroy();
-      hasRefreshedInitialTileRef.current = false;
-      viewerRef.current = OpenSeadragon({
-        element: containerRef.current,
-        tileSources: `${imageServiceUrl.replace(/\/$/, "")}/info.json`,
-        immediateRender: true,
-        showNavigationControl: false,
-        showNavigator: true,
-        gestureSettingsMouse: {
-          clickToZoom: false,
-          dragToPan: true,
-        },
-        gestureSettingsPen: {
-          clickToZoom: false,
-          dragToPan: true,
-        },
-        gestureSettingsTouch: {
-          clickToZoom: false,
-          dragToPan: true,
-        },
+    viewer.viewport?.goHome(true);
+    queueViewerRefresh();
+
+    const item = viewer.world?.getItemAt(0);
+    const size = item?.getContentSize?.();
+    if (size?.x && size?.y) {
+      onDimensionsRef.current({
+        width: Math.round(size.x),
+        height: Math.round(size.y),
       });
+    }
+  }, [queueViewerRefresh, scheduleImagePointMarkerUpdate]);
 
-      viewerRef.current.addHandler("canvas-click", (event) => {
+  const handleOpenSeadragonCallback = useCallback(
+    (viewer) => {
+      if (!viewer || viewerRef.current === viewer) return;
+
+      viewerCleanupRef.current?.();
+      viewerRef.current = viewer;
+      hasRefreshedInitialTileRef.current = false;
+      hasInitializedViewRef.current = false;
+      setViewerReady(false);
+      setIsPanning(false);
+
+      const handleCanvasClick = (event) => {
         if (!interactiveRef.current) return;
         if (event.quick === false) return;
 
         event.preventDefaultAction = true;
-        const viewportPoint = viewerRef.current.viewport.pointFromPixel(
-          event.position,
-        );
+        const viewportPoint = viewer.viewport.pointFromPixel(event.position);
         const imagePoint =
-          viewerRef.current.viewport.viewportToImageCoordinates(viewportPoint);
+          viewer.viewport.viewportToImageCoordinates(viewportPoint);
 
         onPointSelectedRef.current([
           Number(imagePoint.x.toFixed(2)),
           Number(imagePoint.y.toFixed(2)),
         ]);
-      });
-
-      viewerRef.current.addHandler("canvas-drag", () => setIsPanning(true));
-      viewerRef.current.addHandler("canvas-drag-end", () =>
-        setIsPanning(false),
-      );
-      viewerRef.current.addHandler("canvas-release", () => setIsPanning(false));
-      viewerRef.current.addHandler("canvas-exit", () => setIsPanning(false));
-
-      viewerRef.current.addHandler("open", () => {
-        setViewerReady(true);
-        viewerRef.current?.viewport.goHome(true);
-        queueViewerRefresh();
-        const item = viewerRef.current.world.getItemAt(0);
-        const size = item?.getContentSize?.();
-        if (size?.x && size?.y) {
-          onDimensions({
-            width: Math.round(size.x),
-            height: Math.round(size.y),
-          });
-        }
-      });
-
-      viewerRef.current.addHandler("tile-loaded", () => {
+      };
+      const handlePanning = () => setIsPanning(true);
+      const handlePanningEnd = () => setIsPanning(false);
+      const handleInitialTileLoaded = () => {
+        // Clover loads images via addTiledImage/addSimpleImage and never calls
+        // viewer.open(), so the Viewer "open" event never fires. tile-loaded is
+        // the first reliable Viewer event once the image is on screen, so use it
+        // to mark the viewer ready.
+        handleViewerReady();
         if (hasRefreshedInitialTileRef.current) return;
         hasRefreshedInitialTileRef.current = true;
         queueViewerRefresh();
-      });
-    }
+        scheduleImagePointMarkerUpdate();
+      };
+      const handleViewportUpdate = () => scheduleImagePointMarkerUpdate();
 
-    initializeViewer();
+      viewer.addHandler("canvas-click", handleCanvasClick);
+      viewer.addHandler("canvas-drag", handlePanning);
+      viewer.addHandler("canvas-drag-end", handlePanningEnd);
+      viewer.addHandler("canvas-release", handlePanningEnd);
+      viewer.addHandler("canvas-exit", handlePanningEnd);
+      viewer.addHandler("open", handleViewerReady);
+      viewer.addHandler("tile-loaded", handleInitialTileLoaded);
+      viewer.addHandler("animation", handleViewportUpdate);
+      viewer.addHandler("animation-finish", handleViewportUpdate);
+      viewer.addHandler("resize", handleViewportUpdate);
+      viewer.addHandler("update-viewport", handleViewportUpdate);
+      // "add-item" is raised on the World, not the Viewer.
+      viewer.world?.addHandler("add-item", handleViewerReady);
 
-    return () => {
-      isMounted = false;
-      setViewerReady(false);
-      setIsPanning(false);
-      viewerRef.current?.destroy();
+      viewerCleanupRef.current = () => {
+        viewer.removeHandler("canvas-click", handleCanvasClick);
+        viewer.removeHandler("canvas-drag", handlePanning);
+        viewer.removeHandler("canvas-drag-end", handlePanningEnd);
+        viewer.removeHandler("canvas-release", handlePanningEnd);
+        viewer.removeHandler("canvas-exit", handlePanningEnd);
+        viewer.removeHandler("open", handleViewerReady);
+        viewer.removeHandler("tile-loaded", handleInitialTileLoaded);
+        viewer.removeHandler("animation", handleViewportUpdate);
+        viewer.removeHandler("animation-finish", handleViewportUpdate);
+        viewer.removeHandler("resize", handleViewportUpdate);
+        viewer.removeHandler("update-viewport", handleViewportUpdate);
+        viewer.world?.removeHandler("add-item", handleViewerReady);
+      };
+
+      if (viewer.world?.getItemCount?.() > 0) handleViewerReady();
+      queueViewerRefresh();
+      scheduleImagePointMarkerUpdate();
+      applyViewerCursor();
+    },
+    [
+      applyViewerCursor,
+      handleViewerReady,
+      queueViewerRefresh,
+      scheduleImagePointMarkerUpdate,
+    ],
+  );
+
+  useEffect(() => {
+    setViewerReady(false);
+    setIsPanning(false);
+    setImagePointMarkers([]);
+    hasRefreshedInitialTileRef.current = false;
+    hasInitializedViewRef.current = false;
+    viewerRef.current?.clearOverlays?.();
+  }, [imageServiceUrl]);
+
+  useEffect(() => {
+    imagePointsRef.current = imagePoints;
+    scheduleImagePointMarkerUpdate();
+  }, [imagePoints, scheduleImagePointMarkerUpdate]);
+
+  useEffect(
+    () => () => {
+      viewerCleanupRef.current?.();
+      if (markerFrameRef.current) {
+        window.cancelAnimationFrame(markerFrameRef.current);
+      }
+      viewerCleanupRef.current = null;
+      markerFrameRef.current = null;
       viewerRef.current = null;
-    };
-  }, [imageServiceUrl, interactive, onDimensions]);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!shellRef.current || typeof ResizeObserver === "undefined") return;
 
-    const resizeObserver = new ResizeObserver(queueViewerRefresh);
+    const resizeObserver = new ResizeObserver(() => {
+      queueViewerRefresh();
+      scheduleImagePointMarkerUpdate();
+    });
     resizeObserver.observe(shellRef.current);
 
     return () => resizeObserver.disconnect();
-  }, []);
+  }, [queueViewerRefresh, scheduleImagePointMarkerUpdate]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -179,39 +339,13 @@ function ImageCoordinatePicker({
         document.fullscreenElement === shellRef.current;
       setIsFullscreen(isViewerFullscreen);
       queueViewerRefresh();
+      scheduleImagePointMarkerUpdate();
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () =>
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
-
-  useEffect(() => {
-    const viewer = viewerRef.current;
-    const OpenSeadragon = openseadragonRef.current;
-    if (!viewer || !OpenSeadragon || !viewerReady) return;
-
-    viewer.clearOverlays();
-
-    imagePoints.forEach((point, index) => {
-      if (!point?.coords?.length) return;
-
-      const marker = document.createElement("div");
-      marker.className = `georeference-image-point${
-        point.isPending ? " is-pending" : ""
-      }`;
-      marker.textContent = point.label || index + 1;
-
-      viewer.addOverlay({
-        element: marker,
-        location: viewer.viewport.imageToViewportCoordinates(
-          new OpenSeadragon.Point(point.coords[0], point.coords[1]),
-        ),
-        placement: OpenSeadragon.Placement.CENTER,
-        checkResize: false,
-      });
-    });
-  }, [imagePoints, viewerReady]);
+  }, [queueViewerRefresh, scheduleImagePointMarkerUpdate]);
 
   const zoomBy = (factor) => {
     const viewer = viewerRef.current;
@@ -219,10 +353,12 @@ function ImageCoordinatePicker({
 
     viewer.viewport.zoomBy(factor);
     viewer.viewport.applyConstraints();
+    scheduleImagePointMarkerUpdate();
   };
 
   const goHome = () => {
     viewerRef.current?.viewport.goHome();
+    scheduleImagePointMarkerUpdate();
   };
 
   const toggleFullscreen = async () => {
@@ -342,9 +478,47 @@ function ImageCoordinatePicker({
         style={{
           cursor: activeCursor,
           height: "100%",
+          position: "relative",
           width: "100%",
         }}
-      />
+      >
+        <CloverImage
+          instanceId="georeference-image-coordinate-picker"
+          src={imageServiceUrl.replace(/\/$/, "")}
+          isTiledImage
+          label="Georeference source image"
+          openSeadragonConfig={cloverImageConfig}
+          openSeadragonCallback={handleOpenSeadragonCallback}
+        />
+        <div
+          aria-hidden="true"
+          className="georeference-image-point-layer"
+          style={{
+            inset: 0,
+            pointerEvents: "none",
+            position: "absolute",
+            zIndex: 1,
+          }}
+        >
+          {viewerReady &&
+            imagePointMarkers.map((marker) => (
+              <div
+                key={marker.key}
+                className={`georeference-image-point${
+                  marker.isPending ? " is-pending" : ""
+                }`}
+                style={{
+                  left: `${marker.left}px`,
+                  position: "absolute",
+                  top: `${marker.top}px`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                {marker.label}
+              </div>
+            ))}
+        </div>
+      </div>
     </div>
   );
 }
