@@ -62,6 +62,35 @@ export function getImageServiceUrl(fileSet) {
   return fileSet?.representativeImageUrl || "";
 }
 
+function parseExtractedMetadata(fileSet) {
+  const metadata = fileSet?.extractedMetadata;
+  if (!metadata) return null;
+  if (typeof metadata !== "string") return metadata;
+
+  try {
+    return JSON.parse(metadata);
+  } catch (_error) {
+    return null;
+  }
+}
+
+function validDimension(value) {
+  const dimension = Number(value);
+  return Number.isFinite(dimension) && dimension > 0 ? dimension : null;
+}
+
+export function getFileSetImageDimensions(fileSet) {
+  const metadata = parseExtractedMetadata(fileSet);
+  const width =
+    validDimension(fileSet?.width) ||
+    validDimension(metadata?.exif?.value?.ImageWidth);
+  const height =
+    validDimension(fileSet?.height) ||
+    validDimension(metadata?.exif?.value?.ImageHeight);
+
+  return width && height ? { width, height } : null;
+}
+
 export function getCanvasSourceId(work, fileSet) {
   if (work?.manifestUrl) {
     return work.manifestUrl.replace(
