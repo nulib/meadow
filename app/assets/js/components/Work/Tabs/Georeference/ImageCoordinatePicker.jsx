@@ -165,10 +165,7 @@ function ImageCoordinatePicker({
       immediateRender: true,
       showNavigationControl: false,
       showNavigator: true,
-      showFullPageControl: false,
-      showHomeControl: false,
       showRotationControl: false,
-      showZoomControl: false,
       gestureSettingsMouse: {
         clickToZoom: false,
         dragToPan: true,
