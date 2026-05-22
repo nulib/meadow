@@ -1,5 +1,5 @@
 defmodule MeadowAI.MetadataAgentTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias MeadowAI.MetadataAgent
 
@@ -33,6 +33,48 @@ defmodule MeadowAI.MetadataAgentTest do
 
       assert {:ok, %{request_count: 2, failure_count: 1, last_failure: %DateTime{}}} =
                MetadataAgent.status()
+    end
+
+    test "test queries rewrite localhost MCP URLs for SAM lambdas" do
+      System.put_env("USE_SAM_LAMBDAS", "true")
+      System.put_env("MEADOW_SAM_HOST_URL", "http://host.docker.internal")
+
+      on_exit(fn ->
+        System.delete_env("USE_SAM_LAMBDAS")
+        System.delete_env("MEADOW_SAM_HOST_URL")
+      end)
+
+      prompt = "Test prompt"
+
+      assert {:ok, {%{"result" => "test"}, ^prompt, opts}} =
+               MetadataAgent.query(prompt,
+                 test: true,
+                 timeout: 1_000,
+                 mcp_url: "http://localhost:4000/api/mcp/eval"
+               )
+
+      assert opts[:mcp_url] == "http://host.docker.internal:4000/api/mcp/eval"
+    end
+
+    test "test queries rewrite generated external MCP URLs for SAM lambdas" do
+      System.put_env("USE_SAM_LAMBDAS", "true")
+      System.delete_env("MEADOW_SAM_HOST_URL")
+
+      on_exit(fn ->
+        System.delete_env("USE_SAM_LAMBDAS")
+        System.delete_env("MEADOW_SAM_HOST_URL")
+      end)
+
+      prompt = "Test prompt"
+
+      assert {:ok, {%{"result" => "test"}, ^prompt, opts}} =
+               MetadataAgent.query(prompt,
+                 test: true,
+                 timeout: 1_000,
+                 mcp_url: "https://bmq.dev.rdc.library.northwestern.edu:3001/api/mcp/eval"
+               )
+
+      assert opts[:mcp_url] == "http://172.17.0.1:4000/api/mcp/eval"
     end
   end
 end

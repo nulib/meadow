@@ -49,6 +49,12 @@ defmodule Meadow.Application.Children do
          registry:
            {MeadowWeb.MCP.HordeRegistry,
             [name: Anubis.Server.Registry.registry_name(MeadowWeb.MCP.Server)]},
+         supervisor: {MeadowWeb.MCP.HordeSupervisor, []}},
+        {MeadowWeb.MCP.EvalServer,
+         transport: :streamable_http,
+         registry:
+           {MeadowWeb.MCP.HordeRegistry,
+            [name: Anubis.Server.Registry.registry_name(MeadowWeb.MCP.EvalServer)]},
          supervisor: {MeadowWeb.MCP.HordeSupervisor, []}}
       ],
       "web.notifiers" => [
@@ -61,7 +67,8 @@ defmodule Meadow.Application.Children do
     %{
       "metadata" => [
         {MeadowAI.MetadataAgent, []},
-        {Task.Supervisor, name: MeadowAI.MetadataAgent.TaskSupervisor}
+        {Task.Supervisor, name: MeadowAI.MetadataAgent.TaskSupervisor},
+        {Task.Supervisor, name: Meadow.Evals.TaskSupervisor}
       ]
     }
   end
