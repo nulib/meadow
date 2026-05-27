@@ -20,12 +20,8 @@ export function annotationByType(fileSet, type) {
 
 export function parseAnnotationContent(annotation) {
   if (!annotation?.content) return null;
-
-  try {
-    return JSON.parse(annotation.content);
-  } catch (_error) {
-    return null;
-  }
+  if (typeof annotation.content !== "object") return null;
+  return annotation.content;
 }
 
 export function getFileSetLabel(fileSet) {

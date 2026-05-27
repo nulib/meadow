@@ -126,7 +126,7 @@ const annotatedWork = {
           fileSetId: imageFileSet.id,
           type: "georeference",
           language: ["en"],
-          content: JSON.stringify({
+          content: {
             body: {
               features: [
                 {
@@ -141,14 +141,14 @@ const annotatedWork = {
                 },
               ],
             },
-          }),
+          },
         },
         {
           id: "nav-place-annotation",
           fileSetId: imageFileSet.id,
           type: "nav_place",
           language: ["en"],
-          content: JSON.stringify({
+          content: {
             type: "FeatureCollection",
             features: [
               {
@@ -164,7 +164,7 @@ const annotatedWork = {
                 },
               },
             ],
-          }),
+          },
         },
       ],
     },
