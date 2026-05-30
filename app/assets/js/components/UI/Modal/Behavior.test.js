@@ -22,7 +22,7 @@ describe("UIBehaviorModal component", () => {
         currentBehavior="continuous"
         onClose={mockOnClose}
         onSave={mockOnSave}
-      />
+      />,
     );
   });
 

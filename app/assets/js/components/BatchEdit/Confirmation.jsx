@@ -85,7 +85,7 @@ const BatchEditConfirmation = ({
       batchReplaces,
       hasAdds,
       hasDeletes,
-      hasReplaces
+      hasReplaces,
     );
 
     if (hasCollection) {

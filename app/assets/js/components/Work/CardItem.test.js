@@ -6,7 +6,7 @@ import { renderWithRouter } from "@js/services/testing-helpers";
 
 function setupTests() {
   return renderWithRouter(
-    <WorkCardItem {...prepWorkItemForDisplay(indexWork)} id={indexWork.id} />
+    <WorkCardItem {...prepWorkItemForDisplay(indexWork)} id={indexWork.id} />,
   );
 }
 
@@ -17,19 +17,14 @@ it("Displays Work card", () => {
 
 describe("Shows Work content", () => {
   it("Displays Visibility Tag", () => {
-    const { getByTestId, findByText } = setupTests();
+    const { getByTestId } = setupTests();
     expect(getByTestId("tag-visibility")).toBeInTheDocument();
-    expect(findByText("PUBLIC")).toBeTruthy();
+    expect(getByTestId("tag-visibility")).toHaveTextContent("Private");
   });
 
-  it("Displays Collection Name", () => {
+  it("Displays Accession Number", async () => {
     const { findByText } = setupTests();
-    expect(findByText("Collection 1232432 Name")).toBeTruthy();
-  });
-
-  it("Displays Accession Number", () => {
-    const { findByText } = setupTests();
-    expect(findByText("Donohue_001")).toBeTruthy();
+    expect(await findByText("Donohue_001")).toBeInTheDocument();
   });
 
   it("Displays Tags", () => {

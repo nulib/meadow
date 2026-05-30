@@ -45,7 +45,7 @@ const CollectionListRow = ({ collection, onOpenModal }) => {
               "is-square": isMobile && !isTablet,
               "is-fullwidth": isMobile,
               "is-128x128": isTablet || isDesktop,
-            }
+            },
           )}
         >
           <CollectionImage collection={collection} />

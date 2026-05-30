@@ -9,7 +9,81 @@ import {
   GET_PRESERVATION_CHECKS,
   GET_OBSOLETE_CONTROLLED_TERMS,
 } from "@js/components/Dashboards/dashboards.gql";
-import { errors as csvMetadataUpdateJobErrors } from "@js/components/Dashboards/Csv/Errors";
+
+const csvMetadataUpdateJobErrors = [
+  {
+    __typename: "RowErrors",
+    errors: [
+      { __typename: "Errors", field: "location", messages: ["is missing"] },
+      { __typename: "Errors", field: "status", messages: ["is missing"] },
+      {
+        __typename: "Errors",
+        field: "project_cycle",
+        messages: ["is missing"],
+      },
+      { __typename: "Errors", field: "visibility", messages: ["is missing"] },
+      {
+        __typename: "Errors",
+        field: "project_proposer",
+        messages: ["is missing"],
+      },
+      { __typename: "Errors", field: "notes", messages: ["is missing"] },
+      { __typename: "Errors", field: "box_number", messages: ["is missing"] },
+      { __typename: "Errors", field: "title", messages: ["is missing"] },
+      { __typename: "Errors", field: "Donohue_001", messages: ["is unknown"] },
+      { __typename: "Errors", field: "project_desc", messages: ["is missing"] },
+      {
+        __typename: "Errors",
+        field: "accession_number",
+        messages: ["is missing"],
+      },
+      {
+        __typename: "Errors",
+        field: "table_of_contents",
+        messages: ["is missing"],
+      },
+      { __typename: "Errors", field: "source", messages: ["is missing"] },
+      { __typename: "Errors", field: "catalog_key", messages: ["is missing"] },
+    ],
+    row: 1,
+  },
+  {
+    __typename: "RowErrors",
+    errors: [
+      { __typename: "Errors", field: "location", messages: ["is missing"] },
+      { __typename: "Errors", field: "status", messages: ["is missing"] },
+      {
+        __typename: "Errors",
+        field: "project_cycle",
+        messages: ["is missing"],
+      },
+      { __typename: "Errors", field: "visibility", messages: ["is missing"] },
+      {
+        __typename: "Errors",
+        field: "project_proposer",
+        messages: ["is missing"],
+      },
+      { __typename: "Errors", field: "notes", messages: ["is missing"] },
+      { __typename: "Errors", field: "box_number", messages: ["is missing"] },
+      { __typename: "Errors", field: "title", messages: ["is missing"] },
+      { __typename: "Errors", field: "Donohue_001", messages: ["is unknown"] },
+      { __typename: "Errors", field: "project_desc", messages: ["is missing"] },
+      {
+        __typename: "Errors",
+        field: "accession_number",
+        messages: ["is missing"],
+      },
+      {
+        __typename: "Errors",
+        field: "table_of_contents",
+        messages: ["is missing"],
+      },
+      { __typename: "Errors", field: "source", messages: ["is missing"] },
+      { __typename: "Errors", field: "catalog_key", messages: ["is missing"] },
+    ],
+    row: 2,
+  },
+];
 
 export const mockGetBatchesResults = [
   {

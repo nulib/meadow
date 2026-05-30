@@ -14,7 +14,6 @@ import userEvent from "@testing-library/user-event";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
@@ -58,7 +57,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
     it("displays the Collection select form element", async () => {
       const Wrapped = withReactHookForm(
         WorkTabsAdministrativeCollection,
-        props
+        props,
       );
       renderWithApollo(<Wrapped />, {
         mocks: buildMocks(),
@@ -86,7 +85,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
     it("displays selected Collection link and handles being clicked", async () => {
       const user = userEvent.setup();
       const collectionLinkEl = await screen.findByTestId(
-        "view-collection-works-button"
+        "view-collection-works-button",
       );
       expect(collectionLinkEl).toHaveTextContent("Great collection");
       await user.click(collectionLinkEl);
@@ -110,7 +109,7 @@ describe("WorkTabsAdministrativeCollection component", () => {
     it("is not checked when Work is not the Collection image", async () => {
       const WrappedNotEditing = withReactHookForm(
         WorkTabsAdministrativeCollection,
-        { ...props, isEditing: false, workId: "FOOBAZ" }
+        { ...props, isEditing: false, workId: "FOOBAZ" },
       );
       renderWithApollo(<WrappedNotEditing />, {
         mocks: buildMocks(),

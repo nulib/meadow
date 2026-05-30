@@ -44,7 +44,9 @@ describe("PlanChatForm", () => {
     );
 
     expect(screen.getByTestId("msg-input")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /suggest edits/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /suggest edits/i }),
+    ).toBeInTheDocument();
   });
 
   test("renders 'scroll to bottom' button when showScrollButton=true and calls handler", async () => {

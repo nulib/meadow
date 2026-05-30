@@ -44,7 +44,7 @@ const ScreensCollectionForm = () => {
       {
         label: "Edit",
         isActive: true,
-      }
+      },
     );
 
     collection = data.collection;

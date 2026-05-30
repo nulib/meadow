@@ -11,18 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version-file: ./.tool-versions
-          cache: "npm"
-          cache-dependency-path: |
-            app/assets/package-lock.json
-            app/priv/nodejs/*/package-lock.json
-            lambdas/*/package-lock.json
-      - name: Install NPM
-        run: npm install -g npm@${{ env.NPM_VERSION }}
-        env:
-          NPM_VERSION: 11.6.0
+          bun-version: 1.3.14
       - name: Frontend CI
         run: make app-frontend-ci
   elixir-test:
@@ -32,14 +23,9 @@ jobs:
       MIX_ENV: test
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version-file: ./.tool-versions
-          cache: "npm"
-          cache-dependency-path: |
-            app/assets/package-lock.json
-            app/priv/nodejs/*/package-lock.json
-            lambdas/*/package-lock.json
+          bun-version: 1.3.14
       - name: Start service containers in background
         run: make localstack-start &
       - uses: erlef/setup-beam@v1

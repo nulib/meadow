@@ -18,9 +18,6 @@ import {
 } from "@js/components/Collection/collection.gql.mock";
 import { WorkProvider, defaultState } from "@js/context/work-context";
 
-jest.mock("@js/services/get-api-response-headers");
-
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,

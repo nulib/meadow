@@ -33,12 +33,12 @@ function WorkTabsAdministrativeCollection({
       if (graphQLErrors.length > 0) {
         errorStrings = graphQLErrors.map(
           ({ message, details }) =>
-            `${message}: ${details && details.title ? details.title : ""}`
+            `${message}: ${details && details.title ? details.title : ""}`,
         );
       }
       toastWrapper(
         "is-danger",
-        `Error updating collection image ${errorStrings.join(" \n ")}`
+        `Error updating collection image ${errorStrings.join(" \n ")}`,
       );
     },
   });
@@ -57,7 +57,7 @@ function WorkTabsAdministrativeCollection({
       console.error("networkError", networkError);
       toastWrapper(
         "is-danger",
-        `Error getting the Work Collection through GraphQL LazyQuery`
+        `Error getting the Work Collection through GraphQL LazyQuery`,
       );
     },
   });
@@ -77,7 +77,8 @@ function WorkTabsAdministrativeCollection({
   }, [collection]);
 
   React.useEffect(() => {
-    const representativeWork = dataLoadCollection?.collection?.representativeWork;
+    const representativeWork =
+      dataLoadCollection?.collection?.representativeWork;
     setIsCollectionImage(representativeWork?.id === workId ? true : false);
   }, [dataLoadCollection, workId]);
 
@@ -117,7 +118,7 @@ function WorkTabsAdministrativeCollection({
                   id: collection.id,
                   value: collection.id,
                   label: collection.title,
-                })
+                }),
               )
             }
             defaultValue={collection ? collection.id : ""}

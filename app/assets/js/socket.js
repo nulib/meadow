@@ -58,10 +58,10 @@ socket.connect();
 let channel = socket.channel("sheet:12345", {});
 channel
   .join()
-  .receive("ok", resp => {
+  .receive("ok", (resp) => {
     console.log("Joined sheet:12345 successfully", resp);
   })
-  .receive("error", resp => {
+  .receive("error", (resp) => {
     console.log("Unable to join", resp);
   });
 

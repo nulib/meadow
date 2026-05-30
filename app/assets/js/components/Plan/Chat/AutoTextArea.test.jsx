@@ -103,7 +103,10 @@ describe("AutoTextArea (JS)", () => {
 
     // 15 lines of content
     setScrollHeight(ta, 15 * LINE_HEIGHT + PADDING_Y);
-    await userEvent.type(ta, "lots of\nlines\n".repeat(8));
+    act(() => {
+      ta.value = "lots of\nlines\n".repeat(8);
+      ta.dispatchEvent(new Event("input", { bubbles: true }));
+    });
     expect(ta).toHaveAttribute("rows", "10");
   });
 

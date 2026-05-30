@@ -23,7 +23,7 @@ function DashboardsLocalAuthoritiesTitleBar() {
       onCompleted({ createNulAuthorityRecord }) {
         toastWrapper(
           "is-success",
-          `NUL Authority Record ${createNulAuthorityRecord.label} created.`
+          `NUL Authority Record ${createNulAuthorityRecord.label} created.`,
         );
       },
       // KEEP THIS: as we can listen for a more customized message in the future when the feature is built out
@@ -32,12 +32,12 @@ function DashboardsLocalAuthoritiesTitleBar() {
         if (graphQLErrors.length > 0) {
           errorStrings = graphQLErrors.map(
             ({ message, details }) =>
-              `${message}: ${details && details.label ? details.label : ""}`
+              `${message}: ${details && details.label ? details.label : ""}`,
           );
         }
         toastWrapper("is-danger", errorStrings.join(" \n "));
       },
-    }
+    },
   );
 
   const handleAddLocalAuthority = (formData) => {

@@ -12,7 +12,6 @@ import { collectionMock } from "./collection.gql.mock";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
@@ -30,7 +29,7 @@ describe("Collection Form component", () => {
       {
         route: "/collection/form",
         mocks: [...allCodeListMocks],
-      }
+      },
     );
   });
 
@@ -73,25 +72,25 @@ it("renders existing collection values in the form when editing a form", async (
     {
       route: "/collection/form",
       mocks: [...allCodeListMocks],
-    }
+    },
   );
 
   expect(await screen.findByTestId("input-collection-title")).toHaveValue(
-    "Great collection"
+    "Great collection",
   );
   expect(await screen.findByTestId("textarea-description")).toHaveValue(
-    "Collection description lorem ipsum"
+    "Collection description lorem ipsum",
   );
   expect(await screen.findByTestId("input-finding-aid-url")).toHaveValue(
-    "https://northwestern.edu"
+    "https://northwestern.edu",
   );
   expect(await screen.findByTestId("input-admin-email")).toHaveValue(
-    "admin@nu.com"
+    "admin@nu.com",
   );
 
   for (let i = 0; i < collectionMock.keywords.length; i++) {
     expect(
-      screen.getByDisplayValue(collectionMock.keywords[i])
+      screen.getByDisplayValue(collectionMock.keywords[i]),
     ).toBeInTheDocument();
   }
 });

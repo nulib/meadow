@@ -18,7 +18,7 @@ const ProjectForm = ({ showForm, setShowForm, project = {}, formType }) => {
       onCompleted({ createProject }) {
         toastWrapper(
           "is-success",
-          `Project ${createProject.title} created successfully`
+          `Project ${createProject.title} created successfully`,
         );
         setShowForm(false);
       },
@@ -28,14 +28,14 @@ const ProjectForm = ({ showForm, setShowForm, project = {}, formType }) => {
       refetchQueries(mutationResult) {
         return [{ query: GET_PROJECTS }];
       },
-    }
+    },
   );
 
   let [updateProject] = useMutation(UPDATE_PROJECT, {
     onCompleted({ updateProject }) {
       toastWrapper(
         "is-success",
-        `Project ${updateProject.title} updated successfully`
+        `Project ${updateProject.title} updated successfully`,
       );
       setShowForm(false);
     },

@@ -113,7 +113,7 @@ describe("BatchEditConfirmation component test", () => {
       </CodeListProvider>,
       {
         mocks: allCodeListMocks,
-      }
+      },
     );
   }
 

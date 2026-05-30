@@ -13,7 +13,7 @@ const IngestSheetUnapprovedState = ({ rows }) => {
 
     rows.forEach((row) => {
       const workObj = row.fields.find(
-        (field) => field.header === "work_accession_number"
+        (field) => field.header === "work_accession_number",
       );
       const workAccessionNumber = workObj.value;
       let filesetObj = {};
@@ -23,7 +23,7 @@ const IngestSheetUnapprovedState = ({ rows }) => {
       }
 
       const otherFields = row.fields.filter(
-        (field) => field.header !== "work_accession_number"
+        (field) => field.header !== "work_accession_number",
       );
       otherFields.forEach((field) => {
         filesetObj[field.header] = field.value;

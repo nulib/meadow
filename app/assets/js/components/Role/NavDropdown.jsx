@@ -35,14 +35,14 @@ const RoleNavDropdown = () => {
     onCompleted({ assumeRole }) {
       toastWrapper(
         "is-success",
-        "Your role has been temporarily changed. To change back, log out and then in again."
+        "Your role has been temporarily changed. To change back, log out and then in again.",
       );
     },
     onError(error) {
       console.log("onError() error", error);
       toastWrapper(
         "is-danger",
-        "An error occured. Your role could not be updated."
+        "An error occured. Your role could not be updated.",
       );
     },
     refetchQueries(_mutationResult) {

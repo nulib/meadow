@@ -1,6 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 // mock Apollo useMutation so we don't need an ApolloProvider
 jest.mock("@apollo/client/react", () => ({
@@ -11,17 +10,13 @@ jest.mock("@apollo/client/react", () => ({
   ],
 }));
 
-import WorkTabsStructureWebVTTModal from "./WebVTTModal";
-import { WorkProvider } from "@js/context/work-context";
-
 // --- Mock useParams() ---
-jest.mock("react-router-dom", () => {
-  const actual = jest.requireActual("react-router-dom");
-  return {
-    ...actual,
-    useParams: () => ({ workId: "work-123" }), // adjust if your component needs more params
-  };
-});
+jest.mock("react-router-dom", () => ({
+  useParams: () => ({ id: "work-123" }),
+}));
+
+const { default: WorkTabsStructureWebVTTModal } = await import("./WebVTTModal");
+const { WorkProvider } = await import("@js/context/work-context");
 
 const validWebVTT = `WEBVTT
 
@@ -54,7 +49,6 @@ describe("WorkTabsStructureWebVTTModal", () => {
   });
 
   it("displays a valid message for valid VTT inputs", async () => {
-    const user = userEvent.setup();
     render(
       <WorkProvider>
         <WorkTabsStructureWebVTTModal isActive={true} />
@@ -62,15 +56,13 @@ describe("WorkTabsStructureWebVTTModal", () => {
     );
 
     const textarea = screen.getByRole("textbox");
-    await user.clear(textarea);
-    await user.type(textarea, validWebVTT);
+    fireEvent.change(textarea, { target: { value: validWebVTT } });
 
     const successNotification = await screen.findByText(/WebVTT is valid/i);
     expect(successNotification).toBeInTheDocument();
   });
 
   it("displays validation errors for invalid VTT as an ordered list", async () => {
-    const user = userEvent.setup();
     render(
       <WorkProvider>
         <WorkTabsStructureWebVTTModal isActive={true} />
@@ -78,8 +70,7 @@ describe("WorkTabsStructureWebVTTModal", () => {
     );
 
     const textarea = screen.getByRole("textbox");
-    await user.clear(textarea);
-    await user.type(textarea, invalidWebVTT);
+    fireEvent.change(textarea, { target: { value: invalidWebVTT } });
 
     // Error notification shows
     const errorNotification = await screen.findByText(/WebVTT is not valid/i);

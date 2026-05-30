@@ -17,10 +17,7 @@ function ScreensDashboardsUsersList(props) {
 
   return (
     <Layout>
-      <section
-        className="section"
-        data-testid="dashboard-users-screen"
-      >
+      <section className="section" data-testid="dashboard-users-screen">
         <div className="container">
           <Breadcrumbs
             items={[
@@ -36,9 +33,7 @@ function ScreensDashboardsUsersList(props) {
             ]}
           />
           <PageTitle data-testid="users-dashboard-title">
-            <IconText icon={<IconCheck />}>
-              Manage Users Dashboard
-            </IconText>
+            <IconText icon={<IconCheck />}>Manage Users Dashboard</IconText>
           </PageTitle>
           <ErrorBoundary FallbackComponent={UIFallbackErrorComponent}>
             <DashboardsUsersList />

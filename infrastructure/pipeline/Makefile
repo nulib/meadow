@@ -3,8 +3,10 @@ SAM_PORT ?= 3005
 SAM_HOST ?= 0.0.0.0
 PIPELINE_LOG_DIR := $(shell mktemp -d)
 PIPELINE_THREADS ?= 4
+BUN_VERSION ?= 1.3.14
+SAM_BUILD_IMAGE ?= meadow-sam-nodejs22-bun:$(BUN_VERSION)
 
-.PHONY: help layers build start clean
+.PHONY: help layers build build-image start clean
 
 .aws-sam/build.toml: build
 
@@ -16,8 +18,8 @@ help:
 	@echo "make layers       | build lambda layers"
 	@echo "make start        | start the pipeline lambdas on port 3005 with live S3 service"
 
-$(LAMBDAS_DIR)/%/node_modules/.install-stamp: $(LAMBDAS_DIR)/%/package.json $(LAMBDAS_DIR)/%/package-lock.json
-	SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm i --prefix $(LAMBDAS_DIR)/$*
+$(LAMBDAS_DIR)/%/node_modules/.install-stamp: $(LAMBDAS_DIR)/%/package.json $(LAMBDAS_DIR)/%/bun.lock
+	SHARP_IGNORE_GLOBAL_LIBVIPS=1 bun install --cwd $(LAMBDAS_DIR)/$* --frozen-lockfile
 	@touch $@
 
 deps: $(LAMBDAS_DIR)/digester/node_modules/.install-stamp
@@ -37,8 +39,14 @@ env-check:
 layers:
 	cd layers/build && make all
 
-build: layers
-	sam build --use-container --cached
+build-image:
+	docker build \
+		--build-arg BUN_VERSION=$(BUN_VERSION) \
+		-t $(SAM_BUILD_IMAGE) \
+		-f Dockerfile.sam-bun .
+
+build: layers build-image
+	sam build --use-container --build-image $(SAM_BUILD_IMAGE) --cached
 
 start: deps layers
 	./start_multi.sh $(SAM_PORT) $(PIPELINE_THREADS)

@@ -7,7 +7,7 @@ describe("UISearchBarRow component", () => {
     render(
       <UISearchBarRow>
         <div>Foobar</div>
-      </UISearchBarRow>
+      </UISearchBarRow>,
     );
   });
 

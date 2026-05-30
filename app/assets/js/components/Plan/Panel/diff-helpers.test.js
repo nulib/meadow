@@ -27,7 +27,12 @@ jest.mock("@js/components/Plan/fields", () => {
     "descriptive_metadata.related_url",
   ]);
 
-  return { WORK_FIELDS, CONTROLLED_TERM_FIELDS, CODED_TERM_FIELDS, NESTED_CODED_TERM_FIELDS };
+  return {
+    WORK_FIELDS,
+    CONTROLLED_TERM_FIELDS,
+    CODED_TERM_FIELDS,
+    NESTED_CODED_TERM_FIELDS,
+  };
 });
 
 import { toArray, isControlled, getFieldLabel, toRows } from "./diff-helpers";

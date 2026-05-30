@@ -1,6 +1,4 @@
-import {
-  renderWithRouterApollo,
-} from "@js/services/testing-helpers";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import React from "react";
 import WorkTabsStructureFilesetsDragAndDrop from "./FilesetsDragAndDrop";
 import { screen } from "@testing-library/react";
@@ -29,7 +27,7 @@ describe("WorkTabsStructureFilesetsDragAndDrop component", () => {
       </CodeListProvider>,
       {
         mocks: allCodeListMocks,
-      }
+      },
     );
   });
 

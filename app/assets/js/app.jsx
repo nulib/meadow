@@ -29,5 +29,5 @@ root.render(
     <ApolloProvider client={client}>
       <Root />
     </ApolloProvider>
-  </HoneybadgerErrorBoundary>
+  </HoneybadgerErrorBoundary>,
 );

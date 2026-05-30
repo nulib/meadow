@@ -51,6 +51,6 @@ UIPreviewItems.propTypes = {
         PropTypes.string,
       ]),
       workTypeId: PropTypes.oneOf(["AUDIO", "IMAGE", "VIDEO"]).isRequired,
-    })
+    }),
   ),
 };

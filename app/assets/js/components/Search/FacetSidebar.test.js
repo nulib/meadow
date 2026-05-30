@@ -12,7 +12,7 @@ describe("SearchFacetSidebar component", () => {
 
   it("renders without crashing", () => {
     expect(
-      screen.getByTestId("search-facet-sidebar-wrapper")
+      screen.getByTestId("search-facet-sidebar-wrapper"),
     ).toBeInTheDocument();
   });
 

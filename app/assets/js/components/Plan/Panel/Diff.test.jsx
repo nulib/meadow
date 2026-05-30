@@ -1,14 +1,14 @@
 // PlanPanelChangesDiff.test.jsx
 import React from "react";
 import { render, screen, within } from "@testing-library/react";
-import PlanPanelChangesDiff from "./Diff";
 
 // ---- Mocks that the factories will reference (must be prefixed with "mock") ----
 const mockToArray = jest.fn((v) => (Array.isArray(v) ? v : v ? [v] : []));
 const mockToRows = jest.fn();
-const mockIsCodedTerm = jest.fn((path) =>
-  path === "descriptive_metadata.rights_statement" ||
-  path === "descriptive_metadata.license"
+const mockIsCodedTerm = jest.fn(
+  (path) =>
+    path === "descriptive_metadata.rights_statement" ||
+    path === "descriptive_metadata.license",
 );
 
 jest.mock("@apollo/client/react", () => ({
@@ -18,17 +18,23 @@ jest.mock("@apollo/client/react", () => ({
 jest.mock("@nulib/design-system", () => ({
   Tag: ({ children }) => <span data-testid="tag">{children}</span>,
   Button: ({ children, onClick, type, ...rest }) => (
-    <button onClick={onClick} type={type || "button"} {...rest}>{children}</button>
+    <button onClick={onClick} type={type || "button"} {...rest}>
+      {children}
+    </button>
   ),
 }));
 
-jest.mock("@js/components/UI/ControlledTerm/List", () => {
-  return ({ title, items }) => (
+jest.mock("@js/components/UI/ControlledTerm/List", () => ({
+  __esModule: true,
+  default: ({ title, items }) => (
     <div data-testid="ctl" data-title={title} data-count={items?.length ?? 0} />
-  );
-});
+  ),
+}));
 
-jest.mock("@js/components/UI/Modal/Delete", () => () => <div data-testid="modal-delete" />);
+jest.mock("@js/components/UI/Modal/Delete", () => ({
+  __esModule: true,
+  default: () => <div data-testid="modal-delete" />,
+}));
 
 jest.mock("@js/components/Icon", () => ({
   IconEdit: () => <span data-testid="icon-edit" />,
@@ -37,15 +43,18 @@ jest.mock("@js/components/Icon", () => ({
 
 jest.mock("../plan.gql", () => ({ UPDATE_PLAN_CHANGE: "UPDATE_PLAN_CHANGE" }));
 
-jest.mock("@js/components/Plan/Panel/EditDiffRowForm", () => () => (
-  <div data-testid="edit-diff-row-form" />
-));
+jest.mock("@js/components/Plan/Panel/EditDiffRowForm", () => ({
+  __esModule: true,
+  default: () => <div data-testid="edit-diff-row-form" />,
+}));
 
 jest.mock("@js/components/Plan/Panel/diff-helpers", () => ({
   toArray: (...args) => mockToArray(...args),
   toRows: (...args) => mockToRows(...args),
   isCodedTerm: (...args) => mockIsCodedTerm(...args),
 }));
+
+const { default: PlanPanelChangesDiff } = await import("./Diff");
 
 beforeEach(() => {
   jest.clearAllMocks();

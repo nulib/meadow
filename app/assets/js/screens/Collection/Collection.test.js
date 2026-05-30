@@ -17,7 +17,6 @@ import { CodeListProvider } from "@js/context/code-list-context";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
@@ -35,7 +34,7 @@ function setupTests(mocks = [getCollectionMock, ...allCodeListMocks]) {
     {
       mocks,
       route: `/collection/${MOCK_COLLECTION_ID}`,
-    }
+    },
   );
 }
 

@@ -4,18 +4,19 @@ import {
   DialogContent,
   DialogFooter,
   DialogOverlay,
-  DialogTitle
+  DialogTitle,
 } from "@js/components/UI/Dialog/Dialog.styled";
 import { Button, Icon, Notification } from "@nulib/design-system";
 import { FormProvider, useForm } from "react-hook-form";
-import {
-  GET_WORK,
-  REPLACE_FILE_SET,
-} from "@js/components/Work/work.gql.js";
+import { GET_WORK, REPLACE_FILE_SET } from "@js/components/Work/work.gql.js";
 import React, { useEffect, useState } from "react";
 /** @jsx jsx */
 import { css, jsx } from "@emotion/react";
-import { getFileNameFromS3Uri, s3Location, toastWrapper } from "@js/services/helpers";
+import {
+  getFileNameFromS3Uri,
+  s3Location,
+  toastWrapper,
+} from "@js/services/helpers";
 import { useLazyQuery, useMutation } from "@apollo/client/react";
 
 import Error from "@js/components/UI/Error";
@@ -26,7 +27,7 @@ import UIFormField from "@js/components/UI/Form/Field.jsx";
 import UIFormInput from "@js/components/UI/Form/Input.jsx";
 import UIIconText from "../../../UI/IconText";
 import WorkTabsPreservationFileSetDropzone from "@js/components/Work/Tabs/Preservation/FileSetDropzone";
-import S3ObjectPicker from "@js/components/Work/Tabs/Preservation/S3ObjectPicker"
+import S3ObjectPicker from "@js/components/Work/Tabs/Preservation/S3ObjectPicker";
 
 function WorkTabsPreservationReplaceFileSet({
   closeModal,
@@ -63,7 +64,7 @@ function WorkTabsPreservationReplaceFileSet({
       onCompleted({ replaceFileSet }) {
         toastWrapper(
           "is-success",
-          `FileSet record id: ${replaceFileSet.id} file was submitted successfully and ${replaceFileSet.coreMetadata.label} was submitted to the ingest pipeline.`
+          `FileSet record id: ${replaceFileSet.id} file was submitted successfully and ${replaceFileSet.coreMetadata.label} was submitted to the ingest pipeline.`,
         );
         resetForm();
         closeModal();
@@ -79,7 +80,7 @@ function WorkTabsPreservationReplaceFileSet({
         },
       ],
       awaitRefetchQueries: true,
-    }
+    },
   );
 
   useEffect(() => {
@@ -132,12 +133,12 @@ function WorkTabsPreservationReplaceFileSet({
       name: getFileNameFromS3Uri(s3Object.key),
     });
     setS3UploadLocation(s3Object.key);
-    setUploadMethod('s3');
+    setUploadMethod("s3");
   };
 
   const handleSetFile = (file) => {
     setCurrentFile(file);
-    setUploadMethod('dragdrop');
+    setUploadMethod("dragdrop");
     if (file) {
       getPresignedUrl({
         variables: {
@@ -167,7 +168,7 @@ function WorkTabsPreservationReplaceFileSet({
         setS3UploadLocation(s3Location(presignedUrl));
       } else {
         setUploadError(
-          `Error uploading file to S3. Response status: ${request.status}`
+          `Error uploading file to S3. Response status: ${request.status}`,
         );
         setCurrentFile(null);
       }
@@ -193,14 +194,14 @@ function WorkTabsPreservationReplaceFileSet({
               <Icon.Close />
             </Icon>
           </DialogClose>
-          <DialogTitle css={{ textAlign: "left" }}>
-            Replace Fileset
-          </DialogTitle>
+          <DialogTitle css={{ textAlign: "left" }}>Replace Fileset</DialogTitle>
 
           {urlError && (
             <div>
               <section>
-                <Notification isDanger>Error retrieving presigned url</Notification>
+                <Notification isDanger>
+                  Error retrieving presigned url
+                </Notification>
               </section>
             </div>
           )}
@@ -232,7 +233,7 @@ function WorkTabsPreservationReplaceFileSet({
                         handleSetFile={handleSetFile}
                         uploadProgress={uploadProgress}
                         workTypeId={workTypeId}
-                        disabled={uploadMethod === 's3'}
+                        disabled={uploadMethod === "s3"}
                       />
                     </div>
 
@@ -243,7 +244,7 @@ function WorkTabsPreservationReplaceFileSet({
                         fileSetRole={fileset?.role?.id}
                         workTypeId={workTypeId}
                         defaultPrefix={"file_sets/"}
-                        disabled={uploadMethod === 'dragdrop'}
+                        disabled={uploadMethod === "dragdrop"}
                       />
                     </div>
 

@@ -32,7 +32,7 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
             createWork.descriptiveMetadata
               ? createWork.descriptiveMetadata.title || ""
               : ""
-          } created successfully`
+          } created successfully`,
         );
         setShowWorkForm(false);
         history.push(`/work/${createWork.id}`);
@@ -40,7 +40,7 @@ const WorkForm = ({ showWorkForm, setShowWorkForm }) => {
       onError(error) {
         setFormError(error);
       },
-    }
+    },
   );
 
   React.useEffect(() => {

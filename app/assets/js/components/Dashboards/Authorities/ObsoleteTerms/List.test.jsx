@@ -2,16 +2,16 @@ import React from "react";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import { screen, within } from "@testing-library/react";
 import DashboardsObsoleteTermsList from "./List";
-import { getObsoleteTermsMock, getObsoleteTermsSetLimitMock } from "@js/components/Dashboards/dashboards.gql.mock";
+import {
+  getObsoleteTermsMock,
+  getObsoleteTermsSetLimitMock,
+} from "@js/components/Dashboards/dashboards.gql.mock";
 import userEvent from "@testing-library/user-event";
 
 describe("DashboardsObsoleteTermsList component", () => {
   beforeEach(() => {
     renderWithRouterApollo(<DashboardsObsoleteTermsList />, {
-      mocks: [
-        getObsoleteTermsMock,
-        getObsoleteTermsSetLimitMock,
-      ],
+      mocks: [getObsoleteTermsMock, getObsoleteTermsSetLimitMock],
     });
   });
 
@@ -25,9 +25,7 @@ describe("DashboardsObsoleteTermsList component", () => {
   });
 
   it("renders correct obsolete terms row details", async () => {
-    const td = await screen.findByText(
-      "http://id.authority.org/test/12345",
-    );
+    const td = await screen.findByText("http://id.authority.org/test/12345");
     const row = td.closest("tr");
     const utils = within(row);
     expect(utils.getByText(/Obsolete Term 1/i));

@@ -3,11 +3,8 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 
-import WorkTabsStructureTranscriptionWorkflow from "./Workflow";
 import { TRANSCRIBE_FILE_SET } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
 import { GET_WORK } from "@js/components/Work/work.gql";
-import { useFileSetAnnotation } from "@js/hooks/useFileSetAnnotation";
-import { toastWrapper } from "@js/services/helpers";
 
 // ---- Mocks ----
 
@@ -33,15 +30,23 @@ jest.mock("@nulib/design-system", () => {
 // Pane component → simple div so we can assert props
 jest.mock("@js/components/Work/Tabs/Structure/Transcription/Pane", () => {
   const React = require("react");
-  return function MockPane({ annotation }) {
-    return (
-      <div
-        data-testid="transcription-pane"
-        data-annotation-id={annotation?.id || ""}
-      />
-    );
+  return {
+    __esModule: true,
+    default: function MockPane({ annotation }) {
+      return (
+        <div
+          data-testid="transcription-pane"
+          data-annotation-id={annotation?.id || ""}
+        />
+      );
+    },
   };
 });
+
+const { default: WorkTabsStructureTranscriptionWorkflow } =
+  await import("./Workflow");
+const { useFileSetAnnotation } = await import("@js/hooks/useFileSetAnnotation");
+const { toastWrapper } = await import("@js/services/helpers");
 
 describe("WorkTabsStructureTranscriptionWorkflow", () => {
   const fileSetId = "fs-123";
@@ -223,7 +228,9 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
     await waitFor(() => {
       expect(toastWrapper).toHaveBeenCalledWith(
         "is-danger",
-        expect.stringMatching(/Could not transcribe file set.*Model:.*is invalid/i),
+        expect.stringMatching(
+          /Could not transcribe file set.*Model:.*is invalid/i,
+        ),
       );
     });
     const toastMessage = toastWrapper.mock.calls.find(

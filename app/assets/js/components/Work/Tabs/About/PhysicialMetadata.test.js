@@ -10,7 +10,7 @@ describe("Work About tab Idenfiers Metadata component", () => {
     return renderWithRouterApollo(
       <WorkTabsAboutPhysicalMetadata
         descriptiveMetadata={mockWork.descriptiveMetadata}
-      />
+      />,
     );
   }
 

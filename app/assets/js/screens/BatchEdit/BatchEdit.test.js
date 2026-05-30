@@ -9,7 +9,6 @@ import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
@@ -39,7 +38,7 @@ describe("BatchEdit component", () => {
         // NOTE: We're not using this in the component anymore, but keeping it in for a pattern to
         // reference in the future.
         state: { resultStats: { numberOfResults: 5 } },
-      }
+      },
     );
   });
 

@@ -1,24 +1,30 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import PlanPanelChanges from "./Changes";
 
 jest.mock("@apollo/client/react", () => ({
   useMutation: () => [jest.fn()],
 }));
 
-jest.mock("@js/components/Plan/Panel/Diff", () => () => (
-  <div data-testid="diff" />
-));
+jest.mock("@js/components/Plan/Panel/Diff", () => ({
+  __esModule: true,
+  default: () => <div data-testid="diff" />,
+}));
 
-jest.mock("@js/components/UI/Loader", () => () => <div data-testid="loader" />);
+jest.mock("@js/components/UI/Loader", () => ({
+  __esModule: true,
+  default: () => <div data-testid="loader" />,
+}));
 
-jest.mock("@js/components/UI/Skeleton", () => ({ rows = 3 }) => (
-  <div data-testid="skeleton" data-rows={rows} />
-));
+jest.mock("@js/components/UI/Skeleton", () => ({
+  __esModule: true,
+  default: ({ rows = 3 }) => <div data-testid="skeleton" data-rows={rows} />,
+}));
 
 jest.mock("@js/components/Icon", () => ({
   IconMagic: () => <span data-testid="icon-magic" />,
 }));
+
+const { default: PlanPanelChanges } = await import("./Changes");
 
 const baseProps = {
   changes: { planChange: {} },

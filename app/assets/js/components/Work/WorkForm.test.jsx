@@ -8,6 +8,8 @@ import {
 import userEvent from "@testing-library/user-event";
 import { screen, waitFor } from "@testing-library/react";
 
+const mockDefaultValue = "AUDIO";
+
 describe("ProjectForm component", () => {
   beforeEach(() => {
     renderWithRouterApollo(<WorkForm />, {
@@ -38,7 +40,7 @@ describe("ProjectForm component", () => {
   });
 
   it("should give a default value for the work type select element", async () => {
-    waitFor(() => {
+    await waitFor(() => {
       expect(screen.getByTestId("work-type")).toHaveValue(mockDefaultValue);
     });
   });

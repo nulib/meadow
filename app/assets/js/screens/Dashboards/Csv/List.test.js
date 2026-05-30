@@ -6,7 +6,6 @@ import { getCsvMetadataUpdateJobsMock } from "@js/components/Dashboards/dashboar
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,

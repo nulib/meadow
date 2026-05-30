@@ -36,7 +36,7 @@ describe("UIControlledVocabList", () => {
 
     it("renders the facet value label", () => {
       expect(
-        screen.getAllByTestId("controlled-term-list-row")[0]
+        screen.getAllByTestId("controlled-term-list-row")[0],
       ).toHaveTextContent(items[0].term.label);
     });
 

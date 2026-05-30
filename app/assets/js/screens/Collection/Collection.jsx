@@ -53,7 +53,7 @@ const ScreensCollection = () => {
         "is-success",
         `Collection has been ${
           updateCollection.published ? "published" : "unpublished"
-        }`
+        }`,
       );
     },
     onError(error) {
@@ -66,7 +66,7 @@ const ScreensCollection = () => {
     onCompleted({ deleteCollection }) {
       toastWrapper(
         "is-success",
-        `Collection ${deleteCollection.title} deleted successfully`
+        `Collection ${deleteCollection.title} deleted successfully`,
       );
       history.push("/collection/list");
     },

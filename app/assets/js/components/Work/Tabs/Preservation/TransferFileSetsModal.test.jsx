@@ -16,10 +16,7 @@ const handleClose = () => {
   isModalOpen = false;
 };
 
-const selectedFilesets = [
-  mockWork.fileSets[0].id,
-  mockWork.fileSets[1].id,
-];
+const selectedFilesets = [mockWork.fileSets[0].id, mockWork.fileSets[1].id];
 
 describe("Transfer file sets to another work modal", () => {
   beforeEach(() => {
@@ -35,10 +32,8 @@ describe("Transfer file sets to another work modal", () => {
         <Wrapped />
       </AuthProvider>,
       {
-        mocks: [
-          getCurrentUserMock,
-        ],
-      }
+        mocks: [getCurrentUserMock],
+      },
     );
   });
 
@@ -48,20 +43,18 @@ describe("Transfer file sets to another work modal", () => {
 
   it("displays the number of selected filesets", async () => {
     expect(
-      await screen.findByText(/Transferring 2 fileset\(s\)/)
+      await screen.findByText(/Transferring 2 fileset\(s\)/),
     ).toBeInTheDocument();
   });
 
   it("displays the source work information", async () => {
-    expect(
-      await screen.findByText(/From Work:/)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/From Work:/)).toBeInTheDocument();
     expect(screen.getByText(/Donohue_001/)).toBeInTheDocument();
   });
 
   it("shows transfer destination options", async () => {
     expect(
-      await screen.findByText("Transfer to existing work")
+      await screen.findByText("Transfer to existing work"),
     ).toBeInTheDocument();
     expect(screen.getByText("Create new work")).toBeInTheDocument();
   });
@@ -72,9 +65,7 @@ describe("Transfer file sets to another work modal", () => {
   });
 
   it("shows accession number field when transferring to existing work", async () => {
-    expect(
-      await screen.findByTestId("accession-number")
-    ).toBeInTheDocument();
+    expect(await screen.findByTestId("accession-number")).toBeInTheDocument();
   });
 
   it("shows new work fields when create new work is selected", async () => {
@@ -84,29 +75,29 @@ describe("Transfer file sets to another work modal", () => {
     await user.click(newWorkRadio);
 
     expect(
-      await screen.findByTestId("new-work-accession-number")
+      await screen.findByTestId("new-work-accession-number"),
     ).toBeInTheDocument();
     expect(screen.getByTestId("new-work-title")).toBeInTheDocument();
   });
 
   it("shows preview checkbox", async () => {
     expect(
-      await screen.findByText("Show preview of selected filesets")
+      await screen.findByText("Show preview of selected filesets"),
     ).toBeInTheDocument();
   });
 
   it("displays preview when checkbox is checked", async () => {
     const user = userEvent.setup();
     const previewText = await screen.findByText(
-      "Show preview of selected filesets"
+      "Show preview of selected filesets",
     );
-    const previewCheckbox = previewText.closest("label").querySelector("input[type='checkbox']");
+    const previewCheckbox = previewText
+      .closest("label")
+      .querySelector("input[type='checkbox']");
 
     await user.click(previewCheckbox);
 
-    expect(
-      await screen.findByText("Selected Filesets:")
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Selected Filesets:")).toBeInTheDocument();
   });
 
   it("requires confirmation text to submit", async () => {

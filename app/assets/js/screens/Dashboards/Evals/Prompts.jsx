@@ -16,10 +16,17 @@ function PromptVersionCard({ v, isLatest, onArchive }) {
         <div className="level-left">
           <div>
             <strong>{v.name}</strong>
-            {isLatest && <span className="tag is-success is-light ml-2">latest</span>}
+            {isLatest && (
+              <span className="tag is-success is-light ml-2">latest</span>
+            )}
             {v.archived && <span className="tag is-light ml-2">archived</span>}
-            {v.changeNotes && <p className="is-size-7 has-text-grey">{v.changeNotes}</p>}
-            <p className="is-size-7 has-text-grey-light">by {v.author || "unknown"} · {new Date(v.insertedAt).toLocaleDateString()}</p>
+            {v.changeNotes && (
+              <p className="is-size-7 has-text-grey">{v.changeNotes}</p>
+            )}
+            <p className="is-size-7 has-text-grey-light">
+              by {v.author || "unknown"} ·{" "}
+              {new Date(v.insertedAt).toLocaleDateString()}
+            </p>
           </div>
         </div>
         <div className="level-right" style={{ gap: "0.5rem" }}>
@@ -30,7 +37,10 @@ function PromptVersionCard({ v, isLatest, onArchive }) {
             {showPrompts ? "Hide tasks" : "View tasks"}
           </button>
           {!v.archived && (
-            <button className="button is-small is-light is-warning" onClick={onArchive}>
+            <button
+              className="button is-small is-light is-warning"
+              onClick={onArchive}
+            >
               Archive
             </button>
           )}
@@ -39,11 +49,28 @@ function PromptVersionCard({ v, isLatest, onArchive }) {
       {showPrompts && (
         <div className="mt-4">
           <p className="label is-small">Subject headings task</p>
-          <pre className="is-size-7" style={{ whiteSpace: "pre-wrap", background: "#f5f5f5", padding: "0.75rem", borderRadius: "4px", marginBottom: "1rem" }}>
+          <pre
+            className="is-size-7"
+            style={{
+              whiteSpace: "pre-wrap",
+              background: "#f5f5f5",
+              padding: "0.75rem",
+              borderRadius: "4px",
+              marginBottom: "1rem",
+            }}
+          >
             {v.subjectPrompt || "(none)"}
           </pre>
           <p className="label is-small">Description task</p>
-          <pre className="is-size-7" style={{ whiteSpace: "pre-wrap", background: "#f5f5f5", padding: "0.75rem", borderRadius: "4px" }}>
+          <pre
+            className="is-size-7"
+            style={{
+              whiteSpace: "pre-wrap",
+              background: "#f5f5f5",
+              padding: "0.75rem",
+              borderRadius: "4px",
+            }}
+          >
             {v.descriptionPrompt || "(none)"}
           </pre>
         </div>
@@ -97,14 +124,26 @@ export default function EvalsPromptsScreen() {
     <Layout>
       <section className="section">
         <div className="container">
-          <Breadcrumbs items={[
-            { label: "Dashboards", isActive: false },
-            { label: "AI Metadata Evals", route: "/dashboards/evals", isActive: false },
-            { label: "Prompt Versions", route: "/dashboards/evals/prompts", isActive: true },
-          ]} />
+          <Breadcrumbs
+            items={[
+              { label: "Dashboards", isActive: false },
+              {
+                label: "AI Metadata Evals",
+                route: "/dashboards/evals",
+                isActive: false,
+              },
+              {
+                label: "Prompt Versions",
+                route: "/dashboards/evals/prompts",
+                isActive: true,
+              },
+            ]}
+          />
 
           <div className="level">
-            <div className="level-left"><h1 className="title">Prompt Versions</h1></div>
+            <div className="level-left">
+              <h1 className="title">Prompt Versions</h1>
+            </div>
             <div className="level-right">
               <button
                 className="button is-primary"
@@ -121,14 +160,26 @@ export default function EvalsPromptsScreen() {
           {showNew && (
             <div className="box">
               <h2 className="subtitle">New Prompt Version</h2>
-              <p className="is-size-7 has-text-grey mb-3">Parent will be set to the latest active version automatically.</p>
+              <p className="is-size-7 has-text-grey mb-3">
+                Parent will be set to the latest active version automatically.
+              </p>
               <div className="field">
                 <label className="label">Name</label>
-                <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <input
+                  className="input"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
               </div>
               <div className="field">
                 <label className="label">Change notes</label>
-                <input className="input" value={form.changeNotes} onChange={(e) => setForm({ ...form, changeNotes: e.target.value })} />
+                <input
+                  className="input"
+                  value={form.changeNotes}
+                  onChange={(e) =>
+                    setForm({ ...form, changeNotes: e.target.value })
+                  }
+                />
               </div>
               <div className="field">
                 <label className="label">Subject headings task</label>
@@ -136,7 +187,9 @@ export default function EvalsPromptsScreen() {
                   className="textarea"
                   rows={5}
                   value={form.subjectPrompt}
-                  onChange={(e) => setForm({ ...form, subjectPrompt: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, subjectPrompt: e.target.value })
+                  }
                 />
               </div>
               <div className="field">
@@ -145,12 +198,30 @@ export default function EvalsPromptsScreen() {
                   className="textarea"
                   rows={4}
                   value={form.descriptionPrompt}
-                  onChange={(e) => setForm({ ...form, descriptionPrompt: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, descriptionPrompt: e.target.value })
+                  }
                 />
               </div>
               <div className="buttons">
-                <button className="button is-primary" onClick={handleSave} disabled={!form.name || !form.subjectPrompt || !form.descriptionPrompt}>Save</button>
-                <button className="button" onClick={() => { setShowNew(false); resetForm(); }}>Cancel</button>
+                <button
+                  className="button is-primary"
+                  onClick={handleSave}
+                  disabled={
+                    !form.name || !form.subjectPrompt || !form.descriptionPrompt
+                  }
+                >
+                  Save
+                </button>
+                <button
+                  className="button"
+                  onClick={() => {
+                    setShowNew(false);
+                    resetForm();
+                  }}
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           )}
@@ -162,7 +233,10 @@ export default function EvalsPromptsScreen() {
               key={v.id}
               v={v}
               isLatest={i === 0}
-              onArchive={() => { if (confirm(`Archive "${v.name}"?`)) archiveVersion({ variables: { id: v.id } }); }}
+              onArchive={() => {
+                if (confirm(`Archive "${v.name}"?`))
+                  archiveVersion({ variables: { id: v.id } });
+              }}
             />
           ))}
         </div>

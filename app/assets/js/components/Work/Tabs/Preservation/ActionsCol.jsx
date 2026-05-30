@@ -177,7 +177,7 @@ const PreservationActionsCol = ({
             <a
               className={actionItemClasses}
               onClick={() => {
-                handleReplaceFilesetClick(fileset)
+                handleReplaceFilesetClick(fileset);
                 setIsActionsOpen(false);
               }}
             >
@@ -205,10 +205,11 @@ const PreservationActionsCol = ({
                 </DialogClose>
                 <DialogTitle>
                   Delete
-                  {`Fileset: ${deleteFilesetModal.fileset.coreMetadata
+                  {`Fileset: ${
+                    deleteFilesetModal.fileset.coreMetadata
                       ? deleteFilesetModal.fileset.coreMetadata.label
                       : ""
-                    }`}
+                  }`}
                 </DialogTitle>
                 {work && (
                   <div

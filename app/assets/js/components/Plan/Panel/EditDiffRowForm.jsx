@@ -6,7 +6,11 @@ import {
   prepControlledTermInput,
   CONTROLLED_METADATA,
 } from "@js/services/metadata";
-import { isCodedTerm, isTextSingle, isTextArray } from "@js/components/Plan/Panel/diff-helpers";
+import {
+  isCodedTerm,
+  isTextSingle,
+  isTextArray,
+} from "@js/components/Plan/Panel/diff-helpers";
 
 import React from "react";
 import PropTypes from "prop-types";
@@ -39,12 +43,20 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
 
   // For delete mode: track which items remain (user can remove items)
   const [deleteItems, setDeleteItems] = React.useState(
-    Array.isArray(change?.value) ? change.value : change?.value ? [change.value] : []
+    Array.isArray(change?.value)
+      ? change.value
+      : change?.value
+        ? [change.value]
+        : [],
   );
 
   React.useEffect(() => {
     setDeleteItems(
-      Array.isArray(change?.value) ? change.value : change?.value ? [change.value] : []
+      Array.isArray(change?.value)
+        ? change.value
+        : change?.value
+          ? [change.value]
+          : [],
     );
   }, [change?.id]);
 
@@ -54,9 +66,12 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
     if (item.humanized) return item.humanized;
     if (item.edtf) return item.edtf;
     if (item.label && typeof item.label === "string") return item.label;
-    if (item.term?.label) return `${item.term.label}${item.role?.label ? ` (${item.role.label})` : ""}`;
-    if (item.note) return `${item.type?.label ? item.type.label + ": " : ""}${item.note}`;
-    if (item.url) return `${item.label?.label ? item.label.label + ": " : ""}${item.url}`;
+    if (item.term?.label)
+      return `${item.term.label}${item.role?.label ? ` (${item.role.label})` : ""}`;
+    if (item.note)
+      return `${item.type?.label ? item.type.label + ": " : ""}${item.note}`;
+    if (item.url)
+      return `${item.label?.label ? item.label.label + ": " : ""}${item.url}`;
     return JSON.stringify(item);
   };
 
@@ -68,7 +83,7 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
     isPlainTextSingle: isTextSingle(change?.path),
   };
 
-  const isSupported = Object.values(fieldType).some(v => v);
+  const isSupported = Object.values(fieldType).some((v) => v);
 
   // Get controlled field metadata if applicable
   const controlledFieldMeta = fieldType.isControlled
@@ -118,7 +133,7 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
           scheme: selectedItem.scheme,
         };
       }
-      return change.value; 
+      return change.value;
     },
 
     nestedCoded: (data) => {
@@ -131,10 +146,13 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
     },
 
     controlled: (data) => {
-      const result = prepControlledTermInput(controlledFieldMeta, data[controlledFieldName]);
-      return result.map(item => ({
+      const result = prepControlledTermInput(
+        controlledFieldMeta,
+        data[controlledFieldName],
+      );
+      return result.map((item) => ({
         ...item,
-        term: { id: item.term }
+        term: { id: item.term },
       }));
     },
 
@@ -182,11 +200,15 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
   if (!change) return null;
 
   const onSubmit = (data) => {
-    const parserKey = fieldType.isPlainTextArray ? 'plainTextArray'
-      : fieldType.isCoded ? 'coded'
-      : fieldType.isNestedCoded ? 'nestedCoded'
-      : fieldType.isControlled ? 'controlled'
-      : 'plainTextSingle';
+    const parserKey = fieldType.isPlainTextArray
+      ? "plainTextArray"
+      : fieldType.isCoded
+        ? "coded"
+        : fieldType.isNestedCoded
+          ? "nestedCoded"
+          : fieldType.isControlled
+            ? "controlled"
+            : "plainTextSingle";
 
     const parsedValue = parsers[parserKey](data);
 
@@ -221,25 +243,44 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
               <div>
                 {!fieldType.isControlled && (
                   <div className="notification is-warning mb-3">
-                    <strong>Note:</strong> Deletions are only supported for controlled vocabulary fields. This deletion will have no effect when the plan is approved.
+                    <strong>Note:</strong> Deletions are only supported for
+                    controlled vocabulary fields. This deletion will have no
+                    effect when the plan is approved.
                   </div>
                 )}
-                <p className="mb-3">Remove items from this deletion, or close to keep as-is.</p>
+                <p className="mb-3">
+                  Remove items from this deletion, or close to keep as-is.
+                </p>
                 <ul css={noBullets}>
                   {deleteItems.map((item, index) => (
-                    <li key={index} className="is-flex is-align-items-center mb-2" style={{ gap: '0.5rem' }}>
-                      <span className="is-flex-grow-1">{getItemLabel(item)}</span>
+                    <li
+                      key={index}
+                      className="is-flex is-align-items-center mb-2"
+                      style={{ gap: "0.5rem" }}
+                    >
+                      <span className="is-flex-grow-1">
+                        {getItemLabel(item)}
+                      </span>
                       <button
                         type="button"
                         className="button is-small is-light"
-                        onClick={() => setDeleteItems(deleteItems.filter((_, i) => i !== index))}
+                        onClick={() =>
+                          setDeleteItems(
+                            deleteItems.filter((_, i) => i !== index),
+                          )
+                        }
                       >
-                        <span className="icon"><IconTrashCan /></span>
+                        <span className="icon">
+                          <IconTrashCan />
+                        </span>
                       </button>
                     </li>
                   ))}
                   {deleteItems.length === 0 && (
-                    <p className="has-text-grey">All items removed - saving will remove this field from the plan change.</p>
+                    <p className="has-text-grey">
+                      All items removed - saving will remove this field from the
+                      plan change.
+                    </p>
                   )}
                 </ul>
               </div>
@@ -249,7 +290,8 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
                   <strong>Editing this field type is not yet supported.</strong>
                 </p>
                 <p>
-                  {fieldType.isControlled && "This is a controlled vocabulary field."}
+                  {fieldType.isControlled &&
+                    "This is a controlled vocabulary field."}
                   {fieldType.isNestedCoded &&
                     " This is a structured field with nested data."}
                 </p>
@@ -262,7 +304,10 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
                   </li>
                   <li>• Coded term fields (e.g., license, rights_statement)</li>
                   <li>• Nested coded fields (e.g., notes, related_url)</li>
-                  <li>• Controlled vocabulary fields (e.g., subject, genre, contributor)</li>
+                  <li>
+                    • Controlled vocabulary fields (e.g., subject, genre,
+                    contributor)
+                  </li>
                 </ul>
               </div>
             ) : fieldType.isPlainTextArray ? (
@@ -311,7 +356,9 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
                 <UIFormField label={change.label}>
                   <UIFormControlledTermArray
                     authorities={getCodeList("authorityData")}
-                    roleDropdownOptions={getRoleDropdownOptions(controlledFieldMeta)}
+                    roleDropdownOptions={getRoleDropdownOptions(
+                      controlledFieldMeta,
+                    )}
                     label={change.label}
                     name={controlledFieldName}
                   />
@@ -339,19 +386,23 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
                 isPrimary
                 type="button"
                 data-testid="submit-button"
-                onClick={() => { onSave(change.id, deleteItems); }}
+                onClick={() => {
+                  onSave(change.id, deleteItems);
+                }}
               >
                 Save changes
               </Button>
-            ) : isSupported && (
-              <Button
-                isPrimary
-                type="submit"
-                data-testid="submit-button"
-                disabled={!isDirty}
-              >
-                Save changes
-              </Button>
+            ) : (
+              isSupported && (
+                <Button
+                  isPrimary
+                  type="submit"
+                  data-testid="submit-button"
+                  disabled={!isDirty}
+                >
+                  Save changes
+                </Button>
+              )
             )}
           </footer>
         </div>

@@ -14,8 +14,22 @@ const mocks = [
       data: {
         ListIngestBucketObjects: {
           objects: [
-            { uri: "s3://bucket/file1.jpg", key: "file1", size: 1000, mimeType: "image/jpeg", storageClass: "STANDARD", lastModified: new Date().toISOString() },
-            { uri: "s3://bucket/file2.png", key: "file2", size: 2000, mimeType: "image/png", storageClass: "STANDARD", lastModified: new Date().toISOString() },
+            {
+              uri: "s3://bucket/file1.jpg",
+              key: "file1",
+              size: 1000,
+              mimeType: "image/jpeg",
+              storageClass: "STANDARD",
+              lastModified: new Date().toISOString(),
+            },
+            {
+              uri: "s3://bucket/file2.png",
+              key: "file2",
+              size: 2000,
+              mimeType: "image/png",
+              storageClass: "STANDARD",
+              lastModified: new Date().toISOString(),
+            },
           ],
           folders: ["file_sets"],
         },
@@ -28,8 +42,12 @@ describe("S3ObjectPicker component", () => {
   it("renders without crashing", async () => {
     const { findByTestId } = render(
       <MockedProvider mocks={mocks} addTypename={false}>
-        <S3ObjectPicker onFileSelect={() => { }} fileSetRole="A" workTypeId="IMAGE" />
-      </MockedProvider>
+        <S3ObjectPicker
+          onFileSelect={() => {}}
+          fileSetRole="A"
+          workTypeId="IMAGE"
+        />
+      </MockedProvider>,
     );
     expect(await findByTestId("file-picker")).toBeInTheDocument();
   });
@@ -46,7 +64,11 @@ describe("S3ObjectPicker component", () => {
     ];
     const { findByText } = render(
       <MockedProvider mocks={errorMock} addTypename={false}>
-        <S3ObjectPicker onFileSelect={() => { }} fileSetRole="A" workTypeId="IMAGE" />
+        <S3ObjectPicker
+          onFileSelect={() => {}}
+          fileSetRole="A"
+          workTypeId="IMAGE"
+        />
       </MockedProvider>,
     );
     expect(await findByText("An error occurred")).toBeInTheDocument();

@@ -45,7 +45,7 @@ const SearchResultItem = ({ res }) => {
               <p key={fileSet.id} className="list-item">
                 {fileSet.label}
               </p>
-            ) : null
+            ) : null,
           )}
         </div>
         <p>

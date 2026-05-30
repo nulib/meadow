@@ -17,12 +17,12 @@ describe("FilesetActionsStatesModal", () => {
       mocks: [actionStatesMock],
     });
     expect(
-      await screen.findByTestId("fileset-action-states")
+      await screen.findByTestId("fileset-action-states"),
     ).toBeInTheDocument();
     expect(screen.getByTestId("action-states")).toBeInTheDocument();
 
     expect(
-      await screen.findByText("Fileset Action States")
+      await screen.findByText("Fileset Action States"),
     ).toBeInTheDocument();
     expect(await screen.findByText("Fileset Id: abc123")).toBeInTheDocument();
   });
@@ -37,7 +37,7 @@ describe("FilesetActionsStatesModal", () => {
     // Action row 1
     within(rows[0]).getByText("Completed Processing FileSet");
     expect(within(rows[0]).getAllByText("Mar 16, 2021 4:22 PM")).toHaveLength(
-      2
+      2,
     );
     within(rows[0]).getByText("OK");
 
@@ -54,10 +54,10 @@ describe("FilesetActionsStatesModal", () => {
       <FilesetActionsStatesModal {...defaultProps} isVisible={false} />,
       {
         mocks: [actionStatesMock],
-      }
+      },
     );
     expect(
-      await screen.queryByTestId("fileset-action-states")
+      await screen.queryByTestId("fileset-action-states"),
     ).not.toBeInTheDocument();
   });
 
@@ -66,7 +66,7 @@ describe("FilesetActionsStatesModal", () => {
       <FilesetActionsStatesModal {...defaultProps} id={null} />,
       {
         mocks: [actionStatesMock],
-      }
+      },
     );
     expect(await screen.queryByTestId("action-states")).not.toBeInTheDocument();
   });

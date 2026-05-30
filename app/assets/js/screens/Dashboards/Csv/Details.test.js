@@ -16,7 +16,7 @@ describe("ScreensDashboardsCsvDetails component", () => {
         mocks: [getCsvMetadataUpdateJobMock],
         route:
           "/dashboards/csv-metadata-update/7c171c70-1f1a-4db8-8dcb-07c2c0003e10",
-      }
+      },
     );
     expect(await screen.findByTestId("dashboard-csv-screen"));
     expect(await screen.findByTestId("page-title"));

@@ -67,7 +67,11 @@ function DescriptionBlock({ description }) {
   );
 }
 
-export default function TrialComparison({ groundTruth, agentOutput, judgeRationale }) {
+export default function TrialComparison({
+  groundTruth,
+  agentOutput,
+  judgeRationale,
+}) {
   const gt = groundTruth || {};
   const ai = agentOutput || {};
 
@@ -96,7 +100,10 @@ export default function TrialComparison({ groundTruth, agentOutput, judgeRationa
       {judgeRationale && (
         <div className="notification is-light is-size-7">
           <strong>
-            <FontAwesomeIcon icon={faScaleBalanced} style={{ marginRight: "0.35rem" }} />
+            <FontAwesomeIcon
+              icon={faScaleBalanced}
+              style={{ marginRight: "0.35rem" }}
+            />
             Judge:
           </strong>{" "}
           {judgeRationale}
@@ -113,13 +120,13 @@ TrialComparison.propTypes = {
       PropTypes.arrayOf(PropTypes.string),
     ]),
     subjects: PropTypes.arrayOf(
-      PropTypes.shape({ id: PropTypes.string, label: PropTypes.string })
+      PropTypes.shape({ id: PropTypes.string, label: PropTypes.string }),
     ),
   }),
   agentOutput: PropTypes.shape({
     description: PropTypes.string,
     subjects: PropTypes.arrayOf(
-      PropTypes.shape({ id: PropTypes.string, label: PropTypes.string })
+      PropTypes.shape({ id: PropTypes.string, label: PropTypes.string }),
     ),
   }),
   judgeRationale: PropTypes.string,

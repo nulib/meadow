@@ -151,9 +151,13 @@ export default function EvalsListScreen() {
                             : "—"}
                         </td>
                         <td className="is-size-7">
-                          <span className="has-text-success">{s.manualGood ?? 0}</span>
+                          <span className="has-text-success">
+                            {s.manualGood ?? 0}
+                          </span>
                           {" / "}
-                          <span className="has-text-danger">{s.manualBad ?? 0}</span>
+                          <span className="has-text-danger">
+                            {s.manualBad ?? 0}
+                          </span>
                         </td>
                         <td className="is-size-7">
                           {run.startedAt
