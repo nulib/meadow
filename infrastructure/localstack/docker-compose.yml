@@ -26,11 +26,12 @@ services:
     ports:
       - 9200:9200
   localstack:
-    image: localstack/localstack:community-archive
+    image: localstack/localstack:latest
     environment:
       DOCKER_HOST: unix:///var/run/docker.sock
       GATEWAY_LISTEN: 0.0.0.0:4566
       LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT: 1
+      LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN}
     ports:
       - 4566:4566
     volumes:
