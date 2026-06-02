@@ -16,7 +16,7 @@
   },
   "prettier": "@nulib/prettier-config",
   "dependencies": {
-    "@allmaps/leaflet": "^1.0.0-beta.53",
+    "@allmaps/leaflet": "^1.0.0-beta.54",
     "@apollo/client": "latest",
     "@apollo/react-hooks": "^4.0.0",
     "@apollo/react-testing": "^4.0.0",
