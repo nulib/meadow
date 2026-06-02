@@ -12,7 +12,8 @@ defmodule Meadow.Config.Runtime.Test do
     # you can enable the server option below.
     config :meadow, MeadowWeb.Endpoint,
       http: [port: 4002],
-      server: false
+      server: false,
+      url: [host: "localhost", port: 4002]
 
     config :meadow,
       index_interval: 1234,

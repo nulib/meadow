@@ -6,7 +6,6 @@ defmodule MeadowAI.MetadataAgent do
   alias Meadow.Utils.Lambda
   alias Meadow.Utils.DCAPI
   alias MeadowAI.Config, as: AIConfig
-  alias MeadowWeb.Router.Helpers, as: Routes
 
   @moduledoc """
   A GenServer that provides AI-powered metadata generation tools.
@@ -100,7 +99,7 @@ defmodule MeadowAI.MetadataAgent do
       opts
       |> Keyword.put_new(
         :mcp_url,
-        Routes.page_url(MeadowWeb.Endpoint, :index, ["api", "mcp"])
+        MeadowWeb.RemoteAccess.url("api/mcp")
       )
       |> Keyword.put_new(:auth_token, token)
       |> Keyword.put_new(
