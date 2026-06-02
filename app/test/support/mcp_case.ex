@@ -18,9 +18,9 @@ defmodule MeadowWeb.MCPCase do
   @doc """
   Fetch the list of available MCP tools.
   """
-  def list_tools do
+  def list_tools(server \\ MeadowWeb.MCP.Server) do
     Frame.new()
-    |> call_mcp("tools/list")
+    |> call_mcp(server, "tools/list")
     |> Map.update("tools", [], fn tools ->
       Enum.map(tools, fn tool ->
         %{
@@ -36,9 +36,9 @@ defmodule MeadowWeb.MCPCase do
   @doc """
   Call an MCP tool with the given name and parameters.
   """
-  def call_tool(tool, params, context \\ []) do
+  def call_tool(tool, params, context \\ [], server \\ MeadowWeb.MCP.Server) do
     Frame.new(context)
-    |> call_mcp("tools/call", %{
+    |> call_mcp(server, "tools/call", %{
       "name" => tool,
       "arguments" => params
     })
@@ -49,7 +49,7 @@ defmodule MeadowWeb.MCPCase do
   """
   def read_resource(uri, context \\ []) do
     Frame.new(context)
-    |> call_mcp("resources/read", %{"uri" => uri})
+    |> call_mcp(MeadowWeb.MCP.Server, "resources/read", %{"uri" => uri})
   end
 
   @doc """
@@ -79,10 +79,10 @@ defmodule MeadowWeb.MCPCase do
 
   def parse_response(other), do: other
 
-  defp call_mcp(frame, method, params \\ %{}) do
+  defp call_mcp(frame, server, method, params \\ %{}) do
     request = %{"method" => method, "params" => params}
 
-    case Handlers.handle(request, MeadowWeb.MCP.Server, frame) do
+    case Handlers.handle(request, server, frame) do
       {:reply, response, _frame} -> response
       {:error, _error, _frame} = error_tuple -> error_tuple
     end

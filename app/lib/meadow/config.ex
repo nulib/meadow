@@ -11,6 +11,12 @@ defmodule Meadow.Config do
     |> Keyword.get(key, default)
   end
 
+  @doc "Get evals-related configuration"
+  def evals(key, default \\ nil) do
+    Application.get_env(:meadow, :evals, [])
+    |> Keyword.get(key, default)
+  end
+
   @doc "Retrieve the environment specific URL for the Digital Collections website"
   def digital_collections_url do
     Application.get_env(:meadow, :digital_collections_url)

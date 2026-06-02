@@ -208,6 +208,13 @@ const UILayoutNavBar = () => {
                           </IconText>
                         </Link>
                       </UILayoutNavDropdownItem>
+                      <UILayoutNavDropdownItem>
+                        <Link to="/dashboards/evals">
+                          <IconText icon={<IconCheck />}>
+                            AI Metadata Evals
+                          </IconText>
+                        </Link>
+                      </UILayoutNavDropdownItem>
                       <AuthDisplayAuthorized level="SUPERUSER">
                         <UILayoutNavDropdownItem>
                           <Link to="/dashboards/users">

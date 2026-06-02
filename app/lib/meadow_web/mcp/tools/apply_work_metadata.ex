@@ -40,6 +40,16 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadata do
 
   @impl true
   def execute(%{work_id: work_id, description: description, subjects: subjects}, frame) do
+    if get_in(frame.assigns, [:context, :eval]) == true or
+         get_in(frame.assigns, ["context", "eval"]) == true do
+      Logger.error("ApplyWorkMetadata: refusing eval-context call for work #{work_id}")
+      {:error, MCPError.execution("apply_work_metadata is disabled during eval runs"), frame}
+    else
+      do_execute(work_id, description, subjects, frame)
+    end
+  end
+
+  defp do_execute(work_id, description, subjects, frame) do
     Logger.info("ApplyWorkMetadata: updating work #{work_id}")
 
     work = Works.get_work!(work_id)

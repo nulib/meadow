@@ -24,3 +24,5 @@ config :logger, level: :info
 config :logger, :console, format: {Meadow.TestLogHandler, :format}
 
 config :elixir, :ansi_enabled, true
+
+config :meadow, :evals, default_query_name: "match_all"

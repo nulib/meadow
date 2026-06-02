@@ -44,6 +44,7 @@ const agentPromptWithPlan = (planId, userQuery, contextData = {}) => `
     - Title changes must be plain strings only. Never send title as objects/arrays and never send JSON-serialized
       blobs like "{\\"description\\":\\"...\\",\\"primary\\":true}".
     - Use the get_image tool with the ID of any file set to retrieve its base64 image for analysis.
+    - For eval runs, use get_iiif_image instead; eval works are already IIIF-ready.
     - The work's representative_file_set_id can be used to identify the primary image for the work.
 
   Finish with a concise summary of proposed changes. Keep the summary focused on the changed fields instead of the plan 
