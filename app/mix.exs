@@ -84,7 +84,7 @@ defmodule Meadow.MixProject do
       {:ex_aws_sts, "~> 2.3"},
       {:excoveralls, "~> 0.10", only: :test},
       {:faker, "~> 0.12", only: [:dev, :test]},
-      {:gettext, "~> 0.11"},
+      {:gettext, "~> 1.0"},
       {:hackney, "~> 1.17"},
       {:image, "~> 0.54"},
       {:honeybadger, "~> 0.7"},
