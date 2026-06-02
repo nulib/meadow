@@ -14,6 +14,8 @@ help:
 	@echo "make frontend-lint     | run JS lint checks"
 	@echo "make frontend-list     | list front-end dependencies"
 	@echo "make frontend-watch    | watch front-end assets for changes"
+	@echo "make funnel-start      | start a Tailscale Funnel to the local server port"
+	@echo "make funnel-stop       | stop the Tailscale Funnel"
 	@echo "make lint              | run Elixir lint checks"
 	@echo "make livebook          | build Livebook+Meadow release container"
 	@echo "make server            | run Phoenix server"
@@ -64,6 +66,12 @@ frontend-lint: frontend-deps
 frontend-test: frontend-deps
 	npm run-script --prefix assets ci:silent -- -w 1
 
+funnel-start:
+	tailscale funnel --bg https+insecure://localhost:3001
+
+funnel-stop:
+	tailscale funnel off
+
 deps: deps/.install-stamp
 
 all-deps: deps frontend-deps
@@ -95,11 +103,11 @@ cluster: priv/cert/combined.pem
 	done
 	haproxy -f ../extras/haproxy/cluster.cfg
 
-iex-server: deps frontend-deps priv/cert/cert.pem priv/cert/key.pem
-	iex -S mix phx.server
+iex-server: deps frontend-deps priv/cert/cert.pem priv/cert/key.pem funnel-start
+	iex -S mix phx.server && $(MAKE) funnel-stop
 
-server: deps frontend-deps priv/cert/cert.pem priv/cert/key.pem
-	mix phx.server
+server: deps frontend-deps priv/cert/cert.pem priv/cert/key.pem funnel-start
+	mix phx.server && $(MAKE) funnel-stop
 
 test: deps
 	AWS_LOCALSTACK=true \
