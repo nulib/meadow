@@ -1,0 +1,23 @@
+{
+  "Foreground": {
+    "1b49bd0113eb0615": {
+      "TCP": {
+        "443": {
+          "HTTPS": true
+        }
+      },
+      "Web": {
+        "my.tailnet:443": {
+          "Handlers": {
+            "/meadow": {
+              "Proxy": "http://127.0.0.1:4002"
+            }
+          }
+        }
+      },
+      "AllowFunnel": {
+        "my.tailnet:443": true
+      }
+    }
+  }
+}

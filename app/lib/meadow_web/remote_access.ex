@@ -23,15 +23,9 @@ defmodule MeadowWeb.RemoteAccess do
   end
 
   defp detect_funnel do
-    case cli(~w(funnel status --json)) do
-      {:ok, json} ->
-        case JSON.decode(json) do
-          {:ok, json} -> find_proxy(json, [http_port(), https_port()])
-          {:error, _} = err -> err
-        end
-
-      {:error, _} = err ->
-        err
+    case tailscale("serve-config") do
+      {:ok, json} -> find_proxy(json, [http_port(), https_port()])
+      {:error, _} = err -> err
     end
   end
 
@@ -88,24 +82,52 @@ defmodule MeadowWeb.RemoteAccess do
     Application.get_env(:meadow, MeadowWeb.Endpoint) |> get_in([:https, :port])
   end
 
-  defp cli(args) do
-    {mod, fun} = Application.get_env(:meadow, :system_cmd, {System, :cmd})
+  defp tailscale(arg) when is_binary(arg) do
+    tailscale(url: arg)
+  end
 
-    case apply(mod, fun, ["tailscale", args, [stderr_to_stdout: true]]) do
-      {output, 0} -> {:ok, String.trim(output)}
-      {output, code} -> {:error, {code, String.trim(output)}}
+  defp tailscale(args) do
+    case tailscale_socket() do
+      {:error, _} = err ->
+        err
+
+      {:ok, socket} ->
+        req_opts =
+          [
+            base_url: "http://local-tailscaled.sock/localapi/v0/",
+            headers: [{"Host", "local-tailscaled.sock"}, {"Accept", "application/json"}],
+            unix_socket: socket
+          ]
+          |> Keyword.merge(args)
+
+        case Req.get(req_opts) do
+          {:ok, %Req.Response{status: 200, body: body}} -> {:ok, body}
+          {:ok, %Req.Response{status: status, body: body}} -> {:error, {status, body}}
+          {:error, reason} -> {:error, reason}
+        end
     end
-  rescue
-    e in ErlangError ->
-      case e do
-        %ErlangError{original: original, reason: reason} ->
-          {:error, {original, reason}}
+  end
 
-        other ->
-          reraise(other, __STACKTRACE__)
+  defp tailscale_socket do
+    [
+      System.get_env("TS_SOCKET"),
+      "/var/run/tailscale/tailscaled.sock",
+      "/var/run/tailscaled.sock",
+      "/run/tailscale/tailscaled.sock",
+      "/run/tailscaled.sock",
+      "/var/run/tailscaled.socket",
+      "/run/tailscaled.socket"
+    ]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.find(fn path ->
+      case File.stat(path) do
+        {:ok, %File.Stat{type: :other, access: :read_write}} -> true
+        _ -> false
       end
-
-    e ->
-      reraise(e, __STACKTRACE__)
+    end)
+    |> case do
+      nil -> {:error, :no_tailscale_socket}
+      path -> {:ok, path}
+    end
   end
 end
