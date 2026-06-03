@@ -73,7 +73,7 @@ defmodule Meadow.MixProject do
       {:ecto_psql_extras, "~> 0.2"},
       {:ecto_ranked, "~> 0.5"},
       {:ecto_sql, "~> 3.13"},
-      {:edtf, "~> 1.0"},
+      {:edtf, "~> 2.0"},
       {:elastix, "~> 0.10"},
       {:ets, "~> 0.9"},
       {:ex_aws, "~> 2.5"},
