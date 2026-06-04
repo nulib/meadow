@@ -361,7 +361,7 @@ defmodule Meadow.Batches do
       Enum.map(date_created, fn d ->
         edtf = Map.get(d, :edtf)
 
-        case EDTF.humanize(edtf) do
+        case EDTF.humanize(edtf, validate: false) do
           {:error, error} ->
             raise error
 

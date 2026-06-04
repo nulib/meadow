@@ -1361,7 +1361,7 @@ defmodule Meadow.Data.Planner do
   defp humanize_edtf(nil), do: nil
 
   defp humanize_edtf(edtf) when is_binary(edtf) do
-    case EDTF.humanize(edtf) do
+    case EDTF.humanize(edtf, validate: false) do
       {:error, error} -> raise error
       result -> %{edtf: edtf, humanized: result}
     end
