@@ -89,7 +89,7 @@ defmodule Meadow.MixProject do
       {:image, "~> 0.54"},
       {:honeybadger, "~> 0.7"},
       {:horde, "~> 0.10"},
-      {:inflex, "~> 2.1"},
+      {:inflex28, "~> 2.1"},
       {:jason, "~> 1.0"},
       {:jwt, "~> 0.1"},
       {:libcluster, "~> 3.3"},
