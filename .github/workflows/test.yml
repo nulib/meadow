@@ -53,10 +53,10 @@ jobs:
           path: |
             app/_build
             app/deps
-          key: ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
+          key: ${{ runner.os }}-hex-v7-${{ hashFiles('app/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
-            ${{ runner.os }}-hex-v6-
+            ${{ runner.os }}-hex-v7-${{ hashFiles('app/mix.lock') }}
+            ${{ runner.os }}-hex-v7-
       - name: Install Elixir dependencies
         run: make app-compile
         env:
