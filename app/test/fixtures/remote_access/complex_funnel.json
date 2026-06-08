@@ -1,0 +1,51 @@
+{
+  "TCP": {
+    "3333": {
+      "HTTPS": true
+    },
+    "3334": {
+      "HTTPS": true
+    }
+  },
+  "Web": {
+    "my.tailnet:3333": {
+      "Handlers": {
+        "/": {
+          "Proxy": "http://127.0.0.1:4002"
+        }
+      }
+    },
+    "my.tailnet:3334": {
+      "Handlers": {
+        "/": {
+          "Proxy": "http://127.0.0.1:4001"
+        }
+      }
+    }
+  },
+  "AllowFunnel": {
+    "my.tailnet:3333": true,
+    "my.tailnet:3334": true
+  },
+  "Foreground": {
+    "7edeb8adee154976": {
+      "TCP": {
+        "3335": {
+          "HTTPS": true
+        }
+      },
+      "Web": {
+        "my.tailnet:3335": {
+          "Handlers": {
+            "/": {
+              "Proxy": "http://127.0.0.1:4000"
+            }
+          }
+        }
+      },
+      "AllowFunnel": {
+        "my.tailnet:3335": true
+      }
+    }
+  }
+}
