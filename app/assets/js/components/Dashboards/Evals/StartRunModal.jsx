@@ -5,6 +5,7 @@ import {
   GET_EVAL_SETS,
   GET_EVAL_PROMPT_VERSIONS,
   GET_DEFAULT_EVAL_QUERY,
+  GET_EVAL_QUERY_LIST,
   CREATE_EVAL_SET,
   CREATE_EVAL_SET_FROM_WORK_IDS,
   CREATE_EVAL_RUN,
@@ -34,6 +35,7 @@ export default function StartRunModal({ onClose, onStarted }) {
 
   const { data: setsData } = useQuery(GET_EVAL_SETS);
   const { data: promptsData } = useQuery(GET_EVAL_PROMPT_VERSIONS);
+  const { data: queriesData } = useQuery(GET_EVAL_QUERY_LIST);
   const { data: defaultQueryData } = useQuery(GET_DEFAULT_EVAL_QUERY, {
     onCompleted: (d) => {
       if (d?.defaultEvalQuery) setSelectedQueryId(d.defaultEvalQuery.id);
@@ -163,11 +165,11 @@ export default function StartRunModal({ onClose, onStarted }) {
                   <div className="select is-fullwidth">
                     <select value={selectedQueryId} onChange={(e) => setSelectedQueryId(e.target.value)}>
                       <option value="">Select a query…</option>
-                      {defaultQueryData?.defaultEvalQuery && (
-                        <option value={defaultQueryData.defaultEvalQuery.id}>
-                          {defaultQueryData.defaultEvalQuery.name} (default)
+                      {(queriesData?.evalQueryList || []).map((q) => (
+                        <option key={q.id} value={q.id}>
+                          {q.name}{q.id === defaultQueryData?.defaultEvalQuery?.id ? " (default)" : ""}
                         </option>
-                      )}
+                      ))}
                     </select>
                   </div>
                 </div>
