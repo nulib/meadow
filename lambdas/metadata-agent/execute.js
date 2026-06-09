@@ -147,11 +147,13 @@ async function executeAgent(
 ) {
   emitAgentLog("mode: agent");
   emitAgentLog("connecting to MCP tools");
+  emitAgentLog(`mcp_url: ${mcp_url}`);
   const schemaUri = "file://schema/work.json";
   let schemaRead = false;
 
   const canUseTool = async (toolName, input) => {
     const payload = input && typeof input === "object" ? input : {};
+    const allow = () => ({ behavior: "allow", updatedInput: payload });
 
     if (
       toolName === "ReadMcpResource" &&
@@ -160,24 +162,28 @@ async function executeAgent(
     ) {
       schemaRead = true;
       emitAgentLog(`schema resource read: ${schemaUri}`);
-      return { behavior: "allow" };
+      return allow();
     }
 
     if (toolName === "mcp__meadow__update_plan_change" && !schemaRead) {
       const message = `Before update_plan_change, call ReadMcpResource with {"server":"meadow","uri":"${schemaUri}"}.`;
-      emitAgentLog(`blocked tool_call: ${toolName} (schema not read)`, "warning");
+      emitAgentLog(
+        `blocked tool_call: ${toolName} (schema not read)`,
+        "warning",
+      );
       return { behavior: "deny", message };
     }
 
-    return { behavior: "allow" };
+    return allow();
   };
 
-  const allowedTools = [
+  const defaultAllowedTools = [
     "ReadMcpResource",
     "ListMcpResources",
     "mcp__meadow__authority_search",
     "mcp__meadow__get_code_list",
     "mcp__meadow__get_image",
+    "mcp__meadow__get_iiif_image",
     "mcp__meadow__get_ingest_image",
     "mcp__meadow__get_plan_changes",
     "mcp__meadow__get_work",
@@ -185,9 +191,38 @@ async function executeAgent(
     "mcp__meadow__send_status_update",
     "mcp__meadow__update_plan_change",
     "mcp__meadow__submit_ai_previews",
+    "mcp__meadow__submit_eval_metadata",
     "mcp__meadow__apply_work_metadata",
   ];
-  const disallowedTools = ["Bash", "Glob", "Grep", "WebFetch", "Write"];
+  const evalAllowedTools = [
+    "mcp__meadow__authority_search",
+    "mcp__meadow__get_iiif_image",
+    "mcp__meadow__submit_eval_metadata",
+  ];
+  const allowedTools = contextData?.eval
+    ? evalAllowedTools
+    : defaultAllowedTools;
+  const tools = { type: "preset", preset: "claude_code" };
+  const disallowedTools = contextData?.eval
+    ? [
+        "Task",
+        "TaskOutput",
+        "TaskStop",
+        "Skill",
+        "Read",
+        "TodoWrite",
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "NotebookEdit",
+        "WebFetch",
+        "Write",
+        "AskUserQuestion",
+        "EnterPlanMode",
+        "ExitPlanMode",
+      ]
+    : ["Bash", "Glob", "Grep", "WebFetch", "Write"];
   const clientOptions = {
     model,
     mcpServers: {
@@ -195,15 +230,19 @@ async function executeAgent(
     },
     allowedTools,
     disallowedTools,
+    tools,
+    strictMcpConfig: true,
     canUseTool,
-    agents: {
-      plan_change_proposer: {
-        prompt: proposerPrompt(),
-        tools: allowedTools,
-      },
-    },
+    agents: contextData?.eval
+      ? {}
+      : {
+          plan_change_proposer: {
+            prompt: proposerPrompt(),
+            tools: allowedTools,
+          },
+        },
     systemPrompt: contextData?.system_prompt || systemPrompt(),
-    effort: "low"
+    effort: "low",
   };
   logVerbose("Client options:", clientOptions);
 
@@ -215,7 +254,43 @@ async function executeAgent(
     prompt: enhancedPrompt,
     options: clientOptions,
   });
+  await logMcpServerStatus(result, contextData);
   return await processAgentMessages(result);
+}
+
+async function logMcpServerStatus(result, contextData) {
+  if (!contextData?.eval || typeof result?.mcpServerStatus !== "function") {
+    return;
+  }
+
+  try {
+    const servers = await result.mcpServerStatus();
+    const meadow = servers.find((server) => server.name === "meadow");
+
+    if (!meadow) {
+      emitAgentLog("mcp_status: meadow server not present", "warning");
+      throw new Error("Meadow MCP server not present");
+    }
+
+    const toolNames = (meadow.tools || []).map((tool) => tool.name).join(", ");
+    const toolSummary = toolNames || "none";
+    const error = meadow.error ? ` error=${meadow.error}` : "";
+
+    emitAgentLog(
+      `mcp_status: meadow ${meadow.status} tools=${toolSummary}${error}`,
+      meadow.status === "connected" ? "info" : "warning",
+    );
+
+    if (meadow.status !== "connected") {
+      throw new Error(`Meadow MCP server ${meadow.status}${error}`);
+    }
+  } catch (error) {
+    emitAgentLog(
+      `mcp_status_error: ${error?.message || String(error)}`,
+      "warning",
+    );
+    throw error;
+  }
 }
 
 function createLogReporter(context, mcpUrl, additionalHeaders) {

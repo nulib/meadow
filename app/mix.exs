@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "10.3.8"
+  @app_version "10.4.0"
 
   def project do
     [
@@ -68,12 +68,12 @@ defmodule Meadow.MixProject do
       {:cachex, "~> 4.0"},
       {:configparser_ex, "~> 4.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dataloader, "~> 1.0"},
+      {:dataloader, "~> 2.0"},
       {:ecto_enum, "~> 1.4"},
       {:ecto_psql_extras, "~> 0.2"},
       {:ecto_ranked, "~> 0.5"},
       {:ecto_sql, "~> 3.13"},
-      {:edtf, "~> 1.0"},
+      {:edtf, "~> 2.0"},
       {:elastix, "~> 0.10"},
       {:ets, "~> 0.9"},
       {:ex_aws, "~> 2.5"},
@@ -84,12 +84,12 @@ defmodule Meadow.MixProject do
       {:ex_aws_sts, "~> 2.3"},
       {:excoveralls, "~> 0.10", only: :test},
       {:faker, "~> 0.12", only: [:dev, :test]},
-      {:gettext, "~> 0.11"},
+      {:gettext, "~> 1.0"},
       {:hackney, "~> 1.17"},
       {:image, "~> 0.54"},
       {:honeybadger, "~> 0.7"},
       {:horde, "~> 0.10"},
-      {:inflex, "~> 2.1"},
+      {:inflex28, "~> 2.1"},
       {:jason, "~> 1.0"},
       {:jwt, "~> 0.1"},
       {:libcluster, "~> 3.3"},

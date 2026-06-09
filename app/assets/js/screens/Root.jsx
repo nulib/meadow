@@ -26,6 +26,10 @@ import ScreensDashboardsLocalAuthoritiesList from "@js/screens/Dashboards/LocalA
 import ScreensDashboardsObsoleteTermsList from "./Dashboards/Authorities/ObsoleteTerms/List";
 import ScreensDashboardsPreservationChecksList from "@js/screens/Dashboards/PreservationChecks/List";
 import ScreensDashboardsUsersList from "@js/screens/Dashboards/Users/List";
+import ScreensDashboardsEvalsDetails from "@js/screens/Dashboards/Evals/Details";
+import ScreensDashboardsEvalsList from "@js/screens/Dashboards/Evals/List";
+import ScreensDashboardsEvalsPrompts from "@js/screens/Dashboards/Evals/Prompts";
+import ScreensDashboardsEvalsQueries from "@js/screens/Dashboards/Evals/Queries";
 import ScreensIngestSheet from "./IngestSheet/IngestSheet";
 import ScreensProject from "./Project/Project";
 import ScreensProjectList from "./Project/List";
@@ -132,6 +136,26 @@ export default class Root extends React.Component {
                   exact
                   path="/dashboards/users"
                   component={ScreensDashboardsUsersList}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/evals"
+                  component={ScreensDashboardsEvalsList}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/evals/runs/:id"
+                  component={ScreensDashboardsEvalsDetails}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/evals/queries"
+                  component={ScreensDashboardsEvalsQueries}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/evals/prompts"
+                  component={ScreensDashboardsEvalsPrompts}
                 />
                 <PrivateRoute exact path="/" component={Home} />
                 <PrivateRoute component={NotFound} />

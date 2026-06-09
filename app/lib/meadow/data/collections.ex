@@ -12,7 +12,8 @@ defmodule Meadow.Data.Collections do
   require Logger
 
   def list_collections do
-    Repo.all(Collection, preload: :representative_work)
+    from(Collection, preload: :representative_work)
+    |> Repo.all()
     |> add_representative_image()
   end
 

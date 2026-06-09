@@ -731,6 +731,214 @@ defmodule Meadow.Data.FileSets do
   end
 
   @doc """
+  Creates or updates a completed annotation for a file set by type.
+
+  Geographic annotation types are validated before persistence:
+
+    * `nav_place` content must be a GeoJSON FeatureCollection.
+    * `georeference` content must be a IIIF Georeference Annotation.
+  """
+  def upsert_annotation_content(file_set_id, type, content, opts \\ %{})
+      when is_binary(file_set_id) and is_binary(type) and is_binary(content) do
+    with %FileSet{} = file_set <- get_file_set(file_set_id) || {:error, :file_set_not_found},
+         :ok <- validate_annotation_content(type, content) do
+      opts = Enum.into(opts, %{})
+
+      attrs =
+        %{
+          content: content,
+          status: "completed"
+        }
+        |> Map.merge(Map.take(opts, [:language]))
+
+      case Repo.get_by(FileSetAnnotation, file_set_id: file_set.id, type: type) do
+        nil ->
+          create_annotation(file_set, Map.put(attrs, :type, type))
+
+        %FileSetAnnotation{} = annotation ->
+          update_annotation(annotation, attrs)
+      end
+    end
+  end
+
+  defp validate_annotation_content("nav_place", content) do
+    case decode_annotation_json(content) do
+      {:ok, decoded} -> validate_nav_place(decoded)
+      error -> error
+    end
+  end
+
+  defp validate_annotation_content("georeference", content) do
+    case decode_annotation_json(content) do
+      {:ok, decoded} -> validate_georeference(decoded)
+      error -> error
+    end
+  end
+
+  defp validate_annotation_content(_, _), do: :ok
+
+  defp decode_annotation_json(content) do
+    case Jason.decode(content) do
+      {:ok, decoded} -> {:ok, decoded}
+      {:error, _} -> {:error, {:invalid_annotation_content, "content must be valid JSON"}}
+    end
+  end
+
+  defp validate_nav_place(%{"type" => "FeatureCollection", "features" => features})
+       when is_list(features) and features != [] do
+    if Enum.all?(features, &valid_geojson_feature?/1) do
+      :ok
+    else
+      {:error,
+       {:invalid_annotation_content,
+        "nav_place features must include valid GeoJSON geometries with coordinate pairs"}}
+    end
+  end
+
+  defp validate_nav_place(_) do
+    {:error,
+     {:invalid_annotation_content,
+      "nav_place content must be a non-empty GeoJSON FeatureCollection"}}
+  end
+
+  defp validate_georeference(
+         %{
+           "@context" => context,
+           "type" => "Annotation",
+           "motivation" => "georeferencing",
+           "target" => %{"source" => source},
+           "body" => %{"type" => "FeatureCollection", "features" => features}
+         } = annotation
+       )
+       when is_list(features) and features != [] and is_map(source) do
+    cond do
+      not georeference_context?(context) ->
+        {:error,
+         {:invalid_annotation_content,
+          "georeference annotation must include the IIIF georeference context"}}
+
+      is_nil(get_in(annotation, ["target", "source", "id"])) ->
+        {:error,
+         {:invalid_annotation_content, "georeference annotation target source must include an id"}}
+
+      Enum.all?(features, &valid_georeference_feature?/1) ->
+        :ok
+
+      true ->
+        {:error,
+         {:invalid_annotation_content,
+          "georeference features must include geographic coordinates and resourceCoords"}}
+    end
+  end
+
+  defp validate_georeference(_) do
+    {:error,
+     {:invalid_annotation_content,
+      "georeference content must be a IIIF Annotation with georeferencing motivation and a FeatureCollection body"}}
+  end
+
+  defp georeference_context?(context) when is_binary(context),
+    do: String.contains?(context, "georef")
+
+  defp georeference_context?(context) when is_list(context) do
+    Enum.any?(context, fn
+      value when is_binary(value) -> String.contains?(value, "georef")
+      _ -> false
+    end)
+  end
+
+  defp georeference_context?(_), do: false
+
+  defp valid_geojson_feature?(%{
+         "type" => "Feature",
+         "geometry" => nil,
+         "properties" => properties
+       })
+       when is_map(properties) or is_nil(properties),
+       do: true
+
+  defp valid_geojson_feature?(%{
+         "type" => "Feature",
+         "geometry" => geometry,
+         "properties" => properties
+       })
+       when is_map(properties) or is_nil(properties) do
+    valid_geojson_geometry?(geometry)
+  end
+
+  defp valid_geojson_feature?(_), do: false
+
+  defp valid_geojson_geometry?(%{"type" => "Point", "coordinates" => position}),
+    do: valid_geo_position?(position)
+
+  defp valid_geojson_geometry?(%{"type" => "MultiPoint", "coordinates" => positions})
+       when is_list(positions),
+       do: Enum.all?(positions, &valid_geo_position?/1)
+
+  defp valid_geojson_geometry?(%{"type" => "LineString", "coordinates" => positions}),
+    do: valid_geo_line_string?(positions)
+
+  defp valid_geojson_geometry?(%{"type" => "MultiLineString", "coordinates" => lines})
+       when is_list(lines),
+       do: Enum.all?(lines, &valid_geo_line_string?/1)
+
+  defp valid_geojson_geometry?(%{"type" => "Polygon", "coordinates" => rings}),
+    do: valid_geo_polygon?(rings)
+
+  defp valid_geojson_geometry?(%{"type" => "MultiPolygon", "coordinates" => polygons})
+       when is_list(polygons),
+       do: Enum.all?(polygons, &valid_geo_polygon?/1)
+
+  defp valid_geojson_geometry?(%{"type" => "GeometryCollection", "geometries" => geometries})
+       when is_list(geometries),
+       do: Enum.all?(geometries, &valid_geojson_geometry?/1)
+
+  defp valid_geojson_geometry?(_), do: false
+
+  defp valid_georeference_feature?(%{
+         "type" => "Feature",
+         "geometry" => %{"coordinates" => coords},
+         "properties" => %{"resourceCoords" => resource_coords}
+       }) do
+    valid_geo_coordinate_pair?(coords) and valid_numeric_pair?(resource_coords)
+  end
+
+  defp valid_georeference_feature?(_), do: false
+
+  defp valid_geo_line_string?(positions) when is_list(positions) and length(positions) >= 2,
+    do: Enum.all?(positions, &valid_geo_position?/1)
+
+  defp valid_geo_line_string?(_), do: false
+
+  defp valid_geo_polygon?(rings) when is_list(rings) and rings != [],
+    do: Enum.all?(rings, &valid_geo_linear_ring?/1)
+
+  defp valid_geo_polygon?(_), do: false
+
+  defp valid_geo_linear_ring?(positions) when is_list(positions) and length(positions) >= 4 do
+    Enum.all?(positions, &valid_geo_position?/1) and List.first(positions) == List.last(positions)
+  end
+
+  defp valid_geo_linear_ring?(_), do: false
+
+  defp valid_geo_position?([lng, lat | rest])
+       when is_number(lng) and is_number(lat) and is_list(rest) do
+    valid_geo_coordinate_pair?([lng, lat]) and Enum.all?(rest, &is_number/1)
+  end
+
+  defp valid_geo_position?(_), do: false
+
+  defp valid_geo_coordinate_pair?([lng, lat])
+       when is_number(lng) and is_number(lat) and lng >= -180 and lng <= 180 and lat >= -90 and
+              lat <= 90,
+       do: true
+
+  defp valid_geo_coordinate_pair?(_), do: false
+
+  defp valid_numeric_pair?([x, y]) when is_number(x) and is_number(y), do: true
+  defp valid_numeric_pair?(_), do: false
+
+  @doc """
   Creates an annotation for a file set.
 
   ## Examples

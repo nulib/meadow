@@ -61,6 +61,7 @@ defmodule MeadowWeb.Router do
     pipe_through(:api)
 
     post("/export/:file", MeadowWeb.ExportController, :export)
+    post("/evals/:file", MeadowWeb.EvalsController, :export)
     post("/authority_records/bulk_create", MeadowWeb.AuthorityRecordsController, :bulk_create)
     post("/authority_records/bulk_update", MeadowWeb.AuthorityRecordsController, :bulk_update)
     post("/authority_records/:file", MeadowWeb.AuthorityRecordsController, :export)
@@ -76,6 +77,15 @@ defmodule MeadowWeb.Router do
       interface: :simple,
       socket: MeadowWeb.UserSocket,
       before_send: {Middleware.AssumeRole, :update_user_role}
+    )
+
+    forward("/mcp/eval", MeadowWeb.Plugs.Authorize,
+      require: :editor,
+      forward_to: {
+        Anubis.Server.Transport.StreamableHTTP.Plug,
+        server: MeadowWeb.MCP.EvalServer,
+        timeout: 120_000
+      }
     )
 
     forward("/mcp", MeadowWeb.Plugs.Authorize,

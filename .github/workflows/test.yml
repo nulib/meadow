@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version-file: ./.tool-versions
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: |
             app/assets/package-lock.json
             app/priv/nodejs/*/package-lock.json
@@ -28,13 +28,14 @@ jobs:
   elixir-test:
     runs-on: ubuntu-latest
     env:
+      LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
       MIX_ENV: test
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
         with:
           node-version-file: ./.tool-versions
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: |
             app/assets/package-lock.json
             app/priv/nodejs/*/package-lock.json
@@ -52,10 +53,10 @@ jobs:
           path: |
             app/_build
             app/deps
-          key: ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
+          key: ${{ runner.os }}-hex-v7-${{ hashFiles('app/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-hex-v6-${{ hashFiles('app/mix.lock') }}
-            ${{ runner.os }}-hex-v6-
+            ${{ runner.os }}-hex-v7-${{ hashFiles('app/mix.lock') }}
+            ${{ runner.os }}-hex-v7-
       - name: Install Elixir dependencies
         run: make app-compile
         env:

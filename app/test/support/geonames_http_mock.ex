@@ -33,7 +33,13 @@ defmodule Meadow.GeoNamesHttpMock do
           "lat" => 41.85003,
           "lng" => -87.65005,
           "countryName" => "United States",
-          "adminName1" => "Illinois"
+          "adminName1" => "Illinois",
+          "bbox" => %{
+            "north" => 42.02304,
+            "south" => 41.64454,
+            "east" => -87.52414,
+            "west" => -87.94011
+          }
         })
 
       "2110435" ->

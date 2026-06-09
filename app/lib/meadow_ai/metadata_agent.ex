@@ -6,7 +6,6 @@ defmodule MeadowAI.MetadataAgent do
   alias Meadow.Utils.Lambda
   alias Meadow.Utils.DCAPI
   alias MeadowAI.Config, as: AIConfig
-  alias MeadowWeb.Router.Helpers, as: Routes
 
   @moduledoc """
   A GenServer that provides AI-powered metadata generation tools.
@@ -100,13 +99,14 @@ defmodule MeadowAI.MetadataAgent do
       opts
       |> Keyword.put_new(
         :mcp_url,
-        Routes.page_url(MeadowWeb.Endpoint, :index, ["api", "mcp"])
+        MeadowWeb.RemoteAccess.url("api/mcp")
       )
       |> Keyword.put_new(:auth_token, token)
       |> Keyword.put_new(
         :firewall_security_header,
         Application.get_env(:meadow, :firewall_security_header)
       )
+      |> Keyword.update!(:mcp_url, &docker_reachable_mcp_url/1)
 
     Task.Supervisor.start_child(MeadowAI.MetadataAgent.TaskSupervisor, fn ->
       result =
@@ -199,6 +199,38 @@ defmodule MeadowAI.MetadataAgent do
     error ->
       Logger.error("Error executing Claude query: #{Exception.message(error)}")
       {:error, {:query_execution_error, error}}
+  end
+
+  defp docker_reachable_mcp_url(nil), do: nil
+
+  defp docker_reachable_mcp_url(url) do
+    if System.get_env("USE_SAM_LAMBDAS") do
+      rewrite_url_base(url, System.get_env("MEADOW_SAM_HOST_URL", "http://172.17.0.1:4000"))
+    else
+      url
+    end
+  end
+
+  defp rewrite_url_base(url, replacement_base) do
+    with %URI{} = uri <- URI.parse(url),
+         %URI{} = replacement <- URI.parse(replacement_base) do
+      %{
+        uri
+        | scheme: replacement.scheme || uri.scheme,
+          host: replacement.host,
+          port: explicit_port(replacement_base) || uri.port
+      }
+      |> URI.to_string()
+    else
+      _ -> url
+    end
+  end
+
+  defp explicit_port(url) do
+    case Regex.run(~r/^[a-z][a-z0-9+.-]*:\/\/(?:\[[^\]]+\]|[^\/:]+):(\d+)/i, url) do
+      [_, port] -> String.to_integer(port)
+      _ -> nil
+    end
   end
 
   defp process_execution_result({:ok, %{"statusCode" => 200, "body" => body}}, opts) do
