@@ -39,7 +39,7 @@ formatters =
 
 ExUnit.start(
   capture_log: true,
-  exclude: [:skip, :validator, manual: true],
+  exclude: [:skip, :validator, :archivesspace_integration, manual: true],
   formatters: formatters
 )
 

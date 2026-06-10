@@ -1,7 +1,6 @@
 {
   "data": {
     "__schema": {
-      "description": null,
       "directives": [
         {
           "args": [
@@ -17,7 +16,6 @@
             }
           ],
           "description": "Marks an element of a GraphQL schema as no longer supported.",
-          "isRepeatable": false,
           "locations": [
             "ARGUMENT_DEFINITION",
             "ENUM_VALUE",
@@ -44,7 +42,6 @@
             }
           ],
           "description": "Directs the executor to include this field or fragment only when the `if` argument is true.",
-          "isRepeatable": false,
           "locations": [
             "FIELD",
             "FRAGMENT_SPREAD",
@@ -55,7 +52,6 @@
         {
           "args": [],
           "description": "The @oneOf built-in directive is used within the type system definition language to indicate an Input Object is a OneOf Input Object.\n\nA OneOf Input Object is a special variant of Input Object where exactly one field must be set and non-null, all others being omitted.\nThis is useful for representing situations where an input may be one of many different options.",
-          "isRepeatable": false,
           "locations": [
             "INPUT_OBJECT"
           ],
@@ -79,7 +75,6 @@
             }
           ],
           "description": "Directs the executor to skip this field or fragment when the `if` argument is true.",
-          "isRepeatable": false,
           "locations": [
             "FIELD",
             "FRAGMENT_SPREAD",
@@ -105,7 +100,6 @@
             }
           ],
           "description": "Exposes a URL that specifies the behavior of this scalar.",
-          "isRepeatable": false,
           "locations": [
             "SCALAR"
           ],
@@ -1216,6 +1210,671 @@
           "interfaces": [],
           "kind": "OBJECT",
           "name": "ApiToken",
+          "possibleTypes": null
+        },
+        {
+          "description": "An ArchivesSpace resource imported into Meadow as a collection",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "archivesSpaceUri",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "collection",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Collection",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "findingAidUrl",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "insertedAt",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "DateTime",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "syncStatus",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "ArchivesSpaceSyncStatus",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "workCount",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "ArchivesSpaceImport",
+          "possibleTypes": null
+        },
+        {
+          "description": "An AI metadata preview for a prospective ArchivesSpace import",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Failure reason when status is error",
+              "isDeprecated": false,
+              "name": "error",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Extrapolated cost (USD) of running AI metadata over the whole resource",
+              "isDeprecated": false,
+              "name": "estimatedCost",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Per-work previews, one for each sampled archival object",
+              "isDeprecated": false,
+              "name": "previews",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "ArchivesSpacePreviewItem",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Number of works actually previewed",
+              "isDeprecated": false,
+              "name": "sampleCount",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Generation state: pending while the agent runs, then complete or error",
+              "isDeprecated": false,
+              "name": "status",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "ArchivesSpacePreviewStatus",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Token identifying this preview; used to subscribe for its result",
+              "isDeprecated": false,
+              "name": "token",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Number of archival objects in the resource (upper bound on works created)",
+              "isDeprecated": false,
+              "name": "totalCount",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "ArchivesSpaceImportPreview",
+          "possibleTypes": null
+        },
+        {
+          "description": "A link between a Meadow work or collection and an ArchivesSpace record",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "archivesSpaceUri",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "collectionId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "digitalObjectUri",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "insertedAt",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "DateTime",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "lastSyncedAt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "DateTime",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "refId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "repositoryId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "syncError",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "syncStatus",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "ArchivesSpaceSyncStatus",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "updatedAt",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "DateTime",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "workId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "ArchivesSpaceLink",
+          "possibleTypes": null
+        },
+        {
+          "description": "AI-generated metadata preview for a single prospective work",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "description",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "subjects",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "ArchivesSpacePreviewSubject",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "Base64-encoded JPEG thumbnail of the representative image",
+              "isDeprecated": false,
+              "name": "thumbnail",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "title",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "workAccessionNumber",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "ArchivesSpacePreviewItem",
+          "possibleTypes": null
+        },
+        {
+          "description": "Generation state of an ArchivesSpace import preview",
+          "enumValues": [
+            {
+              "deprecationReason": null,
+              "description": "The preview finished successfully",
+              "isDeprecated": false,
+              "name": "COMPLETE"
+            },
+            {
+              "deprecationReason": null,
+              "description": "The preview could not be generated",
+              "isDeprecated": false,
+              "name": "ERROR"
+            },
+            {
+              "deprecationReason": null,
+              "description": "The metadata agent is still running",
+              "isDeprecated": false,
+              "name": "PENDING"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "kind": "ENUM",
+          "name": "ArchivesSpacePreviewStatus",
+          "possibleTypes": null
+        },
+        {
+          "description": "A subject heading suggested for an ArchivesSpace import preview",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "label",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "ArchivesSpacePreviewSubject",
+          "possibleTypes": null
+        },
+        {
+          "description": "An ArchivesSpace resource matching a search",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "identifier",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "title",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "uri",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "ArchivesSpaceSearchHit",
+          "possibleTypes": null
+        },
+        {
+          "description": "A page of ArchivesSpace resource search results",
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "results",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "ArchivesSpaceSearchHit",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "totalHits",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "ArchivesSpaceSearchResult",
+          "possibleTypes": null
+        },
+        {
+          "description": "The synchronization state of an ArchivesSpace link",
+          "enumValues": [
+            {
+              "deprecationReason": null,
+              "description": "The last sync attempt failed",
+              "isDeprecated": false,
+              "name": "ERROR"
+            },
+            {
+              "deprecationReason": null,
+              "description": "Linked but never synced",
+              "isDeprecated": false,
+              "name": "LINKED"
+            },
+            {
+              "deprecationReason": null,
+              "description": "Waiting to be synced",
+              "isDeprecated": false,
+              "name": "PENDING"
+            },
+            {
+              "deprecationReason": null,
+              "description": "Successfully synced",
+              "isDeprecated": false,
+              "name": "SYNCED"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "kind": "ENUM",
+          "name": "ArchivesSpaceSyncStatus",
           "possibleTypes": null
         },
         {
@@ -6699,6 +7358,33 @@
                 {
                   "defaultValue": null,
                   "description": null,
+                  "name": "resourceUri",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Begin generating an AI metadata preview for an ArchivesSpace resource.\nReturns immediately with a token; the agent runs in the background and the\nfinished preview is delivered over the `archivesSpaceImportPreview`\nsubscription keyed by that token. Nothing is imported. Restricted to\nsupermanagers.",
+              "isDeprecated": false,
+              "name": "archivesSpaceStartImportPreview",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ArchivesSpaceImportPreview",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
                   "name": "userRole",
                   "type": {
                     "kind": "NON_NULL",
@@ -7851,6 +8537,43 @@
                 {
                   "defaultValue": null,
                   "description": null,
+                  "name": "aiIngest",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "resourceUri",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Import an ArchivesSpace resource (finding aid) into Meadow. Creates and\nreturns the linked collection immediately; linked works for its archival\nobjects are created in the background.",
+              "isDeprecated": false,
+              "name": "importArchivesSpaceResource",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Collection",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
                   "name": "accessionNumber",
                   "type": {
                     "kind": "NON_NULL",
@@ -7922,6 +8645,57 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "FileSet",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "archivesSpaceUri",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "refId",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "workId",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Link a work to an ArchivesSpace archival object",
+              "isDeprecated": false,
+              "name": "linkWorkToArchivesSpace",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ArchivesSpaceLink",
                 "ofType": null
               }
             },
@@ -8298,6 +9072,33 @@
                 {
                   "defaultValue": null,
                   "description": null,
+                  "name": "workId",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Sync a linked work's metadata to ArchivesSpace immediately",
+              "isDeprecated": false,
+              "name": "syncWorkToArchivesSpace",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ArchivesSpaceLink",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
                   "name": "fileSetId",
                   "type": {
                     "kind": "NON_NULL",
@@ -8461,6 +9262,33 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "TransferFileSetsResult",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "workId",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Remove a work's ArchivesSpace link (no records are changed in either system)",
+              "isDeprecated": false,
+              "name": "unlinkWorkFromArchivesSpace",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ArchivesSpaceLink",
                 "ofType": null
               }
             },
@@ -10114,6 +10942,102 @@
                   "name": "ActionState",
                   "ofType": null
                 }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "List all ArchivesSpace links currently in an error state",
+              "isDeprecated": false,
+              "name": "archivesSpaceErrorLinks",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "ArchivesSpaceLink",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "List ArchivesSpace resources imported into Meadow, most recent first",
+              "isDeprecated": false,
+              "name": "archivesSpaceImports",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "ArchivesSpaceImport",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "workId",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Get the ArchivesSpace link for a work",
+              "isDeprecated": false,
+              "name": "archivesSpaceLink",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ArchivesSpaceLink",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "page",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "query",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Search ArchivesSpace resources (finding aids) by keyword",
+              "isDeprecated": false,
+              "name": "archivesSpaceResourceSearch",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ArchivesSpaceSearchResult",
+                "ofType": null
               }
             },
             {
@@ -12077,6 +13001,33 @@
                 {
                   "defaultValue": null,
                   "description": null,
+                  "name": "token",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Delivers the AI metadata preview for an ArchivesSpace import once the\nmetadata agent finishes. Subscribe with the token returned by\n`archivesSpaceStartImportPreview`. Because the agent can run far longer\nthan an HTTP request survives, results are pushed here rather than\nreturned synchronously.",
+              "isDeprecated": false,
+              "name": "archivesSpaceImportPreview",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ArchivesSpaceImportPreview",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
                   "name": "conversationId",
                   "type": {
                     "kind": "NON_NULL",
@@ -12575,6 +13526,18 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "WorkAdministrativeMetadata",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "archivesSpaceLink",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ArchivesSpaceLink",
                 "ofType": null
               }
             },

@@ -74,6 +74,21 @@ defmodule Meadow.Config.Runtime.Dev do
       iiif_server_url: Path.join(get_secret(:iiif, ["v3"]), prefix()),
       iiif_manifest_url_deprecated: Path.join(get_secret(:iiif, ["base"]), "public/")
 
+    # Defaults to the local docker ArchivesSpace stack (see
+    # infrastructure/archivesspace; `make archivesspace-start`). Set
+    # ARCHIVESSPACE_URL=http://localhost:3947 to use the built-in mock server
+    # instead.
+    config :meadow,
+      archives_space: %{
+        url:
+          System.get_env(
+            "ARCHIVESSPACE_URL",
+            get_secret(:archives_space, ["url"], "http://localhost:8089")
+          ),
+        user: get_secret(:archives_space, ["user"], "admin"),
+        password: get_secret(:archives_space, ["password"], "admin")
+      }
+
     config :meadow, Meadow.Scheduler,
       jobs: [
         # Runs every 10 minutes:

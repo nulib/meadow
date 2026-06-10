@@ -6,6 +6,7 @@ MAKEFLAGS += --no-print-directory
 SHELL := /bin/bash
 
 APP_DIR ?= ./app
+ARCHIVESSPACE_DIR ?= ./infrastructure/archivesspace
 LOCALSTACK_DIR ?= ./infrastructure/localstack
 PIPELINE_DIR ?= ./infrastructure/pipeline
 MEADOW_VERSION ?= $(shell $(MAKE) --no-print-directory app-version)
@@ -20,6 +21,7 @@ RUNTIME_IMAGE ?= ubuntu:$(UBUNTU_VERSION)
 help:
 	@make app-help | sed 's/^make /make app-/'
 	@echo "make ci                    | install all dependencies, start test environment, and run all tests"
+	@make archivesspace-help | sed 's/^make /make archivesspace-/'
 	@make localstack-help | sed 's/^make /make localstack-/'
 	@make pipeline-help   | sed 's/^make /make pipeline-/'
 
@@ -68,6 +70,9 @@ livebook-image:
 		--tag nulib/meadow:livebook-$(IMAGE_TAG) \
 		-f Dockerfile.livebook \
 		.
+
+archivesspace-%:
+	cd $(ARCHIVESSPACE_DIR) && make $*
 
 localstack-%:
 	cd $(LOCALSTACK_DIR) && make $*

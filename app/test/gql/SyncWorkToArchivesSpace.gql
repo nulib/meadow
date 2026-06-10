@@ -1,0 +1,10 @@
+mutation($workId: ID!) {
+  syncWorkToArchivesSpace(workId: $workId) {
+    id
+    workId
+    syncStatus
+    syncError
+    digitalObjectUri
+    lastSyncedAt
+  }
+}

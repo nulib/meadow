@@ -15,9 +15,8 @@ defmodule MeadowWeb.MCP.Tools.SubmitAIPreviews do
   alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
   alias Meadow.Ingest.Sheets
+  alias MeadowWeb.MCP.Tools.PreviewThumbnail
   require Logger
-
-  @max_dimension 512
 
   @subject_schema %{
     id: :string,
@@ -54,7 +53,7 @@ defmodule MeadowWeb.MCP.Tools.SubmitAIPreviews do
     Logger.info("SubmitAIPreviews: storing #{length(previews)} preview(s) for sheet #{sheet_id}")
 
     sheet = Sheets.get_ingest_sheet!(sheet_id)
-    previews_with_thumbnails = Enum.map(previews, &add_thumbnail/1)
+    previews_with_thumbnails = Enum.map(previews, &PreviewThumbnail.add/1)
 
     case Sheets.update_ingest_sheet(sheet, %{ai_preview: previews_with_thumbnails}) do
       {:ok, _} ->
@@ -65,38 +64,5 @@ defmodule MeadowWeb.MCP.Tools.SubmitAIPreviews do
     end
   rescue
     error -> {:error, MCPError.protocol(:internal_error, %{error: inspect(error)}), frame}
-  end
-
-  defp add_thumbnail(%{filename: filename} = preview) do
-    %URI{host: bucket, path: "/" <> key} = URI.parse(filename)
-
-    case fetch_thumbnail(bucket, key) do
-      {:ok, base64} ->
-        Map.put(preview, :thumbnail, base64)
-
-      {:error, reason} ->
-        Logger.warning("SubmitAIPreviews: could not fetch thumbnail for #{filename}: #{inspect(reason)}")
-        preview
-    end
-  end
-
-  defp fetch_thumbnail(bucket, key) do
-    case ExAws.S3.get_object(bucket, key) |> ExAws.request() do
-      {:ok, %{body: body}} -> encode_thumbnail(body)
-      {:error, reason} -> {:error, reason}
-    end
-  end
-
-  defp encode_thumbnail(body) do
-    case Image.from_binary(body) do
-      {:ok, img} ->
-        with {:ok, resized} <- Image.thumbnail(img, @max_dimension),
-             {:ok, jpeg_binary} <- Image.write(resized, :memory, suffix: ".jpg", quality: 85) do
-          {:ok, Base.encode64(jpeg_binary)}
-        end
-
-      {:error, _} ->
-        {:error, :unsupported_format}
-    end
   end
 end

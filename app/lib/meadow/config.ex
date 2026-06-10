@@ -170,6 +170,19 @@ defmodule Meadow.Config do
     end
   end
 
+  @default_archives_space_config %{url: nil, user: "admin", password: nil}
+  @doc "Get ArchivesSpace API configuration"
+  def archives_space_config do
+    with config <- Application.get_env(:meadow, :archives_space, %{}) do
+      Map.merge(@default_archives_space_config, config)
+    end
+  end
+
+  @doc "Check whether ArchivesSpace synchronization is configured"
+  def archives_space_enabled? do
+    not is_nil(archives_space_config().url)
+  end
+
   @doc "Gather configuration variables as environment for spawned process"
   def aws_environment do
     with config <- ExAws.Config.new(:s3),

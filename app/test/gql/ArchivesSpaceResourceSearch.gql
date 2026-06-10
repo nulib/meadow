@@ -1,0 +1,10 @@
+query($query: String!, $page: Int) {
+  archivesSpaceResourceSearch(query: $query, page: $page) {
+    results {
+      uri
+      title
+      identifier
+    }
+    totalHits
+  }
+}

@@ -133,7 +133,9 @@ defmodule Meadow.Config.Runtime do
         Meadow.Events.FileSets.Annotations,
         Meadow.Events.FileSets.Cleanup,
         Meadow.Events.FileSets.StructuralMetadata,
+        Meadow.Events.FileSets.TranscriptionSync,
         Meadow.Events.IngestSheets.SheetUpdates,
+        Meadow.Events.Works.ArchivesSpace,
         Meadow.Events.Works.Arks,
         Meadow.Events.Indexing
       ],
@@ -241,6 +243,15 @@ defmodule Meadow.Config.Runtime do
             "https://devbox.library.northwestern.edu:3333/items/"
           ),
         url: get_secret(:ezid, ["url"], "http://localhost:3943")
+      }
+
+    Logger.info("Configuring ArchivesSpace")
+
+    config :meadow,
+      archives_space: %{
+        url: get_secret(:archives_space, ["url"]),
+        user: get_secret(:archives_space, ["user"], "admin"),
+        password: get_secret(:archives_space, ["password"])
       }
 
     Logger.info("Configuring general meadow properties")

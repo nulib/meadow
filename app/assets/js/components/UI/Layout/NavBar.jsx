@@ -181,6 +181,13 @@ const UILayoutNavBar = () => {
                         </Link>
                       </UILayoutNavDropdownItem>
                       <UILayoutNavDropdownItem>
+                        <Link to="/dashboards/archivesspace">
+                          <IconText icon={<IconSearch />}>
+                            ArchivesSpace Imports
+                          </IconText>
+                        </Link>
+                      </UILayoutNavDropdownItem>
+                      <UILayoutNavDropdownItem>
                         <Link to="/dashboards/analytics">
                           <IconText icon={<IconChart />}>
                             Digital Collections Analytics

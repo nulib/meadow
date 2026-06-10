@@ -18,8 +18,12 @@ defmodule Meadow.Pipeline.Actions.GenerateAIMetadata do
   # When overwrite: "false" (e.g. version re-ingest), always treat as already complete.
   def already_complete?(_file_set, _attributes), do: true
 
+  # Contexts whose works can opt into AI metadata generation: CSV ingest
+  # sheets ("Sheet") and ArchivesSpace digital object imports ("ArchivesSpace").
+  @ai_contexts ["Sheet", "ArchivesSpace"]
+
   def process(file_set, attributes) do
-    with %{context: "Sheet"} <- attributes,
+    with %{context: context} when context in @ai_contexts <- attributes,
          work when not is_nil(work) <- load_work(file_set),
          true <- ai_ingest_work?(work),
          true <- work_image?(file_set, work) do
@@ -53,7 +57,8 @@ defmodule Meadow.Pipeline.Actions.GenerateAIMetadata do
     case MeadowAI.query(prompt, context: %{system_prompt: String.trim(@system_prompt)}) do
       {:ok, response} ->
         cost = Map.get(response, "total_cost_usd", 0.0) |> Float.round(2)
-        Sheets.cost_delta(work.ingest_sheet_id, cost)
+        # ArchivesSpace works have no ingest sheet to track cost against.
+        if work.ingest_sheet_id, do: Sheets.cost_delta(work.ingest_sheet_id, cost)
         ActionStates.set_state!(file_set, __MODULE__, "ok")
         :ok
 
@@ -67,7 +72,10 @@ defmodule Meadow.Pipeline.Actions.GenerateAIMetadata do
   defp load_work(%{work_id: nil}), do: nil
   defp load_work(%{work_id: work_id}), do: Works.get_work!(work_id)
 
-  # Works.get_work! preloads :ingest_sheet, giving access to ai_ingest
+  # A work opts into AI metadata either via its own flag (ArchivesSpace
+  # imports) or its ingest sheet (CSV ingest). Works.get_work! preloads
+  # :ingest_sheet, giving access to its ai_ingest.
+  defp ai_ingest_work?(%Work{ai_ingest: true}), do: true
   defp ai_ingest_work?(%Work{ingest_sheet: %{ai_ingest: true}}), do: true
   defp ai_ingest_work?(_), do: false
 
