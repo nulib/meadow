@@ -35,7 +35,7 @@ function setupMatchTests() {
       isModalOpen={isModalOpen}
       handleClose={handleClose}
     />,
-    { mocks }
+    { mocks },
   );
 }
 
@@ -46,8 +46,8 @@ it("renders the BatchDeleteConfirmationModal", async () => {
     expect(
       screen.getByText(
         "NOTE: This batch operation will permanently delete 4 works.",
-        { exact: false }
-      )
+        { exact: false },
+      ),
     ).toBeInTheDocument();
   });
 });

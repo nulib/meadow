@@ -21,7 +21,7 @@ describe("SearchResults component", () => {
       <SearchResults {...defaultProps} />,
       {
         mocks,
-      }
+      },
     );
 
     await waitFor(() => {

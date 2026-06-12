@@ -153,8 +153,16 @@ export const GET_EVAL_RUN = gql`
 `;
 
 export const CREATE_EVAL_QUERY = gql`
-  mutation CreateEvalQuery($name: String!, $description: String, $queryJson: Json!) {
-    createEvalQuery(name: $name, description: $description, queryJson: $queryJson) {
+  mutation CreateEvalQuery(
+    $name: String!
+    $description: String
+    $queryJson: Json!
+  ) {
+    createEvalQuery(
+      name: $name
+      description: $description
+      queryJson: $queryJson
+    ) {
       id
       name
       description
@@ -166,8 +174,18 @@ export const CREATE_EVAL_QUERY = gql`
 `;
 
 export const UPDATE_EVAL_QUERY = gql`
-  mutation UpdateEvalQuery($id: ID!, $name: String, $description: String, $queryJson: Json) {
-    updateEvalQuery(id: $id, name: $name, description: $description, queryJson: $queryJson) {
+  mutation UpdateEvalQuery(
+    $id: ID!
+    $name: String
+    $description: String
+    $queryJson: Json
+  ) {
+    updateEvalQuery(
+      id: $id
+      name: $name
+      description: $description
+      queryJson: $queryJson
+    ) {
       id
       name
       description
@@ -218,8 +236,16 @@ export const ARCHIVE_EVAL_PROMPT_VERSION = gql`
 `;
 
 export const CREATE_EVAL_SET_FROM_WORK_IDS = gql`
-  mutation CreateEvalSetFromWorkIds($workIds: [ID!]!, $name: String!, $description: String) {
-    createEvalSetFromWorkIds(workIds: $workIds, name: $name, description: $description) {
+  mutation CreateEvalSetFromWorkIds(
+    $workIds: [ID!]!
+    $name: String!
+    $description: String
+  ) {
+    createEvalSetFromWorkIds(
+      workIds: $workIds
+      name: $name
+      description: $description
+    ) {
       id
       name
       workCount

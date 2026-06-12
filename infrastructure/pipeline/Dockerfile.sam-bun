@@ -1,0 +1,9 @@
+FROM public.ecr.aws/sam/build-nodejs22.x:latest
+
+ARG BUN_VERSION=1.3.14
+ENV BUN_INSTALL=/root/.bun
+ENV PATH=${BUN_INSTALL}/bin:${PATH}
+
+RUN dnf install -y unzip && \
+    curl -fsSL https://bun.sh/install | bash -s "bun-v${BUN_VERSION}" && \
+    dnf clean all

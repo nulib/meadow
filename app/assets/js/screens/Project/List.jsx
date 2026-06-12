@@ -33,7 +33,7 @@ const ScreensProjectList = () => {
   const getIngestSheetsCount = (projects) => {
     return projects.reduce(
       (accumulator, current) => accumulator + current.ingestSheets.length,
-      0
+      0,
     );
   };
 

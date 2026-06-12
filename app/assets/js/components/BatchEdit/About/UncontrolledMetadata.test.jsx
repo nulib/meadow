@@ -18,7 +18,7 @@ describe("BatchEditAboutUncontrolledMetadata component", () => {
       </CodeListProvider>,
       {
         mocks: allCodeListMocks,
-      }
+      },
     );
   });
 

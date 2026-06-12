@@ -23,7 +23,6 @@ const mocks = [
 ];
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,

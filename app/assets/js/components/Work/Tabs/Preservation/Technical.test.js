@@ -12,20 +12,20 @@ describe("WorkTabsPreservationTechnical component", () => {
   it("displays technical metadata if it exists", () => {
     render(<WorkTabsPreservationTechnical fileSet={mockWork.fileSets[0]} />);
     expect(screen.getByText("Artist").nextElementSibling).toHaveTextContent(
-      "Artist Name"
+      "Artist Name",
     );
     expect(
-      screen.getByText("Compression").nextElementSibling
+      screen.getByText("Compression").nextElementSibling,
     ).toHaveTextContent("1");
     expect(
-      screen.getByText("ImageHeight").nextElementSibling
+      screen.getByText("ImageHeight").nextElementSibling,
     ).toHaveTextContent("1024");
   });
 
   it("displays handles display of technical metadata whose value is of type object", () => {
     render(<WorkTabsPreservationTechnical fileSet={mockWork.fileSets[0]} />);
     expect(
-      screen.getByText("BitsPerSample").nextElementSibling
+      screen.getByText("BitsPerSample").nextElementSibling,
     ).toHaveTextContent("0, 1, 2");
   });
 

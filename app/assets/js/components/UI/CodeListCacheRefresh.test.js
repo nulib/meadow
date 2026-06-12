@@ -12,7 +12,7 @@ describe("UICodeListCacheRefresh component", () => {
 
   it("renders the cache refresh button and fires the callback function successfully when clicked", () => {
     const { getByTestId } = render(
-      <UICodeListCacheRefresh handleClick={mockHandleClick} />
+      <UICodeListCacheRefresh handleClick={mockHandleClick} />,
     );
     const el = getByTestId("button-cache-refresh");
     fireEvent.click(el);

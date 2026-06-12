@@ -14,7 +14,7 @@ describe("UIDropdownItem component", () => {
           onClick={mockHandleClick}
         >
           Option 1
-        </UIDropdownItem>
+        </UIDropdownItem>,
       );
     });
 
@@ -39,7 +39,7 @@ describe("UIDropdownItem component", () => {
           onClick={mockHandleClick}
         >
           Option 1
-        </UIDropdownItem>
+        </UIDropdownItem>,
       );
       const el = screen.getByTestId("test-dropdown-item");
       expect(el.tagName).toEqual("DIV");

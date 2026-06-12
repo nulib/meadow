@@ -1,4 +1,4 @@
-# The directory Mix will write compiled artifacts to.
+ # The directory Mix will write compiled artifacts to.
 /app/_build/
 
 # If you run "mix test --cover", coverage assets end up here.
@@ -94,3 +94,4 @@ AGENT.md
 .aws-sam/
 samconfig.*
 livebook/versions
+.claude/settings.local.json

@@ -240,7 +240,9 @@ const WorkTabsPreservation = ({ work }) => {
     });
   };
 
-  const isAllSelected = selectedFilesets.length === orderedFileSets.fileSets.length && orderedFileSets.fileSets.length > 0;
+  const isAllSelected =
+    selectedFilesets.length === orderedFileSets.fileSets.length &&
+    orderedFileSets.fileSets.length > 0;
   const isSomeSelected = selectedFilesets.length > 0 && !isAllSelected;
 
   return (
@@ -429,7 +431,9 @@ const WorkTabsPreservation = ({ work }) => {
           </Dialog.Root>
           <Button
             as="span"
-            className={selectedFilesets.length === 0 ? "has-tooltip-multiline" : ""}
+            className={
+              selectedFilesets.length === 0 ? "has-tooltip-multiline" : ""
+            }
             data-testid="button-transfer-file-sets"
             onClick={handleTransferFileSetsClick}
             disabled={selectedFilesets.length === 0}

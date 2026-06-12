@@ -18,7 +18,7 @@ describe("BatchEditAdministrativeGeneral component", () => {
           <Wrapped />
         </CodeListProvider>
       </BatchProvider>,
-      { mocks: allCodeListMocks }
+      { mocks: allCodeListMocks },
     );
   });
 

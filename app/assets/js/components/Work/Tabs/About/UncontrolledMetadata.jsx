@@ -18,11 +18,12 @@ const WorkTabsAboutUncontrolledMetadata = ({
       {UNCONTROLLED_METADATA.map((item) => (
         <div className="column is-half" key={item.name} data-testid={item.name}>
           {isEditing ? (
-            <UIFormFieldArray 
-              required 
-              name={item.name} 
-              label={item.label} 
-              isTextarea={item.inputEl && item.inputEl === 'textarea'} />
+            <UIFormFieldArray
+              required
+              name={item.name}
+              label={item.label}
+              isTextarea={item.inputEl && item.inputEl === "textarea"}
+            />
           ) : (
             <UIFormFieldArrayDisplay
               values={descriptiveMetadata[item.name]}

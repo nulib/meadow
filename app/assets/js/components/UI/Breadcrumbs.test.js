@@ -6,17 +6,17 @@ import Breadcrumbs from "./Breadcrumbs";
 const crumbs = [
   {
     label: "Projects",
-    route: "/project/list"
+    route: "/project/list",
   },
   {
     label: "Sub project",
-    route: "/project/list/subproject"
+    route: "/project/list/subproject",
   },
   {
     label: "Ima third",
     route: "/any/thing",
-    isActive: true
-  }
+    isActive: true,
+  },
 ];
 
 describe("Breadcrumbs component", () => {

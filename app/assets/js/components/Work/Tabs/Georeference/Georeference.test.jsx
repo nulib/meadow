@@ -1,7 +1,6 @@
 import React from "react";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 
-import WorkTabsGeoreference from "./Georeference";
 import {
   AUTHORITIES_SEARCH,
   GEONAMES_PLACE,
@@ -24,71 +23,70 @@ const mockMapCoordinates = [
   [-87.62, 41.84],
 ];
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
 });
 
-jest.mock(
-  "./ImageCoordinatePicker",
-  () =>
-    ({ onDimensions, onPointSelected }) => (
-      <div data-testid="mock-image-picker">
-        <button
-          type="button"
-          onClick={() => {
-            onDimensions({ width: 1000, height: 800 });
-            onPointSelected([100, 200]);
-          }}
-        >
-          Pick image point
-        </button>
-      </div>
-    ),
-);
-
-jest.mock(
-  "./LeafletMap",
-  () =>
-    ({
-      fitToData,
-      geoJson,
-      markers = [],
-      onMapPointSelected,
-      previewAnnotation,
-      useCrosshairCursor,
-    }) => (
-      <div
-        data-testid="mock-leaflet-map"
-        data-crosshair-cursor={useCrosshairCursor ? "true" : "false"}
-        data-has-preview={previewAnnotation ? "true" : "false"}
+jest.mock("./ImageCoordinatePicker", () => ({
+  __esModule: true,
+  default: ({ onDimensions, onPointSelected }) => (
+    <div data-testid="mock-image-picker">
+      <button
+        type="button"
+        onClick={() => {
+          onDimensions({ width: 1000, height: 800 });
+          onPointSelected([100, 200]);
+        }}
       >
-        {fitToData && <span>fit-to-data</span>}
-        {geoJson?.features?.map((feature, index) => (
-          <span key={`${feature.geometry?.type}-${index}`}>
-            GeoJSON: {feature.geometry?.type}
-          </span>
-        ))}
-        {markers.map((marker) => (
-          <span key={`${marker.label}-${marker.latitude}-${marker.longitude}`}>
-            {marker.label}: {marker.latitude}, {marker.longitude}
-          </span>
-        ))}
-        <button
-          type="button"
-          onClick={() => {
-            const coordinates =
-              mockMapCoordinates[mockMapClickIndex % mockMapCoordinates.length];
-            mockMapClickIndex += 1;
-            onMapPointSelected(coordinates);
-          }}
-        >
-          Pick map point
-        </button>
-      </div>
-    ),
-);
+        Pick image point
+      </button>
+    </div>
+  ),
+}));
+
+jest.mock("./LeafletMap", () => ({
+  __esModule: true,
+  default: ({
+    fitToData,
+    geoJson,
+    markers = [],
+    onMapPointSelected,
+    previewAnnotation,
+    useCrosshairCursor,
+  }) => (
+    <div
+      data-testid="mock-leaflet-map"
+      data-crosshair-cursor={useCrosshairCursor ? "true" : "false"}
+      data-has-preview={previewAnnotation ? "true" : "false"}
+    >
+      {fitToData && <span>fit-to-data</span>}
+      {geoJson?.features?.map((feature, index) => (
+        <span key={`${feature.geometry?.type}-${index}`}>
+          GeoJSON: {feature.geometry?.type}
+        </span>
+      ))}
+      {markers.map((marker) => (
+        <span key={`${marker.label}-${marker.latitude}-${marker.longitude}`}>
+          {marker.label}: {marker.latitude}, {marker.longitude}
+        </span>
+      ))}
+      <button
+        type="button"
+        onClick={() => {
+          const coordinates =
+            mockMapCoordinates[mockMapClickIndex % mockMapCoordinates.length];
+          mockMapClickIndex += 1;
+          onMapPointSelected(coordinates);
+        }}
+      >
+        Pick map point
+      </button>
+    </div>
+  ),
+}));
+
+const { default: WorkTabsGeoreference } = await import("./Georeference");
 
 const imageFileSet = {
   ...mockWork.fileSets[0],

@@ -34,7 +34,6 @@ const WorkFilesetActionButtonsAuxiliary = ({ fileSet }) => {
   };
 
   return (
-
     <div className="buttons is-flex is-justify-content-flex-end">
       {isImage(fileSet) && (
         <div>
@@ -55,13 +54,13 @@ const WorkFilesetActionButtonsAuxiliary = ({ fileSet }) => {
         <div>
           <Button
             data-testid="download-file-button"
-            onClick={handleDownloadFile}>
+            onClick={handleDownloadFile}
+          >
             <IconDownload />
             <span>Download {altFileFormat(fileSet)}</span>
           </Button>
         </div>
       )}
-
     </div>
   );
 };

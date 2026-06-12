@@ -1,4 +1,4 @@
 #!/bin/sh
-npm run watch &
+bun run watch &
 read line
 kill 0

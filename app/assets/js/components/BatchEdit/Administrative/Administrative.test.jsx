@@ -12,7 +12,6 @@ import { getCollectionsMock } from "@js/components/Collection/collection.gql.moc
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
@@ -38,7 +37,7 @@ describe("BatchEditAdministrative component", () => {
       </BatchProvider>,
       {
         mocks: [...allCodeListMocks, getCollectionsMock],
-      }
+      },
     );
   });
 

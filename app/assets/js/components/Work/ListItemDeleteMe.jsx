@@ -39,7 +39,7 @@ const WorkListItem = ({ work }) => {
                   fileSet.coreMetadata.description &&
                   fileSet.coreMetadata.description}
               </span>
-            ) : null
+            ) : null,
           )}
         </div>
         <p>

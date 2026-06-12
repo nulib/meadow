@@ -68,6 +68,8 @@ Resources:
             Condition:
               StringEquals:
                 "aws:ResourceTag/Project": !Ref ProjectName
+    Metadata:
+      BuildMethod: makefile
   exif:
     Type: AWS::Serverless::Function
     Properties:
@@ -98,6 +100,8 @@ Resources:
             Condition:
               StringEquals:
                 "aws:ResourceTag/Project": !Ref ProjectName
+    Metadata:
+      BuildMethod: makefile
   frameExtractor:
     Type: AWS::Serverless::Function
     Properties:
@@ -134,6 +138,8 @@ Resources:
             Condition:
               StringEquals:
                 "aws:ResourceTag/Project": "IIIF Server"
+    Metadata:
+      BuildMethod: makefile
   mediainfo:
     Type: AWS::Serverless::Function
     Properties:
@@ -161,6 +167,8 @@ Resources:
             Condition:
               StringEquals:
                 "aws:ResourceTag/Project": !Ref ProjectName
+    Metadata:
+      BuildMethod: makefile
   metadataAgent:
     Type: AWS::Serverless::Function
     Properties:
@@ -187,9 +195,7 @@ Resources:
               - "arn:aws:bedrock:*:*:inference-profile/*"
               - "arn:aws:bedrock:*:*:application-inference-profile/*"
     Metadata:
-      Dockerfile: Dockerfile
-      DockerContext: ../../lambdas/metadata-agent
-      DockerTag: latest
+      BuildMethod: makefile
   mimeType:
     Type: AWS::Serverless::Function
     Properties:
@@ -214,6 +220,8 @@ Resources:
             Condition:
               StringEquals:
                 "aws:ResourceTag/Project": !Ref ProjectName
+    Metadata:
+      BuildMethod: makefile
   pyramidTiff:
     Type: AWS::Serverless::Function
     Properties:
@@ -250,6 +258,8 @@ Resources:
             Condition:
               StringEquals:
                 "aws:ResourceTag/Project": "IIIF Server"
+    Metadata:
+      BuildMethod: makefile
   streamAuthorizer:
     Type: AWS::Serverless::Function
     Properties:
@@ -277,6 +287,8 @@ Resources:
             Action: "es:ESHttpGet"
             Resource:
               - !Sub "arn:aws:es:*:${AWS::AccountId}:domain/*"
+    Metadata:
+      BuildMethod: makefile
   pipelineConfiguration:
     Type: AWS::SecretsManager::Secret
     Properties:

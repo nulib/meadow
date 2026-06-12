@@ -38,7 +38,7 @@ describe("Add fileset to work modal", () => {
           getCurrentUserMock,
           ...allCodeListMocks,
         ],
-      }
+      },
     );
   });
 

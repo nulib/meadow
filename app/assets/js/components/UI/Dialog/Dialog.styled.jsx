@@ -50,12 +50,11 @@ const DialogFooter = styled("footer", {
   marginTop: "1rem",
 });
 
-
 export {
   DialogClose,
   DialogContent,
   DialogOverlay,
   DialogTitle,
   DialogTrigger,
-  DialogFooter
+  DialogFooter,
 };

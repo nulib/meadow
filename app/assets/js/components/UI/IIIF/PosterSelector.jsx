@@ -17,7 +17,7 @@ function IIIFViewerPosterSelector() {
     onCompleted({ updateFileSet }) {
       toastWrapper(
         "is-success",
-        "Poster image successfully updated.  The update should be reflected in a few seconds.  Please refresh your browser to see changes."
+        "Poster image successfully updated.  The update should be reflected in a few seconds.  Please refresh your browser to see changes.",
       );
     },
     onError({ graphQLErrors, networkError }) {
@@ -27,7 +27,7 @@ function IIIFViewerPosterSelector() {
       if (graphQLErrors?.length > 0) {
         errorStrings = graphQLErrors.map(
           ({ message, details }) =>
-            `${message}: ${details && details.title ? details.title : ""}`
+            `${message}: ${details && details.title ? details.title : ""}`,
         );
       }
       toastWrapper("is-danger", errorStrings?.join(" \n ") || "General error");

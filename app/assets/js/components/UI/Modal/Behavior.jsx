@@ -13,7 +13,7 @@ const PreviewContainer = styled.div`
   margin-top: 0.5rem;
   display: flex;
   align-items: center;
-  gap: ${props => props.gap || '8px'};
+  gap: ${(props) => props.gap || "8px"};
 `;
 
 const Thumbnail = styled.img`
@@ -22,7 +22,7 @@ const Thumbnail = styled.img`
   object-fit: cover;
   border: 1px solid #ddd;
   border-radius: 2px;
-  margin-right: ${props => props.touching ? '-1px' : '0'};
+  margin-right: ${(props) => (props.touching ? "-1px" : "0")};
 `;
 
 const PagedGroup = styled.div`
@@ -35,10 +35,10 @@ const UIBehaviorModal = ({
   behaviors,
   currentBehavior,
   onClose,
-  onSave
+  onSave,
 }) => {
   const [selectedBehavior, setSelectedBehavior] = React.useState(
-    currentBehavior || ""
+    currentBehavior || "",
   );
 
   React.useEffect(() => {
@@ -58,23 +58,23 @@ const UIBehaviorModal = ({
     onSave(selectedBehavior);
   }
 
-  const behaviorOrder = ['individuals', 'paged', 'continuous'];
+  const behaviorOrder = ["individuals", "paged", "continuous"];
 
   const behaviorDefinitions = {
     individuals: "Display each file set separately (e.g., photographs)",
     continuous: "Display file sets end-to-end as a single view (e.g., scrolls)",
-    paged: "Display file sets as facing pages (e.g., books)"
+    paged: "Display file sets as facing pages (e.g., books)",
   };
 
   const orderedBehaviors = behaviorOrder
-    .map(id => behaviors.find(b => b.id === id))
+    .map((id) => behaviors.find((b) => b.id === id))
     .filter(Boolean);
 
   const renderPreview = (behaviorId) => {
     const placeholderImage = "/images/placeholder.png";
 
     switch (behaviorId) {
-      case 'individuals':
+      case "individuals":
         return (
           <PreviewContainer>
             <Thumbnail src={placeholderImage} alt="" />
@@ -82,7 +82,7 @@ const UIBehaviorModal = ({
             <Thumbnail src={placeholderImage} alt="" />
           </PreviewContainer>
         );
-      case 'continuous':
+      case "continuous":
         return (
           <PreviewContainer gap="0px">
             <Thumbnail src={placeholderImage} alt="" touching />
@@ -92,7 +92,7 @@ const UIBehaviorModal = ({
             <Thumbnail src={placeholderImage} alt="" />
           </PreviewContainer>
         );
-      case 'paged':
+      case "paged":
         return (
           <PreviewContainer>
             <Thumbnail src={placeholderImage} alt="" />
@@ -134,7 +134,7 @@ const UIBehaviorModal = ({
             <div className="control" data-testid="radio-behavior">
               {orderedBehaviors.length > 0 ? (
                 orderedBehaviors.map((behavior) => (
-                  <div key={behavior.id} style={{ marginBottom: '1rem' }}>
+                  <div key={behavior.id} style={{ marginBottom: "1rem" }}>
                     <label className="radio">
                       <input
                         type="radio"
@@ -142,11 +142,20 @@ const UIBehaviorModal = ({
                         value={behavior.id}
                         checked={selectedBehavior === behavior.id}
                         onChange={handleRadioChange}
-                        style={{ marginRight: '0.5rem' }}
+                        style={{ marginRight: "0.5rem" }}
                       />
-                      <strong>{behavior.label}{behavior.id === 'individuals' ? ' (Default)' : ''}</strong>
+                      <strong>
+                        {behavior.label}
+                        {behavior.id === "individuals" ? " (Default)" : ""}
+                      </strong>
                     </label>
-                    <p style={{ marginLeft: '1.5rem', color: '#666', fontSize: '0.9em' }}>
+                    <p
+                      style={{
+                        marginLeft: "1.5rem",
+                        color: "#666",
+                        fontSize: "0.9em",
+                      }}
+                    >
                       {behaviorDefinitions[behavior.id] || ""}
                     </p>
                     {renderPreview(behavior.id)}
@@ -187,7 +196,7 @@ UIBehaviorModal.propTypes = {
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
-    })
+    }),
   ),
   currentBehavior: PropTypes.string,
   onClose: PropTypes.func.isRequired,

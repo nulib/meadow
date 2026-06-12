@@ -38,7 +38,7 @@ function BatchEditCollection() {
                 >
                   {title}
                 </option>
-              )
+              ),
             )}
         </select>
       </div>

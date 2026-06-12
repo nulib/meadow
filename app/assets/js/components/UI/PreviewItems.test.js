@@ -30,15 +30,15 @@ describe("Batch-edit preview items component", () => {
 
     // Renders correct anchor tags
     expect(anchorEls[2].getAttribute("href")).toEqual(
-      "/work/" + batchEditPreviewItems[2].id
+      "/work/" + batchEditPreviewItems[2].id,
     );
     expect(anchorEls[9].getAttribute("href")).toEqual(
-      "/work/" + batchEditPreviewItems[9].id
+      "/work/" + batchEditPreviewItems[9].id,
     );
 
     // Renders correct image
     expect(imageEls[0].getAttribute("src")).toContain(
-      `${batchEditPreviewItems[0].representativeImage.url}/square/256,256/0/default.jpg`
+      `${batchEditPreviewItems[0].representativeImage.url}/square/256,256/0/default.jpg`,
     );
     expect(anchorEls[0].querySelector("svg")).toBeNull();
 

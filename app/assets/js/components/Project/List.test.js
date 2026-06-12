@@ -1,13 +1,16 @@
 import React from "react";
 import ProjectList from "./List";
 import { renderWithRouterApollo } from "../../services/testing-helpers";
-import { getProjectsMock, mockProjects, projectsSearchMock } from "./project.gql.mock";
+import {
+  getProjectsMock,
+  mockProjects,
+  projectsSearchMock,
+} from "./project.gql.mock";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,

@@ -11,7 +11,7 @@ import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.m
 import { mockWork } from "@js/components/Work/work.gql.mock";
 import { screen } from "@testing-library/react";
 
-describe.only("Work About tab Idenfiers Metadata component", () => {
+describe("Work About tab Idenfiers Metadata component", () => {
   beforeEach(() => {
     const Wrapped = withReactHookForm(WorkTabsAboutRightsMetadata, {
       isEditing: true,

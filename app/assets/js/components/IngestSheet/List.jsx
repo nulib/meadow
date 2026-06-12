@@ -7,7 +7,12 @@ import UIModalDelete from "../UI/Modal/Delete";
 import { toastWrapper } from "@js/services/helpers";
 import UIIconText from "@js/components/UI/IconText";
 import { formatDate, TEMP_USER_FRIENDLY_STATUS } from "@js/services/helpers";
-import { IconAlert, IconDownload, IconTrashCan, IconView } from "@js/components/Icon";
+import {
+  IconAlert,
+  IconDownload,
+  IconTrashCan,
+  IconView,
+} from "@js/components/Icon";
 import IngestSheetStatusTag from "@js/components/IngestSheet/StatusTag";
 import { Notification } from "@nulib/design-system";
 
@@ -49,15 +54,15 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
   };
 
   const handleExportClick = (sheetId, title) => {
-    const filename = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.csv`;
+    const filename = `${title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.csv`;
     // Create form and submit to trigger download from S3 presigned URL
-    const form = document.createElement('form');
-    form.method = 'POST';
+    const form = document.createElement("form");
+    form.method = "POST";
     form.action = `/api/export/${filename}`;
 
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'sheet_id';
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "sheet_id";
     input.value = sheetId;
 
     form.appendChild(input);
@@ -106,7 +111,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                     <td className="has-text-right">
                       <div className="buttons is-right">
                         {["APPROVED", "COMPLETED", "COMPLETED_ERROR"].indexOf(
-                          status
+                          status,
                         ) > -1 && (
                           <Link
                             to={`/project/${project.id}/ingest-sheet/${id}`}
@@ -116,9 +121,13 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                             <span className="is-sr-only">View</span>
                           </Link>
                         )}
-                        {["VALID", "APPROVED", "COMPLETED", "COMPLETED_ERROR", "ROW_FAIL"].indexOf(
-                          status
-                        ) > -1 && (
+                        {[
+                          "VALID",
+                          "APPROVED",
+                          "COMPLETED",
+                          "COMPLETED_ERROR",
+                          "ROW_FAIL",
+                        ].indexOf(status) > -1 && (
                           <button
                             className="button is-light"
                             onClick={() => handleExportClick(id, title)}
@@ -129,7 +138,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                           </button>
                         )}
                         {["VALID", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(
-                          status
+                          status,
                         ) > -1 && (
                           <button
                             className="button is-light"
@@ -142,7 +151,7 @@ const IngestSheetList = ({ project, subscribeToIngestSheetStatusChanges }) => {
                       </div>
                     </td>
                   </tr>
-                )
+                ),
               )}
             </tbody>
           </table>

@@ -1,6 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: npm
+  - package-ecosystem: bun
     directory: "/app/assets"
     schedule:
       interval: daily
@@ -20,7 +20,7 @@ updates:
       - dependency-name: "@svgr/webpack"
       - dependency-name: "faker"
       - dependency-name: "react-router-dom"
-  - package-ecosystem: npm
+  - package-ecosystem: bun
     directory: "/app/priv/nodejs/*"
     schedule:
       interval: daily
@@ -29,7 +29,7 @@ updates:
       - "dependencies"
     open-pull-requests-limit: 10
     target-branch: deploy/staging
-  - package-ecosystem: npm
+  - package-ecosystem: bun
     directory: "/lambdas/*"
     schedule:
       interval: daily

@@ -62,12 +62,12 @@ describe("Related Url controlled metadata form component", () => {
 
     it("renders existing related url values", () => {
       expect(screen.getAllByTestId("related-url-existing-value")).toHaveLength(
-        1
+        1,
       );
       expect(
         screen.getByText(
-          "http://www.northwestern.edu, Hathi Trust Digital Library"
-        )
+          "http://www.northwestern.edu, Hathi Trust Digital Library",
+        ),
       );
     });
 

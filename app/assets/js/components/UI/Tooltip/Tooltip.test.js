@@ -8,7 +8,7 @@ describe("UITooltip component", () => {
       <UITooltip>
         <div className="tooltip-header">Test Header</div>
         <div className="tooltip-content">Test Content</div>
-      </UITooltip>
+      </UITooltip>,
     );
     expect(screen.getByTestId("tooltip-wrapper"));
     expect(screen.getByTestId("tooltip-body"));
@@ -18,7 +18,7 @@ describe("UITooltip component", () => {
     render(
       <UITooltip>
         <div className="tooltip-header">Test Header</div>
-      </UITooltip>
+      </UITooltip>,
     );
     expect(screen.queryByTestId("tooltip-wrapper")).not.toBeInTheDocument();
     expect(screen.queryByTestId("tooltip-content")).not.toBeInTheDocument();
@@ -28,7 +28,7 @@ describe("UITooltip component", () => {
     render(
       <UITooltip>
         <div className="tooltip-content">Test Content</div>
-      </UITooltip>
+      </UITooltip>,
     );
     expect(screen.queryByTestId("tooltip-wrapper")).not.toBeInTheDocument();
     expect(screen.queryByTestId("tooltip-content")).not.toBeInTheDocument();
@@ -39,7 +39,7 @@ describe("UITooltip component", () => {
       <UITooltip>
         <div>Test Header</div>
         <div>Test Content</div>
-      </UITooltip>
+      </UITooltip>,
     );
     expect(screen.queryByTestId("tooltip-wrapper")).toBeEmpty;
     expect(screen.queryByTestId("tooltip-content")).not.toBeInTheDocument();

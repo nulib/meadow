@@ -47,11 +47,11 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
       onCompleted({ createIngestSheet }) {
         toastWrapper(
           "is-success",
-          `Ingest Sheet ${createIngestSheet.title} created successfully`
+          `Ingest Sheet ${createIngestSheet.title} created successfully`,
         );
         closeModal();
         history.push(
-          `/project/${projectId}/ingest-sheet/${createIngestSheet.id}`
+          `/project/${projectId}/ingest-sheet/${createIngestSheet.id}`,
         );
       },
       onError({ graphQLErrors, networkError }) {
@@ -59,14 +59,14 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
         if (graphQLErrors?.length > 0) {
           errorStrings = graphQLErrors.map(
             ({ message, details }) =>
-              `${message}: ${details && details.title ? details.title : ""}`
+              `${message}: ${details && details.title ? details.title : ""}`,
           );
         }
         toastWrapper(
           "is-danger",
           errorStrings.length > 0
             ? errorStrings.join(" \n ")
-            : "Unknown error occurred creating the Ingest sheet"
+            : "Unknown error occurred creating the Ingest sheet",
         );
         setCurrentFile(null);
         closeModal();
@@ -79,7 +79,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
           },
         ];
       },
-    }
+    },
   );
 
   // Handle file drop
@@ -113,14 +113,14 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
           (uploadToS3Error) => {
             toastWrapper(
               "is-danger",
-              `Error uploading file to S3: ${uploadToS3Error}`
+              `Error uploading file to S3: ${uploadToS3Error}`,
             );
-          }
+          },
         )
         .catch((e) => {
           console.error(
             "Shouldn't get here, some there was an error uploading to S3 and/or creating an Ingest Sheet",
-            e
+            e,
           );
         });
     } else {
@@ -147,7 +147,7 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
           .catch((error) => {
             console.error(
               "Should never reach here, but an error fetching the presignedUrl",
-              error
+              error,
             );
           });
       };
@@ -228,7 +228,11 @@ function ProjectIngestSheetModal({ closeModal, isHidden, projectId }) {
             <Button isText onClick={handleCancelClick}>
               Cancel
             </Button>
-            <Button isPrimary onClick={handleUploadClick} disabled={!currentFile}>
+            <Button
+              isPrimary
+              onClick={handleUploadClick}
+              disabled={!currentFile}
+            >
               Upload
             </Button>
           </div>

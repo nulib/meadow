@@ -4,7 +4,6 @@ import Selectable from "./Selectable";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,

@@ -26,7 +26,7 @@ const CollectionForm = ({ collection }) => {
   const codeLists = useCodeLists();
 
   const defKeys = collection?.keywords.map((value) =>
-    convertFieldArrayValToHookFormVal(value)
+    convertFieldArrayValToHookFormVal(value),
   );
 
   const methods = useForm({
@@ -43,7 +43,7 @@ const CollectionForm = ({ collection }) => {
       onCompleted({ createCollection }) {
         toastWrapper(
           "is-success",
-          `Collection ${createCollection.title} created successfully`
+          `Collection ${createCollection.title} created successfully`,
         );
         history.push("/collection/list");
       },
@@ -53,7 +53,7 @@ const CollectionForm = ({ collection }) => {
       refetchQueries(mutationResult) {
         return [{ query: GET_COLLECTIONS }];
       },
-    }
+    },
   );
 
   const [
@@ -63,7 +63,7 @@ const CollectionForm = ({ collection }) => {
     onCompleted({ updateCollection }) {
       toastWrapper(
         "is-success",
-        `Collection ${updateCollection.title} updated successfully`
+        `Collection ${updateCollection.title} updated successfully`,
       );
       history.push(`/collection/${collection.id}`);
     },
@@ -79,7 +79,7 @@ const CollectionForm = ({ collection }) => {
   const onSubmit = (data) => {
     let currentFormValues = methods.getValues();
     const keywordArr = currentFormValues.keywords.map(
-      (keyword) => keyword.metadataItem
+      (keyword) => keyword.metadataItem,
     );
 
     let collectionUpdate = {

@@ -13,17 +13,16 @@ const dropZone = css`
   border: 3px dashed #ccc;
 `;
 
-function DashboardsLocalAuthoritiesModalBulkAdd({
-  isOpen,
-  handleClose,
-}) {
+function DashboardsLocalAuthoritiesModalBulkAdd({ isOpen, handleClose }) {
   const methods = useForm({
     defaultValues: {
-      bulkAction: "add" // Default to bulk add
-    }
+      bulkAction: "add", // Default to bulk add
+    },
   });
   const [currentFile, setCurrentFile] = React.useState();
-  const [formAction, setFormAction] = React.useState("/api/authority_records/bulk_create");
+  const [formAction, setFormAction] = React.useState(
+    "/api/authority_records/bulk_create",
+  );
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState(null);
 
@@ -33,7 +32,7 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
 
     // Chrome isn't updating the file input object correctly
     // using dropzone so let's do it manually.
-    const input = document.getElementById('csv-file-input');
+    const input = document.getElementById("csv-file-input");
     const fileList = new DataTransfer();
     fileList.items.add(file);
     input.files = fileList.files;
@@ -57,7 +56,7 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
     setIsSubmitting(false);
     setFormAction("/api/authority_records/bulk_create");
     methods.reset({
-      bulkAction: "add" 
+      bulkAction: "add",
     });
     handleClose();
   };
@@ -74,22 +73,22 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
     }
 
     const formData = new FormData();
-    formData.append('records', currentFile);
+    formData.append("records", currentFile);
 
     try {
       const response = await fetch(formAction, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Accept': 'application/json'
+          Accept: "application/json",
         },
-        body: formData
+        body: formData,
       });
 
       if (response.ok) {
         // Handle CSV download for successful response
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
         link.download = `authority_import_${Date.now()}.csv`;
         document.body.appendChild(link);
@@ -99,10 +98,10 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
         handleFormReset();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'An error occurred during csv processing');
+        setError(errorData.error || "An error occurred during csv processing");
       }
     } catch (err) {
-      setError('Network error: Unable to upload file');
+      setError("Network error: Unable to upload file");
     } finally {
       setIsSubmitting(false);
     }
@@ -215,7 +214,11 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
             )}
           </section>
           <footer className="modal-card-foot buttons is-right">
-            <Button isText onClick={handleFormReset} data-testid="cancel-button">
+            <Button
+              isText
+              onClick={handleFormReset}
+              data-testid="cancel-button"
+            >
               Cancel
             </Button>
             <Button
@@ -224,7 +227,7 @@ function DashboardsLocalAuthoritiesModalBulkAdd({
               data-testid="submit-button"
               disabled={isSubmitting || !currentFile}
             >
-              {isSubmitting ? 'Uploading...' : 'Upload'}
+              {isSubmitting ? "Uploading..." : "Upload"}
             </Button>
           </footer>
         </div>

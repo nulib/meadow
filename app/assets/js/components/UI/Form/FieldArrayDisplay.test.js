@@ -22,7 +22,7 @@ describe("UIFormFieldArrayDisplay", () => {
 
   it("renders an expected list of metadata values", () => {
     const { getByTestId, getByText } = render(
-      <UIFormFieldArrayDisplay {...props} />
+      <UIFormFieldArrayDisplay {...props} />,
     );
     const listEl = getByTestId("field-array-item-list");
     expect(listEl);

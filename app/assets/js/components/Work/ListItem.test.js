@@ -6,7 +6,7 @@ import { renderWithRouter } from "@js/services/testing-helpers";
 
 function setupTests() {
   return renderWithRouter(
-    <WorkListItem {...prepWorkItemForDisplay(indexWork)} id={indexWork.id} />
+    <WorkListItem {...prepWorkItemForDisplay(indexWork)} id={indexWork.id} />,
   );
 }
 
@@ -17,14 +17,14 @@ it("Displays Work List Item", () => {
 
 describe("Shows Work content", () => {
   it("Displays Visibility Tag", () => {
-    const { getByTestId, findByText } = setupTests();
+    const { getByTestId } = setupTests();
     expect(getByTestId("tag-visibility")).toBeInTheDocument();
-    expect(findByText("PUBLIC")).toBeTruthy();
+    expect(getByTestId("tag-visibility")).toHaveTextContent("Private");
   });
   it("Displays Accession Number", () => {
     const { getByTestId } = setupTests();
     expect(getByTestId("result-item-accession-number").innerHTML).toBe(
-      "Donohue_001"
+      "Donohue_001",
     );
   });
   it("Displays Tags", () => {

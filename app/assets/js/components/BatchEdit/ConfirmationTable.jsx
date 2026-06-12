@@ -37,7 +37,7 @@ export default function BatchEditConfirmationTable({
     let foundItem = marcRelators.find((item) => item.id === roleId);
     if (!foundItem) {
       foundItem = codeLists.subjectRoleData.codeList.find(
-        (item) => item.id === roleId
+        (item) => item.id === roleId,
       );
     }
     return foundItem?.label || "No role label found";

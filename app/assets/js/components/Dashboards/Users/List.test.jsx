@@ -2,7 +2,11 @@ import React from "react";
 import { screen, within } from "@testing-library/react";
 import DashboardsUsersList from "./List";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
-import { listRolesMock, listUsersMock, setUserRoleMock } from "@js/components/Auth/auth.gql.mock";
+import {
+  listRolesMock,
+  listUsersMock,
+  setUserRoleMock,
+} from "@js/components/Auth/auth.gql.mock";
 
 const deepClone = (value) => JSON.parse(JSON.stringify(value));
 

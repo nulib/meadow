@@ -297,7 +297,9 @@ const PlanPanelChangesDiff = ({ proposedChanges, planChangeId }) => {
               <td style={{ whiteSpace: "nowrap" }}>
                 {isProposed && (
                   <>
-                    {!(Array.isArray(change.value) && change.value.length === 0) && (
+                    {!(
+                      Array.isArray(change.value) && change.value.length === 0
+                    ) && (
                       <Button
                         onClick={() => handleEditClick(change.id)}
                         data-testid="button-edit-plan-change-row"
@@ -331,8 +333,8 @@ const PlanPanelChangesDiff = ({ proposedChanges, planChangeId }) => {
         handleConfirm={() => handleDeletePlanChangeRow(deletingRowId)}
         thingToDeleteLabel={
           deletingRowId
-            ? `${changes.find((c) => c.id === deletingRowId)?.label || 'this field'} from plan changes`
-            : ''
+            ? `${changes.find((c) => c.id === deletingRowId)?.label || "this field"} from plan changes`
+            : ""
         }
       />
     </>

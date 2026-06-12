@@ -7,7 +7,7 @@ const UIProgressBar = ({ percentComplete, totalValue, isIngest = false }) => {
     return (
       <>
         <div className="has-text-centered mb-3">{`${Math.floor(
-          percentComplete
+          percentComplete,
         )} % complete`}</div>
         <ProgressBar percent={percentComplete} strokeColor="#4e2a84" />
         <p className="has-text-centered mt-3">

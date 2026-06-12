@@ -13,7 +13,7 @@ describe("BatchEditAdministrativeProjectMetadata component", () => {
     return renderWithRouterApollo(
       <BatchProvider value={null}>
         <Wrapped />
-      </BatchProvider>
+      </BatchProvider>,
     );
   });
 

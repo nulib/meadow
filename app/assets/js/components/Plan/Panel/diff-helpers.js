@@ -6,9 +6,7 @@ import {
   TEXT_SINGLE_FIELDS,
   TEXT_ARRAY_FIELDS,
 } from "@js/components/Plan/fields";
-import {
-  CONTROLLED_METADATA,
-} from "@js/services/metadata";
+import { CONTROLLED_METADATA } from "@js/services/metadata";
 
 /**
  * Ensure a value is an array

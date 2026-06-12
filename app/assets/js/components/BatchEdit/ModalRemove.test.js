@@ -30,7 +30,7 @@ describe("BatchEditModalRemove component", () => {
     return render(
       <BatchProvider>
         <BatchEdiModalRemove {...allProps} />
-      </BatchProvider>
+      </BatchProvider>,
     );
   }
 
@@ -47,7 +47,7 @@ describe("BatchEditModalRemove component", () => {
   it("renders the current field label as title", () => {
     renderComponent();
     expect(screen.getByTestId("field-title")).toHaveTextContent(
-      props.currentRemoveField.label
+      props.currentRemoveField.label,
     );
   });
 

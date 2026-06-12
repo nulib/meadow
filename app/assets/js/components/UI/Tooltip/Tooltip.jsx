@@ -22,7 +22,8 @@ const TooltipWrapper = styled.div`
       padding: 0.25rem;
       margin: 0;
       border-radius: 6px;
-      box-shadow: 0 0.5em 1em -0.125em rgba(0, 0, 0, 0.1),
+      box-shadow:
+        0 0.5em 1em -0.125em rgba(0, 0, 0, 0.1),
         0 0px 0 1px rgba(0, 0, 0, 0.02);
 
       &::before {
@@ -47,10 +48,10 @@ const UITooltip = ({ highlightColor = "#4e2a84", children }) => {
   }
 
   const tooltipHeader = children.find(
-    (header) => header.props.className === "tooltip-header"
+    (header) => header.props.className === "tooltip-header",
   );
   const tooltipContent = children.find(
-    (body) => body.props.className === "tooltip-content"
+    (body) => body.props.className === "tooltip-content",
   );
 
   return (

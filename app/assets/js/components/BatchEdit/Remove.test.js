@@ -14,7 +14,7 @@ describe("BatchEditRemove component", () => {
           handleRemoveClick={mockHandleRemoveClick}
           removeItems={["ABC123", "EFG888"]}
         />
-      </BatchProvider>
+      </BatchProvider>,
     );
   }
   it("renders without crashing", () => {

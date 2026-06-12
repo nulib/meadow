@@ -51,7 +51,11 @@ const S3ObjectProvider = forwardRef(
       const { ListIngestBucketObjects: contents } = data;
       const newFiles = contents.objects
         .filter((entry) => {
-          const { isValid } = isFileValid(fileSetRole, workTypeId, entry.mimeType);
+          const { isValid } = isFileValid(
+            fileSetRole,
+            workTypeId,
+            entry.mimeType,
+          );
           return isValid;
         })
         .map((entry) => {

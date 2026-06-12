@@ -4,7 +4,6 @@ import ProjectsModalEdit from "./ModalEdit";
 import userEvent from "@testing-library/user-event";
 import { mockProjects } from "./project.gql.mock";
 
-
 const submitCallback = jest.fn();
 const cancelCallback = jest.fn();
 
@@ -26,7 +25,9 @@ describe("ProjectsModalEdit component", () => {
 
   it("renders all add form elements with default values", () => {
     expect(screen.getByRole("form"));
-    expect(screen.getByLabelText("Title", { exact: false })).toHaveValue("Mock project title");
+    expect(screen.getByLabelText("Title", { exact: false })).toHaveValue(
+      "Mock project title",
+    );
     expect(screen.getByTestId("submit-button"));
     expect(screen.getByTestId("cancel-button"));
   });

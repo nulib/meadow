@@ -46,17 +46,17 @@ const UIDownloadAll = ({ workId }) => {
       })}`,
       {
         method: "POST",
-      }
+      },
     )
       .then((response) => {
         if (!response.ok) {
           throw new Error(
-            "Bad network request posting to work archiver endpoint"
+            "Bad network request posting to work archiver endpoint",
           );
         }
         toastWrapper(
           "is-success",
-          `Your images are being packaged and you'll receive an email shortly with a link to download.`
+          `Your images are being packaged and you'll receive an email shortly with a link to download.`,
         );
         setIsModalVisible(false);
       })

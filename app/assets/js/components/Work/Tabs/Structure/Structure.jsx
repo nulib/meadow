@@ -17,7 +17,13 @@ import WorkTabsStructureFilesetsDragAndDrop from "@js/components/Work/Tabs/Struc
 import { Button, Notification } from "@nulib/design-system";
 import WorkFilesetList from "@js/components/Work/Fileset/List";
 import classNames from "classnames";
-import { IconEdit, IconSort, IconBehaviorIndividuals, IconBehaviorContinuous, IconBehaviorPaged } from "@js/components/Icon";
+import {
+  IconEdit,
+  IconSort,
+  IconBehaviorIndividuals,
+  IconBehaviorContinuous,
+  IconBehaviorPaged,
+} from "@js/components/Icon";
 import useFileSet from "@js/hooks/useFileSet";
 import DownloadAll from "@js/components/UI/Modal/DownloadAll";
 import BehaviorModal from "@js/components/UI/Modal/Behavior";
@@ -156,9 +162,9 @@ const WorkTabsStructure = ({ work }) => {
           behavior: {
             id: behaviorId,
             scheme: "BEHAVIOR",
-          }
-        }
-      }
+          },
+        },
+      },
     });
   };
 

@@ -48,7 +48,7 @@ function DashboardsCsvList(props) {
     setFilteredCsv(
       data.csvMetadataUpdateJobs && data.csvMetadataUpdateJobs.length > 0
         ? data.csvMetadataUpdateJobs
-        : []
+        : [],
     );
   }, [data]);
 

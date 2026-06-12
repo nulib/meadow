@@ -7,7 +7,6 @@ import { getCollectionsMock } from "../../components/Collection/collection.gql.m
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
@@ -21,7 +20,7 @@ function setupTests() {
     {
       mocks,
       route: "/collection/list/",
-    }
+    },
   );
 }
 

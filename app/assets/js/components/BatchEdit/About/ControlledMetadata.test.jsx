@@ -22,7 +22,7 @@ describe("BatchEditAboutControlledMetadata component", () => {
       </BatchProvider>,
       {
         mocks: allCodeListMocks,
-      }
+      },
     );
   });
 

@@ -28,7 +28,7 @@ function DashboardsCsvImport() {
       onCompleted({ csvMetadataUpdate }) {
         toastWrapper(
           "is-success",
-          `CSV file uploaded successfully, starting validation`
+          `CSV file uploaded successfully, starting validation`,
         );
         setCurrentFile(null);
         setIsModalOpen(false);
@@ -40,14 +40,14 @@ function DashboardsCsvImport() {
         if (graphQLErrors.length > 0) {
           errorStrings = graphQLErrors.map(
             ({ message, details }) =>
-              `${message}: ${details && details.title ? details.title : ""}`
+              `${message}: ${details && details.title ? details.title : ""}`,
           );
         }
         toastWrapper("is-danger", errorStrings.join(" \n "));
         setCurrentFile(null);
         setIsModalOpen(false);
       },
-    }
+    },
   );
 
   function uploadToS3() {
@@ -69,7 +69,7 @@ function DashboardsCsvImport() {
           .catch((error) => {
             console.error(
               "Should never reach here, but an error fetching the presignedUrl",
-              error
+              error,
             );
           });
       };
@@ -99,16 +99,16 @@ function DashboardsCsvImport() {
             console.error("uploadToS3Error", uploadToS3Error);
             toastWrapper(
               "is-danger",
-              `Error uploading file to S3: ${uploadToS3Error}`
+              `Error uploading file to S3: ${uploadToS3Error}`,
             );
             setCurrentFile(null);
             setIsModalOpen(false);
-          }
+          },
         )
         .catch((e) => {
           console.error(
             "Shouldn't get here, some there was an error uploading to S3 and/or creating an Ingest Sheet",
-            e
+            e,
           );
         });
     } else {

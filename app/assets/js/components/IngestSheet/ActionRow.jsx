@@ -20,7 +20,7 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
             ingestSheets(existingIngestSheetRefs, { readField }) {
               return existingIngestSheetRefs.filter(
                 (ingestSheetRef) =>
-                  deleteIngestSheet.id !== readField("id", ingestSheetRef)
+                  deleteIngestSheet.id !== readField("id", ingestSheetRef),
               );
             },
           },
@@ -49,8 +49,13 @@ const IngestSheetActionRow = ({ projectId, sheetId, status, title }) => {
   return (
     <>
       <div className="buttons">
-        {["VALID", "AWAITING_APPROVAL", "ROW_FAIL", "FILE_FAIL", "UPLOADED"].indexOf(status) >
-          -1 && (
+        {[
+          "VALID",
+          "AWAITING_APPROVAL",
+          "ROW_FAIL",
+          "FILE_FAIL",
+          "UPLOADED",
+        ].indexOf(status) > -1 && (
           <Button onClick={onOpenModal}>
             <IconTrashCan />
             <span>Delete and start over</span>
