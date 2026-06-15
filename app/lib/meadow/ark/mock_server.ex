@@ -106,7 +106,7 @@ defmodule Meadow.Ark.MockServer do
       send_message({:post, :credentials, Plug.BasicAuth.parse_basic_auth(conn)})
       send_message({:post, :body, body})
 
-      case verify_metadata(body) do
+      case verify_metadata(ark, body) do
         :ok ->
           Cachex.put!(@cache, ark, body)
           send_resp(conn, 201, "success: #{ark}")
@@ -133,7 +133,7 @@ defmodule Meadow.Ark.MockServer do
         send_message({method, :body, body})
       end
 
-      case verify_metadata(body) do
+      case verify_metadata(ark, body) do
         :ok ->
           Cachex.put!(@cache, ark, body)
           send_resp(conn, 200, "success: #{ark}\n#{body}")
@@ -147,13 +147,26 @@ defmodule Meadow.Ark.MockServer do
     end
   end
 
-  defp verify_metadata(body) do
+  defp verify_metadata(ark, body) do
     data =
       body
       |> String.split(~r/\n/)
       |> Enum.map(fn entry -> entry |> String.split(~r/:\s*/, parts: 2) |> List.to_tuple() end)
       |> Enum.into(%{})
 
+    case Cachex.get!(@cache, ark) do
+      nil ->
+        case data["_status"] do
+          "unavailable" <> _ -> {:error, "_status: invalid identifier status change"}
+          _ -> verify_metadata(data)
+        end
+
+      _ ->
+        verify_metadata(data)
+    end
+  end
+
+  defp verify_metadata(data) do
     @schema
     |> Enum.reduce(:ok, fn {field, requirement, validator}, acc ->
       validate_field(acc, data, field, requirement, validator)
