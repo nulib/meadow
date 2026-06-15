@@ -107,6 +107,7 @@ else
       {
         number: .number,
         title: .title,
+        body: (.body // ""),
         labels: [.labels[].name],
         merged_at: .merged_at
       }
@@ -145,9 +146,33 @@ else
       SUMMARY="This release contains dependency updates and infrastructure improvements only."
       PR_DETAIL_LIST=""
     else
-      PR_DETAIL_LIST=$(echo "$FILTERED_PRS" | jq -r '
-        .[] | "- #\(.number): \(.title)"
-      ')
+      PR_DETAIL_LIST=""
+      while IFS= read -r pr_json; do
+        number=$(echo "$pr_json" | jq -r '.number')
+        title=$(echo "$pr_json" | jq -r '.title')
+        body=$(echo "$pr_json" | jq -r '.body // ""')
+
+        # Extract text under the ## Summary header, stopping at the next ## section.
+        # Strip HTML comments and image markdown; collapse to a single line.
+        summary=$(echo "$body" | awk '
+          /^#+ Summary/{ found=1; next }
+          found && /^##/ { exit }
+          found { print }
+        ' | sed '/^<!--/,/-->/d; s/!\[[^]]*\]([^)]*)//g; s/<img[^>]*>//g; /^[[:space:]]*$/d' \
+          | head -5 | tr '\n' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+        # Fall back to the first few lines of the body if no Summary section found
+        if [[ -z "$summary" ]]; then
+          summary=$(echo "$body" | sed '/^<!--/,/-->/d; s/!\[[^]]*\]([^)]*)//g; s/<img[^>]*>//g; /^[[:space:]]*$/d; /^#/d' \
+            | head -3 | tr '\n' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        fi
+
+        if [[ -n "$summary" ]]; then
+          PR_DETAIL_LIST+="- #${number}: ${title}"$'\n'"  ${summary}"$'\n'
+        else
+          PR_DETAIL_LIST+="- #${number}: ${title}"$'\n'
+        fi
+      done < <(echo "$FILTERED_PRS" | jq -c '.[]')
     fi
   fi
 
