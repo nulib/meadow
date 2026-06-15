@@ -88,6 +88,7 @@ export const GET_WORK = gql`
     work(id: $id) {
       id
       accessionNumber
+      ark
       behavior {
         id
         label
@@ -119,7 +120,6 @@ export const GET_WORK = gql`
       descriptiveMetadata {
         abstract
         alternateTitle
-        ark
         boxName
         boxNumber
         caption

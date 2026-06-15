@@ -5,6 +5,7 @@ defmodule Meadow.Data.Schemas.Work do
 
   use Ecto.Schema
   alias Meadow.Data.Schemas.ActionState
+  alias Meadow.Data.Schemas.ArkCache
   alias Meadow.Data.Schemas.Batch
   alias Meadow.Data.Schemas.Collection
   alias Meadow.Data.Schemas.CSV.MetadataUpdateJob
@@ -34,6 +35,8 @@ defmodule Meadow.Data.Schemas.Work do
     field(:work_type, Types.CodedTerm)
 
     field(:behavior, Types.CodedTerm)
+
+    field(:ark, :string)
 
     timestamps()
 
@@ -70,11 +73,14 @@ defmodule Meadow.Data.Schemas.Work do
       join_through: "works_metadata_update_jobs",
       on_replace: :delete
     )
+
+    belongs_to(:cached_ark, ArkCache, foreign_key: :ark, references: :ark, define_field: false)
   end
 
   defp changeset_params do
     {[:accession_number],
      [
+       :ark,
        :collection_id,
        :ingest_sheet_id,
        :published,
@@ -108,12 +114,13 @@ defmodule Meadow.Data.Schemas.Work do
 
   def update_changeset(work, attrs \\ %{}) do
     allowed_params = [
+      :ark,
       :collection_id,
       :ingest_sheet_id,
       :published,
       :representative_file_set_id,
       :visibility,
-      :behavior,
+      :behavior
     ]
 
     work

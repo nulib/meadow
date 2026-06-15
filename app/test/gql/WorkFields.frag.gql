@@ -1,6 +1,7 @@
 fragment WorkFields on Work {
   id
   accessionNumber
+  ark
   collection {
     id
     title

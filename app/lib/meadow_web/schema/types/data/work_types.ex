@@ -113,11 +113,29 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
     @desc "Transfer a subset of file sets to an existing work or create a new work with comprehensive metadata"
     field :transfer_file_sets_subset, :transfer_file_sets_result do
-      arg(:fileset_ids, non_null(list_of(non_null(:id))), description: "List of file set IDs to transfer")
-      arg(:create_work, non_null(:boolean), description: "true = create new work, false = transfer to existing work")
-      arg(:accession_number, :string, description: "Required when create_work is false. Accession number of the target work")
-      arg(:work_attributes, :work_attributes_input, description: "Required when create_work is true. Complete work definition including metadata")
-      arg(:delete_empty_works, :boolean, default_value: true, description: "Whether to delete source works that become empty after transfer (default: true)")
+      arg(:fileset_ids, non_null(list_of(non_null(:id))),
+        description: "List of file set IDs to transfer"
+      )
+
+      arg(:create_work, non_null(:boolean),
+        description: "true = create new work, false = transfer to existing work"
+      )
+
+      arg(:accession_number, :string,
+        description: "Required when create_work is false. Accession number of the target work"
+      )
+
+      arg(:work_attributes, :work_attributes_input,
+        description:
+          "Required when create_work is true. Complete work definition including metadata"
+      )
+
+      arg(:delete_empty_works, :boolean,
+        default_value: true,
+        description:
+          "Whether to delete source works that become empty after transfer (default: true)"
+      )
+
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.transfer_file_sets_subset/3)
@@ -145,6 +163,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   object :work do
     field(:id, non_null(:id))
     field(:accession_number, non_null(:string))
+    field(:ark, :string)
     field(:administrative_metadata, :work_administrative_metadata)
     field(:descriptive_metadata, :work_descriptive_metadata)
     field(:work_type, :coded_term)
@@ -173,14 +192,14 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:contributor, list_of(:controlled_metadata_entry))
 
     field(:creator, list_of(:controlled_metadata_entry)) do
-      deprecate "Creator field is deprecated"
+      deprecate("Creator field is deprecated")
     end
 
     field(:genre, list_of(:controlled_metadata_entry))
     field(:language, list_of(:controlled_metadata_entry))
 
     field(:location, list_of(:controlled_metadata_entry)) do
-      deprecate "Location field is deprecated"
+      deprecate("Location field is deprecated")
     end
 
     field(:notes, list_of(:note_entry))
@@ -211,7 +230,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:provenance, list_of(:string))
 
     field(:publisher, list_of(:string)) do
-      deprecate "Publisher field is deprecated"
+      deprecate("Publisher field is deprecated")
     end
 
     field(:related_material, list_of(:string))
@@ -225,7 +244,6 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object."
   object :work_descriptive_metadata do
-    field(:ark, :string)
     field(:citation, list_of(:string))
     field(:date_created, list_of(:edtf_date_entry))
     field(:license, :coded_term)
@@ -321,14 +339,28 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   @desc "Complete work definition for creating a new work during file set transfer"
   input_object :work_attributes_input do
     field(:accession_number, non_null(:string), description: "Unique identifier for the work")
-    field(:work_type, non_null(:string), description: "Work type (e.g., 'IMAGE', 'AUDIO', 'VIDEO')")
+
+    field(:work_type, non_null(:string),
+      description: "Work type (e.g., 'IMAGE', 'AUDIO', 'VIDEO')"
+    )
+
     field(:collection_id, :id, description: "Optional collection to add the work to")
-    field(:published, :boolean, description: "Whether the work should be published (default: false)")
+
+    field(:published, :boolean,
+      description: "Whether the work should be published (default: false)"
+    )
+
     field(:visibility, :coded_term_input, description: "Visibility setting (default: RESTRICTED)")
     field(:behavior, :coded_term_input, description: "Behavior setting for the work")
     field(:ingest_sheet_id, :id, description: "Optional ingest sheet reference")
-    field(:descriptive_metadata, :work_descriptive_metadata_input, description: "Rich descriptive metadata (title, description, etc.)")
-    field(:administrative_metadata, :work_administrative_metadata_input, description: "Administrative metadata (project info, library unit, etc.)")
+
+    field(:descriptive_metadata, :work_descriptive_metadata_input,
+      description: "Rich descriptive metadata (title, description, etc.)"
+    )
+
+    field(:administrative_metadata, :work_administrative_metadata_input,
+      description: "Administrative metadata (project info, library unit, etc.)"
+    )
   end
 
   @desc "Filters for the list of works"

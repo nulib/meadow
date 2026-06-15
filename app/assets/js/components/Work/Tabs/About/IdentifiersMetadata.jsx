@@ -7,11 +7,9 @@ import { IDENTIFIER_METADATA } from "@js/services/metadata";
 import UIFormRelatedURL from "@js/components/UI/Form/RelatedURL";
 import { useCodeLists } from "@js/context/code-list-context";
 
-const WorkTabsAboutIdentifiersMetadata = ({
-  descriptiveMetadata,
-  isEditing,
-}) => {
+const WorkTabsAboutIdentifiersMetadata = ({ work, isEditing }) => {
   const codeLists = useCodeLists();
+  const { ark, descriptiveMetadata } = work;
 
   return (
     <div className="columns is-multiline" data-testid="identifiers-metadata">
@@ -21,7 +19,7 @@ const WorkTabsAboutIdentifiersMetadata = ({
             <strong>ARK</strong>
           </p>
           <ul data-testid="field-array-item-list">
-            <li key="ark-value">{descriptiveMetadata.ark}</li>
+            <li key="ark-value">{ark}</li>
           </ul>
         </div>
       </div>
@@ -70,7 +68,7 @@ const WorkTabsAboutIdentifiersMetadata = ({
 };
 
 WorkTabsAboutIdentifiersMetadata.propTypes = {
-  descriptiveMetadata: PropTypes.object,
+  work: PropTypes.object,
   isEditing: PropTypes.bool,
 };
 

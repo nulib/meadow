@@ -10,6 +10,7 @@
     project_task_number: ["1899.827"],
     status: %{id: "NOT STARTED", scheme: "status"}
   },
+  ark: "ark:/99999/fk417148465",
   collection_id: nil,
   descriptive_metadata: %{
     publisher: ["Boam/Cuse Productions", "Warner Bros. Television"],
@@ -52,7 +53,6 @@
     keywords: ["orb", "bly", "western"],
     related_material: ["Related Material"],
     title: "Eaque optio est praesentium tenetur impedit autem minima.",
-    ark: "ark:/99999/fk417148465",
     style_period: [
       %{term: %{id: "http://vocab.getty.edu/aat/300378903"}},
       %{term: %{id: "http://vocab.getty.edu/aat/300312140"}},
