@@ -47,7 +47,7 @@ defmodule Meadow.ArchivesSpace.Mapper do
   def subject(%{term: %{id: id, label: label}} = entry) when is_binary(id) do
     %{
       "jsonmodel_type" => "subject",
-      "source" => authority_source(id),
+      "source" => subject_source(id),
       "authority_id" => id,
       "vocabulary" => "/vocabularies/1",
       "terms" => [
@@ -73,7 +73,7 @@ defmodule Meadow.ArchivesSpace.Mapper do
   def genre_subject(%{term: %{id: id, label: label}}) when is_binary(id) do
     %{
       "jsonmodel_type" => "subject",
-      "source" => authority_source(id),
+      "source" => subject_source(id),
       "authority_id" => id,
       "vocabulary" => "/vocabularies/1",
       "terms" => [
@@ -470,6 +470,18 @@ defmodule Meadow.ArchivesSpace.Mapper do
     |> Enum.find_value("local", fn {fragment, source} ->
       if String.contains?(uri, fragment), do: source
     end)
+  end
+
+  # ArchivesSpace's subject_source enumeration is narrower than name_source:
+  # name-only sources (naf, ulan, viaf) are rejected on subjects, so a personal
+  # name used as a topical subject falls back to "local" (URI kept in authority_id).
+  @subject_sources ~w(aat gmgpc lcsh mesh rbgenr tgn)
+
+  defp subject_source(uri) do
+    case authority_source(uri) do
+      source when source in @subject_sources -> source
+      _ -> "local"
+    end
   end
 
   # Corporate authorities are not reliably distinguishable from persons by URI

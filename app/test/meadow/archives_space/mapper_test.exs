@@ -133,6 +133,12 @@ defmodule Meadow.ArchivesSpace.MapperTest do
                |> Mapper.subject()
     end
 
+    test "falls back to local for name-only sources not valid on subjects" do
+      assert %{"source" => "local", "authority_id" => "http://id.loc.gov/authorities/names/n79046299"} =
+               subject_entry("http://id.loc.gov/authorities/names/n79046299", "Wilson, Woodrow, 1856-1924")
+               |> Mapper.subject()
+    end
+
     test "maps subject roles to term types" do
       geographic = subject_entry("https://sws.geonames.org/4299276/", "Kentucky", "GEOGRAPHICAL")
 
