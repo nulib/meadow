@@ -8,10 +8,11 @@ import {
 import UILoader from "@js/components/UI/Loader";
 import UISkeleton from "@js/components/UI/Skeleton";
 import PlanPanelChangesDiff from "@js/components/Plan/Panel/Diff";
-import { IconMagic } from "@js/components/Icon";
+import { IconAlert, IconMagic } from "@js/components/Icon";
 
 const PlanPanelChanges = ({
   changes,
+  currentWork,
   id,
   loadingMessage,
   logs = [],
@@ -203,6 +204,17 @@ const PlanPanelChanges = ({
             </span>
           </div>
 
+          {effectiveStatus === "APPROVED" && !isApplying && (
+            <div className="plan-panel-changes--notice notification is-warning">
+              <IconAlert />
+              <span>
+                <strong>Almost done — your changes are not saved yet.</strong>{" "}
+                Review the diff below, then click <strong>Apply Changes</strong>{" "}
+                to save them to the work.
+              </span>
+            </div>
+          )}
+
           <div className="plan-panel-changes--actions">
             <h3 className="mb-5">Changes</h3>
             <div>
@@ -267,6 +279,7 @@ const PlanPanelChanges = ({
           <PlanPanelChangesDiff
             proposedChanges={changes?.planChange || {}}
             planChangeId={changes?.planChange?.id}
+            currentWork={currentWork}
           />
         </div>
       )}
