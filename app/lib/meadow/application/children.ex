@@ -142,7 +142,7 @@ defmodule Meadow.Application.Children do
       [
         name: Meadow.FinchPool,
         pools: %{
-          default: [size: pool_size]
+          default: [size: pool_size, conn_max_idle_time: 45_000]
         }
       ]
     }
