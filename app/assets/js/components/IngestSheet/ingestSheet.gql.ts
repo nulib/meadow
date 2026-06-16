@@ -1,5 +1,5 @@
 import IngestSheet from "./IngestSheet";
-import gql from "graphql-tag";
+import { gql } from "@apollo/client/core";
 
 IngestSheet.fragments = {
   parts: gql`
@@ -66,7 +66,7 @@ export const DELETE_INGEST_SHEET = gql`
 `;
 
 export const GET_PRESIGNED_URL = gql`
-  query ($uploadType: S3UploadType!, $filename: String) {
+  query GetPresignedUrl($uploadType: S3UploadType!, $filename: String) {
     presignedUrl(uploadType: $uploadType, filename: $filename) {
       url
     }

@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "@apollo/client/core";
 
 export const CREATE_PROJECT = gql`
   mutation CreateProject($projectTitle: String!) {

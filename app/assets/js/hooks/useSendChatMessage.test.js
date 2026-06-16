@@ -8,9 +8,7 @@ import { SEND_CHAT_MESSAGE } from "@js/components/Plan/plan.gql";
 
 function wrapperWithMocks(mocks) {
   return ({ children }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
-      {children}
-    </MockedProvider>
+    <MockedProvider mocks={mocks}>{children}</MockedProvider>
   );
 }
 
@@ -80,9 +78,7 @@ describe("useSendChatMessage", () => {
 
     const { result } = renderHook(() => useSendChatMessage(), {
       wrapper: ({ children }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
-          {children}
-        </MockedProvider>
+        <MockedProvider mocks={mocks}>{children}</MockedProvider>
       ),
     });
 

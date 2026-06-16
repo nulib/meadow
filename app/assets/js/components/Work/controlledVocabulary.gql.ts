@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "@apollo/client/core";
 
 export const AUTHORITIES_SEARCH = gql`
   query AuthoritiesSearch($authority: ID!, $query: String!, $limit: Int) {

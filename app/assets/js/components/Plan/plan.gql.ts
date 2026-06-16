@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "@apollo/client/core";
 
 export const CHAT_RESPONSE = gql`
   subscription ChatResponse($conversationId: ID!) {
@@ -33,7 +33,7 @@ export const SEND_CHAT_MESSAGE = gql`
 `;
 
 export const PLAN_CHANGES_UPDATED = gql`
-  subscription ($planId: ID!) {
+  subscription PlanChangesUpdated($planId: ID!) {
     planChangesUpdated(planId: $planId) {
       planId
       action
@@ -49,7 +49,7 @@ export const PLAN_CHANGES_UPDATED = gql`
 `;
 
 export const PLAN_UPDATED = gql`
-  subscription ($planId: ID!) {
+  subscription PlanUpdated($planId: ID!) {
     planUpdated(planId: $planId) {
       id
       status
@@ -116,8 +116,8 @@ export const UPDATE_PLAN_CHANGE = gql`
 `;
 
 export const DELETE_PLAN_CHANGE = gql`
-  mutation deletePlanChange($id: ID!) {
-    deletePlanChange(id: $id) {
+  mutation deletePlanChange($planChangeId: ID!) {
+    deletePlanChange(planChangeId: $planChangeId) {
       id
     }
   }

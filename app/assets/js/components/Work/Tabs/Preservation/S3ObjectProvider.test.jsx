@@ -135,7 +135,7 @@ const TestHarness = ({ files, folderChain }) => {
 describe("S3ObjectProvider component", () => {
   it("provides file and folderChain props", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <S3ObjectProvider fileSetRole="A" workTypeId="IMAGE" prefix="">
           <TestHarness />
         </S3ObjectProvider>
@@ -152,7 +152,7 @@ describe("S3ObjectProvider component", () => {
 
   it("handles a prefixed query", async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <S3ObjectProvider
           fileSetRole="A"
           workTypeId="IMAGE"

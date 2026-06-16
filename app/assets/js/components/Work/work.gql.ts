@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "@apollo/client/core";
 
 export const ACTION_STATES = gql`
   query ActionStates($objectId: ID!) {
@@ -79,19 +79,6 @@ export const DELETE_WORK = gql`
         id
         title
       }
-    }
-  }
-`;
-
-export const GET_S3_BROWSING_CREDENTIALS = gql`
-  query IngestBucketCredentialsQuery {
-    getIngestBucketCredentials {
-      bucket
-      accessKeyId
-      secretAccessKey
-      sessionToken
-      expiration
-      region
     }
   }
 `;
@@ -268,7 +255,7 @@ export const GET_WORK = gql`
           }
         }
         extractedMetadata
-        group_with
+        groupWith
         insertedAt
         role {
           id
@@ -398,7 +385,7 @@ export const REPLACE_FILE_SET = gql`
 
 export const LIST_INGEST_BUCKET_OBJECTS = gql`
   query ListIngestBucketObjects($prefix: String) {
-    ListIngestBucketObjects(prefix: $prefix) {
+    listIngestBucketObjects(prefix: $prefix) {
       folders
       objects {
         uri
@@ -552,7 +539,7 @@ export const INGEST_FILE_SET = gql`
       workId: $workId
     ) {
       id
-      accession_number
+      accessionNumber
       role {
         id
         label
@@ -564,7 +551,7 @@ export const INGEST_FILE_SET = gql`
         location
         label
         description
-        original_filename
+        originalFilename
         digests {
           md5
           sha1
@@ -651,7 +638,7 @@ export const UPDATE_FILE_SETS = gql`
 `;
 
 export const GROUP_WITH_FILE_SET = gql`
-  mutation UpdateFileSet($id: ID!, $groupWith: ID) {
+  mutation GroupWithFileSet($id: ID!, $groupWith: ID) {
     updateFileSet(id: $id, groupWith: $groupWith) {
       id
       groupWith
@@ -669,7 +656,7 @@ export const VERIFY_FILE_SETS = gql`
 `;
 
 export const GET_DC_API_TOKEN = gql`
-  query {
+  query DcApiToken {
     dcApiToken {
       expires
       token

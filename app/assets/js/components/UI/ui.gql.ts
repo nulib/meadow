@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "@apollo/client/core";
 
 export const DIGITAL_COLLECTIONS_URL = gql`
   query DigitalCollectionsUrl {
@@ -9,7 +9,7 @@ export const DIGITAL_COLLECTIONS_URL = gql`
 `;
 
 export const GET_DCAPI_ENDPOINT = gql`
-  query {
+  query DcapiEndpoint {
     dcapiEndpoint {
       url
     }
