@@ -3,15 +3,22 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
   Populates an ArchivesSpace instance with image fixture data for testing the
   Meadow ingest workflow end to end.
 
-  Creates a resource (finding aid) with a series and several file-level
-  archival objects. Each file-level object carries a digital object instance
-  whose `file_version` points at a real, downloadable image, so importing the
-  resource into Meadow produces works with access file sets that flow through
-  the pipeline (and, for AI ingest, the image metadata agent).
+  Mirrors the shape of Northwestern's production finding aids
+  (findingaids.library.northwestern.edu), where collections are divided across
+  several library repositories. This task creates three *fictional* library
+  repositories so the local data has the same divided-by-repository structure
+  without being mistaken for real Northwestern holdings.
+
+  Each repository gets one finding aid (a resource with a series and several
+  file-level archival objects). Each file-level object carries a digital object
+  instance whose `file_version` points at a real, downloadable image, so
+  importing the resource into Meadow produces works with access file sets that
+  flow through the pipeline (and, for AI ingest, the image metadata agent).
 
   Intended for the local docker ArchivesSpace stack (see
   `infrastructure/archivesspace`), so it defaults to that instance's endpoint
-  and credentials. Each run creates a brand new resource.
+  and credentials. Repositories are keyed by a stable `repo_code`, so rerunning
+  reuses the same three repositories and adds another finding aid to each.
 
   ## Usage
 
@@ -25,9 +32,8 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
       `ARCHIVESSPACE_URL=http://localhost:8089 iex -S mix phx.server`).
     * `--user` - ArchivesSpace user (default: `admin`)
     * `--password` - ArchivesSpace password (default: `admin`)
-    * `--repo` - existing repository URI to seed into (default: the first
-      repository found, or a new one)
-    * `--items` - number of file-level archival objects to create (default: `5`)
+    * `--items` - number of file-level archival objects to create per finding
+      aid (default: `5`)
     * `--image-urls` - comma-separated image URLs to attach as digital objects
       (default: a set of stable public photographs)
 
@@ -35,7 +41,7 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
 
       mix meadow.archives_space.seed
       mix meadow.archives_space.seed --items 10
-      mix meadow.archives_space.seed --url http://localhost:8089 --repo /repositories/2
+      mix meadow.archives_space.seed --url http://localhost:8089
   """
   use Mix.Task
 
@@ -47,7 +53,6 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
     url: :string,
     user: :string,
     password: :string,
-    repo: :string,
     items: :integer,
     image_urls: :string
   ]
@@ -56,6 +61,49 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
   @default_user "admin"
   @default_password "admin"
   @default_items 5
+
+  # Fictional library repositories. The shape mirrors Northwestern's production
+  # finding aids (collections divided across repositories like the Music Library,
+  # University Archives, etc.), but the names are deliberately invented so devs
+  # don't mistake the local fixtures for real Northwestern holdings.
+  @repositories [
+    %{
+      repo_code: "meadow_fixture_photography",
+      name: "Meadow Fixture Library of Photography (test data)",
+      resource_title: "Fictional Photography Collection",
+      resource_id: "MEADOW-FIXTURE-PHOTO",
+      series_title: "Series I: Photographs",
+      item_label: "Photograph",
+      dates: "1965/1972",
+      scope:
+        "Fictional photographs assembled to exercise the Meadow ArchivesSpace " <>
+          "ingest workflow. Not real Northwestern materials."
+    },
+    %{
+      repo_code: "meadow_fixture_records",
+      name: "Meadow Fixture University Records (test data)",
+      resource_title: "Fictional Campus Records",
+      resource_id: "MEADOW-FIXTURE-RECORDS",
+      series_title: "Series I: Administrative Files",
+      item_label: "File",
+      dates: "1940/1989",
+      scope:
+        "Fictional administrative records assembled to exercise the Meadow " <>
+          "ArchivesSpace ingest workflow. Not real Northwestern materials."
+    },
+    %{
+      repo_code: "meadow_fixture_music",
+      name: "Meadow Fixture Music & Audio Library (test data)",
+      resource_title: "Fictional Performance Materials",
+      resource_id: "MEADOW-FIXTURE-MUSIC",
+      series_title: "Series I: Scores and Recordings",
+      item_label: "Item",
+      dates: "1955/1998",
+      scope:
+        "Fictional performance materials assembled to exercise the Meadow " <>
+          "ArchivesSpace ingest workflow. Not real Northwestern materials."
+    }
+  ]
 
   # Stable, public photographs (deterministic per id) used as digital object
   # images so the imported works have real content for the pipeline and the
@@ -87,20 +135,25 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
   defp seed(opts) do
     configure_client(opts)
 
-    repo_uri = opts[:repo] || ensure_repository()
     images = image_urls(opts)
     count = opts[:items] || @default_items
 
-    resource_uri = create_resource(repo_uri)
-    series_uri = create_series(repo_uri, resource_uri)
+    seeded =
+      for spec <- @repositories do
+        repo_uri = ensure_repository(spec)
+        resource_uri = create_resource(repo_uri, spec)
+        series_uri = create_series(repo_uri, resource_uri, spec)
 
-    items =
-      for index <- 1..count do
-        image = Enum.at(images, rem(index - 1, length(images)))
-        create_item(repo_uri, resource_uri, series_uri, index, image)
+        items =
+          for index <- 1..count do
+            image = Enum.at(images, rem(index - 1, length(images)))
+            create_item(repo_uri, resource_uri, series_uri, spec, index, image)
+          end
+
+        %{repo_uri: repo_uri, resource_uri: resource_uri, items: items}
       end
 
-    report(repo_uri, resource_uri, items)
+    report(seeded)
   end
 
   # Point the ArchivesSpace client at the requested instance for this run.
@@ -135,63 +188,59 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
     end
   end
 
-  defp ensure_repository do
+  # Reuse the repository with this spec's repo_code if it already exists,
+  # otherwise create it, so reruns add finding aids to the same repositories.
+  defp ensure_repository(spec) do
     case Client.get("/repositories") do
       {:ok, %{status: 200, body: repos}} when is_list(repos) ->
         repos
-        |> Enum.map(& &1["uri"])
-        |> Enum.find(&(is_binary(&1) and Regex.match?(~r{^/repositories/\d+$}, &1)))
+        |> Enum.find(&(&1["repo_code"] == spec.repo_code))
         |> case do
-          nil -> create_repository()
-          uri -> uri
+          %{"uri" => uri} -> uri
+          _ -> create_repository(spec)
         end
 
       _ ->
-        create_repository()
+        create_repository(spec)
     end
   end
 
-  defp create_repository do
+  defp create_repository(spec) do
     {:ok, uri} =
       Client.create_record("/repositories", %{
         "jsonmodel_type" => "repository",
-        "repo_code" => "meadow_seed_#{unique()}",
-        "name" => "Meadow Seed Fixtures"
+        "repo_code" => spec.repo_code,
+        "name" => spec.name
       })
 
     uri
   end
 
-  defp create_resource(repo_uri) do
+  defp create_resource(repo_uri, spec) do
     {:ok, uri} =
       Client.create_record("#{repo_uri}/resources", %{
         "jsonmodel_type" => "resource",
-        "title" => "Meadow Test Collection #{unique()}",
-        "id_0" => "MEADOW-SEED-#{unique()}",
+        "title" => "#{spec.resource_title} #{unique()}",
+        "id_0" => "#{spec.resource_id}-#{unique()}",
         "level" => "collection",
         "publish" => true,
         "finding_aid_language" => "eng",
         "finding_aid_script" => "Latn",
-        "ead_location" => "https://findingaids.example.edu/meadow-seed-#{unique()}",
+        "ead_location" => "https://findingaids.example.edu/#{spec.repo_code}-#{unique()}",
         "lang_materials" => [language_eng()],
-        "dates" => [single_date("1965/1972")],
+        "dates" => [single_date(spec.dates)],
         "extents" => [extent()],
-        "notes" => [
-          scopecontent_note(
-            "Photographs, correspondence, and ephemera assembled for testing the " <>
-              "Meadow ArchivesSpace ingest workflow."
-          )
-        ]
+        "notes" => [scopecontent_note(spec.scope)]
       })
 
     uri
   end
 
-  defp create_series(repo_uri, resource_uri) do
+  defp create_series(repo_uri, resource_uri, spec) do
     {:ok, uri} =
       Client.create_record("#{repo_uri}/archival_objects", %{
         "jsonmodel_type" => "archival_object",
-        "title" => "Series I: Photographs",
+        "title" => spec.series_title,
         "level" => "series",
         "publish" => true,
         "resource" => %{"ref" => resource_uri}
@@ -200,21 +249,21 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
     uri
   end
 
-  defp create_item(repo_uri, resource_uri, series_uri, index, image_url) do
-    digital_object_uri = create_digital_object(repo_uri, index, image_url)
+  defp create_item(repo_uri, resource_uri, series_uri, spec, index, image_url) do
+    digital_object_uri = create_digital_object(repo_uri, spec, index, image_url)
 
     {:ok, uri} =
       Client.create_record("#{repo_uri}/archival_objects", %{
         "jsonmodel_type" => "archival_object",
-        "title" => "Photograph #{index}",
+        "title" => "#{spec.item_label} #{index}",
         "level" => "file",
         "publish" => true,
         "resource" => %{"ref" => resource_uri},
         "parent" => %{"ref" => series_uri},
         "dates" => [single_date("19#{60 + index}")],
         "notes" => [
-          scopecontent_note("Photograph number #{index} from the test collection."),
-          abstract_note("A test photograph used to exercise the ingest pipeline.")
+          scopecontent_note("#{spec.item_label} number #{index} from the test collection."),
+          abstract_note("A test #{String.downcase(spec.item_label)} used to exercise the ingest pipeline.")
         ],
         "instances" => [
           %{
@@ -228,12 +277,12 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
     uri
   end
 
-  defp create_digital_object(repo_uri, index, image_url) do
+  defp create_digital_object(repo_uri, spec, index, image_url) do
     {:ok, uri} =
       Client.create_record("#{repo_uri}/digital_objects", %{
         "jsonmodel_type" => "digital_object",
-        "digital_object_id" => "meadow-seed-#{unique()}-#{index}",
-        "title" => "Photograph #{index} (digital object)",
+        "digital_object_id" => "#{spec.repo_code}-#{unique()}-#{index}",
+        "title" => "#{spec.item_label} #{index} (digital object)",
         "publish" => true,
         "file_versions" => [
           %{
@@ -296,16 +345,23 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
     }
   end
 
-  defp report(repo_uri, resource_uri, items) do
+  defp report(seeded) do
+    repos =
+      seeded
+      |> Enum.map(fn %{repo_uri: repo_uri, resource_uri: resource_uri, items: items} ->
+        """
+          Repository: #{repo_uri}
+            Resource: #{resource_uri} (#{length(items)} file-level archival objects)
+            Import it with: mix meadow.archives_space.import #{resource_uri}
+        """
+      end)
+      |> Enum.join("\n")
+
     Mix.shell().info("""
 
-    Seeded ArchivesSpace with image fixtures:
-      Repository: #{repo_uri}
-      Resource:   #{resource_uri}
-      File-level archival objects (with image digital objects): #{length(items)}
+    Seeded ArchivesSpace with fictional, divided-by-repository image fixtures:
 
-    Import it into Meadow with:
-      mix meadow.archives_space.import #{resource_uri}
+    #{repos}
     """)
   end
 
