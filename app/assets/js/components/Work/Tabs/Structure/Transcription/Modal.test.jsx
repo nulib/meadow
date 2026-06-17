@@ -81,7 +81,7 @@ describe("WorkTabsStructureTranscriptionModal", () => {
 
   const renderModal = ({ isActive = true, mocks = [] } = {}) => {
     return render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <IIIFContext.Provider value="https://iiif.example/">
           <WorkTabsStructureTranscriptionModal isActive={isActive} />
         </IIIFContext.Provider>

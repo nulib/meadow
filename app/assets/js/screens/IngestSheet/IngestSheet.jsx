@@ -1,7 +1,7 @@
 import React from "react";
 import Error from "../../components/UI/Error";
 import IngestSheet from "../../components/IngestSheet/IngestSheet";
-import gql from "graphql-tag";
+import { gql } from "@apollo/client/core";
 import { useQuery } from "@apollo/client/react";
 import { INGEST_SHEET_QUERY } from "../../components/IngestSheet/ingestSheet.gql.js";
 import Layout from "../Layout";

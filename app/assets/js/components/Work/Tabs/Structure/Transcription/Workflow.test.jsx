@@ -71,7 +71,7 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
     );
 
     return render(
-      <MockedProvider mocks={mocks || []} addTypename={false}>
+      <MockedProvider mocks={mocks || []}>
         <WorkTabsStructureTranscriptionWorkflow
           fileSetId={fileSetId}
           workId={workId}

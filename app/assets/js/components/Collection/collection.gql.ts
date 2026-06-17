@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "@apollo/client/core";
 import Collection from "./Collection";
 
 // Collection.fragments = {

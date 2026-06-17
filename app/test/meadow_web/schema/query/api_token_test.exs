@@ -6,7 +6,7 @@ defmodule MeadowWeb.Schema.Query.ApiTokenTest do
   set_gql(
     MeadowWeb.Schema,
     """
-    query {
+    query DcApiToken {
       dcApiToken {
         expires
         token

@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "@apollo/client/core";
 
 export const CSV_METADATA_UPDATE_JOB = gql`
   mutation CsvMetadataUpdate($filename: String!, $source: String!) {
