@@ -177,7 +177,7 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Clean do
   defp report(cleaned, opts) do
     summaries =
       cleaned
-      |> Enum.map(fn
+      |> Enum.map_join("\n", fn
         %{repository_deleted: true} = entry ->
           "  #{entry.uri} [#{entry.repo_code}]: repository deleted (cascades to all contained records)"
 
@@ -185,7 +185,6 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Clean do
           "  #{entry.uri} [#{entry.repo_code}]: " <>
             "#{entry.resources} resources, #{entry.digital_objects} digital objects deleted (repository kept)"
       end)
-      |> Enum.join("\n")
 
     note =
       if opts[:keep_repositories],

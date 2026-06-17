@@ -206,16 +206,12 @@ defmodule Meadow.ArchivesSpace.Importer do
     if ArchivesSpace.work_linked_to_uri?(uri) do
       {:skipped, uri}
     else
-      case Client.get_record(uri) do
-        {:ok, archival_object} ->
-          if Map.get(archival_object, "level") in levels do
-            create_work_from_archival_object(archival_object, collection, opts)
-          else
-            {:skipped, uri}
-          end
-
-        {:error, reason} ->
-          {:error, uri, reason}
+      with {:ok, archival_object} <- Client.get_record(uri),
+           true <- Map.get(archival_object, "level") in levels do
+        create_work_from_archival_object(archival_object, collection, opts)
+      else
+        false -> {:skipped, uri}
+        {:error, reason} -> {:error, uri, reason}
       end
     end
   rescue

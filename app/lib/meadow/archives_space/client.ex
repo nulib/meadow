@@ -22,16 +22,17 @@ defmodule Meadow.ArchivesSpace.Client do
   def request(method, path, opts) do
     with {:ok, token} <- session_token() do
       case do_request(method, path, opts, token) do
-        {:ok, %{status: 412}} ->
-          invalidate_session()
-
-          with {:ok, token} <- session_token() do
-            do_request(method, path, opts, token)
-          end
-
-        other ->
-          other
+        {:ok, %{status: 412}} -> retry_with_fresh_session(method, path, opts)
+        other -> other
       end
+    end
+  end
+
+  defp retry_with_fresh_session(method, path, opts) do
+    invalidate_session()
+
+    with {:ok, token} <- session_token() do
+      do_request(method, path, opts, token)
     end
   end
 

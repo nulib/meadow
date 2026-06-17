@@ -348,14 +348,13 @@ defmodule Mix.Tasks.Meadow.ArchivesSpace.Seed do
   defp report(seeded) do
     repos =
       seeded
-      |> Enum.map(fn %{repo_uri: repo_uri, resource_uri: resource_uri, items: items} ->
+      |> Enum.map_join("\n", fn %{repo_uri: repo_uri, resource_uri: resource_uri, items: items} ->
         """
           Repository: #{repo_uri}
             Resource: #{resource_uri} (#{length(items)} file-level archival objects)
             Import it with: mix meadow.archives_space.import #{resource_uri}
         """
       end)
-      |> Enum.join("\n")
 
     Mix.shell().info("""
 
