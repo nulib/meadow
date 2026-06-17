@@ -81,6 +81,11 @@ type Documents = {
   "\n  mutation deletePlanChange($planChangeId: ID!) {\n    deletePlanChange(planChangeId: $planChangeId) {\n      id\n    }\n  }\n": typeof types.DeletePlanChangeDocument;
   "\n  mutation updateProposedPlanChangeStatuses(\n    $planId: ID!\n    $status: PlanStatus!\n  ) {\n    updateProposedPlanChangeStatuses(planId: $planId, status: $status) {\n      planId\n      status\n    }\n  }\n": typeof types.UpdateProposedPlanChangeStatusesDocument;
   "\n  mutation applyPlan($id: ID!) {\n    applyPlan(id: $id) {\n      id\n      status\n      completedAt\n      error\n    }\n  }\n": typeof types.ApplyPlanDocument;
+  "\n  query ArchivesSpaceResourceSearch($query: String!, $page: Int) {\n    archivesSpaceResourceSearch(query: $query, page: $page) {\n      results {\n        uri\n        title\n        identifier\n        importValidation {\n          importable\n          blockedReason\n          blockedCount\n          blockedSamples {\n            uri\n            title\n            fileUri\n          }\n        }\n      }\n      totalHits\n    }\n  }\n": typeof types.ArchivesSpaceResourceSearchDocument;
+  "\n  query ArchivesSpaceImports {\n    archivesSpaceImports {\n      id\n      archivesSpaceUri\n      findingAidUrl\n      syncStatus\n      workCount\n      insertedAt\n      collection {\n        id\n        title\n      }\n    }\n  }\n": typeof types.ArchivesSpaceImportsDocument;
+  "\n  mutation StartArchivesSpaceImportPreview($resourceUri: String!) {\n    archivesSpaceStartImportPreview(resourceUri: $resourceUri) {\n      token\n      status\n    }\n  }\n": typeof types.StartArchivesSpaceImportPreviewDocument;
+  "\n  subscription ArchivesSpaceImportPreview($token: ID!) {\n    archivesSpaceImportPreview(token: $token) {\n      token\n      status\n      estimatedCost\n      sampleCount\n      totalCount\n      error\n      previews {\n        workAccessionNumber\n        title\n        description\n        thumbnail\n        subjects {\n          id\n          label\n        }\n      }\n    }\n  }\n": typeof types.ArchivesSpaceImportPreviewDocument;
+  "\n  mutation ImportArchivesSpaceResource(\n    $resourceUri: String!\n    $aiIngest: Boolean\n  ) {\n    importArchivesSpaceResource(\n      resourceUri: $resourceUri\n      aiIngest: $aiIngest\n    ) {\n      id\n      title\n      findingAidUrl\n    }\n  }\n": typeof types.ImportArchivesSpaceResourceDocument;
   "\n  mutation CreateProject($projectTitle: String!) {\n    createProject(title: $projectTitle) {\n      id\n      title\n      folder\n    }\n  }\n": typeof types.CreateProjectDocument;
   "\n  mutation UpdateProject($projectId: ID!, $projectTitle: String!) {\n    updateProject(id: $projectId, title: $projectTitle) {\n      id\n      title\n      folder\n    }\n  }\n": typeof types.UpdateProjectDocument;
   "\n  mutation DeleteProject($projectId: ID!) {\n    deleteProject(projectId: $projectId) {\n      id\n      title\n    }\n  }\n": typeof types.DeleteProjectDocument;
@@ -261,6 +266,16 @@ const documents: Documents = {
     types.UpdateProposedPlanChangeStatusesDocument,
   "\n  mutation applyPlan($id: ID!) {\n    applyPlan(id: $id) {\n      id\n      status\n      completedAt\n      error\n    }\n  }\n":
     types.ApplyPlanDocument,
+  "\n  query ArchivesSpaceResourceSearch($query: String!, $page: Int) {\n    archivesSpaceResourceSearch(query: $query, page: $page) {\n      results {\n        uri\n        title\n        identifier\n        importValidation {\n          importable\n          blockedReason\n          blockedCount\n          blockedSamples {\n            uri\n            title\n            fileUri\n          }\n        }\n      }\n      totalHits\n    }\n  }\n":
+    types.ArchivesSpaceResourceSearchDocument,
+  "\n  query ArchivesSpaceImports {\n    archivesSpaceImports {\n      id\n      archivesSpaceUri\n      findingAidUrl\n      syncStatus\n      workCount\n      insertedAt\n      collection {\n        id\n        title\n      }\n    }\n  }\n":
+    types.ArchivesSpaceImportsDocument,
+  "\n  mutation StartArchivesSpaceImportPreview($resourceUri: String!) {\n    archivesSpaceStartImportPreview(resourceUri: $resourceUri) {\n      token\n      status\n    }\n  }\n":
+    types.StartArchivesSpaceImportPreviewDocument,
+  "\n  subscription ArchivesSpaceImportPreview($token: ID!) {\n    archivesSpaceImportPreview(token: $token) {\n      token\n      status\n      estimatedCost\n      sampleCount\n      totalCount\n      error\n      previews {\n        workAccessionNumber\n        title\n        description\n        thumbnail\n        subjects {\n          id\n          label\n        }\n      }\n    }\n  }\n":
+    types.ArchivesSpaceImportPreviewDocument,
+  "\n  mutation ImportArchivesSpaceResource(\n    $resourceUri: String!\n    $aiIngest: Boolean\n  ) {\n    importArchivesSpaceResource(\n      resourceUri: $resourceUri\n      aiIngest: $aiIngest\n    ) {\n      id\n      title\n      findingAidUrl\n    }\n  }\n":
+    types.ImportArchivesSpaceResourceDocument,
   "\n  mutation CreateProject($projectTitle: String!) {\n    createProject(title: $projectTitle) {\n      id\n      title\n      folder\n    }\n  }\n":
     types.CreateProjectDocument,
   "\n  mutation UpdateProject($projectId: ID!, $projectTitle: String!) {\n    updateProject(id: $projectId, title: $projectTitle) {\n      id\n      title\n      folder\n    }\n  }\n":
@@ -769,6 +784,36 @@ export function gql(
 export function gql(
   source: "\n  mutation applyPlan($id: ID!) {\n    applyPlan(id: $id) {\n      id\n      status\n      completedAt\n      error\n    }\n  }\n",
 ): (typeof documents)["\n  mutation applyPlan($id: ID!) {\n    applyPlan(id: $id) {\n      id\n      status\n      completedAt\n      error\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(
+  source: "\n  query ArchivesSpaceResourceSearch($query: String!, $page: Int) {\n    archivesSpaceResourceSearch(query: $query, page: $page) {\n      results {\n        uri\n        title\n        identifier\n        importValidation {\n          importable\n          blockedReason\n          blockedCount\n          blockedSamples {\n            uri\n            title\n            fileUri\n          }\n        }\n      }\n      totalHits\n    }\n  }\n",
+): (typeof documents)["\n  query ArchivesSpaceResourceSearch($query: String!, $page: Int) {\n    archivesSpaceResourceSearch(query: $query, page: $page) {\n      results {\n        uri\n        title\n        identifier\n        importValidation {\n          importable\n          blockedReason\n          blockedCount\n          blockedSamples {\n            uri\n            title\n            fileUri\n          }\n        }\n      }\n      totalHits\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(
+  source: "\n  query ArchivesSpaceImports {\n    archivesSpaceImports {\n      id\n      archivesSpaceUri\n      findingAidUrl\n      syncStatus\n      workCount\n      insertedAt\n      collection {\n        id\n        title\n      }\n    }\n  }\n",
+): (typeof documents)["\n  query ArchivesSpaceImports {\n    archivesSpaceImports {\n      id\n      archivesSpaceUri\n      findingAidUrl\n      syncStatus\n      workCount\n      insertedAt\n      collection {\n        id\n        title\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(
+  source: "\n  mutation StartArchivesSpaceImportPreview($resourceUri: String!) {\n    archivesSpaceStartImportPreview(resourceUri: $resourceUri) {\n      token\n      status\n    }\n  }\n",
+): (typeof documents)["\n  mutation StartArchivesSpaceImportPreview($resourceUri: String!) {\n    archivesSpaceStartImportPreview(resourceUri: $resourceUri) {\n      token\n      status\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(
+  source: "\n  subscription ArchivesSpaceImportPreview($token: ID!) {\n    archivesSpaceImportPreview(token: $token) {\n      token\n      status\n      estimatedCost\n      sampleCount\n      totalCount\n      error\n      previews {\n        workAccessionNumber\n        title\n        description\n        thumbnail\n        subjects {\n          id\n          label\n        }\n      }\n    }\n  }\n",
+): (typeof documents)["\n  subscription ArchivesSpaceImportPreview($token: ID!) {\n    archivesSpaceImportPreview(token: $token) {\n      token\n      status\n      estimatedCost\n      sampleCount\n      totalCount\n      error\n      previews {\n        workAccessionNumber\n        title\n        description\n        thumbnail\n        subjects {\n          id\n          label\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(
+  source: "\n  mutation ImportArchivesSpaceResource(\n    $resourceUri: String!\n    $aiIngest: Boolean\n  ) {\n    importArchivesSpaceResource(\n      resourceUri: $resourceUri\n      aiIngest: $aiIngest\n    ) {\n      id\n      title\n      findingAidUrl\n    }\n  }\n",
+): (typeof documents)["\n  mutation ImportArchivesSpaceResource(\n    $resourceUri: String!\n    $aiIngest: Boolean\n  ) {\n    importArchivesSpaceResource(\n      resourceUri: $resourceUri\n      aiIngest: $aiIngest\n    ) {\n      id\n      title\n      findingAidUrl\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

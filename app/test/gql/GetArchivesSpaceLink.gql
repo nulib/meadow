@@ -1,0 +1,9 @@
+query($workId: ID!) {
+  archivesSpaceLink(workId: $workId) {
+    id
+    workId
+    archivesSpaceUri
+    syncStatus
+    syncError
+  }
+}

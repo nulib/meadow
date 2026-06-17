@@ -46,14 +46,16 @@ defmodule Meadow.Application.Caches do
   def specs(:test) do
     [
       cache_spec(:user_directory, Meadow.Directory.MockServer.Cache),
-      cache_spec(:ark_storage, Meadow.Ark.MockServer.Cache)
+      cache_spec(:ark_storage, Meadow.Ark.MockServer.Cache),
+      cache_spec(:aspace_storage, Meadow.ArchivesSpace.MockServer.Cache)
     ] ++ specs()
   end
 
   def specs(:dev) do
     [
       cache_spec(:user_directory, Meadow.Directory.MockServer.Cache),
-      cache_spec(:ark_storage, Meadow.Ark.MockServer.Cache)
+      cache_spec(:ark_storage, Meadow.Ark.MockServer.Cache),
+      cache_spec(:aspace_storage, Meadow.ArchivesSpace.MockServer.Cache)
     ] ++ specs()
   end
 

@@ -19,6 +19,9 @@ defmodule Meadow.Application.Children do
         {WalEx.Supervisor, Application.get_env(:meadow, WalEx)},
         {Meadow.Events.Works.Arks.Processor,
          token_count: 100, interval: 1_000, replenish_count: 10}
+        |> distributed(),
+        {Meadow.Events.Works.ArchivesSpace.Processor,
+         token_count: 10, interval: 1_000, replenish_count: 5}
         |> distributed()
       ],
       "scheduler" => Meadow.Scheduler |> distributed(),
@@ -44,6 +47,8 @@ defmodule Meadow.Application.Children do
         MeadowWeb.Endpoint,
         {Absinthe.Subscription, MeadowWeb.Endpoint},
         MeadowWeb.Subscription,
+        {Task.Supervisor, name: Meadow.ArchivesSpace.TaskSupervisor},
+        Meadow.ArchivesSpace.PreviewStore,
         {MeadowWeb.MCP.Server,
          transport: :streamable_http,
          registry:
@@ -106,14 +111,19 @@ defmodule Meadow.Application.Children do
   end
 
   defp specs(:dev) do
-    [finch_spec(), mock_server(Meadow.Ark.MockServer, 3943)] ++ workers(Config.workers())
+    [
+      finch_spec(),
+      mock_server(Meadow.Ark.MockServer, 3943),
+      mock_server(Meadow.ArchivesSpace.MockServer, 3947)
+    ] ++ workers(Config.workers())
   end
 
   defp specs(:test) do
     [
       finch_spec(),
       mock_server(Meadow.Ark.MockServer, 3944),
-      mock_server(Meadow.Directory.MockServer, 3946)
+      mock_server(Meadow.Directory.MockServer, 3946),
+      mock_server(Meadow.ArchivesSpace.MockServer, 3948)
     ] ++
       workers(["web.server"])
   end

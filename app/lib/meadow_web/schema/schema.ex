@@ -13,6 +13,7 @@ defmodule MeadowWeb.Schema do
   import Ecto.Query
 
   import_types(__MODULE__.AccountTypes)
+  import_types(__MODULE__.Data.ArchivesSpaceTypes)
   import_types(__MODULE__.Data.WorkTypes)
   import_types(__MODULE__.Data.BatchTypes)
   import_types(__MODULE__.IngestTypes)
@@ -32,6 +33,7 @@ defmodule MeadowWeb.Schema do
 
   query do
     import_fields(:account_queries)
+    import_fields(:archives_space_queries)
     import_fields(:batch_queries)
     import_fields(:collection_queries)
     import_fields(:controlled_term_queries)
@@ -50,6 +52,7 @@ defmodule MeadowWeb.Schema do
 
   mutation do
     import_fields(:account_mutations)
+    import_fields(:archives_space_mutations)
     import_fields(:batch_mutations)
     import_fields(:collection_mutations)
     import_fields(:file_set_mutations)
@@ -64,6 +67,7 @@ defmodule MeadowWeb.Schema do
   end
 
   subscription do
+    import_fields(:archives_space_subscriptions)
     import_fields(:ingest_subscriptions)
     import_fields(:file_set_subscriptions)
     import_fields(:work_subscriptions)

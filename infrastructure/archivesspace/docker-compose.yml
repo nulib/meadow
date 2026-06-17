@@ -1,0 +1,55 @@
+---
+# Local ArchivesSpace stack for Meadow dev. Dev defaults to this instance
+# (http://localhost:8089); set ARCHIVESSPACE_URL=http://localhost:3947 to use
+# the in-process Meadow.ArchivesSpace.MockServer instead. Not part of `make ci`
+# — the test suite uses the mock.
+#
+#   make archivesspace-start  (from the repo root; first boot takes 10+ minutes)
+#
+# Staff UI: http://localhost:8080 (admin/admin)
+# API:      http://localhost:8089
+services:
+  app:
+    image: archivesspace/archivesspace:${ARCHIVESSPACE_DOCKER_TAG:-latest}
+    platform: linux/x86_64
+    depends_on:
+      - db
+      - solr
+    environment:
+      ASPACE_DB_MIGRATE: "true"
+      APPCONFIG_DB_URL: "jdbc:mysql://db:3306/${MYSQL_DATABASE}?useUnicode=true&characterEncoding=UTF-8&user=${MYSQL_USER}&password=${MYSQL_PASSWORD}&useSSL=false&allowPublicKeyRetrieval=true"
+      APPCONFIG_SOLR_URL: "http://solr:8983/solr/archivesspace"
+    ports:
+      - "8080:8080" # staff UI
+      - "8089:8089" # backend API (what Meadow talks to)
+    volumes:
+      - app-data:/archivesspace/data
+
+  db:
+    image: mysql:8
+    platform: linux/x86_64
+    cap_add:
+      - SYS_NICE
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --log_bin_trust_function_creators=1
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+
+  solr:
+    image: archivesspace/solr:${ARCHIVESSPACE_DOCKER_TAG:-latest}
+    platform: linux/x86_64
+    command:
+      - solr-precreate
+      - archivesspace
+      - /opt/solr/server/solr/configsets/archivesspace
+    volumes:
+      - solr-data:/var/solr
+
+volumes:
+  app-data:
+  db-data:
+  solr-data:

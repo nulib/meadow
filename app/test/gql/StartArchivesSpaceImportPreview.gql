@@ -1,0 +1,9 @@
+mutation ($resourceUri: String!) {
+  archivesSpaceStartImportPreview(resourceUri: $resourceUri) {
+    token
+    status
+    previews {
+      workAccessionNumber
+    }
+  }
+}

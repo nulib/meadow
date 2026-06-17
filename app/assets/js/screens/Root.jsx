@@ -18,6 +18,7 @@ import ScreensCollection from "./Collection/Collection";
 import ScreensCollectionForm from "./Collection/Form";
 import ScreensCollectionList from "./Collection/List";
 import ScreensDashboardsAnalytics from "@js/screens/Dashboards/Analytics/Analytics";
+import ScreensDashboardsArchivesSpaceList from "@js/screens/Dashboards/ArchivesSpace/List";
 import ScreensDashboardsBatchEditDetails from "@js/screens/Dashboards/BatchEdit/Details";
 import ScreensDashboardsBatchEditList from "@js/screens/Dashboards/BatchEdit/List";
 import ScreensDashboardsCsvDetails from "@js/screens/Dashboards/Csv/Details";
@@ -90,6 +91,11 @@ export default class Root extends React.Component {
                   exact
                   path="/dashboards/analytics"
                   component={ScreensDashboardsAnalytics}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/archivesspace"
+                  component={ScreensDashboardsArchivesSpaceList}
                 />
                 <PrivateRoute
                   exact

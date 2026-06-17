@@ -26,6 +26,7 @@ defmodule Meadow.Data.Schemas.Work do
   schema "works" do
     field(:accession_number, :string)
     field(:published, :boolean, default: false)
+    field(:ai_ingest, :boolean, default: false)
 
     field(:visibility, Types.CodedTerm,
       default: %{id: "RESTRICTED", scheme: "visibility", label: "Private"}
@@ -75,6 +76,7 @@ defmodule Meadow.Data.Schemas.Work do
   defp changeset_params do
     {[:accession_number],
      [
+       :ai_ingest,
        :collection_id,
        :ingest_sheet_id,
        :published,

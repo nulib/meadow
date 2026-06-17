@@ -1,0 +1,7 @@
+mutation($resourceUri: String!, $aiIngest: Boolean) {
+  importArchivesSpaceResource(resourceUri: $resourceUri, aiIngest: $aiIngest) {
+    id
+    title
+    findingAidUrl
+  }
+}

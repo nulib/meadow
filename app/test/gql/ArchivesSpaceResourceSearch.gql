@@ -1,0 +1,20 @@
+query($query: String!, $page: Int) {
+  archivesSpaceResourceSearch(query: $query, page: $page) {
+    results {
+      uri
+      title
+      identifier
+      importValidation {
+        importable
+        blockedReason
+        blockedCount
+        blockedSamples {
+          uri
+          title
+          fileUri
+        }
+      }
+    }
+    totalHits
+  }
+}

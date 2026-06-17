@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 import S3ObjectProvider from "./S3ObjectProvider";
 import { LIST_INGEST_BUCKET_OBJECTS } from "@js/components/Work/work.gql.js";
@@ -144,9 +144,15 @@ describe("S3ObjectProvider component", () => {
 
     await screen.findByRole("result");
     const { expected } = mocks[0];
-    const files = JSON.parse(screen.getByRole("files").textContent);
+
+    // files is populated by an effect after the children first mount, so poll
+    // until it settles rather than reading the initial empty state.
+    await waitFor(() => {
+      const files = JSON.parse(screen.getByRole("files").textContent);
+      expect(files).toEqual(expected.files);
+    });
+
     const folders = JSON.parse(screen.getByRole("folderChain").textContent);
-    expect(files).toEqual(expected.files);
     expect(folders).toEqual(expected.folders);
   });
 
@@ -165,9 +171,13 @@ describe("S3ObjectProvider component", () => {
 
     await screen.findByRole("result");
     const { expected } = mocks[1];
-    const files = JSON.parse(screen.getByRole("files").textContent);
+
+    await waitFor(() => {
+      const files = JSON.parse(screen.getByRole("files").textContent);
+      expect(files).toEqual(expected.files);
+    });
+
     const folders = JSON.parse(screen.getByRole("folderChain").textContent);
-    expect(files).toEqual(expected.files);
     expect(folders).toEqual(expected.folders);
   });
 });

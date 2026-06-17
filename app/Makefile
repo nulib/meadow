@@ -20,6 +20,7 @@ help:
 	@echo "make livebook          | build Livebook+Meadow release container"
 	@echo "make server            | run Phoenix server"
 	@echo "make test              | run Elixir tests"
+	@echo "make test-archivesspace| run the ArchivesSpace integration test (needs the docker app running)"
 
 priv/cert/cert.pem:
 	@echo "Fetching SSL certificate from AWS Secrets Manager..."
@@ -113,6 +114,11 @@ test: deps
 	AWS_LOCALSTACK=true \
 	mix test $(ARGS) || \
 		(test -z "$$MEADOW_TEST_SAVE_SEED" || mix test --seed $$(cat "$$MEADOW_TEST_SAVE_SEED") --failed $(ARGS))
+
+# Runs the ArchivesSpace integration test against a real instance. Start it
+# first with `make -C ../infrastructure/archivesspace wait`.
+test-archivesspace: deps
+	mix test --only archivesspace_integration $(ARGS)
 
 all-test: test frontend-test
 

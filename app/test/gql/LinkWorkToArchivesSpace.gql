@@ -1,0 +1,10 @@
+mutation($workId: ID!, $archivesSpaceUri: String!, $refId: String) {
+  linkWorkToArchivesSpace(workId: $workId, archivesSpaceUri: $archivesSpaceUri, refId: $refId) {
+    id
+    workId
+    archivesSpaceUri
+    refId
+    repositoryId
+    syncStatus
+  }
+}

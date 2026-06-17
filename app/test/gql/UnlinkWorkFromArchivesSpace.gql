@@ -1,0 +1,7 @@
+mutation($workId: ID!) {
+  unlinkWorkFromArchivesSpace(workId: $workId) {
+    id
+    workId
+    archivesSpaceUri
+  }
+}

@@ -302,6 +302,156 @@ change_b = Enum.at(changes, 1)
 {:ok, completed_plan} = Meadow.Data.Planner.apply_plan(plan)
 ```
 
+### ArchivesSpace Integration
+
+Meadow works and collections can be linked to ArchivesSpace records so that metadata work done in Meadow (batch AI agent plans, transcription, manual edits) is pushed back to the finding aid automatically.
+
+- A **work** links to an ArchivesSpace **archival object** (e.g. `/repositories/2/archival_objects/1234`)
+- A **collection** links to an ArchivesSpace **resource**
+- Links live in the `archives_space_links` table along with their sync state (`linked`, `pending`, `synced`, or `error`), the last error message, and the last successful sync time
+
+#### What gets synced
+
+Syncing is **one-way (Meadow → ArchivesSpace)** and touches only the slice of the archival object Meadow owns:
+
+| Meadow field | ArchivesSpace target |
+| --- | --- |
+| `title` | archival object title |
+| `description` | `scopecontent` note labeled "Synced from Meadow" |
+| `abstract` | `abstract` note labeled "Synced from Meadow" |
+| `subject` (terms with authority URIs) | subject records, found-or-created by `authority_id`, linked to the archival object |
+| `published` + `visibility` | a Meadow-managed **digital object** pointing at the work's Digital Collections URL, attached to the archival object as an instance |
+
+Everything else on the archival object — archivist-authored notes, dates, extents, containers — is preserved: every sync GETs the record fresh, merges Meadow's fields into it, and POSTs it back (retrying on `lock_version` conflicts). Subjects are only ever added, never removed. Deleting a linked work deletes the Meadow-managed digital object but **never** touches the archival description; if the remote cleanup fails, the link is kept in an `error` state so it stays visible.
+
+Syncing is event-driven: a WalEx listener on the `works` table (`Meadow.Events.Works.ArchivesSpace`) detects changes to synced fields on linked works and feeds a rate-limited processor, so no user action is required after a work is linked.
+
+#### Configuration
+
+The integration is enabled whenever an ArchivesSpace URL is configured (`Meadow.Config.archives_space_enabled?/0`). In deployed environments the URL, user, and password come from the `archives_space` secret. The API user needs permission to update archival objects and create digital objects and subjects in the linked repository — use a dedicated `meadow` user, not `admin`.
+
+In **dev** and **test**, Meadow runs a built-in mock ArchivesSpace API (`Meadow.ArchivesSpace.MockServer`, ports 3947/3948 — same pattern as the EZID mock), so no real ArchivesSpace is needed.
+
+#### Linking and syncing
+
+Via GraphQL (all Editor-gated except the query):
+
+```graphql
+mutation {
+  linkWorkToArchivesSpace(
+    workId: "work-uuid"
+    archivesSpaceUri: "/repositories/2/archival_objects/1234"
+    refId: "ref48_optional"
+  ) { id syncStatus }
+}
+
+mutation { syncWorkToArchivesSpace(workId: "work-uuid") { syncStatus syncError } }
+mutation { unlinkWorkFromArchivesSpace(workId: "work-uuid") { id } }
+
+query { archivesSpaceLink(workId: "work-uuid") { syncStatus syncError lastSyncedAt } }
+query { archivesSpaceErrorLinks { workId archivesSpaceUri syncError } }
+```
+
+Or from IEx:
+
+```elixir
+work = Meadow.Data.Works.get_work!("work-uuid")
+{:ok, link} = Meadow.ArchivesSpace.link_work(work, "/repositories/2/archival_objects/1234")
+
+# Push immediately instead of waiting for the next change event:
+Meadow.ArchivesSpace.Sync.sync_work(work.id)
+
+# Review failures:
+Meadow.ArchivesSpace.list_error_links()
+```
+
+#### Importing a resource from ArchivesSpace
+
+`Meadow.ArchivesSpace.Importer` walks an ArchivesSpace resource (finding aid) and creates:
+
+- One linked Meadow **collection** from the resource (title, scope note, EAD location as the finding aid URL)
+- One linked, unpublished Meadow **work** per archival object at the requested levels of description (`file` and `item` by default), with title, scope/contents, abstract, and any subjects carrying resolvable authority URIs
+
+The importer reads the tree via the `tree/root`/`tree/waypoint` endpoints rather than `ordered_records`, because the latter excludes unpublished and suppressed records — usually exactly the material that still needs metadata work. Archival objects that already have a linked work are skipped, so re-importing a resource only picks up newly added records. After import, the works are ready for batch agent plans or manual editing, and changes flow back to ArchivesSpace through the regular sync.
+
+In the UI, ArchivesSpace ingest has its own **Dashboards → ArchivesSpace Imports** page (`/dashboards/archivesspace`). It lists previously imported finding aids — each linking to its Meadow collection (where staff revisit the works and run faceted batch edits) — and its **Ingest from ArchivesSpace** button (Manager-gated) searches ArchivesSpace resources by keyword (`archivesSpaceResourceSearch` query) and imports the chosen one (`importArchivesSpaceResource` mutation). The mutation creates and returns the linked collection immediately and imports the works in a supervised background task, so large finding aids don't tie up the request. Checking **Enable AI-generated metadata** (supermanager-gated) flags the imported works so their ingested images run through the AI metadata pipeline.
+
+```bash
+cd app
+mix meadow.archives_space.import /repositories/2/resources/123
+mix meadow.archives_space.import /repositories/2/resources/123 --levels file,item --accession-prefix "aspace:"
+```
+
+Or from IEx:
+
+```elixir
+{:ok, summary} = Meadow.ArchivesSpace.Importer.import_resource("/repositories/2/resources/123")
+# summary => %{collection: %Collection{}, created: [works], skipped: [uris], errors: [{uri, reason}]}
+```
+
+Generated accession numbers are `aspace:<ref_id>`. Digitized file sets still arrive through the normal ingest pipeline; transcription requires media, so it applies only after file sets are attached to the imported works.
+
+#### Running ArchivesSpace locally (Docker)
+
+Dev defaults to a local ArchivesSpace, the same way it defaults to localstack. The repo includes a compose stack in `infrastructure/archivesspace/` ([ArchivesSpace's Docker distribution](https://docs.archivesspace.org/administration/docker/), trimmed to the app, MySQL, and Solr), wired into the root Makefile like localstack:
+
+```bash
+make archivesspace-wait   # start and block until the API responds (first boot takes 10+ minutes)
+make archivesspace-stop   # stop; MySQL/Solr data persists in named volumes
+make archivesspace-clean  # stop and delete all data volumes
+```
+
+The staff UI is at `http://localhost:8080` and the backend API at `http://localhost:8089` (credentials `admin`/`admin`). The dev config points Meadow at `http://localhost:8089` by default with `admin`/`admin`, so once the stack is up, `mix phx.server` just works — no extra configuration.
+
+To use the lightweight in-process mock instead (no Docker, but empty and can't serve images), set `ARCHIVESSPACE_URL` to the mock server's port:
+
+```bash
+cd app
+ARCHIVESSPACE_URL=http://localhost:3947 mix phx.server
+```
+
+For a non-default user or a remote instance, set the `archives_space` secret or override the whole map in `app/config/dev.local.exs`:
+
+```elixir
+config :meadow,
+  archives_space: %{
+    url: "http://localhost:8089",
+    user: "admin",
+    password: "admin"
+  }
+```
+
+Populate the running instance with fixture data — a finding aid whose archival objects carry image digital objects, ready to exercise the ingest workflow — with:
+
+```bash
+cd app
+mix meadow.archives_space.seed            # 5 image items into the configured (default :8089) instance
+mix meadow.archives_space.seed --items 10
+```
+
+Note that the ArchivesSpace stack is **not** part of `make ci` or the localstack compose stack and never needs to be running for the test suite.
+
+#### Tests
+
+ArchivesSpace tests run against the in-process mock and need only the standard test environment (localstack + postgres + opensearch, provisioned automatically by the Make targets):
+
+```bash
+make app-test ARGS="test/meadow/archives_space test/meadow/archives_space_test.exs test/meadow/events/works/archives_space_test.exs test/meadow_web/schema/mutation/link_work_to_archives_space_test.exs test/meadow_web/schema/mutation/unlink_work_from_archives_space_test.exs test/meadow_web/schema/mutation/sync_work_to_archives_space_test.exs test/meadow_web/schema/query/archives_space_link_test.exs"
+```
+
+The WalEx event tests (`test/meadow/events/works/archives_space_test.exs`) run unsandboxed against the real database replication slot, like the ARK event tests.
+
+A small number of tests are tagged `:archivesspace_integration` and run against a **real** ArchivesSpace (the Docker stack above) instead of the mock, to verify the app actually behaves the way the mock assumes — JSONModel validation, digital-object-component creation, and the `tree/root`/`tree/waypoint` walk the sync relies on. They cover both directions: importing a resource (`importer_integration_test.exs`) and pushing a transcription back out to a digital object component (`transcription_sync_integration_test.exs`, which exercises the full save-transcription → WalEx → sync path end to end).
+
+They are excluded from the default suite, so start the stack first and opt in with the tag:
+
+```bash
+make archivesspace-wait   # first boot takes 10+ minutes
+make app-test ARGS="test/meadow/archives_space --only archivesspace_integration"
+```
+
+Each test seeds its own ArchivesSpace records, so no manual data setup is needed.
+
 ### Doing development on the Meadow Pipeline lambdas
 
 In the AWS developer environment, the lambdas associated with the pipeline are shared amongst developers. In order to do development and see whether it's working you can override the configuration to use the SAM pipeline the deployed lambdas.

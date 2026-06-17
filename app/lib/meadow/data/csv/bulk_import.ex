@@ -15,7 +15,10 @@ defmodule Meadow.Data.CSV.BulkImport do
     with temp_table <- "works_" <> String.replace(job_id, "-", "") do
       repo.transaction(
         fn ->
-          repo.query("CREATE TEMP TABLE #{temp_table} (LIKE works)")
+          # INCLUDING DEFAULTS so NOT NULL columns absent from the CSV (e.g.
+          # ai_ingest) get their table default rather than violating the
+          # constraint; LIKE copies NOT NULL constraints but not defaults.
+          repo.query("CREATE TEMP TABLE #{temp_table} (LIKE works INCLUDING DEFAULTS)")
 
           try do
             stream

@@ -67,6 +67,13 @@ defmodule Meadow.Config.Runtime.Test do
       queue_target: 5000,
       pool_size: 50
 
+    config :meadow,
+      archives_space: %{
+        url: "http://localhost:3948",
+        user: "admin",
+        password: "admin"
+      }
+
     config :meadow, WalEx, durable_slot: false
     config :meadow, :indexing_repo, Meadow.Repo
 

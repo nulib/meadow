@@ -65,6 +65,17 @@ defmodule Meadow.Pipeline do
     end
   end
 
+  @doc """
+  Ingests a file set whose object was just uploaded to the ingest bucket.
+
+  Waits (in a supervised async task) for the digest-tag lambda to write
+  checksum tags on the S3 object, then kicks off the pipeline. Used for
+  uploads that bypass the ingest-sheet validation step, such as
+  ArchivesSpace digital object imports.
+  """
+  def ingest_uploaded_file_set(%FileSet{} = file_set, context \\ %{}),
+    do: Task.async(fn -> wait_for_checksum_tags(file_set, context) end)
+
   defp wait_for_checksum_tags(%{core_metadata: %{location: location}} = file_set, context \\ %{}) do
     with %{host: bucket, path: "/" <> key} <- URI.parse(location),
          timeout <- Config.checksum_wait_timeout() do

@@ -21,6 +21,26 @@ export type ActionOutcome =
   /** Action is pending but not yet started */
   | "WAITING";
 
+/** Generation state of an ArchivesSpace import preview */
+export type ArchivesSpacePreviewStatus =
+  /** The preview finished successfully */
+  | "COMPLETE"
+  /** The preview could not be generated */
+  | "ERROR"
+  /** The metadata agent is still running */
+  | "PENDING";
+
+/** The synchronization state of an ArchivesSpace link */
+export type ArchivesSpaceSyncStatus =
+  /** The last sync attempt failed */
+  | "ERROR"
+  /** Linked but never synced */
+  | "LINKED"
+  /** Waiting to be synced */
+  | "PENDING"
+  /** Successfully synced */
+  | "SYNCED";
+
 /** Input fields available for batch add (append) operations on works administrative metadata */
 export type BatchAddAdministrativeMetadataInput = {
   projectDesc?: Array<string | null | undefined> | null | undefined;
@@ -1584,6 +1604,97 @@ export type ApplyPlanMutation = {
     status: PlanStatus | null;
     completedAt: unknown;
     error: string | null;
+  } | null;
+};
+
+export type ArchivesSpaceResourceSearchQueryVariables = Exact<{
+  query: string;
+  page?: number | null | undefined;
+}>;
+
+export type ArchivesSpaceResourceSearchQuery = {
+  archivesSpaceResourceSearch: {
+    totalHits: number | null;
+    results: Array<{
+      uri: string;
+      title: string | null;
+      identifier: string | null;
+      importValidation: {
+        importable: boolean;
+        blockedReason: string | null;
+        blockedCount: number;
+        blockedSamples: Array<{
+          uri: string;
+          title: string | null;
+          fileUri: string;
+        } | null>;
+      };
+    } | null>;
+  } | null;
+};
+
+export type ArchivesSpaceImportsQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type ArchivesSpaceImportsQuery = {
+  archivesSpaceImports: Array<{
+    id: string;
+    archivesSpaceUri: string;
+    findingAidUrl: string | null;
+    syncStatus: ArchivesSpaceSyncStatus;
+    workCount: number | null;
+    insertedAt: unknown;
+    collection: { id: string | null; title: string | null } | null;
+  } | null> | null;
+};
+
+export type StartArchivesSpaceImportPreviewMutationVariables = Exact<{
+  resourceUri: string;
+}>;
+
+export type StartArchivesSpaceImportPreviewMutation = {
+  archivesSpaceStartImportPreview: {
+    token: string;
+    status: ArchivesSpacePreviewStatus;
+  } | null;
+};
+
+export type ArchivesSpaceImportPreviewSubscriptionVariables = Exact<{
+  token: string | number;
+}>;
+
+export type ArchivesSpaceImportPreviewSubscription = {
+  archivesSpaceImportPreview: {
+    token: string;
+    status: ArchivesSpacePreviewStatus;
+    estimatedCost: number | null;
+    sampleCount: number | null;
+    totalCount: number | null;
+    error: string | null;
+    previews: Array<{
+      workAccessionNumber: string | null;
+      title: string | null;
+      description: string | null;
+      thumbnail: string | null;
+      subjects: Array<{
+        id: string | null;
+        label: string | null;
+      } | null> | null;
+    } | null>;
+  } | null;
+};
+
+export type ImportArchivesSpaceResourceMutationVariables = Exact<{
+  resourceUri: string;
+  aiIngest?: boolean | null | undefined;
+}>;
+
+export type ImportArchivesSpaceResourceMutation = {
+  importArchivesSpaceResource: {
+    id: string | null;
+    title: string | null;
+    findingAidUrl: string | null;
   } | null;
 };
 
@@ -7465,6 +7576,408 @@ export const ApplyPlanDocument = {
     },
   ],
 } as unknown as DocumentNode<ApplyPlanMutation, ApplyPlanMutationVariables>;
+export const ArchivesSpaceResourceSearchDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ArchivesSpaceResourceSearch" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "query" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "page" } },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "archivesSpaceResourceSearch" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "query" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "query" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "page" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "page" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "results" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "uri" } },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "identifier" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "importValidation" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "importable" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "blockedReason" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "blockedCount" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "blockedSamples" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "uri" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "title" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "fileUri" },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "totalHits" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ArchivesSpaceResourceSearchQuery,
+  ArchivesSpaceResourceSearchQueryVariables
+>;
+export const ArchivesSpaceImportsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ArchivesSpaceImports" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "archivesSpaceImports" },
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "archivesSpaceUri" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "findingAidUrl" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "syncStatus" } },
+                { kind: "Field", name: { kind: "Name", value: "workCount" } },
+                { kind: "Field", name: { kind: "Name", value: "insertedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "collection" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ArchivesSpaceImportsQuery,
+  ArchivesSpaceImportsQueryVariables
+>;
+export const StartArchivesSpaceImportPreviewDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "StartArchivesSpaceImportPreview" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "resourceUri" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "archivesSpaceStartImportPreview" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "resourceUri" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "resourceUri" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "token" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  StartArchivesSpaceImportPreviewMutation,
+  StartArchivesSpaceImportPreviewMutationVariables
+>;
+export const ArchivesSpaceImportPreviewDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "subscription",
+      name: { kind: "Name", value: "ArchivesSpaceImportPreview" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "token" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "archivesSpaceImportPreview" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "token" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "token" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "token" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "estimatedCost" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "sampleCount" } },
+                { kind: "Field", name: { kind: "Name", value: "totalCount" } },
+                { kind: "Field", name: { kind: "Name", value: "error" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "previews" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "workAccessionNumber" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "description" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "thumbnail" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "subjects" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "label" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ArchivesSpaceImportPreviewSubscription,
+  ArchivesSpaceImportPreviewSubscriptionVariables
+>;
+export const ImportArchivesSpaceResourceDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "ImportArchivesSpaceResource" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "resourceUri" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "aiIngest" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Boolean" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "importArchivesSpaceResource" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "resourceUri" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "resourceUri" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "aiIngest" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "aiIngest" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "findingAidUrl" },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ImportArchivesSpaceResourceMutation,
+  ImportArchivesSpaceResourceMutationVariables
+>;
 export const CreateProjectDocument = {
   kind: "Document",
   definitions: [

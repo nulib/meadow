@@ -1,0 +1,14 @@
+query {
+  archivesSpaceImports {
+    id
+    archivesSpaceUri
+    findingAidUrl
+    syncStatus
+    workCount
+    insertedAt
+    collection {
+      id
+      title
+    }
+  }
+}

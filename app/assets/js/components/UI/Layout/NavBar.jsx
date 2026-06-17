@@ -180,6 +180,15 @@ const UILayoutNavBar = () => {
                           </IconText>
                         </Link>
                       </UILayoutNavDropdownItem>
+                      <AuthDisplayAuthorized level="SUPERUSER">
+                        <UILayoutNavDropdownItem>
+                          <Link to="/dashboards/archivesspace">
+                            <IconText icon={<IconSearch />}>
+                              ArchivesSpace Imports
+                            </IconText>
+                          </Link>
+                        </UILayoutNavDropdownItem>
+                      </AuthDisplayAuthorized>
                       <UILayoutNavDropdownItem>
                         <Link to="/dashboards/analytics">
                           <IconText icon={<IconChart />}>

@@ -158,6 +158,10 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       end)
     end
 
+    field :archives_space_link, :archives_space_link do
+      resolve(&MeadowWeb.Resolvers.ArchivesSpace.link_for_work/3)
+    end
+
     field(:inserted_at, non_null(:datetime))
     field(:updated_at, non_null(:datetime))
     field(:collection, :collection, resolve: dataloader(Data))
