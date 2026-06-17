@@ -415,7 +415,17 @@ defmodule Meadow.Ingest.Validator do
     work_type = Row.field_value(row, "work_type")
     mime_type = MIME.from_path(value)
 
+    unsafe_chars =
+      ~r/[^a-zA-Z0-9!\-_.*'()\/]/
+      |> Regex.scan(value)
+      |> List.flatten()
+      |> Enum.uniq()
+
     cond do
+      unsafe_chars != [] ->
+        {:error, "filename",
+         "#{value} contains characters that are not safe for S3 object keys: #{Enum.join(unsafe_chars, ", ")}"}
+
       Truth.false?(MapSet.member?(existing_files, value)) ->
         {:error, "filename", "File not Found: #{value}"}
 
