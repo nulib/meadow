@@ -10,6 +10,13 @@ const mockIsCodedTerm = jest.fn(
     path === "descriptive_metadata.rights_statement" ||
     path === "descriptive_metadata.license",
 );
+const mockGetCurrentValue = jest.fn(() => undefined);
+const mockComputeRowDiff = jest.fn(() => ({
+  kind: "scalar",
+  current: "",
+  resulting: "",
+  changed: false,
+}));
 
 jest.mock("@apollo/client/react", () => ({
   useMutation: () => [jest.fn()],
@@ -52,6 +59,8 @@ jest.mock("@js/components/Plan/Panel/diff-helpers", () => ({
   toArray: (...args) => mockToArray(...args),
   toRows: (...args) => mockToRows(...args),
   isCodedTerm: (...args) => mockIsCodedTerm(...args),
+  getCurrentValue: (...args) => mockGetCurrentValue(...args),
+  computeRowDiff: (...args) => mockComputeRowDiff(...args),
 }));
 
 const { default: PlanPanelChangesDiff } = await import("./Diff");
@@ -60,7 +69,13 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const baseProposed = { add: {}, delete: null, replace: null };
+// Status "PROPOSED" keeps existing tests in the editable single-column table
+const baseProposed = {
+  status: "PROPOSED",
+  add: {},
+  delete: null,
+  replace: null,
+};
 
 describe("PlanPanelChangesDiff", () => {
   test("renders a controlled row using UIControlledTermList with coerced items (array)", () => {
@@ -303,5 +318,275 @@ describe("PlanPanelChangesDiff", () => {
 
     const titles = ctls.map((el) => el.getAttribute("data-title"));
     expect(titles).toEqual(expect.arrayContaining(["Subject", "Creator"]));
+  });
+
+  // -----------------------------------------------------------------------
+  // APPROVED state: before→after diff table
+  // -----------------------------------------------------------------------
+  describe("approved diff view (status !== PROPOSED)", () => {
+    const approvedProposed = {
+      status: "APPROVED",
+      add: {},
+      delete: null,
+      replace: null,
+    };
+
+    test("renders Current value / New value column headers instead of Proposed Value", () => {
+      mockToRows
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      render(<PlanPanelChangesDiff proposedChanges={approvedProposed} />);
+
+      expect(
+        screen.getByRole("columnheader", { name: /current value/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("columnheader", { name: /new value/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("columnheader", { name: /proposed value/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    test("does not render edit/delete action buttons", () => {
+      mockToRows
+        .mockReturnValueOnce([
+          {
+            id: "replace-title",
+            method: "replace",
+            path: "descriptive_metadata.title",
+            label: "Title",
+            value: "New Title",
+            controlled: false,
+          },
+        ])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "scalar",
+        current: "Old Title",
+        resulting: "New Title",
+        changed: true,
+      });
+
+      render(<PlanPanelChangesDiff proposedChanges={approvedProposed} />);
+
+      expect(
+        screen.queryByTestId("button-edit-plan-change-row"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId("button-delete-plan-change-row"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("renders scalar diff: current and new values in separate cells", () => {
+      mockToRows
+        .mockReturnValueOnce([
+          {
+            id: "replace-title",
+            method: "replace",
+            path: "descriptive_metadata.title",
+            label: "Title",
+            value: "New Title",
+            controlled: false,
+          },
+        ])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "scalar",
+        current: "Old Title",
+        resulting: "New Title",
+        changed: true,
+      });
+
+      render(<PlanPanelChangesDiff proposedChanges={approvedProposed} />);
+
+      const rows = screen.getAllByRole("row");
+      const dataRow = rows[1]; // skip header
+      const cells = within(dataRow).getAllByRole("cell");
+      expect(cells[2]).toHaveTextContent("Old Title");
+      expect(cells[3]).toHaveTextContent("New Title");
+    });
+
+    test("renders list diff: added items carry data-diff-status=added", () => {
+      mockToRows
+        .mockReturnValueOnce([
+          {
+            id: "add-subject",
+            method: "add",
+            path: "descriptive_metadata.subject",
+            label: "Subject",
+            value: [{ term: { id: "s2", label: "Photographs" } }],
+            controlled: true,
+          },
+        ])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "list",
+        current: [{ key: "s1", display: "Maps", status: "unchanged" }],
+        resulting: [
+          { key: "s1", display: "Maps", status: "unchanged" },
+          { key: "s2", display: "Photographs", status: "added" },
+        ],
+      });
+
+      render(<PlanPanelChangesDiff proposedChanges={approvedProposed} />);
+
+      const addedItems = document.querySelectorAll(
+        '[data-diff-status="added"]',
+      );
+      expect(addedItems).toHaveLength(1);
+      expect(addedItems[0]).toHaveTextContent("Photographs");
+    });
+
+    test("renders list diff: removed items carry data-diff-status=removed", () => {
+      mockToRows
+        .mockReturnValueOnce([
+          {
+            id: "delete-subject",
+            method: "delete",
+            path: "descriptive_metadata.subject",
+            label: "Subject",
+            value: [{ term: { id: "s1", label: "Maps" } }],
+            controlled: true,
+          },
+        ])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "list",
+        current: [{ key: "s1", display: "Maps", status: "removed" }],
+        resulting: [],
+      });
+
+      render(<PlanPanelChangesDiff proposedChanges={approvedProposed} />);
+
+      const removedItems = document.querySelectorAll(
+        '[data-diff-status="removed"]',
+      );
+      expect(removedItems).toHaveLength(1);
+      expect(removedItems[0]).toHaveTextContent("Maps");
+    });
+
+    test("renders authority URI in parentheses for items with an id", () => {
+      mockToRows
+        .mockReturnValueOnce([
+          {
+            id: "add-subject",
+            method: "add",
+            path: "descriptive_metadata.subject",
+            label: "Subject",
+            value: [
+              {
+                term: {
+                  id: "http://vocab.getty.edu/aat/300127173",
+                  label: "Aerial photographs",
+                },
+              },
+            ],
+            controlled: true,
+          },
+        ])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "list",
+        current: [],
+        resulting: [
+          {
+            key: "http://vocab.getty.edu/aat/300127173",
+            display: "Aerial photographs",
+            id: "http://vocab.getty.edu/aat/300127173",
+            status: "added",
+          },
+        ],
+      });
+
+      render(<PlanPanelChangesDiff proposedChanges={approvedProposed} />);
+
+      expect(
+        screen.getByText("http://vocab.getty.edu/aat/300127173", {
+          exact: false,
+        }),
+      ).toBeInTheDocument();
+      // id is wrapped in parens
+      expect(
+        screen.getByText(/\(http:\/\/vocab\.getty\.edu\/aat\/300127173\)/),
+      ).toBeInTheDocument();
+    });
+
+    test("does not render a parenthetical id for non-controlled items (no id field)", () => {
+      mockToRows
+        .mockReturnValueOnce([
+          {
+            id: "add-description",
+            method: "add",
+            path: "descriptive_metadata.description",
+            label: "Description",
+            value: ["New line"],
+            controlled: false,
+          },
+        ])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "list",
+        current: [],
+        resulting: [{ key: "New line", display: "New line", status: "added" }],
+      });
+
+      render(<PlanPanelChangesDiff proposedChanges={approvedProposed} />);
+
+      // The term id span should not appear
+      expect(
+        document.querySelector(".plan-diff-term-id"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("calls getCurrentValue with the row path and currentWork", () => {
+      mockToRows
+        .mockReturnValueOnce([
+          {
+            id: "replace-title",
+            method: "replace",
+            path: "descriptive_metadata.title",
+            label: "Title",
+            value: "New",
+            controlled: false,
+          },
+        ])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "scalar",
+        current: "Old",
+        resulting: "New",
+        changed: true,
+      });
+
+      const currentWork = { descriptiveMetadata: { title: "Old" } };
+      render(
+        <PlanPanelChangesDiff
+          proposedChanges={approvedProposed}
+          currentWork={currentWork}
+        />,
+      );
+
+      expect(mockGetCurrentValue).toHaveBeenCalledWith(
+        "descriptive_metadata.title",
+        currentWork,
+      );
+    });
   });
 });
