@@ -84,17 +84,19 @@ defmodule Meadow.ArchivesSpace.Importer do
     with :ok <- validate_importable(resource_uri, opts),
          {:ok, resource} <- Client.get_record(resource_uri),
          {:ok, collection, existing?} <- ensure_collection(resource, resource_uri) do
-      unless existing? do
-        {:ok, _pid} =
-          Task.Supervisor.start_child(Meadow.ArchivesSpace.TaskSupervisor, fn ->
-            resource_uri
-            |> import_works(collection, opts)
-            |> log_import_results(resource_uri)
-          end)
-      end
+      unless existing?, do: start_import_task(resource_uri, collection, opts)
 
       {:ok, collection}
     end
+  end
+
+  defp start_import_task(resource_uri, collection, opts) do
+    {:ok, _pid} =
+      Task.Supervisor.start_child(Meadow.ArchivesSpace.TaskSupervisor, fn ->
+        resource_uri
+        |> import_works(collection, opts)
+        |> log_import_results(resource_uri)
+      end)
   end
 
   defp validate_importable(resource_uri, opts) do
@@ -261,21 +263,22 @@ defmodule Meadow.ArchivesSpace.Importer do
 
     attrs = Map.put(attrs, :file_sets, file_sets)
 
-    with {:ok, work} <- Works.create_work(attrs) do
-      case ArchivesSpace.link_work(work, uri, %{ref_id: archival_object["ref_id"]}) do
-        {:ok, _link} ->
-          Logger.info("Imported #{uri} as work #{work.id} with #{length(file_sets)} file set(s)")
-          set_representative_image(work, representative_accession)
-          kickoff_file_sets(work)
-          {:created, work}
+    case Works.create_work(attrs) do
+      {:ok, work} ->
+        case ArchivesSpace.link_work(work, uri, %{ref_id: archival_object["ref_id"]}) do
+          {:ok, _link} ->
+            Logger.info("Imported #{uri} as work #{work.id} with #{length(file_sets)} file set(s)")
+            set_representative_image(work, representative_accession)
+            kickoff_file_sets(work)
+            {:created, work}
 
-        {:error, %Ecto.Changeset{} = changeset} ->
-          handle_link_error(work, uri, changeset)
+          {:error, %Ecto.Changeset{} = changeset} ->
+            handle_link_error(work, uri, changeset)
 
-        {:error, reason} ->
-          {:error, uri, reason}
-      end
-    else
+          {:error, reason} ->
+            {:error, uri, reason}
+        end
+
       {:error, %Ecto.Changeset{} = changeset} ->
         {:error, uri, inspect(ChangesetErrors.humanize_errors(changeset))}
 

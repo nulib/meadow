@@ -29,9 +29,8 @@ defmodule Meadow.ArchivesSpace.ImportValidator do
   end
 
   def ensure_importable(resource_uri, opts \\ []) do
-    with {:ok, %{importable: true}} <- validate(resource_uri, opts) do
-      :ok
-    else
+    case validate(resource_uri, opts) do
+      {:ok, %{importable: true}} -> :ok
       {:ok, validation} -> {:error, blocked_message(validation)}
       other -> other
     end
