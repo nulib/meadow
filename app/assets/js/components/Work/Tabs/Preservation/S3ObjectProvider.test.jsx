@@ -12,7 +12,7 @@ const mocks = [
     },
     result: {
       data: {
-        ListIngestBucketObjects: {
+        listIngestBucketObjects: {
           objects: [
             {
               uri: "s3://bucket/file1.jpg",
@@ -73,7 +73,7 @@ const mocks = [
     },
     result: {
       data: {
-        ListIngestBucketObjects: {
+        listIngestBucketObjects: {
           objects: [
             {
               uri: "s3://bucket/file_sets/file3.jpg",
