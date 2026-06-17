@@ -441,6 +441,17 @@ make app-test ARGS="test/meadow/archives_space test/meadow/archives_space_test.e
 
 The WalEx event tests (`test/meadow/events/works/archives_space_test.exs`) run unsandboxed against the real database replication slot, like the ARK event tests.
 
+A small number of tests are tagged `:archivesspace_integration` and run against a **real** ArchivesSpace (the Docker stack above) instead of the mock, to verify the app actually behaves the way the mock assumes — JSONModel validation, digital-object-component creation, and the `tree/root`/`tree/waypoint` walk the sync relies on. They cover both directions: importing a resource (`importer_integration_test.exs`) and pushing a transcription back out to a digital object component (`transcription_sync_integration_test.exs`, which exercises the full save-transcription → WalEx → sync path end to end).
+
+They are excluded from the default suite, so start the stack first and opt in with the tag:
+
+```bash
+make archivesspace-wait   # first boot takes 10+ minutes
+make app-test ARGS="test/meadow/archives_space --only archivesspace_integration"
+```
+
+Each test seeds its own ArchivesSpace records, so no manual data setup is needed.
+
 ### Doing development on the Meadow Pipeline lambdas
 
 In the AWS developer environment, the lambdas associated with the pipeline are shared amongst developers. In order to do development and see whether it's working you can override the configuration to use the SAM pipeline the deployed lambdas.
