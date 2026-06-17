@@ -102,38 +102,38 @@ function WorkTabsPreservationTransferFileSetsModal({
 
   const history = useHistory();
 
-  const [transferFileSetsSubset, { loading, error, data, reset: resetMutation }] = useMutation(
-    TRANSFER_FILE_SETS_SUBSET,
-    {
-      onCompleted({ transferFileSetsSubset }) {
-        const { transferredFilesetIds, createdWorkId } = transferFileSetsSubset;
-        const targetWorkId =
-          createdWorkId || methods.getValues("accessionNumber");
+  const [
+    transferFileSetsSubset,
+    { loading, error, data, reset: resetMutation },
+  ] = useMutation(TRANSFER_FILE_SETS_SUBSET, {
+    onCompleted({ transferFileSetsSubset }) {
+      const { transferredFilesetIds, createdWorkId } = transferFileSetsSubset;
+      const targetWorkId =
+        createdWorkId || methods.getValues("accessionNumber");
 
-        toastWrapper(
-          "is-success",
-          `${transferredFilesetIds.length} fileset(s) transferred successfully${
-            createdWorkId ? " to new work" : ""
-          }`,
-        );
-        resetForm();
+      toastWrapper(
+        "is-success",
+        `${transferredFilesetIds.length} fileset(s) transferred successfully${
+          createdWorkId ? " to new work" : ""
+        }`,
+      );
+      resetForm();
 
-        // Navigate to the target work (either created or existing)
-        if (createdWorkId) {
-          history.push(`/work/${createdWorkId}`);
-        } else {
-          // For existing work, close the modal and let the user navigate manually
-          closeModal();
-        }
-      },
-      onError(error) {
-        console.error(
-          "error in the transferFileSetsSubset GraphQL mutation :>> ",
-          error,
-        );
-      },
+      // Navigate to the target work (either created or existing)
+      if (createdWorkId) {
+        history.push(`/work/${createdWorkId}`);
+      } else {
+        // For existing work, close the modal and let the user navigate manually
+        closeModal();
+      }
     },
-  );
+    onError(error) {
+      console.error(
+        "error in the transferFileSetsSubset GraphQL mutation :>> ",
+        error,
+      );
+    },
+  });
 
   const handleSubmit = (data) => {
     setIsSubmitted(true);
@@ -301,9 +301,7 @@ function WorkTabsPreservationTransferFileSetsModal({
                           <p css={previewFilename}>
                             {fs.coreMetadata?.originalFilename || fs.id}
                           </p>
-                          <p css={previewRole}>
-                            Role: {fs.role?.id || "N/A"}
-                          </p>
+                          <p css={previewRole}>Role: {fs.role?.id || "N/A"}</p>
                         </div>
                       </div>
                     ))}
@@ -322,9 +320,7 @@ function WorkTabsPreservationTransferFileSetsModal({
                       checked={transferDestination === "existing"}
                       onChange={(e) => setTransferDestination(e.target.value)}
                     />
-                    <span css={radioLabel}>
-                      Transfer to existing work
-                    </span>
+                    <span css={radioLabel}>Transfer to existing work</span>
                   </label>
                 </div>
                 <div className="control">

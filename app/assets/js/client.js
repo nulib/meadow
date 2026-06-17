@@ -44,7 +44,7 @@ const wsLink = new GraphQLWsLink(wsClient);
 const link = ApolloLink.split(
   (operation) => hasSubscription(operation.query),
   wsLink,
-  httpLink
+  httpLink,
 );
 
 // Create the Apollo Client instance.

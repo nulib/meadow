@@ -45,9 +45,10 @@ defmodule Meadow.Config.Runtime.Dev do
       ],
       live_reload: [
         patterns: [
-          # Vite watch rewrites js/app.js and js/app.css frequently; exclude them
-          # to avoid full-page reloads that interrupt long-running UI workflows.
-          ~r"priv/static/(?!js/app\.(js|css)$).*(js|css|png|jpeg|jpg|gif|svg)$",
+          # The esbuild watcher (assets/build.mjs) builds once per change, so we
+          # let js/app.js and js/app.css through: CSS edits trigger a non-
+          # disruptive stylesheet hot-swap and JS edits trigger a single reload.
+          ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
           ~r"priv/gettext/.*(po)$",
           ~r"lib/meadow_web/{live,views}/.*(ex)$",
           ~r"lib/meadow_web/templates/.*(eex)$"

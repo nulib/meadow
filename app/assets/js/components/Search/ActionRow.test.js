@@ -6,7 +6,6 @@ import { renderWithRouterApollo } from "../../services/testing-helpers";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
@@ -68,7 +67,7 @@ describe("SearchActionRow component", () => {
   describe("with selected items", () => {
     beforeEach(() => {
       renderWithRouterApollo(
-        <SearchActionRow {...props} selectedItems={["abc", "def"]} />
+        <SearchActionRow {...props} selectedItems={["abc", "def"]} />,
       );
     });
 

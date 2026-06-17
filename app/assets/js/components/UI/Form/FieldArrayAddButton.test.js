@@ -14,7 +14,7 @@ describe("UIFormFieldArrayAddButton component", () => {
   it("renders the appropriate label", () => {
     render(<UIFormFieldArrayAddButton btnLabel="Add another" />);
     expect(screen.getByTestId("button-add-field-array-row")).toHaveTextContent(
-      "Add another"
+      "Add another",
     );
   });
 
@@ -24,7 +24,7 @@ describe("UIFormFieldArrayAddButton component", () => {
       <UIFormFieldArrayAddButton
         btnLabel="Add another"
         handleAddClick={addFn}
-      />
+      />,
     );
     await user.click(screen.getByTestId("button-add-field-array-row"));
     expect(addFn).toHaveBeenCalled();

@@ -47,7 +47,7 @@ const ScreensCollectionList = () => {
     onCompleted({ deleteCollection }) {
       toastWrapper(
         "is-success",
-        `Collection ${deleteCollection.title} deleted successfully`
+        `Collection ${deleteCollection.title} deleted successfully`,
       );
     },
     refetchQueries(mutationResult) {
@@ -81,8 +81,8 @@ const ScreensCollectionList = () => {
     if (searchValue) {
       setFilteredCollections(
         data.collections.filter((collection) =>
-          collection.title.toLowerCase().includes(searchValue)
-        )
+          collection.title.toLowerCase().includes(searchValue),
+        ),
       );
     } else {
       setFilteredCollections(data.collections);

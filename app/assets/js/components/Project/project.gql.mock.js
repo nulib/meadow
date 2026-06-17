@@ -116,5 +116,5 @@ export const projectsSearchMock = (searchTerm) => {
         projectsSearch: mockProjects,
       },
     },
-  }
+  };
 };

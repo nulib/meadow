@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "10.4.0"
+  @app_version "10.4.1"
 
   def project do
     [
@@ -158,7 +158,7 @@ defmodule Meadow.MixProject do
   end
 
   def build_assets(release) do
-    System.cmd("npm", ["run-script", "deploy"], cd: "assets")
+    System.cmd("bun", ["run", "deploy"], cd: "assets")
     Mix.Task.run("phx.digest")
     release
   end

@@ -88,7 +88,6 @@ const ScreensSearch = () => {
   const handleEditItems = async () => {
     const myQuery = buildSelectedItemsQuery(selectedItems);
 
-
     const parsedAggregations = await getParsedAggregations(myQuery);
 
     // Update the global Batch Edit Context
@@ -137,7 +136,7 @@ const ScreensSearch = () => {
     });
 
     history.push(
-      `/work/${selectedItems[0]}/multi/${0},${selectedItems.length}`
+      `/work/${selectedItems[0]}/multi/${0},${selectedItems.length}`,
     );
   };
 

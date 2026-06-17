@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import S3ObjectProvider from './S3ObjectProvider';
-import { styled } from '@stitches/react';
+import S3ObjectProvider from "./S3ObjectProvider";
+import { styled } from "@stitches/react";
 
 import {
   ChonkyActions,
@@ -11,10 +11,10 @@ import {
 } from "chonky";
 import { ChonkyIconFA } from "chonky-icon-fontawesome";
 
-const StyledFilePicker = styled('div', {
+const StyledFilePicker = styled("div", {
   "& .chonky-toolbarRight": {
-    display: "none"
-  }
+    display: "none",
+  },
 });
 
 const S3ObjectPicker = ({
@@ -73,8 +73,13 @@ const S3ObjectPicker = ({
   return (
     <StyledFilePicker className="file-picker" data-testid="file-picker">
       {error && <div className="error">{error}</div>}
-      <S3ObjectProvider fileSetRole={fileSetRole} workTypeId={workTypeId} prefix={prefix} ref={providerRef}>
-        <FileBrowser          
+      <S3ObjectProvider
+        fileSetRole={fileSetRole}
+        workTypeId={workTypeId}
+        prefix={prefix}
+        ref={providerRef}
+      >
+        <FileBrowser
           ref={fileBrowserRef}
           defaultFileViewActionId={ChonkyActions.EnableListView.id}
           onFileAction={handleFileAction}
@@ -82,7 +87,7 @@ const S3ObjectPicker = ({
         >
           <FileNavbar />
           <FileToolbar />
-          <FileList/>
+          <FileList />
         </FileBrowser>
       </S3ObjectProvider>
     </StyledFilePicker>

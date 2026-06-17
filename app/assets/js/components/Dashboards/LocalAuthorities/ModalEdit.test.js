@@ -27,7 +27,7 @@ describe("DashboardsLocalAuthoritiesModalEdit component", () => {
     expect(screen.getByRole("form"));
     expect(screen.getByLabelText("Hint")).toHaveValue("Ima hint 1");
     expect(screen.getByLabelText("Label", { exact: false })).toHaveValue(
-      "NUL Auth Record 1"
+      "NUL Auth Record 1",
     );
     expect(screen.getByTestId("submit-button"));
     expect(screen.getByTestId("cancel-button"));

@@ -113,11 +113,18 @@ export default function EvalsDetailsScreen() {
                   Prompt:{" "}
                   <button
                     className="button is-ghost is-small p-0"
-                    style={{ verticalAlign: "baseline", height: "auto", fontWeight: "normal", color: "inherit" }}
+                    style={{
+                      verticalAlign: "baseline",
+                      height: "auto",
+                      fontWeight: "normal",
+                      color: "inherit",
+                    }}
                     onClick={() => setShowPrompt((s) => !s)}
                   >
                     {run.promptVersion?.name}
-                    <span className="ml-1" style={{ fontSize: "0.7rem" }}>{showPrompt ? "▴" : "▾"}</span>
+                    <span className="ml-1" style={{ fontSize: "0.7rem" }}>
+                      {showPrompt ? "▴" : "▾"}
+                    </span>
                   </button>
                 </p>
               </div>
@@ -141,13 +148,33 @@ export default function EvalsDetailsScreen() {
 
           {/* Prompt content (collapsible) */}
           {showPrompt && run.promptVersion && (
-            <div className="box mb-4 is-size-7" style={{ background: "#fafafa" }}>
+            <div
+              className="box mb-4 is-size-7"
+              style={{ background: "#fafafa" }}
+            >
               <p className="label is-small">Subject headings task</p>
-              <pre style={{ whiteSpace: "pre-wrap", background: "#f0f0f0", padding: "0.75rem", borderRadius: "4px", marginBottom: "1rem", fontSize: "0.75rem" }}>
+              <pre
+                style={{
+                  whiteSpace: "pre-wrap",
+                  background: "#f0f0f0",
+                  padding: "0.75rem",
+                  borderRadius: "4px",
+                  marginBottom: "1rem",
+                  fontSize: "0.75rem",
+                }}
+              >
                 {run.promptVersion.subjectPrompt || "(none)"}
               </pre>
               <p className="label is-small">Description task</p>
-              <pre style={{ whiteSpace: "pre-wrap", background: "#f0f0f0", padding: "0.75rem", borderRadius: "4px", fontSize: "0.75rem" }}>
+              <pre
+                style={{
+                  whiteSpace: "pre-wrap",
+                  background: "#f0f0f0",
+                  padding: "0.75rem",
+                  borderRadius: "4px",
+                  fontSize: "0.75rem",
+                }}
+              >
                 {run.promptVersion.descriptionPrompt || "(none)"}
               </pre>
             </div>
@@ -156,7 +183,10 @@ export default function EvalsDetailsScreen() {
           {/* Summary stats */}
           <div className="columns mb-4">
             <div className="column is-narrow">
-              <div className="box has-text-centered" style={{ borderTop: "3px solid #48c78e" }}>
+              <div
+                className="box has-text-centered"
+                style={{ borderTop: "3px solid #48c78e" }}
+              >
                 <p className="heading">Manual scoring</p>
                 <p className="title is-3">
                   <span className="has-text-success">{s.manualGood ?? 0}</span>
@@ -169,7 +199,9 @@ export default function EvalsDetailsScreen() {
             <div className="column is-narrow">
               <div className="box has-text-centered">
                 <p className="heading">Avg description score</p>
-                <p className={`title is-3 ${scoreColor(s.meanDescriptionJudgeScore)}`}>
+                <p
+                  className={`title is-3 ${scoreColor(s.meanDescriptionJudgeScore)}`}
+                >
                   {percent(s.meanDescriptionJudgeScore)}
                 </p>
                 <p className="is-size-7 has-text-grey">LLM judge</p>
@@ -178,7 +210,9 @@ export default function EvalsDetailsScreen() {
             <div className="column is-narrow">
               <div className="box has-text-centered">
                 <p className="heading">Avg subjects score</p>
-                <p className={`title is-3 ${scoreColor(s.meanSubjectsJudgeScore)}`}>
+                <p
+                  className={`title is-3 ${scoreColor(s.meanSubjectsJudgeScore)}`}
+                >
                   {percent(s.meanSubjectsJudgeScore)}
                 </p>
                 <p className="is-size-7 has-text-grey">LLM judge</p>
@@ -233,7 +267,8 @@ export default function EvalsDetailsScreen() {
                         </td>
                         <td>
                           <div>
-                            {member.accessionNumber || trial.workId?.slice(0, 8)}
+                            {member.accessionNumber ||
+                              trial.workId?.slice(0, 8)}
                           </div>
                         </td>
                         <td>{trial.trialIndex + 1}</td>
@@ -272,7 +307,10 @@ export default function EvalsDetailsScreen() {
                                 judgeRationale={trial.judgeRationale}
                               />
                             ) : (
-                              <p className="has-text-grey is-size-7" style={{ padding: "1rem 0" }}>
+                              <p
+                                className="has-text-grey is-size-7"
+                                style={{ padding: "1rem 0" }}
+                              >
                                 {enumLabel(trial.status)} — no output yet
                               </p>
                             )}

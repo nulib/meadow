@@ -42,7 +42,7 @@ export default function DashboardsPreservationChecksList() {
   };
 
   const sortedPreservationChecks = [...data.preservationChecks].sort((a, b) =>
-    a.insertedAt < b.insertedAt ? 1 : -1
+    a.insertedAt < b.insertedAt ? 1 : -1,
   );
 
   return (

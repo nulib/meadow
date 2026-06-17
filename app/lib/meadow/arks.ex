@@ -64,7 +64,9 @@ defmodule Meadow.Arks do
     case work |> initial_ark() |> Ark.mint() do
       {:ok, result} ->
         Logger.info("Minted ARK #{result.ark} for work #{work.id}")
+
         Works.update_work(work, %{descriptive_metadata: %{ark: result.ark}})
+        |> maybe_update_metadata()
 
       {:error, error_message} ->
         Meadow.Error.report(error_message, __MODULE__, [], %{work_id: work.id})
@@ -88,6 +90,17 @@ defmodule Meadow.Arks do
         end
     end
   end
+
+  defp maybe_update_metadata(
+         {:ok, %Work{published: true, visibility: %{id: "RESTRICTED"}} = work}
+       ) do
+    case update_ark_metadata(work) do
+      {:ok, _} -> {:ok, work}
+      {:error, message} -> {:error, message}
+    end
+  end
+
+  defp maybe_update_metadata(other), do: other
 
   defp update_existing_ark(_work, ark, ark) do
     Logger.debug("Metadata for #{ark.ark} didn't change. Not sending update.")
@@ -153,7 +166,7 @@ defmodule Meadow.Arks do
   defp initial_ark_attributes(work) do
     status =
       case work do
-        %{published: true, visibility: %{id: "RESTRICTED"}} -> "unavailable | restricted"
+        %{published: true, visibility: %{id: "RESTRICTED"}} -> "reserved"
         %{published: true} -> "public"
         _ -> "reserved"
       end

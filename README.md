@@ -13,8 +13,8 @@
 - From the `meadow` project root, `cd app`.
 - Install Elixir dependencies with `mix deps.get`
 - Run `mix meadow.setup`. This creates the Sequins pipeline, S3 buckets, and database.
-- Install Node.js dependencies with `mix assets.install`
-  - `assets.install` looks for all `package-lock.json` files project-wide and runs `npm install` in each directory found, so you don't need to run `npm install` in individual directories.
+- Install JavaScript dependencies with `mix assets.install`
+  - `assets.install` looks for all `bun.lock` files project-wide and runs `bun install --frozen-lockfile` in each directory found, so you don't need to run `bun install` in individual directories.
 - run `sgport open all 3001`
 - Start the Phoenix server with `mix phx.server` (or `iex -S mix phx.server` if you want to an interactive shell).
 
@@ -338,7 +338,7 @@ mix graphql.schema.export -o priv/graphql/schema.json
 
 # Generate TypeScript types for the UI
 cd assets
-npm run generate-types
+bun run generate-types
 ```
 
 Types will be generated in `meadow/app/assets/js/__generated__`. You can import them into React components like so:

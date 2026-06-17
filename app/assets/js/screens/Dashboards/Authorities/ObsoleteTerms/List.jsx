@@ -1,7 +1,8 @@
 import React from "react";
 import Layout from "@js/screens/Layout";
 import DashboardsObsoleteTermsList from "@/js/components/Dashboards/Authorities/ObsoleteTerms/List";
-import DashboardsObsoleteTermsTitleBar from "@/js/components/Dashboards/Authorities/ObsoleteTerms/TitleBar"; "@js/components/Dashboards/ObsoleteTerms/TitleBar";
+import DashboardsObsoleteTermsTitleBar from "@/js/components/Dashboards/Authorities/ObsoleteTerms/TitleBar";
+("@js/components/Dashboards/ObsoleteTerms/TitleBar");
 import { ErrorBoundary } from "react-error-boundary";
 import { Breadcrumbs, FallbackErrorComponent } from "@js/components/UI/UI";
 import useGTM from "@js/hooks/useGTM";

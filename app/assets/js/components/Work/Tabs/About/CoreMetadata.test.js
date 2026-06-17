@@ -21,7 +21,7 @@ describe("WorkTabsAboutCoreMetadata component", () => {
       </CodeListProvider>,
       {
         mocks: allCodeListMocks,
-      }
+      },
     );
   }
 

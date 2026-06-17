@@ -13,7 +13,7 @@ import { sortItemsArray } from "@js/services/helpers";
 
 const modalContent = css`
   width: 75%;
-  margin-top: 140px
+  margin-top: 140px;
 `;
 
 function setupCandidateList(items) {

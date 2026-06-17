@@ -39,8 +39,8 @@ priv/cert/combined.pem: priv/cert/cert.pem priv/cert/key.pem
 	@echo "Combining SSL certificate and private key..."
 	@cat $^ > $@
 
-assets/node_modules/.install-stamp: assets/package.json assets/package-lock.json
-	npm install --force --prefix assets
+assets/node_modules/.install-stamp: assets/package.json assets/bun.lock
+	bun install --cwd assets --frozen-lockfile || bun install --cwd assets
 	@touch $@
 
 deps/.install-stamp: mix.exs mix.lock
@@ -50,21 +50,21 @@ deps/.install-stamp: mix.exs mix.lock
 frontend-deps: assets/node_modules/.install-stamp
 
 frontend-build: frontend-deps
-	npm run-script --prefix assets deploy
+	bun run --cwd assets deploy
 	
 frontend-ci: frontend-deps frontend-list frontend-lint frontend-test frontend-build
 
 frontend-list: frontend-deps
-	npm list --prefix assets
+	cd assets && bun list
 
 frontend-watch: frontend-deps
-	npm run --prefix assets watch
+	bun run --cwd assets watch
 
 frontend-lint: frontend-deps
-	npm run --prefix assets prettier
+	bun run --cwd assets prettier
 
 frontend-test: frontend-deps
-	npm run-script --prefix assets ci:silent -- -w 1
+	bun run --cwd assets ci:silent
 
 funnel-start:
 	tailscale funnel --bg https+insecure://localhost:3001

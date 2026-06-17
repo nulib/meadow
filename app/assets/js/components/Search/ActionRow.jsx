@@ -87,7 +87,7 @@ export default function SearchActionRow({
               {selectedItems.length > 0
                 ? `View bulk actions (${selectedItems.length} ${inflect(
                     "work",
-                    selectedItems.length
+                    selectedItems.length,
                   )})`
                 : "View bulk actions (selected works)"}
             </span>
@@ -119,7 +119,7 @@ export default function SearchActionRow({
                   icon={<IconEdit />}
                   label={`Batch edit ${numberOfResults} ${inflect(
                     "work",
-                    numberOfResults
+                    numberOfResults,
                   )}`}
                   data-testid="button-batch-all-edit"
                   onClick={handleEditAllItemsClick}
@@ -133,7 +133,7 @@ export default function SearchActionRow({
                   icon={<IconCsv />}
                   label={`Export metadata from ${numberOfResults} ${inflect(
                     "work",
-                    numberOfResults
+                    numberOfResults,
                   )}`}
                   data-testid="button-csv-all-export"
                   type="submit"
@@ -147,7 +147,7 @@ export default function SearchActionRow({
                   icon={<IconCsv />}
                   label={`Download shared links for ${numberOfResults} ${inflect(
                     "work",
-                    numberOfResults
+                    numberOfResults,
                   )}`}
                   data-testid="button-csv-all-shared-links"
                   type="submit"
@@ -162,7 +162,7 @@ export default function SearchActionRow({
                 icon={<IconTrashCan />}
                 label={`Delete ${numberOfResults} ${inflect(
                   "work",
-                  numberOfResults
+                  numberOfResults,
                 )}`}
                 data-testid="button-batch-all-delete"
                 onClick={handleDeleteAllItemsClick}
@@ -184,7 +184,7 @@ export default function SearchActionRow({
                 icon={<IconEdit />}
                 label={`Batch edit ${numSelectedItems} ${inflect(
                   "work",
-                  numSelectedItems
+                  numSelectedItems,
                 )}`}
                 data-testid="button-batch-items-edit"
                 onClick={handleEditItemsClick}
@@ -195,7 +195,7 @@ export default function SearchActionRow({
                 icon={<IconEdit />}
                 label={`View and edit ${numSelectedItems} individual ${inflect(
                   "work",
-                  numSelectedItems
+                  numSelectedItems,
                 )}`}
                 data-testid="button-view-and-edit"
                 onClick={handleViewAndEditClick}
@@ -209,7 +209,7 @@ export default function SearchActionRow({
                 icon={<IconCsv />}
                 label={`Export metadata from ${numSelectedItems} ${inflect(
                   "work",
-                  numSelectedItems
+                  numSelectedItems,
                 )}`}
                 data-testid="button-csv-items-export"
                 type="submit"
@@ -224,7 +224,7 @@ export default function SearchActionRow({
                 icon={<IconCsv />}
                 label={`Download shared links for ${numSelectedItems} ${inflect(
                   "work",
-                  numSelectedItems
+                  numSelectedItems,
                 )}`}
                 data-testid="button-csv-items-shared-links"
                 type="submit"
@@ -237,7 +237,7 @@ export default function SearchActionRow({
                 icon={<IconTrashCan />}
                 label={`Delete ${numSelectedItems} ${inflect(
                   "work",
-                  numSelectedItems
+                  numSelectedItems,
                 )}`}
                 data-testid="button-delete-items"
                 onClick={handleDeleteItemsClick}

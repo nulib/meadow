@@ -14,7 +14,12 @@ import { Button } from "@nulib/design-system";
 import { IconImages } from "@js/components/Icon";
 import { ActionHeadline, Skeleton } from "@js/components/UI/UI";
 
-const IngestSheetCompleted = ({ sheetId, title, aiCostActual, aiCostEstimate }) => {
+const IngestSheetCompleted = ({
+  sheetId,
+  title,
+  aiCostActual,
+  aiCostEstimate,
+}) => {
   const history = useHistory();
   const {
     loading: worksLoading,
@@ -46,7 +51,7 @@ const IngestSheetCompleted = ({ sheetId, title, aiCostActual, aiCostEstimate }) 
   const works = worksData.ingestSheetWorks.map(
     ({ workType, id, representativeImage }) => {
       return { workTypeId: workType.id, id, representativeImage };
-    }
+    },
   );
   const handleClick = () => {
     history.push("/search", {
@@ -134,8 +139,8 @@ const IngestSheetCompleted = ({ sheetId, title, aiCostActual, aiCostEstimate }) 
                                 .appendedFileSets
                             }
                           </strong>{" "}
-                          {workCountData.ingestSheetWorkCount.appendedFileSets ===
-                          1
+                          {workCountData.ingestSheetWorkCount
+                            .appendedFileSets === 1
                             ? "file_set"
                             : "file_sets"}{" "}
                           added to existing works

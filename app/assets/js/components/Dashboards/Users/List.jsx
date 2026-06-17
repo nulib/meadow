@@ -1,5 +1,9 @@
 import { Notification } from "@nulib/design-system";
-import { LIST_ROLES_QUERY, LIST_USERS_QUERY, SET_USER_ROLE_MUTATION } from "@js/components/Auth/auth.gql";
+import {
+  LIST_ROLES_QUERY,
+  LIST_USERS_QUERY,
+  SET_USER_ROLE_MUTATION,
+} from "@js/components/Auth/auth.gql";
 import { useMutation, useQuery } from "@apollo/client/react";
 
 import React from "react";
@@ -40,8 +44,8 @@ export default function DashboardsUsersList() {
         toastWrapper("is-success", setUserRole.message);
         refetchUsers().then(({ data }) => {
           setUsers([...data.users]);
-        })
-      }
+        });
+      },
     });
 
   if (updateError)
@@ -53,7 +57,7 @@ export default function DashboardsUsersList() {
         userId: record.username,
         userRole: value,
       },
-    })
+    });
   };
 
   const methods = useForm({
@@ -73,8 +77,10 @@ export default function DashboardsUsersList() {
   };
 
   if (!users || !roles) return null;
-  if (usersError) return <Notification isDanger>{usersError.toString()}</Notification>;
-  if (rolesError) return <Notification isDanger>{rolesError.toString()}</Notification>;
+  if (usersError)
+    return <Notification isDanger>{usersError.toString()}</Notification>;
+  if (rolesError)
+    return <Notification isDanger>{rolesError.toString()}</Notification>;
 
   return (
     <React.Fragment>
@@ -142,7 +148,9 @@ export default function DashboardsUsersList() {
                         data-testid={`user-role-select-${username}`}
                         className="select is-small is-outlined"
                         value={role.toUpperCase()}
-                        onChange={(e) => handleRoleSelect(record, e.target.value)}
+                        onChange={(e) =>
+                          handleRoleSelect(record, e.target.value)
+                        }
                       >
                         {roles.reverse().map((r) => {
                           return (
@@ -173,4 +181,4 @@ export default function DashboardsUsersList() {
       </div>
     </React.Fragment>
   );
-};
+}

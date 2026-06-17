@@ -19,7 +19,7 @@ const Breadcrumbs = ({ items = [], ...props }) => (
           <li key={i}>
             <Link to={route}>{label}</Link>
           </li>
-        )
+        ),
       )}
     </ul>
   </nav>
@@ -31,7 +31,7 @@ Breadcrumbs.propTypes = {
       label: PropTypes.string.isRequired,
       route: PropTypes.string,
       isActive: PropTypes.bool,
-    })
+    }),
   ),
 };
 

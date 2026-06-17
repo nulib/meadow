@@ -3,9 +3,6 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
-import { useWorkDispatch, useWorkState } from "@js/context/work-context";
-import { toastWrapper } from "@js/services/helpers";
-import WorkTabsStructureTranscriptionModal from "./Modal";
 import {
   UPDATE_FILE_SET_ANNOTATION,
   DELETE_FILE_SET_ANNOTATION,
@@ -16,8 +13,11 @@ import {
 // Simple stub for CloverImage
 jest.mock("@samvera/clover-iiif/image", () => {
   const React = require("react");
-  return function CloverImageStub(props) {
-    return <img data-testid="clover-image" src={props.src} alt="" />;
+  return {
+    __esModule: true,
+    default: function CloverImageStub(props) {
+      return <img data-testid="clover-image" src={props.src} alt="" />;
+    },
   };
 });
 
@@ -42,19 +42,28 @@ jest.mock("@js/services/helpers", () => ({
 }));
 
 // Mock Workflow so it renders the textarea the modal is looking for
-jest.mock("./Workflow", () => {
+jest.mock("@js/components/Work/Tabs/Structure/Transcription/Workflow", () => {
   const React = require("react");
-  return function MockWorkflow() {
-    return (
-      <textarea
-        id="file-set-transcription-textarea"
-        data-annotation-id="ann-1"
-        data-annotation-type="transcription"
-        defaultValue="Existing transcription"
-      />
-    );
+  return {
+    __esModule: true,
+    default: function MockWorkflow() {
+      return (
+        <textarea
+          id="file-set-transcription-textarea"
+          data-annotation-id="ann-1"
+          data-annotation-type="transcription"
+          defaultValue="Existing transcription"
+        />
+      );
+    },
   };
 });
+
+const { useWorkDispatch, useWorkState } =
+  await import("@js/context/work-context");
+const { toastWrapper } = await import("@js/services/helpers");
+const { default: WorkTabsStructureTranscriptionModal } =
+  await import("./Modal");
 
 describe("WorkTabsStructureTranscriptionModal", () => {
   let mockDispatch;

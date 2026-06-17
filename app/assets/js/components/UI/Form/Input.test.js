@@ -44,10 +44,9 @@ xit("renders error message when errors", async () => {
   expect(getByText("First name field is required"));
 });
 
-
 it("does not show clear button when showClearButton is false", () => {
   const { queryByLabelText } = renderWithReactHookForm(
-    <UIInput {...attrs} showClearButton={false} />
+    <UIInput {...attrs} showClearButton={false} />,
   );
 
   expect(queryByLabelText("Clear input")).not.toBeInTheDocument();
@@ -56,7 +55,7 @@ it("does not show clear button when showClearButton is false", () => {
 it("does not show clear button when input is empty", () => {
   const attrsWithoutValue = { ...attrs, defaultValue: "" };
   const { queryByLabelText } = renderWithReactHookForm(
-    <UIInput {...attrsWithoutValue} showClearButton={true} />
+    <UIInput {...attrsWithoutValue} showClearButton={true} />,
   );
 
   expect(queryByLabelText("Clear input")).not.toBeInTheDocument();
@@ -66,10 +65,10 @@ it("shows clear button when showClearButton is true and input has value", () => 
   const { getByLabelText } = renderWithReactHookForm(
     <UIInput {...attrs} isReactHookForm={true} showClearButton={true} />,
     {
-      defaultValues: { tester: "Bob Smith" }  
-    }
+      defaultValues: { tester: "Bob Smith" },
+    },
   );
-  
+
   expect(getByLabelText("Clear input")).toBeInTheDocument();
 });
 
@@ -77,8 +76,8 @@ it("clears input value when clear button is clicked (React Hook Form)", async ()
   const { getByLabelText, getByTestId } = renderWithReactHookForm(
     <UIInput {...attrs} isReactHookForm={true} showClearButton={true} />,
     {
-      defaultValues: { tester: "Bob Smith" }
-    }
+      defaultValues: { tester: "Bob Smith" },
+    },
   );
 
   const input = getByTestId("input-element");
@@ -99,28 +98,29 @@ it("clears input value when clear button is clicked (non-React Hook Form)", () =
     ...attrs,
     isReactHookForm: false,
     onChange: mockOnChange,
-    value: "Bob Smith"
+    value: "Bob Smith",
   };
 
   const { getByLabelText } = renderWithReactHookForm(
-    <UIInput {...nonHookFormAttrs} showClearButton={true} />
+    <UIInput {...nonHookFormAttrs} showClearButton={true} />,
   );
 
   const clearButton = getByLabelText("Clear input");
   clearButton.click();
 
   expect(mockOnChange).toHaveBeenCalledWith({
-    target: { name: "tester", value: "" }
+    target: { name: "tester", value: "" },
   });
 });
 
 it("hides clear button after clearing input", async () => {
-  const { getByLabelText, queryByLabelText, getByTestId } = renderWithReactHookForm(
-    <UIInput {...attrs} isReactHookForm={true} showClearButton={true} />,
-    {
-      defaultValues: { tester: "Bob Smith" }
-    }
-  );
+  const { getByLabelText, queryByLabelText, getByTestId } =
+    renderWithReactHookForm(
+      <UIInput {...attrs} isReactHookForm={true} showClearButton={true} />,
+      {
+        defaultValues: { tester: "Bob Smith" },
+      },
+    );
 
   expect(getByLabelText("Clear input")).toBeInTheDocument();
 

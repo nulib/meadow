@@ -128,7 +128,7 @@ const ScreensProject = () => {
                             onClick={() =>
                               handleFacetLinkClick(
                                 "IngestProject",
-                                data.project.title
+                                data.project.title,
                               )
                             }
                             data-testid="button-view-all-works"

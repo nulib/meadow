@@ -1,5 +1,4 @@
 import React from "react";
-import ReplaceFileSet from "./ReplaceFileSet";
 import {
   renderWithRouterApollo,
   withReactHookForm,
@@ -14,22 +13,28 @@ import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.m
 
 // Mock the S3ObjectPicker component
 jest.mock("@js/components/Work/Tabs/Preservation/S3ObjectPicker", () => {
-  return function MockS3ObjectPicker({ onFileSelect }) {
-    return (
-      <button
-        onClick={() =>
-          onFileSelect({
-            key: "mocked-file.jpg",
-            size: 1000,
-            mimeType: "image/jpeg",
-          })
-        }
-      >
-        Select Mocked File
-      </button>
-    );
+  return {
+    __esModule: true,
+    default: function MockS3ObjectPicker({ onFileSelect }) {
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            onFileSelect({
+              key: "mocked-file.jpg",
+              size: 1000,
+              mimeType: "image/jpeg",
+            })
+          }
+        >
+          Select Mocked File
+        </button>
+      );
+    },
   };
 });
+
+const { default: ReplaceFileSet } = await import("./ReplaceFileSet");
 
 let isModalOpen = true;
 

@@ -13,7 +13,7 @@ describe("ScreensDashboardsBatchEditList component", () => {
       />,
       {
         route: "/dashboards/batch-edit/ABCFOO123",
-      }
+      },
     );
     expect(screen.getByTestId("dashboard-batch-edit-screen"));
     expect(screen.getByTestId("page-title"));

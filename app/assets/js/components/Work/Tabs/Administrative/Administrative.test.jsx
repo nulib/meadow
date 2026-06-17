@@ -16,7 +16,6 @@ import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 import userEvent from "@testing-library/user-event";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
@@ -34,7 +33,7 @@ describe("Work Administrative tab component", () => {
       </CodeListProvider>,
       {
         mocks: [getCollectionMock, getCollectionsMock, ...allCodeListMocks],
-      }
+      },
     );
   });
 

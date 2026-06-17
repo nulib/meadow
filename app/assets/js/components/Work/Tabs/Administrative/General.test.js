@@ -54,7 +54,7 @@ describe("Work Administrative General metadata component", () => {
       </CodeListProvider>,
       {
         mocks: [...allCodeListMocks],
-      }
+      },
     );
   }
 
@@ -63,7 +63,7 @@ describe("Work Administrative General metadata component", () => {
 
     const libraryUnitEl = await screen.findByTestId("library-unit-wrapper");
     const preservationLevelEl = await screen.findByTestId(
-      "preservation-level-wrapper"
+      "preservation-level-wrapper",
     );
     const statusEl = await screen.findByTestId("status-wrapper");
     const visibilityEl = await screen.findByTestId("visibility-wrapper");

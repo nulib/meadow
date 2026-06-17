@@ -17,7 +17,7 @@ describe("Visibility Tag component", () => {
           id: "AUTHENTICATED",
           label: "Institution",
         }}
-      />
+      />,
     );
     expect(screen.getByText("Institution")).toBeInTheDocument();
   });
@@ -30,7 +30,7 @@ describe("Visibility Tag component", () => {
           id: "RESTRICTED",
           label: "Private",
         }}
-      />
+      />,
     );
     expect(screen.getByText("Private")).toBeInTheDocument();
   });

@@ -8,7 +8,6 @@ import { renderWithRouterApollo } from "../../services/testing-helpers";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 import { waitFor } from "@testing-library/react";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
@@ -22,7 +21,7 @@ function setupTests() {
     {
       mocks,
       route: "/collection/form/7a6c7b35-41a6-465a-9be2-0587c6b39ae0",
-    }
+    },
   );
 }
 

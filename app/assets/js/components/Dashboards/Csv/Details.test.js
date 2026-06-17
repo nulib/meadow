@@ -19,7 +19,7 @@ const csvMetadataUpdateJob = {
 describe("DashboardCsvDetails component", () => {
   beforeEach(() => {
     render(
-      <DashboardsCsvDetails csvMetadataUpdateJob={csvMetadataUpdateJob} />
+      <DashboardsCsvDetails csvMetadataUpdateJob={csvMetadataUpdateJob} />,
     );
   });
 
@@ -40,14 +40,14 @@ describe("DashboardCsvDetails component", () => {
   describe("displaying errors", () => {
     it("displays errors only if they exist in the job", () => {
       render(
-        <DashboardsCsvDetails csvMetadataUpdateJob={csvMetadataUpdateJob} />
+        <DashboardsCsvDetails csvMetadataUpdateJob={csvMetadataUpdateJob} />,
       );
       expect(screen.queryByTestId("csv-job-errors")).toBeNull();
 
       render(
         <DashboardsCsvDetails
           csvMetadataUpdateJob={{ ...csvMetadataUpdateJob, errors: errors }}
-        />
+        />,
       );
       expect(screen.queryByTestId("csv-job-errors"));
     });

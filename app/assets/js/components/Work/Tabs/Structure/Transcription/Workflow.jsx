@@ -103,7 +103,11 @@ function WorkTabsStructureTranscriptionWorkflow({
       );
       flashedAnnotationErrorIdRef.current = fileSetAnnotation.id;
     }
-  }, [fileSetAnnotation?.id, fileSetAnnotation?.status, fileSetAnnotation?.error]);
+  }, [
+    fileSetAnnotation?.id,
+    fileSetAnnotation?.status,
+    fileSetAnnotation?.error,
+  ]);
 
   const runTranscribeMutation = () => {
     transcribeFileSet({
@@ -132,9 +136,7 @@ function WorkTabsStructureTranscriptionWorkflow({
       try {
         await deleteFileSetAnnotation({
           variables: { annotationId: failedAnnotationId },
-          refetchQueries: [
-            { query: GET_WORK, variables: { id: workId } },
-          ],
+          refetchQueries: [{ query: GET_WORK, variables: { id: workId } }],
           awaitRefetchQueries: true,
         });
       } catch (error) {

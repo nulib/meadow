@@ -42,7 +42,7 @@ const WorkRow = ({ work }) => {
                           fileSet.coreMetadata.description &&
                           fileSet.coreMetadata.description}
                       </li>
-                    ) : null
+                    ) : null,
                   )}
                 </ul>
               </dd>

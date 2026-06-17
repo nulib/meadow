@@ -20,7 +20,7 @@ describe("WorkSharedLinkNotification component", () => {
       <WorkSharedLinkNotification linkData={createSharedLink} />,
       {
         mocks: [digitalCollectionsUrlMock],
-      }
+      },
     );
   });
 
@@ -31,22 +31,22 @@ describe("WorkSharedLinkNotification component", () => {
   it("renders the success message", async () => {
     expect(
       await screen.findByText(
-        "Your shared link has been created successfully and will expire:"
-      )
+        "Your shared link has been created successfully and will expire:",
+      ),
     );
   });
 
   it("renders the link url and expiration dates", async () => {
     expect(await screen.findByTestId("link-url")).toHaveTextContent(
-      `${mockDCUrl}shared/${createSharedLink.sharedLinkId}`
+      `${mockDCUrl}shared/${createSharedLink.sharedLinkId}`,
     );
 
     const formattedDate = moment(createSharedLink.expires).format(
-      "MMM DD, YYYY h:mm A"
+      "MMM DD, YYYY h:mm A",
     );
 
     expect(await screen.findByTestId("link-date")).toHaveTextContent(
-      formattedDate
+      formattedDate,
     );
   });
 });

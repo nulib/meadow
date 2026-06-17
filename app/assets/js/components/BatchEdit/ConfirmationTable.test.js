@@ -11,7 +11,7 @@ import {
 const props = {
   codeLists: {
     marcData: { codeList: marcRelatorMock },
-    notesData: {codeList: notesSchemeMock},
+    notesData: { codeList: notesSchemeMock },
     relatedUrlData: { codeList: relatedUrlSchemeMock },
     subjectRoleData: { codeList: subjectMock },
   },
@@ -55,8 +55,8 @@ describe("BatchEditConfirmationTable component", () => {
     const utils = within(row);
     expect(
       utils.getByText(
-        "United States | http://id.worldcat.org/fast/1204155 | Actor"
-      )
+        "United States | http://id.worldcat.org/fast/1204155 | Actor",
+      ),
     );
   });
 });

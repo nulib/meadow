@@ -147,6 +147,7 @@ const Plan = ({ works }) => {
             summary={summary}
             logs={agentLogs}
             originalPrompt={originalPrompt}
+            currentWork={works[0]}
             target={{
               title: targetTitle,
               thumbnails: targetThumbnails,

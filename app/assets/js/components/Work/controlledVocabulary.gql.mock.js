@@ -38,13 +38,13 @@ export const authorityMock = [
 export const notesSchemeMock = [
   {
     id: "GENERAL_NOTE",
-    label: "General note"
+    label: "General note",
   },
   {
     id: "BIOGRAPHICAL_HISTORICAL_NOTE",
-    label: "Biographical/Historical Note"
-  }
-]
+    label: "Biographical/Historical Note",
+  },
+];
 
 export const relatedUrlSchemeMock = [
   {
@@ -240,9 +240,9 @@ export const codeListNotesMock = {
   result: {
     data: {
       codeList: notesSchemeMock,
-    }
-  }
-}
+    },
+  },
+};
 
 export const codeListRelatedUrlMock = {
   request: {
@@ -411,7 +411,7 @@ export const codeListBehaviorMock = {
       ],
     },
   },
-}
+};
 
 export const allCodeListMocks = [
   codeListAuthorityMock,

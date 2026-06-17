@@ -22,14 +22,14 @@ describe("WorkPublicLinkNotification component", () => {
     expect(await screen.findByTestId("notification-public-link"));
     expect(
       await screen.findByText(
-        "This link is publicly available on Digital Collections."
-      )
+        "This link is publicly available on Digital Collections.",
+      ),
     );
   });
 
   it("renders the link url", async () => {
     expect(await screen.findByTestId("link-url")).toHaveTextContent(
-      `${mockDCUrl}items/ABC123`
+      `${mockDCUrl}items/ABC123`,
     );
   });
 });

@@ -20,8 +20,8 @@ function parseWorkIds(text) {
       text
         .split(/\r?\n/)
         .map((s) => s.trim())
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   );
 }
 
@@ -48,7 +48,7 @@ export default function StartRunModal({ onClose, onStarted }) {
 
   const [createSetFromIds, { loading: creatingSetFromIds }] = useMutation(
     CREATE_EVAL_SET_FROM_WORK_IDS,
-    { refetchQueries: [{ query: GET_EVAL_SETS }] }
+    { refetchQueries: [{ query: GET_EVAL_SETS }] },
   );
 
   const [createRun, { loading: creatingRun }] = useMutation(CREATE_EVAL_RUN, {
@@ -75,7 +75,10 @@ export default function StartRunModal({ onClose, onStarted }) {
 
     if (mode === "new") {
       const result = await createSet({
-        variables: { queryId: selectedQueryId, name: createSetName || `Set ${new Date().toISOString()}` },
+        variables: {
+          queryId: selectedQueryId,
+          name: createSetName || `Set ${new Date().toISOString()}`,
+        },
       });
       setId = result.data?.createEvalSet?.id;
     } else if (mode === "ids") {
@@ -140,7 +143,10 @@ export default function StartRunModal({ onClose, onStarted }) {
             {mode === "existing" && (
               <div className="control">
                 <div className="select is-fullwidth">
-                  <select value={evalSetId} onChange={(e) => setEvalSetId(e.target.value)}>
+                  <select
+                    value={evalSetId}
+                    onChange={(e) => setEvalSetId(e.target.value)}
+                  >
                     {sets.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.name} ({s.workCount} works)
@@ -163,11 +169,17 @@ export default function StartRunModal({ onClose, onStarted }) {
                 </div>
                 <div className="control">
                   <div className="select is-fullwidth">
-                    <select value={selectedQueryId} onChange={(e) => setSelectedQueryId(e.target.value)}>
+                    <select
+                      value={selectedQueryId}
+                      onChange={(e) => setSelectedQueryId(e.target.value)}
+                    >
                       <option value="">Select a query…</option>
                       {(queriesData?.evalQueryList || []).map((q) => (
                         <option key={q.id} value={q.id}>
-                          {q.name}{q.id === defaultQueryData?.defaultEvalQuery?.id ? " (default)" : ""}
+                          {q.name}
+                          {q.id === defaultQueryData?.defaultEvalQuery?.id
+                            ? " (default)"
+                            : ""}
                         </option>
                       ))}
                     </select>
@@ -210,7 +222,10 @@ export default function StartRunModal({ onClose, onStarted }) {
             <label className="label">Prompt Version</label>
             <div className="control">
               <div className="select is-fullwidth">
-                <select value={promptVersionId} onChange={(e) => setPromptVersionId(e.target.value)}>
+                <select
+                  value={promptVersionId}
+                  onChange={(e) => setPromptVersionId(e.target.value)}
+                >
                   {prompts.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name}

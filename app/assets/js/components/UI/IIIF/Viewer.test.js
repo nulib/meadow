@@ -9,7 +9,6 @@ import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
@@ -27,8 +26,6 @@ const initialState = {
 };
 
 const mocks = [dcApiTokenMock];
-
-jest.mock("@js/services/get-api-response-headers");
 
 jest.mock("@samvera/clover-iiif/viewer", () => {
   return {

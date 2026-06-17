@@ -16,7 +16,7 @@ describe("Work About tab Controlled Metadata component", () => {
       </CodeListProvider>,
       {
         mocks: allCodeListMocks,
-      }
+      },
     );
   }
 

@@ -16,20 +16,20 @@ import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
  */
 const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
 const facetProjectSensors = FACET_PROJECT_SENSORS.map(
-  (sensor) => sensor.componentId
+  (sensor) => sensor.componentId,
 );
 
 // const facetRangeSensors = FACET_RANGE_SENSORS.map(
 //   (sensor) => sensor.componentId
 // );
 const facetTechnicalMetadataSensors = FACET_TECHNICAL_METADATA_SENSORS.map(
-  (sensor) => sensor.componentId
+  (sensor) => sensor.componentId,
 );
 
 // Return all connected facets for regular metadata
 const filterList = (filterId) => {
   let filtersMinusCurrent = facetSensors.filter(
-    (filterItem) => filterItem !== filterId
+    (filterItem) => filterItem !== filterId,
   );
   return [
     ...filtersMinusCurrent,
@@ -43,7 +43,7 @@ const filterList = (filterId) => {
 // Return all connected facets for project metadata
 const filterProjectList = (filterId) => {
   let filtersMinusCurrent = facetProjectSensors.filter(
-    (filterItem) => filterItem !== filterId
+    (filterItem) => filterItem !== filterId,
   );
   return [
     ...filtersMinusCurrent,
@@ -57,7 +57,7 @@ const filterProjectList = (filterId) => {
 // Return all connected facets for technical metadata
 const filterTechnicalMetadataList = (filterId) => {
   let filtersMinusCurrent = facetTechnicalMetadataSensors.filter(
-    (filterItem) => filterItem !== filterId
+    (filterItem) => filterItem !== filterId,
   );
   return [
     ...filtersMinusCurrent,

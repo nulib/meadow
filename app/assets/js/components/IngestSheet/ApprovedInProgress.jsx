@@ -10,7 +10,7 @@ const IngestSheetApprovedInProgress = ({ ingestSheet }) => {
     INGEST_PROGRESS_SUBSCRIPTION,
     {
       variables: { sheetId: ingestSheet.id },
-    }
+    },
   );
 
   if (loading) return null;

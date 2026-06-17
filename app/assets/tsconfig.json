@@ -5,6 +5,7 @@
     "baseUrl": ".",
     "esModuleInterop": true,
     "experimentalDecorators": true,
+    "ignoreDeprecations": "6.0",
     "jsx": "react",
     "lib": ["esnext", "dom"],
     "module": "ES2015",
@@ -21,7 +22,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "ES6",
-    "types": ["jest", "node", "@testing-library/jest-dom"]
+    "types": ["bun", "node", "@testing-library/jest-dom"]
   },
   "include": [
     "js/**/*.ts",
@@ -29,7 +30,7 @@
     "js/**/*.jsx",
     "js/**/*.tsx",
     "types/**/*.d.ts",
-    "./jest.setup.ts"
+    "test/**/*.ts"
   ],
   "exclude": [
     "node_modules",

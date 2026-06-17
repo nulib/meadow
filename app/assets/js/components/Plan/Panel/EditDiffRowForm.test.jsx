@@ -1,18 +1,25 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import EditDiffRowForm from "./EditDiffRowForm";
 
 // ---- Mocks ----
 jest.mock("@js/context/code-list-context", () => ({
   useCodeLists: () => ({
     licenseData: {
       codeList: [
-        { id: "http://creativecommons.org/licenses/by/4.0/", label: "CC BY", scheme: "license" },
+        {
+          id: "http://creativecommons.org/licenses/by/4.0/",
+          label: "CC BY",
+          scheme: "license",
+        },
       ],
     },
     rightsStatementData: {
       codeList: [
-        { id: "http://rightsstatements.org/vocab/InC/1.0/", label: "In Copyright", scheme: "rights_statement" },
+        {
+          id: "http://rightsstatements.org/vocab/InC/1.0/",
+          label: "In Copyright",
+          scheme: "rights_statement",
+        },
       ],
     },
     authorityData: { codeList: [] },
@@ -47,45 +54,85 @@ jest.mock("@js/services/metadata", () => ({
 
 jest.mock("@nulib/design-system", () => ({
   Button: ({ children, onClick, type, disabled, ...rest }) => (
-    <button onClick={onClick} type={type || "button"} disabled={disabled} {...rest}>
+    <button
+      onClick={onClick}
+      type={type || "button"}
+      disabled={disabled}
+      {...rest}
+    >
       {children}
     </button>
   ),
 }));
 
-jest.mock("@js/components/UI/Form/Input", () => ({ name, placeholder, ...rest }) => (
-  <input name={name} placeholder={placeholder} data-testid={`input-${name}`} {...rest} />
-));
+jest.mock("@js/components/UI/Form/Input", () => ({
+  __esModule: true,
+  default: ({ name, placeholder, ...rest }) => (
+    <input
+      name={name}
+      placeholder={placeholder}
+      data-testid={`input-${name}`}
+      {...rest}
+    />
+  ),
+}));
 
-jest.mock("@js/components/UI/Form/Field", () => ({ label, children }) => (
-  <div>
-    <label>{label}</label>
-    {children}
-  </div>
-));
+jest.mock("@js/components/UI/Form/Field", () => ({
+  __esModule: true,
+  default: ({ label, children }) => (
+    <div>
+      <label>{label}</label>
+      {children}
+    </div>
+  ),
+}));
 
-jest.mock("@js/components/UI/Form/FieldArray", () => ({ name, label }) => (
-  <div data-testid={`field-array-${name}`} data-label={label} />
-));
+jest.mock("@js/components/UI/Form/FieldArray", () => ({
+  __esModule: true,
+  default: ({ name, label }) => (
+    <div data-testid={`field-array-${name}`} data-label={label} />
+  ),
+}));
 
-jest.mock("@js/components/UI/Form/Select", () => ({ name, options, defaultValue }) => (
-  <select name={name} data-testid={`select-${name}`} defaultValue={defaultValue}>
-    {(options || []).map((o) => (
-      <option key={o.id} value={o.id}>
-        {o.label}
-      </option>
-    ))}
-  </select>
-));
+jest.mock("@js/components/UI/Form/Select", () => ({
+  __esModule: true,
+  default: ({ name, options, defaultValue }) => (
+    <select
+      name={name}
+      data-testid={`select-${name}`}
+      defaultValue={defaultValue}
+    >
+      {(options || []).map((o) => (
+        <option key={o.id} value={o.id}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  ),
+}));
 
-jest.mock("@js/components/UI/Form/Note", () => () => <div data-testid="form-note" />);
-jest.mock("@js/components/UI/Form/RelatedURL", () => () => <div data-testid="form-related-url" />);
-jest.mock("@js/components/UI/Form/ControlledTermArray", () => ({ name, authorities }) => (
-  <div data-testid={`controlled-term-array-${name}`} data-authority-count={authorities?.length ?? 0} />
-));
+jest.mock("@js/components/UI/Form/Note", () => ({
+  __esModule: true,
+  default: () => <div data-testid="form-note" />,
+}));
+jest.mock("@js/components/UI/Form/RelatedURL", () => ({
+  __esModule: true,
+  default: () => <div data-testid="form-related-url" />,
+}));
+jest.mock("@js/components/UI/Form/ControlledTermArray", () => ({
+  __esModule: true,
+  default: ({ name, authorities }) => (
+    <div
+      data-testid={`controlled-term-array-${name}`}
+      data-authority-count={authorities?.length ?? 0}
+    />
+  ),
+}));
 jest.mock("@js/components/Icon", () => ({
   IconTrashCan: () => <span data-testid="icon-trash" />,
 }));
+
+const { default: EditDiffRowForm } = await import("./EditDiffRowForm");
 
 const noop = jest.fn();
 
@@ -94,7 +141,12 @@ describe("EditDiffRowForm", () => {
 
   test("renders nothing when change is null", () => {
     const { container } = render(
-      <EditDiffRowForm change={null} isOpen={true} onSave={noop} onCancel={noop} />
+      <EditDiffRowForm
+        change={null}
+        isOpen={true}
+        onSave={noop}
+        onCancel={noop}
+      />,
     );
     expect(container).toBeEmptyDOMElement();
   });
@@ -114,7 +166,7 @@ describe("EditDiffRowForm", () => {
         isOpen={true}
         onSave={noop}
         onCancel={noop}
-      />
+      />,
     );
 
     expect(screen.getByText("Edit - Title")).toBeInTheDocument();
@@ -136,7 +188,7 @@ describe("EditDiffRowForm", () => {
         isOpen={false}
         onSave={noop}
         onCancel={noop}
-      />
+      />,
     );
 
     expect(screen.getByRole("form")).not.toHaveClass("is-active");
@@ -157,7 +209,7 @@ describe("EditDiffRowForm", () => {
         isOpen={true}
         onSave={noop}
         onCancel={noop}
-      />
+      />,
     );
 
     expect(screen.getByTestId("field-array-values")).toBeInTheDocument();
@@ -171,19 +223,24 @@ describe("EditDiffRowForm", () => {
           method: "replace",
           path: "descriptive_metadata.rights_statement",
           label: "Rights Statement",
-          value: { id: "http://rightsstatements.org/vocab/InC/1.0/", label: "In Copyright" },
+          value: {
+            id: "http://rightsstatements.org/vocab/InC/1.0/",
+            label: "In Copyright",
+          },
           controlled: false,
           nestedCoded: false,
         }}
         isOpen={true}
         onSave={noop}
         onCancel={noop}
-      />
+      />,
     );
 
     const select = screen.getByTestId("select-value");
     expect(select).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "In Copyright" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "In Copyright" }),
+    ).toBeInTheDocument();
   });
 
   test("renders select with license options", () => {
@@ -194,14 +251,17 @@ describe("EditDiffRowForm", () => {
           method: "replace",
           path: "descriptive_metadata.license",
           label: "License",
-          value: { id: "http://creativecommons.org/licenses/by/4.0/", label: "CC BY" },
+          value: {
+            id: "http://creativecommons.org/licenses/by/4.0/",
+            label: "CC BY",
+          },
           controlled: false,
           nestedCoded: false,
         }}
         isOpen={true}
         onSave={noop}
         onCancel={noop}
-      />
+      />,
     );
 
     expect(screen.getByRole("option", { name: "CC BY" })).toBeInTheDocument();
@@ -222,10 +282,12 @@ describe("EditDiffRowForm", () => {
         isOpen={true}
         onSave={noop}
         onCancel={noop}
-      />
+      />,
     );
 
-    expect(screen.getByTestId("controlled-term-array-subject")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("controlled-term-array-subject"),
+    ).toBeInTheDocument();
   });
 
   test("delete mode renders items with remove buttons and warning for non-controlled field", () => {
@@ -243,14 +305,20 @@ describe("EditDiffRowForm", () => {
         isOpen={true}
         onSave={noop}
         onCancel={noop}
-      />
+      />,
     );
 
-    expect(screen.getByText("Review deletions - Description")).toBeInTheDocument();
+    expect(
+      screen.getByText("Review deletions - Description"),
+    ).toBeInTheDocument();
     expect(screen.getByText("Item A")).toBeInTheDocument();
     expect(screen.getByText("Item B")).toBeInTheDocument();
     // Warning shown for non-controlled deletes
-    expect(screen.getByText(/Deletions are only supported for controlled vocabulary fields/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Deletions are only supported for controlled vocabulary fields/,
+      ),
+    ).toBeInTheDocument();
   });
 
   test("delete mode: removing an item updates the list", () => {
@@ -271,12 +339,14 @@ describe("EditDiffRowForm", () => {
         isOpen={true}
         onSave={noop}
         onCancel={noop}
-      />
+      />,
     );
 
     expect(screen.getByText("Topic One")).toBeInTheDocument();
     // No warning for controlled field
-    expect(screen.queryByText(/Deletions are only supported/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Deletions are only supported/),
+    ).not.toBeInTheDocument();
 
     const trashButtons = screen.getAllByTestId("icon-trash");
     fireEvent.click(trashButtons[0].closest("button"));
@@ -300,7 +370,7 @@ describe("EditDiffRowForm", () => {
         isOpen={true}
         onSave={noop}
         onCancel={noop}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByTestId("icon-trash").closest("button"));
@@ -323,7 +393,7 @@ describe("EditDiffRowForm", () => {
         isOpen={true}
         onSave={noop}
         onCancel={onCancel}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByLabelText("close"));
@@ -345,7 +415,7 @@ describe("EditDiffRowForm", () => {
         isOpen={true}
         onSave={noop}
         onCancel={noop}
-      />
+      />,
     );
 
     expect(screen.getByTestId("submit-button")).toBeDisabled();

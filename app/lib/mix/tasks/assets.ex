@@ -55,14 +55,14 @@ defmodule Mix.Tasks.Assets.Install do
   @shortdoc @moduledoc
   def run(_) do
     File.cd!("..", fn ->
-      Path.wildcard("**/package-lock.json")
+      Path.wildcard("**/bun.lock")
       |> Enum.reject(fn path ->
         String.contains?(path, "/_build/") || String.contains?(path, "/node_modules/") ||
-          path == "package-lock.json"
+          path == "bun.lock"
       end)
       |> Enum.map(&Path.dirname/1)
       |> Enum.each(fn path ->
-        Mix.Tasks.Assets.IO.run("npm install --force --no-fund --include=dev", path)
+        Mix.Tasks.Assets.IO.run("bun install --frozen-lockfile", path)
       end)
     end)
   end
@@ -78,6 +78,6 @@ defmodule Mix.Tasks.Assets.Build do
   @shortdoc @moduledoc
   def run(_) do
     Install.run(0)
-    Mix.Tasks.Assets.IO.run("npm run-script deploy", "assets")
+    Mix.Tasks.Assets.IO.run("bun run deploy", "assets")
   end
 end

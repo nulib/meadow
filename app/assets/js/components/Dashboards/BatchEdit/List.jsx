@@ -22,7 +22,7 @@ export default function DashboardsBatchEditList() {
   if (error) return `Error: ${error}`;
 
   const sortedBatches = [...data.batches].sort((a, b) =>
-    a.started < b.started ? 1 : -1
+    a.started < b.started ? 1 : -1,
   );
 
   return (

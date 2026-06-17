@@ -6,7 +6,6 @@ import useIsAuthorized from "@js/hooks/useIsAuthorized";
 import { mockUser } from "@js/components/Auth/auth.gql.mock";
 import { GET_PRESIGNED_URL } from "@js/components/IngestSheet/ingestSheet.gql";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,

@@ -5,6 +5,8 @@ import {
   toArray,
   toRows,
   isCodedTerm,
+  getCurrentValue,
+  computeRowDiff,
 } from "@js/components/Plan/Panel/diff-helpers";
 import { IconEdit, IconDelete } from "@js/components/Icon";
 import { UPDATE_PLAN_CHANGE } from "../plan.gql";
@@ -132,7 +134,39 @@ const renderGenericValue = (value) => {
   return JSON.stringify(value, null, 0);
 };
 
-const PlanPanelChangesDiff = ({ proposedChanges, planChangeId }) => {
+/**
+ * Render a list of diff items ({key, display, status, url?}) for one cell in
+ * the approved diff table.  Items are marked added, removed, or unchanged.
+ */
+const DiffItemList = ({ items }) => {
+  if (!items || items.length === 0) {
+    return <span>—</span>;
+  }
+  return (
+    <ul>
+      {items.map((item, i) => (
+        <li key={item.key || i} data-diff-status={item.status}>
+          {item.url ? (
+            <a href={item.url} target="_blank" rel="noopener noreferrer">
+              {item.display || item.url}
+            </a>
+          ) : (
+            item.display || "—"
+          )}
+          {item.id && item.id !== item.display && (
+            <span className="plan-diff-term-id"> ({item.id})</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+const PlanPanelChangesDiff = ({
+  proposedChanges,
+  planChangeId,
+  currentWork,
+}) => {
   const [updatePlanChange] = useMutation(UPDATE_PLAN_CHANGE);
   const [editingRowId, setEditingRowId] = useState(null);
   const [deletingRowId, setDeletingRowId] = useState(null);
@@ -261,6 +295,56 @@ const PlanPanelChangesDiff = ({ proposedChanges, planChangeId }) => {
       a.label.localeCompare(b.label) || a.method.localeCompare(b.method),
   );
 
+  // After Approve: show a before→after diff table (read-only)
+  if (!isProposed) {
+    return (
+      <>
+        <h3 className="mb-3">Details</h3>
+        <table className="table is-fullwidth is-striped plan-diff-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Current value</th>
+              <th>New value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {changes.map((change) => {
+              const currentValue = getCurrentValue(change.path, currentWork);
+              const diff = computeRowDiff(change, currentValue);
+              return (
+                <tr key={change.id} data-method={change.method}>
+                  <td>{change.label}</td>
+                  <td>
+                    <MethodTag method={change.method} />
+                  </td>
+                  <td>
+                    {diff.kind === "list" ? (
+                      <DiffItemList items={diff.current} />
+                    ) : (
+                      <span>{diff.current || "—"}</span>
+                    )}
+                  </td>
+                  <td>
+                    {diff.kind === "list" ? (
+                      <DiffItemList items={diff.resulting} />
+                    ) : (
+                      <span data-diff-changed={diff.changed}>
+                        {diff.resulting || "—"}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </>
+    );
+  }
+
+  // PROPOSED phase: existing editable table with per-row edit/delete actions
   return (
     <>
       <h3 className="mb-3">Details</h3>
@@ -270,7 +354,7 @@ const PlanPanelChangesDiff = ({ proposedChanges, planChangeId }) => {
             <th>Type</th>
             <th>Field</th>
             <th>Proposed Value</th>
-            <th>{isProposed && "Actions"}</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -295,24 +379,22 @@ const PlanPanelChangesDiff = ({ proposedChanges, planChangeId }) => {
                 )}
               </td>
               <td style={{ whiteSpace: "nowrap" }}>
-                {isProposed && (
-                  <>
-                    {!(Array.isArray(change.value) && change.value.length === 0) && (
-                      <Button
-                        onClick={() => handleEditClick(change.id)}
-                        data-testid="button-edit-plan-change-row"
-                      >
-                        <IconEdit />
-                      </Button>
-                    )}
-                    <Button
-                      onClick={() => handleDeleteClick(change.id)}
-                      data-testid="button-delete-plan-change-row"
-                    >
-                      <IconDelete />
-                    </Button>
-                  </>
+                {!(
+                  Array.isArray(change.value) && change.value.length === 0
+                ) && (
+                  <Button
+                    onClick={() => handleEditClick(change.id)}
+                    data-testid="button-edit-plan-change-row"
+                  >
+                    <IconEdit />
+                  </Button>
                 )}
+                <Button
+                  onClick={() => handleDeleteClick(change.id)}
+                  data-testid="button-delete-plan-change-row"
+                >
+                  <IconDelete />
+                </Button>
               </td>
             </tr>
           ))}
@@ -331,8 +413,8 @@ const PlanPanelChangesDiff = ({ proposedChanges, planChangeId }) => {
         handleConfirm={() => handleDeletePlanChangeRow(deletingRowId)}
         thingToDeleteLabel={
           deletingRowId
-            ? `${changes.find((c) => c.id === deletingRowId)?.label || 'this field'} from plan changes`
-            : ''
+            ? `${changes.find((c) => c.id === deletingRowId)?.label || "this field"} from plan changes`
+            : ""
         }
       />
     </>

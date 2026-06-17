@@ -22,7 +22,7 @@ describe("Work About Tab Identifiers metadata component", () => {
       </CodeListProvider>,
       {
         mocks: allCodeListMocks,
-      }
+      },
     );
   });
 

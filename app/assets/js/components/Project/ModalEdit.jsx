@@ -51,11 +51,7 @@ function ProjectsModalEdit({
             ></button>
           </header>
           <section className="modal-card-body">
-            <UIFormField
-              label="Title"
-              forId="project-edit-title"
-              required
-            >
+            <UIFormField label="Title" forId="project-edit-title" required>
               <UIFormInput
                 defaultValue={defaultValues.title}
                 isReactHookForm

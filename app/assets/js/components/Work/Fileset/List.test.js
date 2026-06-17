@@ -13,7 +13,6 @@ import useIsAuthorized from "@js/hooks/useIsAuthorized";
 import { allCodeListMocks } from "@js/components/Work/controlledVocabulary.gql.mock";
 import { mockWork, mockWork2 } from "../work.gql.mock";
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,

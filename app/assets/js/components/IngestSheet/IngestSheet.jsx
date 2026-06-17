@@ -57,7 +57,11 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
 
       {status === "AWAITING_APPROVAL" && (
         <div className="box">
-          <IngestSheetAwaitingApproval sheetId={id} aiCostEstimate={aiCostEstimate} aiPreview={aiPreview} />
+          <IngestSheetAwaitingApproval
+            sheetId={id}
+            aiCostEstimate={aiCostEstimate}
+            aiPreview={aiPreview}
+          />
         </div>
       )}
     </>

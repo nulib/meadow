@@ -22,4 +22,4 @@ export const LIVEBOOK_URL = gql`
       url
     }
   }
-`
+`;

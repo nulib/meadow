@@ -18,7 +18,7 @@ describe("BatchEditAboutIdentifiersMetadata component", () => {
       </CodeListProvider>,
       {
         mocks: allCodeListMocks,
-      }
+      },
     );
   });
 

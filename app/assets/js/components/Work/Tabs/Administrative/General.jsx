@@ -73,7 +73,7 @@ function WorkAdministrativeTabsGeneral({
             onClick={() =>
               handlePassedInSearchTerm(
                 "administrativeMetadata.preservationLevel.label",
-                preservationLevel.label
+                preservationLevel.label,
               )
             }
           >
@@ -99,12 +99,7 @@ function WorkAdministrativeTabsGeneral({
           <a
             data-testid="status-link"
             className="break-word"
-            onClick={() =>
-              handlePassedInSearchTerm(
-                "status",
-                status.label
-              )
-            }
+            onClick={() => handlePassedInSearchTerm("status", status.label)}
           >
             {status.label}
           </a>

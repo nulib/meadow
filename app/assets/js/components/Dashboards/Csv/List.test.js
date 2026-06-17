@@ -38,7 +38,7 @@ describe("DashboardsCsvList component", () => {
     const utils = within(row);
     const buttonLink = utils.getByTestId("view-button");
     expect(buttonLink.href).toContain(
-      "dashboards/csv-metadata-update/7c171c70-1f1a-4db8-8dcb-07c2c0003e10"
+      "dashboards/csv-metadata-update/7c171c70-1f1a-4db8-8dcb-07c2c0003e10",
     );
   });
 });

@@ -9,7 +9,7 @@ describe("UIDropdown component", () => {
       <UIDropdown data-testid="test-dropdown" id="dropdown1">
         <a href="#">Option 1</a>
         <a href="#">Option 2</a>
-      </UIDropdown>
+      </UIDropdown>,
     );
   });
 

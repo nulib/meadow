@@ -33,6 +33,17 @@
     }
   }
 
+  &--notice {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 1.25rem 1rem;
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+
   &--actions {
     display: flex;
     gap: 1rem;
@@ -180,6 +191,52 @@
 
     .content {
       margin-bottom: unset !important;
+    }
+
+    .plan-diff-table {
+      table-layout: fixed;
+
+      th:nth-child(1) {
+        width: 14%;
+      }
+      th:nth-child(2) {
+        width: 8%;
+      }
+      th:nth-child(3) {
+        width: 39%;
+      }
+      th:nth-child(4) {
+        width: 39%;
+      }
+    }
+
+    // Per-item diff status markers (approved diff table)
+    [data-diff-status="added"] {
+      color: $dark-green;
+
+      &::marker {
+        color: $dark-green;
+      }
+    }
+
+    [data-diff-status="removed"] {
+      color: $red2;
+      text-decoration: line-through;
+
+      &::marker {
+        color: $red2;
+      }
+    }
+
+    [data-diff-changed="true"] {
+      font-weight: bold;
+    }
+
+    // Authority URI shown inline for controlled-vocabulary terms
+    .plan-diff-term-id {
+      font-size: 0.75rem;
+      color: $rich-black-50;
+      word-break: break-all;
     }
   }
 

@@ -1,21 +1,19 @@
 ARG BUILD_IMAGE
 
-# Install elixir & npm dependencies
+# Install elixir & JavaScript dependencies
 FROM ${BUILD_IMAGE} AS build
 LABEL edu.northwestern.library.app=meadow \
       edu.northwestern.library.cache=true \
       edu.northwestern.library.stage=deps
 ARG NODE_VERSION=22
-ENV NPM_VERSION=11.6.0
+ARG BUN_VERSION=1.3.14
+ENV BUN_INSTALL=/root/.bun
+ENV PATH=${BUN_INSTALL}/bin:${PATH}
 ENV ARCH=x64
 RUN apt update -qq
-RUN apt install -y ca-certificates curl git gnupg
+RUN apt install -y ca-certificates curl git gnupg unzip
 RUN mkdir -p /etc/apt/keyrings
-RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_VERSION}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
-RUN apt update -qq
-RUN apt install -y nodejs
-RUN npm install -g npm@$NPM_VERSION
+RUN curl -fsSL https://bun.sh/install | bash -s "bun-v${BUN_VERSION}"
 RUN  mix local.hex --force \
   && mix local.rebar --force
 ENV MIX_ENV=prod
@@ -24,13 +22,14 @@ WORKDIR /app
 RUN mix deps.get --only prod \
     && mix deps.compile
 COPY ./assets/package.json /app/assets/package.json
-COPY ./assets/package-lock.json /app/assets/package-lock.json
+COPY ./assets/bun.lock /app/assets/bun.lock
 WORKDIR /app/assets
-RUN npm ci --force
+RUN bun install --frozen-lockfile || bun install
 COPY ./priv/nodejs /app/priv/nodejs
 WORKDIR /app/priv/nodejs
-RUN for flag in $(find . -name .docker-npm); do \
-      (cd $(dirname ${flag}) && npm ci); \
+RUN for flag in $(find . -name .docker-bun); do \
+      bun install --cwd $(dirname ${flag}) --production --frozen-lockfile || \
+        bun install --cwd $(dirname ${flag}) --production; \
     done
 WORKDIR /app
 ARG HONEYBADGER_API_KEY=

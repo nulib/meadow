@@ -9,7 +9,6 @@ import useIsAuthorized from "@js/hooks/useIsAuthorized";
 
 const mocks = [dcApiEndpointMock];
 
-jest.mock("@js/hooks/useIsAuthorized");
 useIsAuthorized.mockReturnValue({
   user: mockUser,
   isAuthorized: () => true,
