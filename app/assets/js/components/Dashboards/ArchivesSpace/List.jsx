@@ -2,7 +2,7 @@ import React from "react";
 import { useQuery } from "@apollo/client/react";
 import { Link } from "react-router-dom";
 import { Button } from "@nulib/design-system";
-import { LIST_ARCHIVES_SPACE_IMPORTS } from "@js/components/Project/archivesSpace.gql.js";
+import { LIST_ARCHIVES_SPACE_IMPORTS } from "@js/components/Project/archivesSpace.gql";
 import ProjectArchivesSpaceImportModal from "@js/components/Project/ArchivesSpaceImportModal";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
 import { IconExternalLink, IconImages, IconSearch } from "@js/components/Icon";

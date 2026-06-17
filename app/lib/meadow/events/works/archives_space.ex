@@ -125,7 +125,19 @@ defmodule Meadow.Events.Works.ArchivesSpace do
 
   use WalEx.Event, name: Meadow
 
-  @synced_descriptive_fields ~w(title description abstract subject)
+  @synced_descriptive_fields ~w(
+    title
+    description
+    abstract
+    subject
+    genre
+    creator
+    contributor
+    date_created
+    language
+    rights_statement
+    terms_of_use
+  )
 
   on_event(:works, %{}, [{__MODULE__, :handle_event}], & &1)
 

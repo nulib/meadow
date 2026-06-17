@@ -7,6 +7,16 @@ export const SEARCH_ARCHIVES_SPACE_RESOURCES = gql`
         uri
         title
         identifier
+        importValidation {
+          importable
+          blockedReason
+          blockedCount
+          blockedSamples {
+            uri
+            title
+            fileUri
+          }
+        }
       }
       totalHits
     }

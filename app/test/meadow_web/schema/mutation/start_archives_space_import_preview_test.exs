@@ -19,7 +19,10 @@ defmodule MeadowWeb.Schema.Mutation.StartArchivesSpaceImportPreviewTest do
     # The mutation returns immediately, but the background task still samples the
     # resource; keep it off the network and away from the real agent.
     Application.put_env(:meadow, :archives_space_image_store, fn _uri, _key -> :ok end)
-    Application.put_env(:meadow, :archives_space_preview_agent, fn _samples, _token -> {:ok, 0.0} end)
+
+    Application.put_env(:meadow, :archives_space_preview_agent, fn _samples, _token ->
+      {:ok, 0.0}
+    end)
 
     on_exit(fn ->
       Application.delete_env(:meadow, :archives_space_image_store)
@@ -54,5 +57,30 @@ defmodule MeadowWeb.Schema.Mutation.StartArchivesSpaceImportPreviewTest do
 
     assert [%{message: message}] = query_data[:errors]
     assert message =~ "Not authorized"
+  end
+
+  test "rejects resources that already link to Digital Collections", %{resource: resource} do
+    digital_object =
+      MockServer.create_digital_object(2, %{
+        "file_versions" => [
+          %{"file_uri" => "https://n2t.net/ark:/81985/n2t14wd6q"}
+        ]
+      })
+
+    MockServer.create_archival_object(2, %{
+      "level" => "file",
+      "display_string" => "Already linked object",
+      "resource" => %{"ref" => resource["uri"]},
+      "instances" => [MockServer.digital_object_instance(digital_object)]
+    })
+
+    assert {:ok, query_data} =
+             query_gql(
+               variables: %{"resourceUri" => resource["uri"]},
+               context: gql_context()
+             )
+
+    assert [%{message: message}] = query_data[:errors]
+    assert message =~ "already contains digital object links"
   end
 end

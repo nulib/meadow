@@ -20,6 +20,7 @@ defmodule Meadow.ArchivesSpace.ImportPreview do
 
   require Logger
 
+  alias Meadow.ArchivesSpace
   alias Meadow.ArchivesSpace.{Client, Digital, Importer, PreviewStore}
   alias Meadow.Notification
 
@@ -119,7 +120,8 @@ defmodule Meadow.ArchivesSpace.ImportPreview do
     token = Keyword.get(opts, :token) || Ecto.UUID.generate()
     levels = Keyword.get(opts, :levels, @default_levels)
 
-    with {:ok, uris} <- Importer.archival_object_uris(resource_uri) do
+    with :ok <- ArchivesSpace.ensure_import_resource_importable(resource_uri, opts),
+         {:ok, uris} <- Importer.archival_object_uris(resource_uri) do
       case sample_works(uris, levels) do
         [] ->
           {:ok, %{previews: [], estimated_cost: 0.0, sample_count: 0, total_count: length(uris)}}

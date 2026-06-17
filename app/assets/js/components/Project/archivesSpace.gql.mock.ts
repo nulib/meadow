@@ -4,7 +4,7 @@ import {
   LIST_ARCHIVES_SPACE_IMPORTS,
   SEARCH_ARCHIVES_SPACE_RESOURCES,
   START_ARCHIVES_SPACE_IMPORT_PREVIEW,
-} from "./archivesSpace.gql.js";
+} from "./archivesSpace.gql";
 
 export const MOCK_RESOURCE_URI = "/repositories/2/resources/63";
 export const MOCK_RESOURCE_TITLE = "Berkeley Folk Music Festival";
@@ -24,14 +24,60 @@ export const searchArchivesSpaceResourcesMock = {
             uri: MOCK_RESOURCE_URI,
             title: MOCK_RESOURCE_TITLE,
             identifier: "MS-63",
+            importValidation: {
+              importable: true,
+              blockedReason: null,
+              blockedCount: 0,
+              blockedSamples: [],
+            },
           },
           {
             uri: "/repositories/2/resources/64",
             title: "Folk Dance Society Records",
             identifier: "MS-64",
+            importValidation: {
+              importable: true,
+              blockedReason: null,
+              blockedCount: 0,
+              blockedSamples: [],
+            },
           },
         ],
         totalHits: 2,
+      },
+    },
+  },
+};
+
+export const searchArchivesSpaceResourcesBlockedMock = {
+  request: {
+    query: SEARCH_ARCHIVES_SPACE_RESOURCES,
+    variables: { query: "blocked" },
+  },
+  result: {
+    data: {
+      archivesSpaceResourceSearch: {
+        results: [
+          {
+            uri: "/repositories/2/resources/65",
+            title: "Already in Digital Collections",
+            identifier: "MS-65",
+            importValidation: {
+              importable: false,
+              blockedReason:
+                "This finding aid already contains digital object links to Digital Collections/ARK records. Importing it would re-ingest Meadow records as source files.",
+              blockedCount: 1,
+              blockedSamples: [
+                {
+                  uri: "/repositories/2/archival_objects/2131",
+                  title: "10, 79th & Wentworth, 1975-07-07",
+                  fileUri: "https://n2t.net/ark:/81985/n2t14wd6q",
+                },
+              ],
+            },
+          },
+        ],
+        totalHits: 1,
       },
     },
   },

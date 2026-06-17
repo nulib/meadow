@@ -63,8 +63,9 @@ defmodule Meadow.ArchivesSpace.Importer do
   errors as `{uri, reason}` tuples.
   """
   def import_resource(resource_uri, opts \\ []) do
-    with {:ok, resource} <- Client.get_record(resource_uri),
-         {:ok, collection} <- ensure_collection(resource, resource_uri),
+    with :ok <- validate_importable(resource_uri, opts),
+         {:ok, resource} <- Client.get_record(resource_uri),
+         {:ok, collection, _existing?} <- ensure_collection(resource, resource_uri),
          {:ok, summary} <- import_works(resource_uri, collection, opts) do
       {:ok, Map.put(summary, :collection, collection)}
     end
@@ -80,16 +81,27 @@ defmodule Meadow.ArchivesSpace.Importer do
   request timeout.
   """
   def import_resource_async(resource_uri, opts \\ []) do
-    with {:ok, resource} <- Client.get_record(resource_uri),
-         {:ok, collection} <- ensure_collection(resource, resource_uri) do
-      {:ok, _pid} =
-        Task.Supervisor.start_child(Meadow.ArchivesSpace.TaskSupervisor, fn ->
-          resource_uri
-          |> import_works(collection, opts)
-          |> log_import_results(resource_uri)
-        end)
+    with :ok <- validate_importable(resource_uri, opts),
+         {:ok, resource} <- Client.get_record(resource_uri),
+         {:ok, collection, existing?} <- ensure_collection(resource, resource_uri) do
+      unless existing? do
+        {:ok, _pid} =
+          Task.Supervisor.start_child(Meadow.ArchivesSpace.TaskSupervisor, fn ->
+            resource_uri
+            |> import_works(collection, opts)
+            |> log_import_results(resource_uri)
+          end)
+      end
 
       {:ok, collection}
+    end
+  end
+
+  defp validate_importable(resource_uri, opts) do
+    if Keyword.get(opts, :skip_validation, false) do
+      :ok
+    else
+      ArchivesSpace.ensure_import_resource_importable(resource_uri, opts)
     end
   end
 
@@ -126,7 +138,7 @@ defmodule Meadow.ArchivesSpace.Importer do
   defp ensure_collection(resource, resource_uri) do
     case ArchivesSpace.get_collection_link_for_uri(resource_uri) do
       nil -> create_collection(resource, resource_uri)
-      link -> {:ok, Collections.get_collection!(link.collection_id)}
+      link -> {:ok, Collections.get_collection!(link.collection_id), true}
     end
   end
 
@@ -137,13 +149,36 @@ defmodule Meadow.ArchivesSpace.Importer do
       finding_aid_url: resource["ead_location"]
     }
 
-    with {:ok, collection} <- Collections.create_collection(attrs),
-         {:ok, _link} <- ArchivesSpace.link_collection(collection, resource_uri) do
-      {:ok, collection}
-    else
+    case Collections.create_collection(attrs) do
+      {:ok, collection} ->
+        case ArchivesSpace.link_collection(collection, resource_uri) do
+          {:ok, _link} ->
+            {:ok, collection, false}
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            handle_collection_link_error(collection, resource_uri, changeset)
+
+          {:error, reason} ->
+            {:error, "Could not link collection: #{inspect(reason)}"}
+        end
+
       {:error, changeset} ->
         {:error,
          "Could not create collection: #{inspect(ChangesetErrors.humanize_errors(changeset))}"}
+    end
+  end
+
+  defp handle_collection_link_error(collection, resource_uri, changeset) do
+    if duplicate_archives_space_link?(changeset) do
+      Collections.delete_collection(collection)
+
+      case ArchivesSpace.get_collection_link_for_uri(resource_uri) do
+        nil -> {:error, "Could not load existing collection link for #{resource_uri}"}
+        link -> {:ok, Collections.get_collection!(link.collection_id), true}
+      end
+    else
+      {:error,
+       "Could not link collection: #{inspect(ChangesetErrors.humanize_errors(changeset))}"}
     end
   end
 
@@ -226,13 +261,20 @@ defmodule Meadow.ArchivesSpace.Importer do
 
     attrs = Map.put(attrs, :file_sets, file_sets)
 
-    with {:ok, work} <- Works.create_work(attrs),
-         {:ok, _link} <-
-           ArchivesSpace.link_work(work, uri, %{ref_id: archival_object["ref_id"]}) do
-      Logger.info("Imported #{uri} as work #{work.id} with #{length(file_sets)} file set(s)")
-      set_representative_image(work, representative_accession)
-      kickoff_file_sets(work)
-      {:created, work}
+    with {:ok, work} <- Works.create_work(attrs) do
+      case ArchivesSpace.link_work(work, uri, %{ref_id: archival_object["ref_id"]}) do
+        {:ok, _link} ->
+          Logger.info("Imported #{uri} as work #{work.id} with #{length(file_sets)} file set(s)")
+          set_representative_image(work, representative_accession)
+          kickoff_file_sets(work)
+          {:created, work}
+
+        {:error, %Ecto.Changeset{} = changeset} ->
+          handle_link_error(work, uri, changeset)
+
+        {:error, reason} ->
+          {:error, uri, reason}
+      end
     else
       {:error, %Ecto.Changeset{} = changeset} ->
         {:error, uri, inspect(ChangesetErrors.humanize_errors(changeset))}
@@ -240,6 +282,22 @@ defmodule Meadow.ArchivesSpace.Importer do
       {:error, reason} ->
         {:error, uri, reason}
     end
+  end
+
+  defp handle_link_error(work, uri, changeset) do
+    if duplicate_archives_space_link?(changeset) do
+      Works.delete_work(work)
+      {:skipped, uri}
+    else
+      {:error, uri, inspect(ChangesetErrors.humanize_errors(changeset))}
+    end
+  end
+
+  defp duplicate_archives_space_link?(%Ecto.Changeset{errors: errors}) do
+    Enum.any?(errors, fn
+      {:archives_space_uri, {_message, opts}} -> opts[:constraint] == :unique
+      _ -> false
+    end)
   end
 
   defp work_attrs(archival_object, collection, opts) do

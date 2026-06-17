@@ -28,14 +28,46 @@ defmodule Meadow.ArchivesSpace.Mapper do
   work (or `nil`).
   """
   def apply_work(archival_object, work, opts \\ []) do
-    archival_object
-    |> put_title(work)
-    |> put_notes(work)
-    |> merge_subjects(Keyword.get(opts, :subject_refs, []))
-    |> merge_linked_agents(Keyword.get(opts, :linked_agents, []))
-    |> put_dates(work)
-    |> put_lang_materials(work)
-    |> ensure_instance(Keyword.get(opts, :digital_object_uri))
+    {record, _sync_state} = apply_work_with_state(archival_object, work, opts)
+    record
+  end
+
+  @doc """
+  Merges a work into an archival object and returns the Meadow-owned sync state
+
+  `:sync_state` should be the state recorded from the previous successful sync.
+  Values in that state are the only unlabelled ASpace values Meadow is allowed
+  to remove before writing the current values.
+  """
+  def apply_work_with_state(archival_object, work, opts \\ []) do
+    previous_state = Keyword.get(opts, :sync_state, %{}) || %{}
+    subject_refs = Keyword.get(opts, :subject_refs, [])
+    linked_agents = Keyword.get(opts, :linked_agents, [])
+    digital_object_uri = Keyword.get(opts, :digital_object_uri)
+
+    record =
+      archival_object
+      |> put_title(work)
+      |> put_notes(work)
+
+    {record, %{"subject_refs" => owned_subject_refs}} =
+      merge_subjects(record, subject_refs, previous_state)
+
+    {record, owned_agent_refs} = merge_linked_agents(record, linked_agents, previous_state)
+    {record, owned_date_keys} = put_dates(record, work, previous_state)
+    {record, owned_language_codes} = put_lang_materials(record, work, previous_state)
+    record = ensure_instance(record, digital_object_uri)
+
+    sync_state = %{
+      "subject_refs" => owned_subject_refs,
+      "linked_agent_refs" => owned_agent_refs,
+      "date_keys" => owned_date_keys,
+      "language_codes" => owned_language_codes,
+      "note_label" => @note_label,
+      "digital_object_uri" => digital_object_uri
+    }
+
+    {record, sync_state}
   end
 
   @doc """
@@ -332,43 +364,45 @@ defmodule Meadow.ArchivesSpace.Mapper do
     }
   end
 
-  defp merge_subjects(archival_object, subject_refs) do
-    existing = Map.get(archival_object, "subjects", [])
-    new_refs = subject_refs |> Enum.map(&%{"ref" => &1})
+  defp merge_subjects(archival_object, subject_refs, sync_state) do
+    {subjects, owned_refs} =
+      merge_ref_values(
+        Map.get(archival_object, "subjects", []),
+        subject_refs,
+        state_list(sync_state, "subject_refs"),
+        &%{"ref" => &1}
+      )
 
-    subjects =
-      (existing ++ new_refs)
-      |> Enum.uniq_by(&Map.get(&1, "ref"))
-
-    Map.put(archival_object, "subjects", subjects)
+    {Map.put(archival_object, "subjects", subjects), %{"subject_refs" => owned_refs}}
   end
 
-  # linked_agents have no Meadow label, so key by ref: drop any existing entry
-  # that points at a Meadow agent ref, then append Meadow's. Archivist-linked
-  # agents (other refs) are preserved.
-  defp merge_linked_agents(archival_object, []), do: archival_object
+  defp merge_linked_agents(archival_object, meadow_agents, sync_state) do
+    current_by_ref = Map.new(meadow_agents, &{Map.get(&1, "ref"), &1})
 
-  defp merge_linked_agents(archival_object, meadow_agents) do
-    meadow_refs = MapSet.new(meadow_agents, &Map.get(&1, "ref"))
+    {linked_agents, owned_refs} =
+      merge_ref_values(
+        Map.get(archival_object, "linked_agents", []),
+        Map.keys(current_by_ref),
+        state_list(sync_state, "linked_agent_refs"),
+        &Map.fetch!(current_by_ref, &1)
+      )
 
-    kept =
-      archival_object
-      |> Map.get("linked_agents", [])
-      |> Enum.reject(&MapSet.member?(meadow_refs, Map.get(&1, "ref")))
-
-    Map.put(archival_object, "linked_agents", kept ++ meadow_agents)
+    {Map.put(archival_object, "linked_agents", linked_agents), owned_refs}
   end
 
-  # dates/lang_materials have no Meadow label or stable key, so dedup-merge by
-  # value: preserve everything present (archivist data survives) and append
-  # only Meadow values not already there. Idempotent across re-syncs.
-  defp put_dates(archival_object, work) do
+  defp put_dates(archival_object, work, sync_state) do
     meadow_dates =
       work.descriptive_metadata.date_created
       |> Enum.map(&date/1)
       |> Enum.reject(&is_nil/1)
 
-    merge_uniq(archival_object, "dates", meadow_dates, &Map.get(&1, "expression"))
+    merge_owned_uniq(
+      archival_object,
+      "dates",
+      meadow_dates,
+      state_list(sync_state, "date_keys"),
+      &Map.get(&1, "expression")
+    )
   end
 
   defp date(%{humanized: humanized, edtf: edtf}) when is_binary(humanized),
@@ -383,19 +417,30 @@ defmodule Meadow.ArchivesSpace.Mapper do
     base = %{"jsonmodel_type" => "date", "label" => "creation", "expression" => humanized}
 
     case Regex.scan(~r/\d{4}/, edtf || "") |> List.flatten() do
-      [single] -> Map.merge(base, %{"date_type" => "single", "begin" => single})
-      [start, finish | _] -> Map.merge(base, %{"date_type" => "inclusive", "begin" => start, "end" => finish})
-      [] -> Map.put(base, "date_type", "inclusive")
+      [single] ->
+        Map.merge(base, %{"date_type" => "single", "begin" => single})
+
+      [start, finish | _] ->
+        Map.merge(base, %{"date_type" => "inclusive", "begin" => start, "end" => finish})
+
+      [] ->
+        Map.put(base, "date_type", "inclusive")
     end
   end
 
-  defp put_lang_materials(archival_object, work) do
+  defp put_lang_materials(archival_object, work, sync_state) do
     meadow_langs =
       work.descriptive_metadata.language
       |> Enum.map(&lang_material/1)
       |> Enum.reject(&is_nil/1)
 
-    merge_uniq(archival_object, "lang_materials", meadow_langs, &get_in(&1, ["language_and_script", "language"]))
+    merge_owned_uniq(
+      archival_object,
+      "lang_materials",
+      meadow_langs,
+      state_list(sync_state, "language_codes"),
+      &get_in(&1, ["language_and_script", "language"])
+    )
   end
 
   defp lang_material(%{term: %{id: id}}) when is_binary(id) do
@@ -421,14 +466,78 @@ defmodule Meadow.ArchivesSpace.Mapper do
     if is_binary(segment) and Regex.match?(~r/^[a-z]{3}$/, segment), do: segment
   end
 
-  defp merge_uniq(archival_object, _key, [], _value_fun), do: archival_object
+  defp merge_owned_uniq(archival_object, key, meadow_values, previous_keys, value_fun) do
+    previous = MapSet.new(previous_keys)
 
-  defp merge_uniq(archival_object, key, meadow_values, value_fun) do
-    existing = Map.get(archival_object, key, [])
-    present = MapSet.new(existing, value_fun)
-    additions = Enum.reject(meadow_values, &MapSet.member?(present, value_fun.(&1)))
-    Map.put(archival_object, key, existing ++ additions)
+    kept =
+      archival_object
+      |> Map.get(key, [])
+      |> Enum.reject(fn value ->
+        MapSet.member?(previous, value_fun.(value))
+      end)
+
+    present = MapSet.new(kept, value_fun)
+
+    {additions, owned_keys} =
+      meadow_values
+      |> Enum.reduce({[], []}, fn value, {additions, owned_keys} ->
+        value_key = value_fun.(value)
+
+        cond do
+          MapSet.member?(previous, value_key) ->
+            {[value | additions], [value_key | owned_keys]}
+
+          MapSet.member?(present, value_key) ->
+            {additions, owned_keys}
+
+          true ->
+            {[value | additions], [value_key | owned_keys]}
+        end
+      end)
+
+    {
+      Map.put(archival_object, key, kept ++ Enum.reverse(additions)),
+      Enum.reverse(owned_keys)
+    }
   end
+
+  defp merge_ref_values(existing, current_refs, previous_refs, build_fun) do
+    previous = MapSet.new(previous_refs)
+
+    kept =
+      Enum.reject(existing, fn value ->
+        ref = Map.get(value, "ref")
+        MapSet.member?(previous, ref)
+      end)
+
+    present = MapSet.new(kept, &Map.get(&1, "ref"))
+
+    {additions, owned_refs} =
+      current_refs
+      |> Enum.reduce({[], []}, fn ref, {additions, owned_refs} ->
+        cond do
+          MapSet.member?(previous, ref) ->
+            {[build_fun.(ref) | additions], [ref | owned_refs]}
+
+          MapSet.member?(present, ref) ->
+            {additions, owned_refs}
+
+          true ->
+            {[build_fun.(ref) | additions], [ref | owned_refs]}
+        end
+      end)
+
+    {kept ++ Enum.reverse(additions), Enum.reverse(owned_refs)}
+  end
+
+  defp state_list(sync_state, key) when is_map(sync_state) do
+    case Map.get(sync_state, key, []) do
+      values when is_list(values) -> values
+      _ -> []
+    end
+  end
+
+  defp state_list(_sync_state, _key), do: []
 
   defp ensure_instance(archival_object, nil), do: archival_object
 

@@ -62,6 +62,18 @@ defmodule MeadowWeb.Schema.Mutation.ImportArchivesSpaceResourceTest do
     assert message =~ "404"
   end
 
+  test "rejects resources that already link to Digital Collections", %{resource: resource} do
+    add_digital_collections_link(resource)
+
+    assert {:ok, %{errors: [%{message: message}]}} =
+             query_gql(
+               variables: %{"resourceUri" => resource["uri"]},
+               context: gql_context()
+             )
+
+    assert message =~ "already contains digital object links"
+  end
+
   test "flags imported works for AI ingest for supermanager-capable users", %{
     resource: resource
   } do
@@ -104,5 +116,24 @@ defmodule MeadowWeb.Schema.Mutation.ImportArchivesSpaceResourceTest do
 
       assert {:ok, %{errors: [%{message: "Forbidden", status: 403}]}} = result
     end
+  end
+
+  defp add_digital_collections_link(resource) do
+    digital_object =
+      MockServer.create_digital_object(2, %{
+        "file_versions" => [
+          %{
+            "file_uri" =>
+              "https://dc.library.northwestern.edu/items/d2219b92-f014-405c-82c6-35a9dc2fb8c0"
+          }
+        ]
+      })
+
+    MockServer.create_archival_object(2, %{
+      "level" => "file",
+      "display_string" => "Already imported object",
+      "resource" => %{"ref" => resource["uri"]},
+      "instances" => [MockServer.digital_object_instance(digital_object)]
+    })
   end
 end

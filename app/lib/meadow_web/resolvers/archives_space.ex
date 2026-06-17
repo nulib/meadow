@@ -53,15 +53,42 @@ defmodule MeadowWeb.Resolvers.ArchivesSpace do
 
   def search_resources(_, %{query: query} = args, _) do
     case Client.search_resources(query, Map.get(args, :page, 1)) do
-      {:ok, result} -> {:ok, result}
-      {:error, reason} -> {:error, "ArchivesSpace search failed: #{inspect(reason)}"}
+      {:ok, result} ->
+        {:ok, Map.update!(result, :results, &Enum.map(&1, fn hit -> with_validation(hit) end))}
+
+      {:error, reason} ->
+        {:error, "ArchivesSpace search failed: #{inspect(reason)}"}
     end
+  end
+
+  defp with_validation(%{uri: uri} = hit) do
+    validation =
+      case ArchivesSpace.validate_import_resource(uri) do
+        {:ok, validation} ->
+          validation
+
+        {:error, reason} ->
+          %{
+            importable: false,
+            blocked_reason: "Could not validate this ArchivesSpace resource: #{inspect(reason)}",
+            blocked_count: 0,
+            blocked_samples: []
+          }
+      end
+
+    Map.put(hit, :import_validation, validation)
   end
 
   def start_import_preview(_, %{resource_uri: resource_uri}, %{context: %{current_user: user}}) do
     if Roles.authorized?(user, :supermanager) do
-      token = ImportPreview.start(resource_uri)
-      {:ok, %{token: token, status: :pending, previews: []}}
+      case ArchivesSpace.ensure_import_resource_importable(resource_uri) do
+        :ok ->
+          token = ImportPreview.start(resource_uri)
+          {:ok, %{token: token, status: :pending, previews: []}}
+
+        {:error, reason} ->
+          {:error, reason}
+      end
     else
       {:error, "Not authorized to generate AI import previews"}
     end
