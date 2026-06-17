@@ -10,6 +10,16 @@ defmodule Meadow.ArchivesSpace do
   alias Meadow.Data.Schemas.{ArchivesSpaceLink, Collection, Work}
   alias Meadow.Repo
 
+  @doc "Validates whether an ArchivesSpace resource can be safely imported"
+  def validate_import_resource(resource_uri, opts \\ []) do
+    Meadow.ArchivesSpace.ImportValidator.validate(resource_uri, opts)
+  end
+
+  @doc "Returns :ok when an ArchivesSpace resource can be safely imported"
+  def ensure_import_resource_importable(resource_uri, opts \\ []) do
+    Meadow.ArchivesSpace.ImportValidator.ensure_importable(resource_uri, opts)
+  end
+
   @doc "Returns all ArchivesSpace links"
   def list_links do
     Repo.all(ArchivesSpaceLink)

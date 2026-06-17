@@ -52,7 +52,10 @@ defmodule Meadow.ArchivesSpace.Sync do
           :noop
 
         {link, work} ->
-          Logger.info("Syncing work #{work.id} to ArchivesSpace record #{link.archives_space_uri}")
+          Logger.info(
+            "Syncing work #{work.id} to ArchivesSpace record #{link.archives_space_uri}"
+          )
+
           do_sync(link, work)
       end
     end
@@ -91,9 +94,10 @@ defmodule Meadow.ArchivesSpace.Sync do
     with {:ok, subject_refs} <- ensure_subjects(work),
          {:ok, linked_agents} <- ensure_agents(work),
          {:ok, link} <- ensure_digital_object(link, work),
-         {:ok, _components} <- sync_components(link, work),
-         {:ok, _record} <- update_archival_object(link, work, subject_refs, linked_agents) do
-      ArchivesSpace.mark_synced(link)
+         {:ok, component_state} <- sync_components(link, work),
+         {:ok, _record, work_state} <-
+           update_archival_object(link, work, subject_refs, linked_agents) do
+      ArchivesSpace.mark_synced(link, %{sync_state: Map.merge(work_state, component_state)})
     else
       {:error, reason} ->
         Logger.error("ArchivesSpace sync failed for work #{work.id}: #{inspect(reason)}")
@@ -174,10 +178,11 @@ defmodule Meadow.ArchivesSpace.Sync do
 
   defp update_archival_object(link, work, subject_refs, linked_agents) do
     with_lock_retry(link.archives_space_uri, fn archival_object ->
-      Mapper.apply_work(archival_object, work,
+      Mapper.apply_work_with_state(archival_object, work,
         subject_refs: subject_refs,
         linked_agents: linked_agents,
-        digital_object_uri: link.digital_object_uri
+        digital_object_uri: link.digital_object_uri,
+        sync_state: link.sync_state
       )
     end)
   end
@@ -187,13 +192,25 @@ defmodule Meadow.ArchivesSpace.Sync do
   defp with_lock_retry(uri, build_fun, attempt \\ 1) do
     with {:ok, record} <- Client.get_record(uri),
          built <- build_fun.(record) do
-      case Client.update_record(uri, built) do
+      {record, metadata} =
+        case built do
+          {%{} = record, metadata} -> {record, metadata}
+          %{} = record -> {record, nil}
+        end
+
+      case Client.update_record(uri, record) do
         {:error, :conflict} when attempt < @lock_conflict_attempts ->
           Logger.warning("Lock conflict updating #{uri} (attempt #{attempt}); retrying")
           with_lock_retry(uri, build_fun, attempt + 1)
 
         {:error, :conflict} ->
           {:error, "Persistent lock conflict updating #{uri}"}
+
+        {:ok, record} when is_nil(metadata) ->
+          {:ok, record}
+
+        {:ok, record} ->
+          {:ok, record, metadata}
 
         other ->
           other
@@ -204,15 +221,15 @@ defmodule Meadow.ArchivesSpace.Sync do
   # Reconciles the work's access file sets to digital_object_components under the
   # managed digital object: each file set becomes a component (label + IIIF image
   # + transcription note), keyed idempotently by component_id == file_set.id.
-  defp sync_components(%{digital_object_uri: nil}, _work), do: {:ok, []}
+  defp sync_components(%{digital_object_uri: nil}, _work), do: {:ok, %{"component_uris" => []}}
 
   defp sync_components(link, work) do
     desired = desired_components(work)
 
     with {:ok, existing} <- fetch_components(link),
-         :ok <- upsert_components(link, desired, existing),
+         {:ok, component_uris} <- upsert_components(link, desired, existing),
          :ok <- delete_orphan_components(existing, MapSet.new(desired, & &1.file_set_id)) do
-      {:ok, desired}
+      {:ok, %{"component_uris" => component_uris}}
     end
   end
 
@@ -286,9 +303,9 @@ defmodule Meadow.ArchivesSpace.Sync do
   defp component_uris(_digital_object_uri, _root), do: {:ok, []}
 
   defp upsert_components(link, desired, existing) do
-    Enum.reduce_while(desired, :ok, fn component, :ok ->
+    Enum.reduce_while(desired, {:ok, []}, fn component, {:ok, uris} ->
       case upsert_component(link, component, existing) do
-        :ok -> {:cont, :ok}
+        {:ok, uri} -> {:cont, {:ok, uris ++ [uri]}}
         {:error, reason} -> {:halt, {:error, reason}}
       end
     end)
@@ -302,14 +319,14 @@ defmodule Meadow.ArchivesSpace.Sync do
         path = "/repositories/#{link.repository_id}/digital_object_components"
 
         case Client.create_record(path, desired_record) do
-          {:ok, _uri} -> :ok
-          {:conflict, _uri} -> :ok
+          {:ok, uri} -> {:ok, uri}
+          {:conflict, uri} -> {:ok, uri}
           {:error, reason} -> {:error, reason}
         end
 
       %{"uri" => uri} ->
         case with_lock_retry(uri, &Mapper.apply_component(&1, desired_record)) do
-          {:ok, _record} -> :ok
+          {:ok, _record} -> {:ok, uri}
           other -> other
         end
     end

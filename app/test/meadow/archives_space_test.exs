@@ -2,6 +2,7 @@ defmodule Meadow.ArchivesSpaceTest do
   use Meadow.DataCase
 
   alias Meadow.ArchivesSpace
+  alias Meadow.ArchivesSpace.{Client, MockServer}
   alias Meadow.Data.Schemas.ArchivesSpaceLink
 
   @archival_object_uri "/repositories/2/archival_objects/1234"
@@ -72,6 +73,23 @@ defmodule Meadow.ArchivesSpaceTest do
       assert "has already been taken" in errors_on(changeset).work_id
     end
 
+    test "allows only one work link per ArchivesSpace archival object" do
+      assert {:ok, _} = ArchivesSpace.link_work(work_fixture(), @archival_object_uri)
+
+      assert {:error, changeset} = ArchivesSpace.link_work(work_fixture(), @archival_object_uri)
+
+      assert "has already been taken" in errors_on(changeset).archives_space_uri
+    end
+
+    test "allows only one collection link per ArchivesSpace resource" do
+      assert {:ok, _} = ArchivesSpace.link_collection(collection_fixture(), @resource_uri)
+
+      assert {:error, changeset} =
+               ArchivesSpace.link_collection(collection_fixture(), @resource_uri)
+
+      assert "has already been taken" in errors_on(changeset).archives_space_uri
+    end
+
     test "unlink/1 removes the link" do
       work = work_fixture()
       {:ok, link} = ArchivesSpace.link_work(work, @archival_object_uri)
@@ -116,5 +134,59 @@ defmodule Meadow.ArchivesSpaceTest do
       {:ok, _} = ArchivesSpace.mark_error(link, "boom")
       assert [%{sync_status: :error}] = ArchivesSpace.list_error_links()
     end
+  end
+
+  describe "validate_import_resource/1" do
+    setup do
+      MockServer.reset()
+      Client.invalidate_session()
+
+      resource = MockServer.create_resource(2, %{"title" => "Resource With Links"})
+
+      {:ok, %{resource: resource}}
+    end
+
+    test "blocks resources with Digital Collections item links", %{resource: resource} do
+      add_archival_object_with_file_uri(
+        resource,
+        "https://dc.library.northwestern.edu/items/d2219b92-f014-405c-82c6-35a9dc2fb8c0"
+      )
+
+      assert {:ok, validation} = ArchivesSpace.validate_import_resource(resource["uri"])
+      refute validation.importable
+      assert validation.blocked_count == 1
+      assert [%{file_uri: file_uri}] = validation.blocked_samples
+      assert file_uri =~ "dc.library.northwestern.edu/items"
+    end
+
+    test "blocks resources with n2t ARK links", %{resource: resource} do
+      add_archival_object_with_file_uri(resource, "https://n2t.net/ark:/81985/n2t14wd6q")
+
+      assert {:ok, validation} = ArchivesSpace.validate_import_resource(resource["uri"])
+      refute validation.importable
+      assert validation.blocked_count == 1
+    end
+
+    test "allows resources with image file links", %{resource: resource} do
+      add_archival_object_with_file_uri(resource, "https://images.example.edu/poster.tif")
+
+      assert {:ok, validation} = ArchivesSpace.validate_import_resource(resource["uri"])
+      assert validation.importable
+      assert validation.blocked_count == 0
+    end
+  end
+
+  defp add_archival_object_with_file_uri(resource, file_uri) do
+    digital_object =
+      MockServer.create_digital_object(2, %{
+        "file_versions" => [%{"file_uri" => file_uri}]
+      })
+
+    MockServer.create_archival_object(2, %{
+      "level" => "file",
+      "title" => "Linked Digital Object",
+      "resource" => %{"ref" => resource["uri"]},
+      "instances" => [MockServer.digital_object_instance(digital_object)]
+    })
   end
 end

@@ -129,7 +129,11 @@ defmodule Meadow.ArchivesSpace.SyncTest do
           work_id: work.id,
           rank: 0,
           role: access,
-          core_metadata: %{label: "Page 1", original_filename: "p1.tif", location: "s3://x/p1.tif"},
+          core_metadata: %{
+            label: "Page 1",
+            original_filename: "p1.tif",
+            location: "s3://x/p1.tif"
+          },
           derivatives: %{"pyramid_tiff" => "s3://pyr/p1.tif"}
         })
 
@@ -145,7 +149,11 @@ defmodule Meadow.ArchivesSpace.SyncTest do
           work_id: work.id,
           rank: 1,
           role: access,
-          core_metadata: %{label: "Page 2", original_filename: "p2.tif", location: "s3://x/p2.tif"}
+          core_metadata: %{
+            label: "Page 2",
+            original_filename: "p2.tif",
+            location: "s3://x/p2.tif"
+          }
         })
 
       {:ok, %{fs1: fs1, fs2: fs2}}
@@ -240,6 +248,84 @@ defmodule Meadow.ArchivesSpace.SyncTest do
 
       assert [date] = Enum.filter(record["dates"], &(&1["label"] == "creation"))
       assert date["expression"] == "1965"
+    end
+
+    test "replaces stale Meadow-owned subjects, agents, and dates while preserving archivist data" do
+      archivist_subject = %{"ref" => "/subjects/999"}
+      archivist_agent = %{"ref" => "/agents/people/999", "role" => "creator"}
+
+      archivist_date = %{
+        "jsonmodel_type" => "date",
+        "label" => "digitized",
+        "expression" => "2001"
+      }
+
+      archival_object =
+        MockServer.create_archival_object(2, %{
+          "title" => "Replace Owned Metadata",
+          "subjects" => [archivist_subject],
+          "linked_agents" => [archivist_agent],
+          "dates" => [archivist_date]
+        })
+
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{
+            title: "Replace Owned Metadata",
+            subject: [%{term: "mock1:result1", role: %{id: "TOPICAL", scheme: "subject_role"}}],
+            creator: [%{term: "mock1:result1"}],
+            date_created: [%{edtf: "1965", humanized: "1965"}]
+          }
+        })
+
+      {:ok, _link} = ArchivesSpace.link_work(work, archival_object["uri"])
+      assert {:ok, first_link} = Sync.sync_work(work.id)
+      assert first_link.sync_state["subject_refs"] != []
+      assert first_link.sync_state["linked_agent_refs"] != []
+      assert first_link.sync_state["date_keys"] == ["1965"]
+
+      Works.update_work!(work, %{
+        descriptive_metadata: %{
+          subject: [%{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}],
+          creator: [%{term: "mock1:result2"}],
+          date_created: [%{edtf: "1966", humanized: "1966"}]
+        }
+      })
+
+      assert {:ok, _second_link} = Sync.sync_work(work.id)
+
+      record = MockServer.get_record(archival_object["uri"])
+      subject_refs = Enum.map(record["subjects"], & &1["ref"])
+      agent_refs = Enum.map(record["linked_agents"], & &1["ref"])
+      date_expressions = Enum.map(record["dates"], & &1["expression"])
+      subject_authority_ids = Enum.map(subject_refs, &authority_id/1)
+      agent_authority_ids = Enum.map(agent_refs, &agent_authority_id/1)
+
+      assert "/subjects/999" in subject_refs
+      refute "mock1:result1" in subject_authority_ids
+      assert "mock1:result2" in subject_authority_ids
+
+      assert "/agents/people/999" in agent_refs
+      refute "mock1:result1" in agent_authority_ids
+      assert "mock1:result2" in agent_authority_ids
+
+      assert "2001" in date_expressions
+      refute "1965" in date_expressions
+      assert "1966" in date_expressions
+    end
+  end
+
+  defp authority_id(ref) do
+    case MockServer.get_record(ref) do
+      nil -> nil
+      record -> record["authority_id"]
+    end
+  end
+
+  defp agent_authority_id(ref) do
+    case MockServer.get_record(ref) do
+      nil -> nil
+      record -> record["names"] |> List.first(%{}) |> Map.get("authority_id")
     end
   end
 

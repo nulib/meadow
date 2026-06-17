@@ -4,6 +4,16 @@ query($query: String!, $page: Int) {
       uri
       title
       identifier
+      importValidation {
+        importable
+        blockedReason
+        blockedCount
+        blockedSamples {
+          uri
+          title
+          fileUri
+        }
+      }
     }
     totalHits
   }

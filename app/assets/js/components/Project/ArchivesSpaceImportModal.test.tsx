@@ -7,6 +7,7 @@ import {
   archivesSpaceImportPreviewSubscriptionMock,
   importArchivesSpaceResourceMock,
   importArchivesSpaceResourceAiMock,
+  searchArchivesSpaceResourcesBlockedMock,
   searchArchivesSpaceResourcesEmptyMock,
   searchArchivesSpaceResourcesMock,
   startArchivesSpaceImportPreviewMock,
@@ -15,6 +16,7 @@ import {
 
 const mocks = [
   searchArchivesSpaceResourcesMock,
+  searchArchivesSpaceResourcesBlockedMock,
   searchArchivesSpaceResourcesEmptyMock,
   importArchivesSpaceResourceMock,
   importArchivesSpaceResourceAiMock,
@@ -22,7 +24,19 @@ const mocks = [
   archivesSpaceImportPreviewSubscriptionMock,
 ];
 
-function renderModal({ closeModal, user } = {}) {
+type TestUser = {
+  role: string;
+};
+
+type RenderModalOptions = {
+  closeModal?: () => void;
+  user?: TestUser;
+};
+
+function renderModal({
+  closeModal = jest.fn(),
+  user,
+}: RenderModalOptions = {}) {
   renderWithRouterApollo(
     <AuthContext.Provider value={user}>
       <ProjectArchivesSpaceImportModal
@@ -35,13 +49,13 @@ function renderModal({ closeModal, user } = {}) {
 }
 
 describe("ProjectArchivesSpaceImportModal", () => {
-  let closeModal;
+  let closeModal: jest.Mock;
 
   beforeEach(() => {
     closeModal = jest.fn();
   });
 
-  function search(term) {
+  function search(term: string) {
     fireEvent.change(
       screen.getByLabelText("Search ArchivesSpace collections"),
       { target: { value: term } },
@@ -87,6 +101,23 @@ describe("ProjectArchivesSpaceImportModal", () => {
     fireEvent.click(importButton);
 
     await waitFor(() => expect(closeModal).toHaveBeenCalled());
+  });
+
+  it("shows blocked resources but does not allow import", async () => {
+    renderModal({ closeModal });
+    search("blocked");
+
+    expect(
+      await screen.findByText("Already in Digital Collections"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("archivesspace-blocked-tag")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("archivesspace-import-blocked"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Select Already in Digital Collections"),
+    ).toBeDisabled();
+    expect(screen.getByTestId("button-import-resource")).toBeDisabled();
   });
 
   it("hides the AI metadata checkbox for users without an AI ingest role", () => {

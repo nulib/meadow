@@ -17,6 +17,8 @@ defmodule Meadow.Data.Schemas.ArchivesSpaceLink do
   - `repository_id` - the ArchivesSpace repository id, derived from the URI
   - `digital_object_uri` - the digital object Meadow creates and manages in
     ArchivesSpace to point back at the published work
+  - `sync_state` - refs/values Meadow last wrote to ArchivesSpace, used to
+    replace Meadow-owned data without deleting archivist-managed data
   - `sync_status` - `:linked` (never synced), `:pending`, `:synced`, or `:error`
   - `sync_error` - failure message when `sync_status` is `:error`
   - `last_synced_at` - timestamp of the last successful sync
@@ -38,6 +40,7 @@ defmodule Meadow.Data.Schemas.ArchivesSpaceLink do
     field(:ref_id, :string)
     field(:repository_id, :integer)
     field(:digital_object_uri, :string)
+    field(:sync_state, :map, default: %{})
     field(:sync_status, Ecto.Enum, values: @statuses, default: :linked)
     field(:sync_error, :string)
     field(:last_synced_at, :utc_datetime_usec)
@@ -55,6 +58,7 @@ defmodule Meadow.Data.Schemas.ArchivesSpaceLink do
       :archives_space_uri,
       :ref_id,
       :digital_object_uri,
+      :sync_state,
       :sync_status,
       :sync_error,
       :last_synced_at
@@ -67,6 +71,12 @@ defmodule Meadow.Data.Schemas.ArchivesSpaceLink do
     |> validate_target()
     |> unique_constraint(:work_id)
     |> unique_constraint(:collection_id)
+    |> unique_constraint(:archives_space_uri,
+      name: :archives_space_links_work_archives_space_uri_index
+    )
+    |> unique_constraint(:archives_space_uri,
+      name: :archives_space_links_collection_archives_space_uri_index
+    )
     |> check_constraint(:work_id,
       name: :work_or_collection,
       message: "link cannot target both a work and a collection"

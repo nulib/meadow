@@ -146,6 +146,22 @@ defmodule MeadowWeb.Schema.Data.ArchivesSpaceTypes do
     field(:uri, non_null(:string))
     field(:title, :string)
     field(:identifier, :string)
+    field(:import_validation, non_null(:archives_space_import_validation))
+  end
+
+  @desc "ArchivesSpace resource import validation result"
+  object :archives_space_import_validation do
+    field(:importable, non_null(:boolean))
+    field(:blocked_reason, :string)
+    field(:blocked_count, non_null(:integer))
+    field(:blocked_samples, non_null(list_of(:archives_space_import_blocked_sample)))
+  end
+
+  @desc "A blocked archival object digital object link"
+  object :archives_space_import_blocked_sample do
+    field(:uri, non_null(:string))
+    field(:title, :string)
+    field(:file_uri, non_null(:string))
   end
 
   @desc "An AI metadata preview for a prospective ArchivesSpace import"
