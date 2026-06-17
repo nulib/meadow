@@ -611,7 +611,7 @@ resource "aws_media_convert_queue" "transcode_queue" {
 locals {
   node_lambda_build_commands = [
     "[ ! -d node_modules ] || mv node_modules node_modules_temp",
-    "bun install --production --frozen-lockfile",
+    "bun install --production --frozen-lockfile || bun install --production",
     ":zip",
     "rm -rf node_modules",
     "[ ! -d node_modules_temp ] || mv node_modules_temp node_modules",

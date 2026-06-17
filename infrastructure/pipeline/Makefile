@@ -19,7 +19,7 @@ help:
 	@echo "make start        | start the pipeline lambdas on port 3005 with live S3 service"
 
 $(LAMBDAS_DIR)/%/node_modules/.install-stamp: $(LAMBDAS_DIR)/%/package.json $(LAMBDAS_DIR)/%/bun.lock
-	SHARP_IGNORE_GLOBAL_LIBVIPS=1 bun install --cwd $(LAMBDAS_DIR)/$* --frozen-lockfile
+	SHARP_IGNORE_GLOBAL_LIBVIPS=1 bun install --cwd $(LAMBDAS_DIR)/$* --frozen-lockfile || bun install --cwd $(LAMBDAS_DIR)/$*
 	@touch $@
 
 deps: $(LAMBDAS_DIR)/digester/node_modules/.install-stamp

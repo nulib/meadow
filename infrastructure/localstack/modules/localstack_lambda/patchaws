@@ -4,7 +4,7 @@ if [ -f node_modules/aws-sdk/lib/_aws.js ]; then
   exit 0
 fi
 
-bun install --production --frozen-lockfile
+bun install --production --frozen-lockfile || bun install --production
 
 mv node_modules/aws-sdk/lib/aws.js node_modules/aws-sdk/lib/_aws.js
 

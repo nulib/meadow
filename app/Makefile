@@ -40,7 +40,7 @@ priv/cert/combined.pem: priv/cert/cert.pem priv/cert/key.pem
 	@cat $^ > $@
 
 assets/node_modules/.install-stamp: assets/package.json assets/bun.lock
-	bun install --cwd assets --frozen-lockfile
+	bun install --cwd assets --frozen-lockfile || bun install --cwd assets
 	@touch $@
 
 deps/.install-stamp: mix.exs mix.lock
