@@ -38,7 +38,7 @@ const S3ObjectProvider = forwardRef(
 
     useImperativeHandle(ref, () => ({
       findFileSetByUri: (value) => {
-        const objects = data?.ListIngestBucketObjects?.objects;
+        const objects = data?.listIngestBucketObjects?.objects;
         const found = objects?.find(({ uri }) => uri == value);
         if (!found) return null;
 
@@ -48,7 +48,7 @@ const S3ObjectProvider = forwardRef(
 
     useEffect(() => {
       if (!data) return;
-      const { ListIngestBucketObjects: contents } = data;
+      const { listIngestBucketObjects: contents } = data;
       const newFiles = contents.objects
         .filter((entry) => {
           const { isValid } = isFileValid(

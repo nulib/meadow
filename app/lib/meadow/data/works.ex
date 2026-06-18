@@ -140,8 +140,8 @@ defmodule Meadow.Data.Works do
 
   def get_work_by_ark!(ark) do
     from(w in Work,
-      where: fragment("?.descriptive_metadata->>'ark' = ?", w, ^ark),
-      preload: [:ingest_sheet, :project, descriptive_metadata: :cached_ark]
+      where: w.ark == ^ark,
+      preload: [:ingest_sheet, :project, :cached_ark]
     )
     |> Repo.one!()
     |> add_representative_image()

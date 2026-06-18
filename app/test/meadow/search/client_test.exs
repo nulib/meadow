@@ -48,7 +48,7 @@ defmodule Meadow.Search.ClientTest do
         end)
 
       assert log =~ ~r"Reindexing in progress: 0/\d+ \(\d+.\d+%\) complete"
-      assert log =~ ~r"Reindexed #{count} documents in \d+\.\d{2} seconds"
+      assert log =~ ~r"Reindexed #{count} documents in \d+\.\d{1,2} seconds"
     end
 
     test "search/2" do

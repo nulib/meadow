@@ -162,9 +162,9 @@ defmodule Meadow.Data.WorksTest do
 
     test "get_work_by_ark!/1", %{work: work, image_url: image_url} do
       with {:ok, work} <-
-             work |> Works.update_work(%{descriptive_metadata: %{ark: "ark:/12345/nu209876543"}}) do
+             work |> Works.update_work(%{ark: "ark:/12345/nu209876543"}) do
         assert(
-          Works.get_work_by_ark!(work.descriptive_metadata.ark)
+          Works.get_work_by_ark!(work.ark)
           |> Map.get(:representative_image) == image_url
         )
       end

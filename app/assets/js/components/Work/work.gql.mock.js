@@ -263,6 +263,7 @@ export const mockWork2 = {
     projectTaskNumber: [],
     status: null,
   },
+  ark: "ark123",
   behavior: {
     id: "individuals",
     label: "Individuals",
@@ -272,7 +273,6 @@ export const mockWork2 = {
   descriptiveMetadata: {
     abstract: ["New Abstract Test", "New Abstract Again"],
     alternateTitle: [],
-    ark: "ark123",
     boxName: [],
     boxNumber: [],
     caption: [],

@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import { gql } from "@apollo/client/core";
 
 export const FILE_SET_ANNOTATION = gql`
   subscription fileSetAnnotation($fileSetId: ID!) {
@@ -21,10 +21,8 @@ export const FILE_SET_ANNOTATION = gql`
 export const WORK_FILE_SET_ANNOTATION = gql`
   subscription workFileSetAnnotation($workId: ID!) {
     workFileSetAnnotation(workId: $workId) {
-      fileSetAnnotation {
-        status
-        fileSetId
-      }
+      status
+      fileSetId
     }
   }
 `;

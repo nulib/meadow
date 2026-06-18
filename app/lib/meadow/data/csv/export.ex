@@ -15,6 +15,7 @@ defmodule Meadow.Data.CSV.Export do
   @top_level_fields [
     ["id"],
     ["accession_number"],
+    ["ark"],
     ["collection", "id"],
     ["published"],
     ["visibility"]

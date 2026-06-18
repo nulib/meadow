@@ -14,7 +14,7 @@ defmodule Meadow.Indexing.V2.Work do
       alternate_title: work.descriptive_metadata.alternate_title,
       api_link: Path.join([api_url(), "works", work.id]),
       api_model: "Work",
-      ark: work.descriptive_metadata.ark,
+      ark: work.ark,
       batch_ids: work.batches |> Enum.map(& &1.id),
       behavior: encode_label(work.behavior),
       box_name: work.descriptive_metadata.box_name,

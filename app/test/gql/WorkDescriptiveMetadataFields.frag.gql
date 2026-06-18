@@ -1,6 +1,5 @@
 fragment WorkDescriptiveMetadataFields on Work {
   descriptiveMetadata {
-    ark
     title
     dateCreated {
       edtf

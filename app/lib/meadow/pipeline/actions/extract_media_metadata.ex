@@ -52,7 +52,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadata do
     extracted_metadata =
       case file_set.extracted_metadata do
         nil -> %{mediainfo: metadata}
-        map -> Map.put(map, :mediainfo, metadata)
+        map -> Map.delete(map, "mediainfo") |> Map.put(:mediainfo, metadata)
       end
 
     FileSets.update_file_set(file_set, %{extracted_metadata: extracted_metadata})

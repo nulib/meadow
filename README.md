@@ -133,14 +133,14 @@ run, so the task can be re-run without uniqueness collisions.
 
 #### Options
 
-| Option | Description |
-| --- | --- |
-| `--title <prefix>` | Sheet title prefix (default: `Sample Ingest <unix-ts>`). |
-| `--project <title>` | Existing project title to ingest into. Reused if it exists; otherwise created. If omitted, a new project is created using `--title`. |
-| `--fixture-dir <path>` | Directory to read source media from (default: `test/fixtures`). |
-| `--ai` | Create the sheet as an AI ingest (`ai_ingest: true`). |
-| `--mode <mode>` | One of: `validate` (stop after validation), `preview` (AI only — runs `AIPreview` and stops at `awaiting_approval`), `ingest` (default — auto-approve and create works). |
-| `--keep-pending` | Alias for `--mode validate`. |
+| Option                 | Description                                                                                                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--title <prefix>`     | Sheet title prefix (default: `Sample Ingest <unix-ts>`).                                                                                                                 |
+| `--project <title>`    | Existing project title to ingest into. Reused if it exists; otherwise created. If omitted, a new project is created using `--title`.                                     |
+| `--fixture-dir <path>` | Directory to read source media from (default: `test/fixtures`).                                                                                                          |
+| `--ai`                 | Create the sheet as an AI ingest (`ai_ingest: true`).                                                                                                                    |
+| `--mode <mode>`        | One of: `validate` (stop after validation), `preview` (AI only — runs `AIPreview` and stops at `awaiting_approval`), `ingest` (default — auto-approve and create works). |
+| `--keep-pending`       | Alias for `--mode validate`.                                                                                                                                             |
 
 `--mode preview` requires `--ai`. With `--ai --mode ingest`, the AI preview is
 generated synchronously and the sheet is then approved and ingested into

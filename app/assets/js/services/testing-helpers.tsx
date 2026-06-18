@@ -117,7 +117,6 @@ export function renderWithRouterApollo(
   const Wrapper = ({ children }: { children: ReactChildren }) => (
     <MockedProvider
       mocks={mocks}
-      addTypename={false}
       //resolvers={resolvers}
       defaultOptions={{
         watchQuery: { fetchPolicy: "no-cache" },
@@ -137,7 +136,6 @@ export function renderWithApollo(ui: UI, { mocks = [] }) {
   const Wrapper = ({ children }: { children: ReactChildren }) => (
     <MockedProvider
       mocks={mocks}
-      addTypename={false}
       //resolvers={resolvers}
       defaultOptions={{
         watchQuery: { fetchPolicy: "no-cache" },

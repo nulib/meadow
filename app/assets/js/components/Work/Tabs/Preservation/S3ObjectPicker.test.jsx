@@ -12,7 +12,7 @@ const mocks = [
     },
     result: {
       data: {
-        ListIngestBucketObjects: {
+        listIngestBucketObjects: {
           objects: [
             {
               uri: "s3://bucket/file1.jpg",
@@ -41,7 +41,7 @@ const mocks = [
 describe("S3ObjectPicker component", () => {
   it("renders without crashing", async () => {
     const { findByTestId } = render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider mocks={mocks}>
         <S3ObjectPicker
           onFileSelect={() => {}}
           fileSetRole="A"
@@ -63,7 +63,7 @@ describe("S3ObjectPicker component", () => {
       },
     ];
     const { findByText } = render(
-      <MockedProvider mocks={errorMock} addTypename={false}>
+      <MockedProvider mocks={errorMock}>
         <S3ObjectPicker
           onFileSelect={() => {}}
           fileSetRole="A"

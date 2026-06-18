@@ -9,6 +9,7 @@ defmodule Meadow.Events.Works.ArksTest do
   import Assertions
   import Ecto.Query
   import Meadow.TestHelpers
+  require IEx
 
   def assert_ark_status(work, expected_status) do
     assert_async(timeout: 2000) do
@@ -23,7 +24,6 @@ defmodule Meadow.Events.Works.ArksTest do
 
   def get_ark_for_work(work) do
     Works.get_work(work.id)
-    |> Map.get(:descriptive_metadata)
     |> Map.get(:ark)
     |> Ark.get()
   end
@@ -85,7 +85,7 @@ defmodule Meadow.Events.Works.ArksTest do
 
     test "delete never-published work", %{work: work} do
       assert_ark_status(work, :any)
-      ark = Works.get_work(work.id).descriptive_metadata.ark
+      ark = Works.get_work(work.id).ark
 
       Works.delete_work(work)
 
@@ -96,7 +96,7 @@ defmodule Meadow.Events.Works.ArksTest do
 
     test "delete published work", %{work: work} do
       assert_ark_status(work, :any)
-      ark = Works.get_work(work.id).descriptive_metadata.ark
+      ark = Works.get_work(work.id).ark
 
       work
       |> Works.update_work!(%{
@@ -125,7 +125,7 @@ defmodule Meadow.Events.Works.ArksTest do
 
     test "ark events are rate limited" do
       test_query =
-        from(Work, where: fragment("descriptive_metadata ->> 'ark' IS NOT NULL"))
+        from(w in Work, where: not is_nil(w.ark))
 
       # Make sure only 5 requests are processed within the first 2 seconds
       1..10
