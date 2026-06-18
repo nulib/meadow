@@ -11,7 +11,8 @@ defmodule Meadow.Evals do
     EvalRun,
     EvalSet,
     EvalSetMember,
-    EvalTrial
+    EvalTrial,
+    EvalTrialScore
   }
 
   alias Meadow.Search.Config, as: SearchConfig
@@ -371,7 +372,7 @@ defmodule Meadow.Evals do
 
   def get_run!(id) do
     Repo.get!(EvalRun, id)
-    |> Repo.preload([:prompt_version, :eval_trials, eval_set: :eval_set_members])
+    |> Repo.preload([:prompt_version, eval_set: :eval_set_members, eval_trials: :scores])
   end
 
   @doc """
@@ -424,7 +425,8 @@ defmodule Meadow.Evals do
     Repo.all(
       from t in EvalTrial,
         where: t.eval_run_id == ^run_id,
-        order_by: [asc: t.work_id, asc: t.trial_index]
+        order_by: [asc: t.work_id, asc: t.trial_index],
+        preload: :scores
     )
   end
 
@@ -436,14 +438,45 @@ defmodule Meadow.Evals do
     |> Repo.update()
   end
 
-  def score_trial(trial_id, score, notes \\ nil, user \\ nil) when is_binary(trial_id) do
-    trial = get_trial!(trial_id)
-    trial |> EvalTrial.apply_manual_score(score, notes, user) |> Repo.update()
+  @doc """
+  Record (or update) the calling user's manual score for a trial.
+
+  Manual scores are per-user: each scorer has at most one `EvalTrialScore` row
+  per trial, keyed on `{eval_trial_id, scored_by}`. Re-scoring upserts that row.
+  Returns {:ok, eval_trial} with `:scores` preloaded.
+  """
+  def score_trial(trial_id, score, notes \\ nil, user) when is_binary(trial_id) do
+    existing = Repo.get_by(EvalTrialScore, eval_trial_id: trial_id, scored_by: user)
+
+    attrs = %{
+      eval_trial_id: trial_id,
+      scored_by: user,
+      score: score,
+      notes: notes,
+      scored_at: DateTime.utc_now()
+    }
+
+    (existing || %EvalTrialScore{})
+    |> EvalTrialScore.changeset(attrs)
+    |> Repo.insert_or_update()
+    |> case do
+      {:ok, _trial_score} -> {:ok, get_trial_with_scores!(trial_id)}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
-  def clear_trial_score(trial_id) when is_binary(trial_id) do
-    trial = get_trial!(trial_id)
-    trial |> EvalTrial.clear_manual_score() |> Repo.update()
+  @doc "Remove the calling user's manual score for a trial (no-op if absent)."
+  def clear_trial_score(trial_id, user) when is_binary(trial_id) do
+    Repo.delete_all(
+      from s in EvalTrialScore,
+        where: s.eval_trial_id == ^trial_id and s.scored_by == ^user
+    )
+
+    {:ok, get_trial_with_scores!(trial_id)}
+  end
+
+  defp get_trial_with_scores!(trial_id) do
+    EvalTrial |> Repo.get!(trial_id) |> Repo.preload(:scores)
   end
 
   # ---------------------------------------------------------------------------
@@ -452,9 +485,14 @@ defmodule Meadow.Evals do
 
   @doc """
   Compute summary statistics for a run.
-  Returns a map with trial counts, pass rates, cost, and per-work consistency.
+
+  Manual good/bad counts are scoped to `user_email` — each scorer only sees
+  their own tallies. Pass `nil` to count no manual scores.
+  Returns a map with trial counts, pass rates, and judge score means.
   """
-  def run_summary(%EvalRun{id: run_id}) do
+  def run_summary(run, user_email \\ nil)
+
+  def run_summary(%EvalRun{id: run_id}, user_email) do
     trials = list_trials_for_run(run_id)
     total = length(trials)
     complete = Enum.count(trials, &(&1.status == :complete))
@@ -462,8 +500,8 @@ defmodule Meadow.Evals do
     pending = Enum.count(trials, &(&1.status == :pending))
     running = Enum.count(trials, &(&1.status == :running))
 
-    manual_good = Enum.count(trials, &(&1.manual_score == :good))
-    manual_bad = Enum.count(trials, &(&1.manual_score == :bad))
+    manual_good = Enum.count(trials, &(user_score(&1, user_email) == :good))
+    manual_bad = Enum.count(trials, &(user_score(&1, user_email) == :bad))
 
     scored_trials = Enum.filter(trials, &(&1.status == :complete))
 
@@ -480,7 +518,28 @@ defmodule Meadow.Evals do
     }
   end
 
-  def run_summary(run_id) when is_binary(run_id), do: run_summary(get_run!(run_id))
+  def run_summary(run_id, user_email) when is_binary(run_id),
+    do: run_summary(get_run!(run_id), user_email)
+
+  @doc "The given user's manual score (:good/:bad) for a trial, or nil."
+  def user_score(_trial, nil), do: nil
+
+  def user_score(%EvalTrial{scores: scores}, user_email) when is_list(scores) do
+    case Enum.find(scores, &(&1.scored_by == user_email)) do
+      nil -> nil
+      score -> score.score
+    end
+  end
+
+  def user_score(_trial, _user_email), do: nil
+
+  @doc "The given user's full manual score row for a trial, or nil."
+  def user_score_record(%EvalTrial{scores: scores}, user_email)
+      when is_list(scores) and is_binary(user_email) do
+    Enum.find(scores, &(&1.scored_by == user_email))
+  end
+
+  def user_score_record(_trial, _user_email), do: nil
 
   defp mean_float([], _), do: nil
 

@@ -170,8 +170,9 @@ defmodule Meadow.Evals.Runner do
 
   defp judge_scores(trial, member) do
     ground_truth = (member && member.ground_truth) || %{}
+    file_set_id = member && member.representative_file_set_id
 
-    case Judge.score(trial.agent_output, ground_truth) do
+    case Judge.score(trial.agent_output, ground_truth, file_set_id: file_set_id) do
       {:ok, scores} ->
         scores
 

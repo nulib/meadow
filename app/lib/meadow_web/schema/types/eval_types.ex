@@ -135,10 +135,27 @@ defmodule MeadowWeb.Schema.EvalTypes do
     field(:description_judge_score, :float)
     field(:subjects_judge_score, :float)
     field(:judge_rationale, :string)
-    field(:manual_score, :eval_manual_score)
-    field(:manual_notes, :string)
-    field(:manual_scored_by, :string)
-    field(:manual_scored_at, :datetime)
+
+    @desc "The current user's manual score (per-user; never reveals other scorers)"
+    field :manual_score, :eval_manual_score do
+      resolve(&Evals.trial_manual_score/3)
+    end
+
+    @desc "The current user's manual note"
+    field :manual_notes, :string do
+      resolve(&Evals.trial_manual_notes/3)
+    end
+
+    @desc "The current user (set when they have scored this trial)"
+    field :manual_scored_by, :string do
+      resolve(&Evals.trial_manual_scored_by/3)
+    end
+
+    @desc "When the current user scored this trial"
+    field :manual_scored_at, :datetime do
+      resolve(&Evals.trial_manual_scored_at/3)
+    end
+
     field(:error, :string)
     field(:duration_ms, :integer)
     field(:inserted_at, :datetime)
