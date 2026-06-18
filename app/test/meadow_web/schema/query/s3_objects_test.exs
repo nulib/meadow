@@ -53,7 +53,7 @@
 
 #     assert %{
 #              "data" => %{
-#                "ListIngestBucketObjects" => %{
+#                "listIngestBucketObjects" => %{
 #                  "objects" => [s3_object | []],
 #                  "folders" => []
 #                }
@@ -78,7 +78,7 @@
 
 #     assert %{
 #              "data" => %{
-#                "ListIngestBucketObjects" => %{
+#                "listIngestBucketObjects" => %{
 #                  "objects" => [s3_object | []],
 #                  "folders" => ["coffee"]
 #                }
