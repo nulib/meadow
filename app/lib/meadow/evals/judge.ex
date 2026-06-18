@@ -7,7 +7,10 @@ defmodule Meadow.Evals.Judge do
   require Logger
 
   @default_model "us.anthropic.claude-sonnet-4-6"
-  @max_tokens 512
+  @max_tokens 1024
+  @tool_name "submit_evaluation"
+  # Guards against a runaway rationale.
+  @max_rationale_chars 2000
 
   # Eval-safe IIIF derivative (matches MeadowWeb.MCP.Tools.GetImage), capped at 1024px.
   @image_path "full/%5E!1024,1024/0/default.jpg"
@@ -65,8 +68,8 @@ defmodule Meadow.Evals.Judge do
     prompt = build_prompt(gt_desc, gt_subjects, agent_desc, agent_subjects, image_present?(image))
 
     with {:ok, model_id} <- judge_model(),
-         {:ok, text} <- invoke_bedrock(model_id, prompt, image) do
-      parse_response(text)
+         {:ok, tool_input} <- invoke_bedrock(model_id, prompt, image) do
+      {:ok, extract_scores(tool_input)}
     end
   rescue
     error ->
@@ -86,14 +89,8 @@ defmodule Meadow.Evals.Judge do
   end
 
   defp invoke_bedrock(model_id, prompt, image) do
-    body = %{
-      "system" => [%{"text" => @judge_system_prompt |> String.trim()}],
-      "messages" => [%{"role" => "user", "content" => message_content(prompt, image)}],
-      "inferenceConfig" => %{"maxTokens" => @max_tokens, "temperature" => 0}
-    }
-
     operation = %ExAws.Operation.JSON{
-      data: body,
+      data: build_request_body(prompt, image),
       headers: [{"Content-Type", "application/json"}],
       http_method: :post,
       path: "/model/#{model_id}/converse",
@@ -101,8 +98,8 @@ defmodule Meadow.Evals.Judge do
     }
 
     case ExAws.request(operation, service_override: :bedrock) do
-      {:ok, %{"output" => %{"message" => %{"content" => [%{"text" => text} | _]}}}} ->
-        {:ok, text}
+      {:ok, %{"output" => %{"message" => %{"content" => content}}}} when is_list(content) ->
+        extract_tool_input(content)
 
       {:ok, unexpected} ->
         Logger.warning("Evals.Judge: unexpected Bedrock response: #{inspect(unexpected)}")
@@ -112,6 +109,76 @@ defmodule Meadow.Evals.Judge do
         Logger.error("Evals.Judge: Bedrock call failed: #{inspect(reason)}")
         {:error, reason}
     end
+  end
+
+  @doc false
+  # Builds the Bedrock Converse request body. The judge is forced to call the
+  # `submit_evaluation` tool, so the model returns structured JSON conforming to
+  # the schema below instead of free-form text we would have to parse.
+  def build_request_body(prompt, image) do
+    %{
+      "system" => [%{"text" => @judge_system_prompt |> String.trim()}],
+      "messages" => [%{"role" => "user", "content" => message_content(prompt, image)}],
+      "toolConfig" => tool_config(),
+      "inferenceConfig" => %{"maxTokens" => @max_tokens, "temperature" => 0}
+    }
+  end
+
+  defp tool_config do
+    nullable_score = fn description ->
+      %{
+        "type" => ["number", "null"],
+        "minimum" => 0.0,
+        "maximum" => 1.0,
+        "description" => description
+      }
+    end
+
+    %{
+      "tools" => [
+        %{
+          "toolSpec" => %{
+            "name" => @tool_name,
+            "description" =>
+              "Submit the metadata quality evaluation. Use null for a dimension's score " <>
+                "when the cataloger value is \"(none provided)\" or is placeholder/test data " <>
+                "that does not describe the pictured object.",
+            "inputSchema" => %{
+              "json" => %{
+                "type" => "object",
+                "properties" => %{
+                  "description_score" =>
+                    nullable_score.(
+                      "Fidelity of the AI description to the cataloger's stated facts, 0.0–1.0, " <>
+                        "or null when there is no usable cataloger description."
+                    ),
+                  "subjects_score" =>
+                    nullable_score.(
+                      "Alignment of AI subjects with cataloger subjects, 0.0–1.0, " <>
+                        "or null when there are no usable cataloger subjects."
+                    ),
+                  "rationale" => %{
+                    "type" => "string",
+                    "description" => "One to two sentences justifying the scores."
+                  }
+                },
+                "required" => ["description_score", "subjects_score", "rationale"]
+              }
+            }
+          }
+        }
+      ],
+      "toolChoice" => %{"tool" => %{"name" => @tool_name}}
+    }
+  end
+
+  # Converse returns tool calls as a `toolUse` content block whose `input` is an
+  # already-decoded JSON object — no string/regex parsing required.
+  defp extract_tool_input(content) do
+    Enum.find_value(content, {:error, {:no_tool_use, content}}, fn
+      %{"toolUse" => %{"input" => input}} when is_map(input) -> {:ok, input}
+      _ -> false
+    end)
   end
 
   # Image block first, then text — mirrors Meadow.Data.Transcriber's Converse layout.
@@ -154,46 +221,18 @@ defmodule Meadow.Evals.Judge do
 
   defp fetch_image(_), do: {:error, :invalid_file_set}
 
-  defp parse_response(text) do
-    # Strip markdown code fences and whitespace, then extract JSON object
-    cleaned =
-      text
-      |> String.replace(~r/```(?:json)?\s*/i, "")
-      |> String.replace("```", "")
-      |> String.trim()
+  @doc false
+  # Maps the validated `submit_evaluation` tool input onto the trial's judge
+  # fields. Scores are clamped to 0.0–1.0; `null`/absent stays nil.
+  def extract_scores(input) when is_map(input) do
+    rationale =
+      input |> Map.get("rationale", "") |> to_string() |> String.slice(0, @max_rationale_chars)
 
-    decoded =
-      case Jason.decode(cleaned) do
-        {:ok, map} ->
-          {:ok, map}
-
-        _ ->
-          case Regex.run(~r/\{.+\}/s, cleaned) do
-            [json] -> Jason.decode(json)
-            nil -> {:error, :no_json_found}
-          end
-      end
-
-    case decoded do
-      {:ok, map} ->
-        desc_score = parse_score(Map.get(map, "description_score"))
-        subj_score = parse_score(Map.get(map, "subjects_score"))
-        rationale = Map.get(map, "rationale", "") |> to_string() |> String.slice(0, 500)
-
-        {:ok,
-         %{
-           description_judge_score: desc_score,
-           subjects_judge_score: subj_score,
-           judge_rationale: if(rationale == "", do: nil, else: rationale)
-         }}
-
-      {:error, reason} ->
-        Logger.warning(
-          "Evals.Judge: could not parse judge JSON: #{inspect(reason)}\nRaw: #{text}"
-        )
-
-        {:error, {:json_parse_failed, reason}}
-    end
+    %{
+      description_judge_score: parse_score(Map.get(input, "description_score")),
+      subjects_judge_score: parse_score(Map.get(input, "subjects_score")),
+      judge_rationale: if(rationale == "", do: nil, else: rationale)
+    }
   end
 
   defp parse_score(nil), do: nil
@@ -260,8 +299,9 @@ defmodule Meadow.Evals.Judge do
     If a cataloger value is "(none provided)", or is placeholder/test data that does not
     describe the object shown in the image, return null for that dimension's score.
 
-    Return ONLY valid JSON with no other text:
-    {"description_score": <float or null>, "subjects_score": <float or null>, "rationale": "<1-2 sentences>"}
+    Report your evaluation by calling the submit_evaluation tool. Provide a float in
+    0.0–1.0 for each dimension, or null when that dimension has no usable ground truth,
+    plus a 1–2 sentence rationale.
 
     ---
 
