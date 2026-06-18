@@ -228,8 +228,14 @@ defmodule Meadow.Evals do
   def create_eval_set_from_query(%EvalQuery{} = eval_query, attrs) do
     Logger.info("Evals: materializing set from query #{eval_query.id}")
 
+    requested_size = Map.get(eval_query.query_json, "size", @max_works_per_set)
+    size = min(requested_size, @max_works_per_set)
+
     query_body =
-      Map.merge(eval_query.query_json, %{"_source" => false, "fields" => [], "size" => 10_000})
+      Map.merge(
+        %{"size" => size},
+        Map.merge(eval_query.query_json, %{"_source" => false, "fields" => []})
+      )
 
     with {:ok, work_ids} <- fetch_work_ids(query_body),
          work_ids <- truncate_work_ids(work_ids),
@@ -408,11 +414,23 @@ defmodule Meadow.Evals do
   end
 
   def cancel_run(%EvalRun{} = run) do
-    run |> EvalRun.mark_cancelled() |> Repo.update()
+    result = run |> EvalRun.mark_cancelled() |> Repo.update()
+
+    # Kill the in-flight runner (and its trial workers) before reaping trials so
+    # no worker can flip a row back to running/complete after we've skipped it.
+    Meadow.Evals.Runner.abort(run.id)
+    skip_unfinished_trials(run.id)
+
+    result
   end
 
   def cancel_run(id) when is_binary(id) do
     get_run!(id) |> cancel_run()
+  end
+
+  defp skip_unfinished_trials(run_id) do
+    from(t in EvalTrial, where: t.eval_run_id == ^run_id and t.status in [:pending, :running])
+    |> Repo.update_all(set: [status: :skipped, updated_at: DateTime.utc_now()])
   end
 
   # ---------------------------------------------------------------------------
