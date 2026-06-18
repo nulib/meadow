@@ -21,7 +21,7 @@ defmodule Meadow.ArksTest do
     |> Enum.each(fn %{id: work_type} ->
       @tag work_type: work_type
       test "mint_ark/1 mints an ark for #{work_type} work type", %{work: work} do
-        assert {:ok, %{descriptive_metadata: %{ark: ark}}} = Arks.mint_ark(work)
+        assert {:ok, %{ark: ark}} = Arks.mint_ark(work)
         assert is_binary(ark)
       end
 
@@ -33,8 +33,8 @@ defmodule Meadow.ArksTest do
 
     @tag work_type: "IMAGE"
     test "mint_ark/1 does not mint a new ark for a work that already has an ark", %{work: work} do
-      assert {:ok, %Work{descriptive_metadata: %{ark: ark}} = work} = Arks.mint_ark(work)
-      assert {:noop, %Work{descriptive_metadata: %{ark: ^ark}}} = Arks.mint_ark(work)
+      assert {:ok, %Work{ark: ark} = work} = Arks.mint_ark(work)
+      assert {:noop, %Work{ark: ^ark}} = Arks.mint_ark(work)
     end
   end
 

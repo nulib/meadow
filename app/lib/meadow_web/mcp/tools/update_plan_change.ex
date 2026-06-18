@@ -996,7 +996,6 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
 
   defp read_only_descriptive_metadata_fields do
     [
-      :ark,
       :box_name,
       :box_number,
       :folder_name,

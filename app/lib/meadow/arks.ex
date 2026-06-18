@@ -50,7 +50,7 @@ defmodule Meadow.Arks do
   {:noop,
    %Work{...}}
   """
-  def mint_ark(%Work{descriptive_metadata: %{ark: ark}} = work)
+  def mint_ark(%Work{ark: ark} = work)
       when not is_nil(ark) do
     Logger.warning("Not minting ARK for work #{work.id} because it already has one: #{ark}")
     {:noop, work}
@@ -65,7 +65,7 @@ defmodule Meadow.Arks do
       {:ok, result} ->
         Logger.info("Minted ARK #{result.ark} for work #{work.id}")
 
-        Works.update_work(work, %{descriptive_metadata: %{ark: result.ark}})
+        Works.update_work(work, %{ark: result.ark})
         |> maybe_update_metadata()
 
       {:error, error_message} ->
@@ -137,9 +137,9 @@ defmodule Meadow.Arks do
   end
 
   def existing_ark(work) do
-    case work.descriptive_metadata.cached_ark do
+    case work.cached_ark do
       %ArkCache{} = cached -> {:ok, Ark.from_cache(cached)}
-      _ -> Ark.get(work.descriptive_metadata.ark)
+      _ -> Ark.get(work.ark)
     end
   end
 
@@ -150,7 +150,7 @@ defmodule Meadow.Arks do
   def ark_attributes(work, attrs) do
     Keyword.merge(
       [
-        ark: work.descriptive_metadata.ark,
+        ark: work.ark,
         creator: scalar_value(work.descriptive_metadata.creator),
         title: work.descriptive_metadata.title,
         publisher: scalar_value(work.descriptive_metadata.publisher),

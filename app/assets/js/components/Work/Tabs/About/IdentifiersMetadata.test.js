@@ -14,7 +14,7 @@ describe("Work About Tab Identifiers metadata component", () => {
   beforeEach(() => {
     const Wrapped = withReactHookForm(WorkTabsAboutIdentifiersMetadata, {
       isEditing: true,
-      descriptiveMetadata: mockWork.descriptiveMetadata,
+      work: mockWork,
     });
     return renderWithRouterApollo(
       <CodeListProvider>

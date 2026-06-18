@@ -281,7 +281,7 @@ const WorkTabsAbout = ({ work }) => {
             <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutIdentifiersMetadata
-              descriptiveMetadata={descriptiveMetadata}
+              work={work}
               isEditing={isEditing}
             />
           )}

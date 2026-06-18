@@ -127,9 +127,7 @@ defmodule Meadow.Events.Works.Arks do
     end
 
     defp update_ark_metadata(work) do
-      Logger.info(
-        "Updating ARK metadata for work: #{work.id}, with ark: #{work.descriptive_metadata.ark}"
-      )
+      Logger.info("Updating ARK metadata for work: #{work.id}, with ark: #{work.ark}")
 
       case Arks.update_ark_metadata(work) do
         :noop ->
@@ -140,7 +138,7 @@ defmodule Meadow.Events.Works.Arks do
 
         {:error, error_message} ->
           Logger.error(
-            "Error updating ARK metadata for work: #{work.id}, with ark: #{work.descriptive_metadata.ark}. #{error_message}"
+            "Error updating ARK metadata for work: #{work.id}, with ark: #{work.ark}. #{error_message}"
           )
       end
     end
@@ -171,12 +169,7 @@ defmodule Meadow.Events.Works.Arks do
   defp ark_changed(%{published: _}), do: false
   defp ark_changed(%{visibility: _}), do: false
 
-  defp ark_changed(%{
-         descriptive_metadata: %{
-           old_value: %{"ark" => old_ark},
-           new_value: %{"ark" => new_ark}
-         }
-       }) do
+  defp ark_changed(%{ark: %{old_value: old_ark, new_value: new_ark}}) do
     old_ark != new_ark
   end
 

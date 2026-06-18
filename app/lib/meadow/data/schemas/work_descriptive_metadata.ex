@@ -5,14 +5,13 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
 
   import Ecto.Changeset
   use Ecto.Schema
-  alias Meadow.Data.Schemas.{ArkCache, ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
+  alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
   alias Meadow.Data.Types
 
   # {field_name, repeating}
   @fields [
     {:abstract, true},
     {:alternate_title, true},
-    {:ark, false},
     {:box_name, true},
     {:box_number, true},
     {:caption, true},
@@ -93,8 +92,6 @@ defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
 
     embeds_many(:notes, NoteEntry, on_replace: :delete)
     embeds_many(:related_url, RelatedURLEntry, on_replace: :delete)
-
-    belongs_to(:cached_ark, ArkCache, foreign_key: :ark, references: :ark, define_field: false)
 
     timestamps()
   end

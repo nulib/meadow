@@ -208,7 +208,7 @@ const ScreensWork = () => {
                     <dt data-testid="work-header-id">Id</dt>
                     <dd>{data.work.id}</dd>
                     <dt data-testid="work-header-ark">Ark</dt>
-                    <dd>{data.work.descriptiveMetadata.ark || ""}</dd>
+                    <dd>{data.work.ark || ""}</dd>
                     <dt data-testid="work-header-accession-number">
                       Accession number
                     </dt>

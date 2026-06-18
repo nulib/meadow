@@ -1,4 +1,5 @@
 import { CodegenConfig } from "@graphql-codegen/cli";
+import path from "path";
 
 const config: CodegenConfig = {
   // TODO: Make the schema URL dynamic.  Where is this URL defined?
