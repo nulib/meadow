@@ -13,7 +13,7 @@ defmodule MeadowWeb.EvalsController do
     gt_description gt_subjects
     agent_description agent_subjects
     description_judge_score subjects_judge_score judge_rationale
-    manual_score manual_scored_by
+    manual_score manual_scored_by manual_notes manual_scored_at
     duration_ms error
   )
 
@@ -35,8 +35,10 @@ defmodule MeadowWeb.EvalsController do
 
     for trial <- run.eval_trials do
       member = Map.get(set_members, trial.work_id)
-      row = trial_row(run, set, prompt, trial, member)
-      chunk(conn, CSV.dump_to_iodata([row]))
+
+      for row <- trial_rows(run, set, prompt, trial, member) do
+        chunk(conn, CSV.dump_to_iodata([row]))
+      end
     end
 
     conn
@@ -55,16 +57,26 @@ defmodule MeadowWeb.EvalsController do
     |> halt()
   end
 
-  defp trial_row(run, set, prompt, trial, member) do
+  # Emits one CSV row per manual scorer (manual scores are per-user). Trials
+  # with no manual scores still emit a single row with blank manual columns.
+  defp trial_rows(run, set, prompt, trial, member) do
     gt = blank_map(member && member.ground_truth)
-    gt_desc = gt |> Map.get(:description, Map.get(gt, "description", [])) |> List.wrap() |> Enum.join(" | ")
+
+    gt_desc =
+      gt
+      |> Map.get(:description, Map.get(gt, "description", []))
+      |> List.wrap()
+      |> Enum.join(" | ")
+
     gt_subjects = gt |> Map.get(:subjects, Map.get(gt, "subjects", [])) |> join_subject_ids()
 
     agent_out = blank_map(trial.agent_output)
     agent_desc = Map.get(agent_out, :description, Map.get(agent_out, "description", ""))
-    agent_subjects = agent_out |> Map.get(:subjects, Map.get(agent_out, "subjects", [])) |> join_subject_ids()
 
-    [
+    agent_subjects =
+      agent_out |> Map.get(:subjects, Map.get(agent_out, "subjects", [])) |> join_subject_ids()
+
+    prefix = [
       run.id,
       blank(prompt && prompt.name),
       blank(set && set.name),
@@ -77,13 +89,24 @@ defmodule MeadowWeb.EvalsController do
       agent_subjects,
       blank(trial.description_judge_score),
       blank(trial.subjects_judge_score),
-      blank(trial.judge_rationale),
-      trial.manual_score,
-      blank(trial.manual_scored_by),
-      blank(trial.duration_ms),
-      blank(trial.error)
+      blank(trial.judge_rationale)
     ]
-    |> Enum.map(&to_string/1)
+
+    suffix = [blank(trial.duration_ms), blank(trial.error)]
+
+    manual_tails =
+      case trial.scores do
+        [] -> [["unscored", "", "", ""]]
+        scores -> Enum.map(scores, &manual_tail/1)
+      end
+
+    Enum.map(manual_tails, fn manual_tail ->
+      (prefix ++ manual_tail ++ suffix) |> Enum.map(&to_string/1)
+    end)
+  end
+
+  defp manual_tail(score) do
+    [score.score, blank(score.scored_by), blank(score.notes), blank(score.scored_at)]
   end
 
   defp blank(nil), do: ""
