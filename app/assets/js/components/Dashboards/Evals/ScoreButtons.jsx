@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useMutation } from "@apollo/client";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faNoteSticky } from "@fortawesome/free-solid-svg-icons";
 import {
   SCORE_EVAL_TRIAL,
   CLEAR_EVAL_TRIAL_SCORE,
@@ -27,9 +29,12 @@ export default function ScoreButtons({ trial, runId }) {
 
   // Local note state, seeded from the current user's saved note.
   const [notes, setNotes] = React.useState(trial.manualNotes || "");
+  const [noteOpen, setNoteOpen] = React.useState(false);
   React.useEffect(() => {
     setNotes(trial.manualNotes || "");
   }, [trial.manualNotes]);
+
+  const hasNote = Boolean((notes || "").trim());
 
   const score = (value) => {
     scoreTrialMutation({
@@ -38,14 +43,25 @@ export default function ScoreButtons({ trial, runId }) {
   };
 
   const saveNote = () => {
-    // Persist the note against the existing good/bad score.
+    // Persist the note against the existing good/bad score, then collapse
+    // back to the read-only note + "Edit Note" view.
     if (manualScore === "GOOD" || manualScore === "BAD") {
-      score(manualScore);
+      scoreTrialMutation({
+        variables: { id: trial.id, score: manualScore, notes: notes || null },
+        onCompleted: () => setNoteOpen(false),
+      });
     }
+  };
+
+  const cancelNote = () => {
+    // Discard any unsaved edits and collapse back to the read-only view.
+    setNotes(trial.manualNotes || "");
+    setNoteOpen(false);
   };
 
   const clear = () => {
     setNotes("");
+    setNoteOpen(false);
     clearScoreMutation({ variables: { id: trial.id } });
   };
 
@@ -82,25 +98,65 @@ export default function ScoreButtons({ trial, runId }) {
           </button>
         )}
       </div>
-      <textarea
-        className="textarea is-small"
-        rows={2}
-        placeholder="Add a note (optional)"
-        value={notes}
-        disabled={isLoading}
-        onChange={(e) => setNotes(e.target.value)}
-        onClick={(e) => e.stopPropagation()}
-        style={{ minWidth: "14rem", fontSize: "0.75rem" }}
-      />
-      {scored && noteDirty && (
-        <button
-          className="button is-link is-small is-outlined mt-1"
-          disabled={isLoading}
-          onClick={saveNote}
-          title="Save note"
-        >
-          Save note
-        </button>
+      {noteOpen ? (
+        <>
+          <textarea
+            className="textarea is-small"
+            rows={5}
+            placeholder="Add a note (optional)"
+            value={notes}
+            disabled={isLoading}
+            autoFocus
+            onChange={(e) => setNotes(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            style={{ minWidth: "14rem", fontSize: "0.75rem" }}
+          />
+          <div className="buttons are-small mt-1">
+            {scored && noteDirty && (
+              <button
+                className="button is-link is-outlined"
+                disabled={isLoading}
+                onClick={saveNote}
+                title="Save note"
+              >
+                Save note
+              </button>
+            )}
+            <button
+              className="button is-light"
+              disabled={isLoading}
+              onClick={cancelNote}
+              title="Cancel"
+            >
+              Cancel
+            </button>
+          </div>
+        </>
+      ) : (
+        <div style={{ maxWidth: "16rem" }}>
+          {hasNote && (
+            <p
+              className="is-size-7 has-text-grey-dark mb-1"
+              style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+            >
+              {notes}
+            </p>
+          )}
+          <button
+            className="button is-text is-small px-1"
+            disabled={isLoading}
+            onClick={(e) => {
+              e.stopPropagation();
+              setNoteOpen(true);
+            }}
+            title={hasNote ? "Edit note" : "Add note"}
+          >
+            <span className="icon is-small">
+              <FontAwesomeIcon icon={faNoteSticky} />
+            </span>
+            <span>{hasNote ? "Edit Note" : "Add Note"}</span>
+          </button>
+        </div>
       )}
     </div>
   );
