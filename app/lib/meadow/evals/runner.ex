@@ -8,6 +8,8 @@ defmodule Meadow.Evals.Runner do
   alias Meadow.Evals.{Judge, Schemas.EvalRun, Schemas.EvalTrial}
   alias MeadowWeb.Router.Helpers, as: Routes
 
+  @registry Meadow.HordeRegistry
+
   @doc """
   Start execution of a run in a supervised background task.
   Idempotent: if the run is already running or complete, this is a no-op.
@@ -20,11 +22,38 @@ defmodule Meadow.Evals.Runner do
     )
   end
 
+  @doc """
+  Abort a running run by killing its supervised task. The task is linked to the
+  `Task.async_stream` workers running each trial, so killing it tears down any
+  in-flight agent calls immediately. Cluster-wide: the registry lookup and the
+  exit signal both cross nodes, so it works regardless of where the runner lives.
+  No-op if the run isn't currently executing.
+
+  Caveat: this stops Meadow from *dispatching* further trials and discards the
+  results of in-flight ones, but it cannot stop the agent Lambdas themselves. A
+  synchronous Lambda invocation runs to completion on AWS no matter what the
+  caller does, so up to `concurrency` agents already in flight will keep running
+  (and billing) until they finish. Cancellation bounds cost to the queued work,
+  not to zero.
+  """
+  def abort(run_id) when is_binary(run_id) do
+    case Horde.Registry.lookup(@registry, {:eval_run, run_id}) do
+      [{pid, _}] -> Process.exit(pid, :kill)
+      _ -> :ok
+    end
+
+    :ok
+  end
+
   # ---------------------------------------------------------------------------
   # Private execution logic
   # ---------------------------------------------------------------------------
 
   defp execute(run_id) do
+    # Register under the run id so Runner.abort/1 can find and kill this task
+    # (and its linked trial workers) from any node in the cluster.
+    Horde.Registry.register(@registry, {:eval_run, run_id}, nil)
+
     run = Evals.get_run!(run_id)
 
     if run.status in [:pending, :running] do
@@ -36,9 +65,15 @@ defmodule Meadow.Evals.Runner do
 
       try do
         execute_trials(run)
-        run = Repo.get!(EvalRun, run_id)
-        run |> EvalRun.mark_complete() |> Repo.update!()
-        Logger.info("Evals.Runner: run #{run_id} complete")
+        # Only finalize as complete if the run wasn't cancelled out from under us.
+        final = Repo.get!(EvalRun, run_id)
+
+        if final.status == :running do
+          final |> EvalRun.mark_complete() |> Repo.update!()
+          Logger.info("Evals.Runner: run #{run_id} complete")
+        else
+          Logger.info("Evals.Runner: run #{run_id} finished as #{final.status}")
+        end
       rescue
         error ->
           Logger.error("Evals.Runner: run #{run_id} failed: #{Exception.message(error)}")
@@ -72,12 +107,7 @@ defmodule Meadow.Evals.Runner do
     |> Task.async_stream(
       fn trial ->
         member = Map.get(work_map, trial.work_id)
-
-        if halted?(run.id) do
-          :halted
-        else
-          execute_trial(run, trial, member, prompt_version)
-        end
+        execute_trial(run, trial, member, prompt_version)
       end,
       max_concurrency: concurrency,
       timeout: :infinity,
@@ -86,18 +116,7 @@ defmodule Meadow.Evals.Runner do
     |> Stream.run()
   end
 
-  defp halted?(run_id) do
-    case Repo.get(EvalRun, run_id) do
-      %EvalRun{status: status} when status in [:cancelled, :errored] -> true
-      _ -> false
-    end
-  end
-
   defp execute_trial(run, trial, member, prompt_version) do
-    do_execute_trial(run, trial, member, prompt_version)
-  end
-
-  defp do_execute_trial(run, trial, member, prompt_version) do
     trial |> EvalTrial.mark_running() |> Repo.update!()
 
     mcp_url = Routes.page_url(MeadowWeb.Endpoint, :index, ["api", "mcp", "eval"])
@@ -170,8 +189,9 @@ defmodule Meadow.Evals.Runner do
 
   defp judge_scores(trial, member) do
     ground_truth = (member && member.ground_truth) || %{}
+    file_set_id = member && member.representative_file_set_id
 
-    case Judge.score(trial.agent_output, ground_truth) do
+    case Judge.score(trial.agent_output, ground_truth, file_set_id: file_set_id) do
       {:ok, scores} ->
         scores
 

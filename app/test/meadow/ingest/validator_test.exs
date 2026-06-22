@@ -228,6 +228,25 @@ defmodule Meadow.Ingest.ValidatorTest do
       assert ingest_sheet.status == "row_fail"
     end
 
+    @tag sheet: "ingest_sheet_unsafe_filename.csv"
+    test "fails when a filename contains characters that are not safe for S3 object keys", context do
+      assert(Validator.result(context.sheet.id) == "fail")
+      ingest_sheet = Validator.validate(context.sheet.id)
+      assert(ingest_sheet.status == "row_fail")
+
+      %{
+        errors: [
+          %Meadow.Ingest.Schemas.Row.Error{
+            field: "filename",
+            message: message
+          }
+        ]
+      } = Rows.get_row(ingest_sheet.id, 2)
+
+      assert String.contains?(message, "contains characters that are not safe for S3 object keys")
+      assert String.contains?(message, " ")
+    end
+
     @tag sheet: "ingest_sheet_wrong_mime_type.csv"
     test "fails when the a file set has an invalid mime type", context do
       assert(Validator.result(context.sheet.id) == "fail")

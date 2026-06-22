@@ -87,8 +87,12 @@ else
   # ---------------------------------------------------------------------------
   echo "==> Fetching merged PRs between ${PREVIOUS_TAG} and ${CURRENT_TAG}..."
 
-  # Get the date of the previous tag so we can filter PRs by merge date
-  PREVIOUS_TAG_DATE=$(git log -1 --format="%cI" "${PREVIOUS_TAG}")
+  # Get the date of the previous tag so we can filter PRs by merge date.
+  # Normalize to UTC so the jq string comparison works correctly against
+  # GitHub's Z-suffixed timestamps (a non-UTC offset like -07:00 would
+  # make "T15:...Z" > "T10:...-07:00" true even when the UTC time is later).
+  PREVIOUS_TAG_UNIX=$(git log -1 --format="%ct" "${PREVIOUS_TAG}")
+  PREVIOUS_TAG_DATE=$(date -u -d "@${PREVIOUS_TAG_UNIX}" "+%Y-%m-%dT%H:%M:%SZ")
   echo "    Previous tag date: ${PREVIOUS_TAG_DATE}"
 
   PR_RESPONSE=$(curl -s \

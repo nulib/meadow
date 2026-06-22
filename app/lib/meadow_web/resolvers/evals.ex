@@ -53,7 +53,9 @@ defmodule MeadowWeb.Resolvers.Evals do
     Ecto.NoResultsError -> {:error, "Eval set not found"}
   end
 
-  def create_eval_set_from_work_ids(_root, %{work_ids: ids} = args, %{context: %{current_user: user}}) do
+  def create_eval_set_from_work_ids(_root, %{work_ids: ids} = args, %{
+        context: %{current_user: user}
+      }) do
     set_attrs =
       args
       |> Map.delete(:work_ids)
@@ -118,8 +120,12 @@ defmodule MeadowWeb.Resolvers.Evals do
     end
   end
 
+  def run_summary(run, _args, %{context: %{current_user: user}}) do
+    {:ok, Evals.run_summary(run, user.email)}
+  end
+
   def run_summary(run, _args, _info) do
-    {:ok, Evals.run_summary(run)}
+    {:ok, Evals.run_summary(run, nil)}
   end
 
   # ---------------------------------------------------------------------------
@@ -135,12 +141,40 @@ defmodule MeadowWeb.Resolvers.Evals do
     end
   end
 
-  def clear_trial_score(_root, %{id: id}, _info) do
-    case Evals.clear_trial_score(id) do
-      {:ok, trial} -> {:ok, trial}
-      {:error, reason} -> {:error, inspect(reason)}
-    end
+  def clear_trial_score(_root, %{id: id}, %{context: %{current_user: user}}) do
+    Evals.clear_trial_score(id, user.email)
   end
+
+  # ---------------------------------------------------------------------------
+  # Per-user trial score field resolvers
+  #
+  # Manual scores are per-user: these expose only the *current* user's score,
+  # so the UI never reveals what other scorers chose.
+  # ---------------------------------------------------------------------------
+
+  def trial_manual_score(trial, _args, %{context: %{current_user: user}}) do
+    {:ok, Evals.user_score(trial, user.email) || :unscored}
+  end
+
+  def trial_manual_score(_trial, _args, _info), do: {:ok, :unscored}
+
+  def trial_manual_notes(trial, _args, %{context: %{current_user: user}}) do
+    {:ok, with(%{notes: notes} <- Evals.user_score_record(trial, user.email), do: notes)}
+  end
+
+  def trial_manual_notes(_trial, _args, _info), do: {:ok, nil}
+
+  def trial_manual_scored_by(trial, _args, %{context: %{current_user: user}}) do
+    {:ok, with(%{scored_by: by} <- Evals.user_score_record(trial, user.email), do: by)}
+  end
+
+  def trial_manual_scored_by(_trial, _args, _info), do: {:ok, nil}
+
+  def trial_manual_scored_at(trial, _args, %{context: %{current_user: user}}) do
+    {:ok, with(%{scored_at: at} <- Evals.user_score_record(trial, user.email), do: at)}
+  end
+
+  def trial_manual_scored_at(_trial, _args, _info), do: {:ok, nil}
 
   # ---------------------------------------------------------------------------
   # Helpers

@@ -187,7 +187,7 @@ export default function EvalsDetailsScreen() {
                 className="box has-text-centered"
                 style={{ borderTop: "3px solid #48c78e" }}
               >
-                <p className="heading">Manual scoring</p>
+                <p className="heading">Your manual scoring</p>
                 <p className="title is-3">
                   <span className="has-text-success">{s.manualGood ?? 0}</span>
                   {" / "}
@@ -246,7 +246,7 @@ export default function EvalsDetailsScreen() {
                   <th>Status</th>
                   <th>Desc score</th>
                   <th>Subj score</th>
-                  <th>Manual Score</th>
+                  <th>Your Score</th>
                   <th>Scored By</th>
                 </tr>
               </thead>
