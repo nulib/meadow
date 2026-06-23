@@ -70,7 +70,7 @@ const UIFormNote = ({
                       type="hidden"
                       name={`${itemName}.typeId`}
                       {...register(`${itemName}.typeId`)}
-                      value={item.type ? item.type.id : ""}
+                      value={item.type ? item.type.id : item.typeId}
                     />
                   </div>
                 )}
