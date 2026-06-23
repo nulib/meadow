@@ -1,3 +1,4 @@
+import "source-map-support/register.js";
 import authorize from "./authorize.js";
 import middy from "@middy/core";
 import secretsManager from "@middy/secrets-manager";
@@ -10,13 +11,13 @@ function addAccessControlHeaders(request, response) {
   const origin = getEventHeader(request, "origin") || "*";
   if (!response.headers) response.headers = {};
   response.headers["access-control-allow-origin"] = [
-    { key: "Access-Control-Allow-Origin", value: origin },
+    { key: "Access-Control-Allow-Origin", value: origin }
   ];
   response.headers["access-control-allow-headers"] = [
-    { key: "Access-Control-Allow-Headers", value: "authorization, cookie" },
+    { key: "Access-Control-Allow-Headers", value: "authorization, cookie" }
   ];
   response.headers["access-control-allow-credentials"] = [
-    { key: "Access-Control-Allow-Credentials", value: "true" },
+    { key: "Access-Control-Allow-Credentials", value: "true" }
   ];
   return response;
 }
@@ -40,7 +41,7 @@ async function viewerRequestHandler(event, { config }) {
   const response = {
     status: "403",
     statusDescription: "Forbidden",
-    body: "Forbidden",
+    body: "Forbidden"
   };
   return response;
 }
@@ -65,26 +66,28 @@ async function requestHandler(event, context) {
 
 function functionNameAndRegion() {
   let nameVar = process.env.AWS_LAMBDA_FUNCTION_NAME;
-  const match = /^(?<functionRegion>[a-z]{2}-[a-z]+-\d+)\.(?<functionName>.+)$/.exec(nameVar);
+  const match =
+    /^(?<functionRegion>[a-z]{2}-[a-z]+-\d+)\.(?<functionName>.+)$/.exec(
+      nameVar
+    );
   if (match) {
-    return { ...match.groups }
+    return { ...match.groups };
   } else {
     return {
       functionName: nameVar,
       functionRegion: process.env.AWS_REGION
-    }
+    };
   }
 }
 
 const { functionName, functionRegion } = functionNameAndRegion();
 
-export const handler = 
-  middy()
-    .use(
-      secretsManager({
-        fetchData: { config: functionName },
-        awsClientOptions: { region: functionRegion },
-        setToContext: true
-      })
-    )
-    .handler(requestHandler);
+export const handler = middy()
+  .use(
+    secretsManager({
+      fetchData: { config: functionName },
+      awsClientOptions: { region: functionRegion },
+      setToContext: true
+    })
+  )
+  .handler(requestHandler);

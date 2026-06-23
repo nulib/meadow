@@ -1,9 +1,14 @@
-const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
-const ffmpeg = require("fluent-ffmpeg");
-const concat = require("concat-stream");
-const URI = require("uri-js");
-const M3U8FileParser = require("m3u8-file-parser");
-const path = require("path");
+import "source-map-support/register.js";
+import {
+  S3Client,
+  GetObjectCommand,
+  PutObjectCommand
+} from "@aws-sdk/client-s3";
+import ffmpeg from "fluent-ffmpeg";
+import concat from "concat-stream";
+import URI from "uri-js";
+import M3U8FileParser from "m3u8-file-parser";
+import path from "path";
 
 const handler = async (event, _context, _callback) => {
   if (event.source.endsWith(".m3u8")) {
@@ -53,14 +58,20 @@ const extractFrameFromPlaylist = async (source, destination, offset) => {
               if (err) {
                 reject("Error running ffprobe: " + err.message);
               } else {
-                const videoStream = data.streams.find((s) => s.codec_type === "video");
+                const videoStream = data.streams.find(
+                  (s) => s.codec_type === "video"
+                );
                 dimensions.width = videoStream.width;
                 dimensions.height = videoStream.height;
 
                 s3Client
-                  .send(new GetObjectCommand({ Bucket: uri.host, Key: location }))
+                  .send(
+                    new GetObjectCommand({ Bucket: uri.host, Key: location })
+                  )
                   .then(({ Body: secondReadStream }) => {
-                    secondReadStream.on("error", (error) => console.error(error));
+                    secondReadStream.on("error", (error) =>
+                      console.error(error)
+                    );
 
                     ffmpegProcess = ffmpeg(secondReadStream)
                       .seek(segOffInSeconds)
@@ -96,7 +107,9 @@ const extractFrameFromVideo = async (source, destination, offset) => {
   let key = getS3Key(uri);
 
   const s3Client = new S3Client(s3ClientOpts());
-  const { Body: readStream } = await s3Client.send(new GetObjectCommand({ Bucket: uri.host, Key: key }));
+  const { Body: readStream } = await s3Client.send(
+    new GetObjectCommand({ Bucket: uri.host, Key: key })
+  );
   readStream.on("error", (error) => console.error(error));
 
   return new Promise((resolve, reject) => {
@@ -110,7 +123,12 @@ const extractFrameFromVideo = async (source, destination, offset) => {
         } else {
           dimensions.width = data.streams[0].width;
           dimensions.height = data.streams[0].height;
-          console.log("Video dimensions: ", dimensions.width, "x", dimensions.height);
+          console.log(
+            "Video dimensions: ",
+            dimensions.width,
+            "x",
+            dimensions.height
+          );
 
           s3Client
             .send(new GetObjectCommand({ Bucket: uri.host, Key: key }))
@@ -149,7 +167,9 @@ const loadHighestQuality = async (bucket, key) => {
   const reader = new M3U8FileParser();
   try {
     const s3Client = new S3Client(s3ClientOpts());
-    const { Body } = await s3Client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+    const { Body } = await s3Client.send(
+      new GetObjectCommand({ Bucket: bucket, Key: key })
+    );
     const m3u8 = await streamToString(Body);
     reader.read(m3u8);
     const playlist = reader.getResult();
@@ -171,7 +191,8 @@ const parsePlaylist = async (bucket, key, offset) => {
 
   let elapsed = 0.0;
   let segmentOffset = "";
-  for (segment of source.playlist.segments) {
+  let location = "";
+  for (const segment of source.playlist.segments) {
     const duration = segment.inf.duration * 1000;
 
     if (elapsed + duration > offset) {
@@ -221,4 +242,4 @@ const s3ClientOpts = () => {
   return { endpoint, forcePathStyle, httpOptions: { timeout: 600000 } };
 };
 
-module.exports = { handler };
+export { handler };
