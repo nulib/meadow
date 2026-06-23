@@ -80,6 +80,25 @@ export const GET_PLAN_CHANGES = gql`
   }
 `;
 
+export const GET_PLAN_CHANGE_PROVENANCE = gql`
+  query planChangeProvenance($planChangeId: ID!) {
+    aiActivities(planChangeId: $planChangeId) {
+      id
+      targets {
+        fieldPath
+        origin
+        status
+        operation
+        proposedValue
+        events {
+          eventType
+          valueAfter
+        }
+      }
+    }
+  }
+`;
+
 export const UPDATE_PLAN_STATUS = gql`
   mutation updatePlanStatus($id: ID!, $status: PlanStatus!) {
     updatePlanStatus(id: $id, status: $status) {

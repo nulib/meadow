@@ -4,10 +4,18 @@ import { IconExternalLink } from "@js/components/Icon";
 import { FACET_SENSORS } from "../../../services/reactive-search";
 import UIFacetLink from "../FacetLink";
 import UITooltip from "@js/components/UI/Tooltip/Tooltip";
+import { OriginBadge } from "@js/components/AIProvenance/Badges";
 
-const UIControlledTermList = ({ items = [], title }) => {
+const UIControlledTermList = ({ items = [], title, itemProvenance = [] }) => {
   const { componentId } =
     FACET_SENSORS.find((facet) => facet.title === title) || {};
+
+  // Map of term id -> AI origin, so each term can be badged individually
+  // (e.g. AI-generated subjects vs. one a human added later).
+  const originById = itemProvenance.reduce((acc, entry) => {
+    if (entry?.id) acc[entry.id] = entry.origin;
+    return acc;
+  }, {});
 
   return (
     <div className="content mb-4">
@@ -24,6 +32,11 @@ const UIControlledTermList = ({ items = [], title }) => {
                     <UIFacetLink facetComponentId={componentId} item={item} />
                   ) : (
                     item.term?.label || item.term?.id
+                  )}
+                  {originById[item.term?.id] && (
+                    <span className="ml-2">
+                      <OriginBadge origin={originById[item.term.id]} />
+                    </span>
                   )}
                 </div>
                 <div className="tooltip-content">
@@ -67,6 +80,12 @@ UIControlledTermList.propTypes = {
         id: PropTypes.string.isRequired,
         label: PropTypes.string.isRequired,
       }),
+    }),
+  ),
+  itemProvenance: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      origin: PropTypes.string,
     }),
   ),
 };

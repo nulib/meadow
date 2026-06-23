@@ -9,10 +9,61 @@ import {
   computeRowDiff,
 } from "@js/components/Plan/Panel/diff-helpers";
 import { IconEdit, IconDelete } from "@js/components/Icon";
-import { UPDATE_PLAN_CHANGE } from "../plan.gql";
+import { UPDATE_PLAN_CHANGE, GET_PLAN_CHANGE_PROVENANCE } from "../plan.gql";
 import { Button } from "@nulib/design-system";
-import { useMutation } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import EditDiffRowForm from "@js/components/Plan/Panel/EditDiffRowForm";
+import {
+  ProvenancePreviewBadge,
+  valueItemIds,
+} from "@js/components/AIProvenance/Badges";
+
+// Origins that signal a human has already shaped the value; these win over a
+// less-specific recorded origin when more than one target exists for a field.
+const HUMAN_TOUCHED = [
+  "ai_assisted_human_modified",
+  "human_replacement_after_ai_suggestion",
+  "human_generated",
+];
+
+/**
+ * Map field_path -> recorded origin for a plan change's provenance targets,
+ * preferring an origin that reflects a human edit when several exist.
+ */
+function recordedOriginByPath(activities = []) {
+  const map = {};
+  activities.forEach((activity) => {
+    (activity.targets || []).forEach((target) => {
+      const existing = map[target.fieldPath];
+      if (!existing || HUMAN_TOUCHED.includes(target.origin)) {
+        map[target.fieldPath] = target.origin;
+      }
+    });
+  });
+  return map;
+}
+
+/**
+ * Map field_path -> per-item AI attribution, derived from each target's
+ * original (proposed) value. Lets multivalued fields like subjects badge the
+ * AI-suggested items individually so reviewer-added items aren't lumped in.
+ */
+function itemProvenanceByPath(activities = []) {
+  const map = {};
+  activities.forEach((activity) => {
+    (activity.targets || []).forEach((target) => {
+      const proposed = (target.events || []).find(
+        (event) => event.eventType === "proposed",
+      );
+      const source = proposed?.valueAfter ?? target.proposedValue;
+      map[target.fieldPath] = valueItemIds(source).map((id) => ({
+        id,
+        origin: "ai_generated",
+      }));
+    });
+  });
+  return map;
+}
 
 /**
  * Tag indicating the method of change
@@ -167,9 +218,24 @@ const PlanPanelChangesDiff = ({
   planChangeId,
   currentWork,
 }) => {
-  const [updatePlanChange] = useMutation(UPDATE_PLAN_CHANGE);
+  // Editing/deleting a row records a manual edit on the backend (the target's
+  // origin becomes ai_assisted_human_modified / human_replacement_after_ai_suggestion),
+  // so refetch the provenance to keep the preview badges in sync.
+  const [updatePlanChange] = useMutation(UPDATE_PLAN_CHANGE, {
+    awaitRefetchQueries: true,
+    refetchQueries: planChangeId
+      ? [{ query: GET_PLAN_CHANGE_PROVENANCE, variables: { planChangeId } }]
+      : [],
+  });
   const [editingRowId, setEditingRowId] = useState(null);
   const [deletingRowId, setDeletingRowId] = useState(null);
+
+  const { data: provenanceData } = useQuery(GET_PLAN_CHANGE_PROVENANCE, {
+    variables: { planChangeId },
+    skip: !planChangeId,
+  });
+  const recordedOrigins = recordedOriginByPath(provenanceData?.aiActivities);
+  const itemProvenances = itemProvenanceByPath(provenanceData?.aiActivities);
 
   const isProposed = proposedChanges?.status === "PROPOSED";
 
@@ -334,6 +400,11 @@ const PlanPanelChangesDiff = ({
                         {diff.resulting || "—"}
                       </span>
                     )}
+                    <ProvenancePreviewBadge
+                      method={change.method}
+                      currentValue={currentValue}
+                      recordedOrigin={recordedOrigins[change.path]}
+                    />
                   </td>
                 </tr>
               );
@@ -369,6 +440,7 @@ const PlanPanelChangesDiff = ({
                   <UIControlledTermList
                     title={change.label}
                     items={toArray(change.value)}
+                    itemProvenance={itemProvenances[change.path]}
                   />
                 ) : change.nestedCoded ? (
                   renderNestedCodedTerm(change.path, change.value)
@@ -376,6 +448,16 @@ const PlanPanelChangesDiff = ({
                   renderCodedTerm(change.value)
                 ) : (
                   renderGenericValue(change.value)
+                )}
+                {/* Controlled fields badge their AI-suggested items
+                    individually via UIControlledTermList, so skip the
+                    field-level preview badge to avoid a duplicate. */}
+                {!change.controlled && (
+                  <ProvenancePreviewBadge
+                    method={change.method}
+                    currentValue={getCurrentValue(change.path, currentWork)}
+                    recordedOrigin={recordedOrigins[change.path]}
+                  />
                 )}
               </td>
               <td style={{ whiteSpace: "nowrap" }}>

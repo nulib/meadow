@@ -30,6 +30,8 @@ import ScreensDashboardsEvalsDetails from "@js/screens/Dashboards/Evals/Details"
 import ScreensDashboardsEvalsList from "@js/screens/Dashboards/Evals/List";
 import ScreensDashboardsEvalsPrompts from "@js/screens/Dashboards/Evals/Prompts";
 import ScreensDashboardsEvalsQueries from "@js/screens/Dashboards/Evals/Queries";
+import ScreensDashboardsProvenanceList from "@js/screens/Dashboards/Provenance/List";
+import ScreensDashboardsProvenanceDetails from "@js/screens/Dashboards/Provenance/Details";
 import ScreensIngestSheet from "./IngestSheet/IngestSheet";
 import ScreensProject from "./Project/Project";
 import ScreensProjectList from "./Project/List";
@@ -156,6 +158,16 @@ export default class Root extends React.Component {
                   exact
                   path="/dashboards/evals/prompts"
                   component={ScreensDashboardsEvalsPrompts}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/ai-provenance"
+                  component={ScreensDashboardsProvenanceList}
+                />
+                <PrivateRoute
+                  exact
+                  path="/dashboards/ai-provenance/:id"
+                  component={ScreensDashboardsProvenanceDetails}
                 />
                 <PrivateRoute exact path="/" component={Home} />
                 <PrivateRoute component={NotFound} />

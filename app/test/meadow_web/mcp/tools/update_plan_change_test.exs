@@ -2,6 +2,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
   use MeadowWeb.MCPCase
   use Meadow.AuthorityCase
 
+  alias Meadow.AI.Provenance
   alias Meadow.Data.Planner
 
   describe "UpdatePlanChange Tool" do
@@ -39,6 +40,14 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
       assert result["id"] == plan_change.id
       assert result["status"] == "proposed"
       assert get_in(result, ["replace", "descriptive_metadata", "title"]) == "Updated Title"
+      assert is_binary(result["ai_activity_id"])
+
+      assert [
+               %{
+                 field_path: "descriptive_metadata.title",
+                 origin: "ai_generated"
+               }
+             ] = Provenance.work_summary(plan_change.work_id)
     end
 
     test "rejects title objects", %{plan_change: plan_change} do
@@ -127,7 +136,10 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
       }
 
       {:error, error, _frame} = call_tool("update_plan_change", params)
-      assert error.message =~ "'add.descriptive_metadata.creator[0].role' must be omitted for creator"
+
+      assert error.message =~
+               "'add.descriptive_metadata.creator[0].role' must be omitted for creator"
+
       refute error.message =~ "mixed keys"
     end
 

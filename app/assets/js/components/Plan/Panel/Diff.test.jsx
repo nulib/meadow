@@ -18,8 +18,10 @@ const mockComputeRowDiff = jest.fn(() => ({
   changed: false,
 }));
 
+const mockUseQuery = jest.fn(() => ({ data: undefined }));
 jest.mock("@apollo/client/react", () => ({
   useMutation: () => [jest.fn()],
+  useQuery: (...args) => mockUseQuery(...args),
 }));
 
 jest.mock("@nulib/design-system", () => ({
@@ -48,7 +50,10 @@ jest.mock("@js/components/Icon", () => ({
   IconDelete: () => <span data-testid="icon-delete" />,
 }));
 
-jest.mock("../plan.gql", () => ({ UPDATE_PLAN_CHANGE: "UPDATE_PLAN_CHANGE" }));
+jest.mock("../plan.gql", () => ({
+  UPDATE_PLAN_CHANGE: "UPDATE_PLAN_CHANGE",
+  GET_PLAN_CHANGE_PROVENANCE: "GET_PLAN_CHANGE_PROVENANCE",
+}));
 
 jest.mock("@js/components/Plan/Panel/EditDiffRowForm", () => ({
   __esModule: true,
@@ -67,6 +72,7 @@ const { default: PlanPanelChangesDiff } = await import("./Diff");
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUseQuery.mockReturnValue({ data: undefined });
 });
 
 // Status "PROPOSED" keeps existing tests in the editable single-column table
@@ -100,6 +106,51 @@ describe("PlanPanelChangesDiff", () => {
     expect(ctl).toHaveAttribute("data-title", "Subject");
     expect(ctl).toHaveAttribute("data-count", "1");
     expect(mockToArray).toHaveBeenCalledTimes(1);
+  });
+
+  test("preview badge reflects a recorded human edit of an AI suggestion", () => {
+    mockUseQuery.mockReturnValue({
+      data: {
+        aiActivities: [
+          {
+            id: "a1",
+            targets: [
+              {
+                fieldPath: "descriptive_metadata.description",
+                origin: "ai_assisted_human_modified",
+                status: "reviewed",
+                operation: "replace",
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    mockToRows
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([
+        {
+          id: "replace-description",
+          method: "replace",
+          path: "descriptive_metadata.description",
+          label: "Description",
+          value: "Reviewer description",
+          controlled: false,
+        },
+      ]);
+
+    render(
+      <PlanPanelChangesDiff
+        proposedChanges={baseProposed}
+        planChangeId="pc-1"
+      />,
+    );
+
+    expect(screen.getByTestId("provenance-preview")).toHaveTextContent(
+      "AI + human edited",
+    );
   });
 
   test("renders non-controlled primitive values directly", () => {

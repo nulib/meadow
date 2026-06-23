@@ -8,11 +8,16 @@ import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
 import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
 import { isEDTFValid } from "@js/services/helpers";
+import {
+  FieldProvenanceBadge,
+  fieldProvenance,
+} from "@js/components/AIProvenance/Badges";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,
   isEditing,
   published,
+  provenance = {},
 }) => {
   const codeLists = useCodeLists();
   const EDTFValidateFn = (value) => {
@@ -41,7 +46,12 @@ const WorkTabsAboutCoreMetadata = ({
               defaultValue={descriptiveMetadata.title}
             />
           ) : (
-            <p>{descriptiveMetadata.title}</p>
+            <p>
+              {descriptiveMetadata.title}
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, "title")}
+              />
+            </p>
           )}
         </UIFormField>
       </div>
@@ -56,10 +66,15 @@ const WorkTabsAboutCoreMetadata = ({
             isTextarea={true}
           />
         ) : (
-          <UIFormFieldArrayDisplay
-            values={descriptiveMetadata.description}
-            label="Description"
-          />
+          <>
+            <UIFormFieldArrayDisplay
+              values={descriptiveMetadata.description}
+              label="Description"
+            />
+            <FieldProvenanceBadge
+              entry={fieldProvenance(provenance, "description")}
+            />
+          </>
         )}
       </div>
 
@@ -98,6 +113,9 @@ const WorkTabsAboutCoreMetadata = ({
                   ))}
               </ul>
             </div>
+            <FieldProvenanceBadge
+              entry={fieldProvenance(provenance, "dateCreated")}
+            />
           </UIFormField>
         )}
       </div>
@@ -123,7 +141,12 @@ const WorkTabsAboutCoreMetadata = ({
               }
             />
           ) : (
-            <UICodedTermItem item={descriptiveMetadata.rightsStatement} />
+            <>
+              <UICodedTermItem item={descriptiveMetadata.rightsStatement} />
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, "rightsStatement")}
+              />
+            </>
           )}
         </UIFormField>
       </div>
@@ -135,6 +158,7 @@ WorkTabsAboutCoreMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
   published: PropTypes.bool,
+  provenance: PropTypes.object,
 };
 
 export default WorkTabsAboutCoreMetadata;

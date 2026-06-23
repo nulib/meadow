@@ -3,6 +3,7 @@ defmodule MeadowWeb.Resolvers.Data do
   Absinthe GraphQL query resolver for Data Context
 
   """
+  alias Meadow.AI.Provenance
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Data.Works.TransferFileSets
   alias Meadow.Pipeline
@@ -42,17 +43,23 @@ defmodule MeadowWeb.Resolvers.Data do
   defp set_error_key({:value_id, value}, operation), do: %{operation => value}
   defp set_error_key(property, _), do: property
 
-  def update_work(_, %{id: id, work: work_params}, _) do
+  def update_work(_, %{id: id, work: work_params}, resolution) do
     work = Works.get_work!(id)
 
     case Works.update_work(work, work_params) do
       {:error, changeset} ->
         {:error, message: "Could not update work", details: humanize_work_changeset(changeset)}
 
-      {:ok, work} ->
-        {:ok, work}
+      {:ok, updated_work} ->
+        # Record any direct human edits of AI-provenanced fields so the origin
+        # reflects human mediation instead of silently staying "AI generated".
+        Provenance.record_work_manual_edit(work, updated_work, actor_username(resolution))
+        {:ok, updated_work}
     end
   end
+
+  defp actor_username(%{context: %{current_user: %{username: username}}}), do: username
+  defp actor_username(_), do: nil
 
   def set_work_image(_, %{work_id: work_id, file_set_id: file_set_id}, _) do
     work = Works.get_work!(work_id)
@@ -142,11 +149,13 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
-  def transcribe_file_set(_, args, _) do
+  def transcribe_file_set(_, args, resolution) do
     opts =
       []
       |> maybe_add_opt(:language, args[:language])
       |> maybe_add_opt(:model, args[:model])
+      |> maybe_add_opt(:context, args[:context])
+      |> maybe_add_opt(:actor, actor_username(resolution))
 
     case FileSets.transcribe_file_set(args[:file_set_id], opts) do
       {:ok, annotation} ->
@@ -175,8 +184,9 @@ defmodule MeadowWeb.Resolvers.Data do
 
   defp transcribe_file_set_error_details(reason), do: inspect(reason)
 
-  def update_file_set_annotation(_, args, _) do
-    opts = if args[:language], do: %{language: args[:language]}, else: %{}
+  def update_file_set_annotation(_, args, resolution) do
+    opts = %{actor: actor_username(resolution)}
+    opts = if args[:language], do: Map.put(opts, :language, args[:language]), else: opts
 
     case FileSets.update_annotation_content(args[:annotation_id], args[:content], opts) do
       {:ok, annotation} ->
@@ -223,13 +233,13 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
-  def delete_file_set_annotation(_, args, _) do
+  def delete_file_set_annotation(_, args, resolution) do
     case FileSets.get_annotation(args[:annotation_id]) do
       nil ->
         {:error, message: "Annotation not found"}
 
       annotation ->
-        case FileSets.delete_annotation(annotation) do
+        case FileSets.delete_annotation(annotation, actor_username(resolution)) do
           {:ok, annotation} ->
             {:ok, annotation}
 

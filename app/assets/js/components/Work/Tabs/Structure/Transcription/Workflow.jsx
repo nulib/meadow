@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@nulib/design-system";
 import WorkTabsStructureTranscriptionPane from "@js/components/Work/Tabs/Structure/Transcription/Pane";
-import {
-  DELETE_FILE_SET_ANNOTATION,
-  TRANSCRIBE_FILE_SET,
-} from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
+import { TRANSCRIBE_FILE_SET } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useFileSetAnnotation } from "@js/hooks/useFileSetAnnotation";
 import { toastWrapper } from "@js/services/helpers";
+import { AnnotationOriginBadge } from "@js/components/AIProvenance/Badges";
 
 import { GET_WORK } from "@js/components/Work/work.gql";
 
@@ -67,7 +65,8 @@ function WorkTabsStructureTranscriptionWorkflow({
   });
 
   const [transcribeFileSet] = useMutation(TRANSCRIBE_FILE_SET);
-  const [deleteFileSetAnnotation] = useMutation(DELETE_FILE_SET_ANNOTATION);
+  const [useExistingAsContext, setUseExistingAsContext] = useState(false);
+  const [hasContent, setHasContent] = useState(false);
 
   const workFileSet = work?.fileSets?.find((fs) => fs.id === fileSetId);
   const existingTranscriptionAnnotation = workFileSet?.annotations?.find(
@@ -78,12 +77,12 @@ function WorkTabsStructureTranscriptionWorkflow({
       ? fileSetAnnotation
       : existingTranscriptionAnnotation;
 
-  const failedAnnotationId =
-    (fileSetAnnotation?.status === "error" && fileSetAnnotation?.id) ||
-    (existingTranscriptionAnnotation?.status === "error" &&
-      existingTranscriptionAnnotation?.id) ||
-    null;
-  const annotationFailed = Boolean(failedAnnotationId);
+  // Hide the Generate button while a transcription is being produced so it
+  // can't be triggered twice; the backend replaces any existing one, so there
+  // is no failed-annotation cleanup to do here anymore.
+  const generating = [fileSetAnnotation?.status, annotation?.status].some(
+    (status) => status === "pending" || status === "in_progress",
+  );
 
   useEffect(() => {
     if (isActive) {
@@ -111,11 +110,21 @@ function WorkTabsStructureTranscriptionWorkflow({
     fileSetAnnotation?.error,
   ]);
 
-  const runTranscribeMutation = () => {
+  const handleStartTranscription = () => {
+    if (!fileSetId) return;
+
+    // Send the live editor text (incl. unsaved edits) as context when the
+    // reviewer opts in — matches what they see and works even before a first
+    // save. The backend replaces any existing transcription.
+    const liveText =
+      document.getElementById("file-set-transcription-textarea")?.value || "";
+    const context =
+      useExistingAsContext && liveText.trim() ? liveText : undefined;
+
+    toastWrapper("is-success", "Generating transcription");
+
     transcribeFileSet({
-      variables: {
-        fileSetId,
-      },
+      variables: { fileSetId, ...(context ? { context } : {}) },
       onError: (error) => {
         flashTranscriptionError(error);
       },
@@ -129,28 +138,19 @@ function WorkTabsStructureTranscriptionWorkflow({
     });
   };
 
-  const handleStartTranscription = async () => {
-    if (!fileSetId) return;
-
-    toastWrapper("is-success", "Generating transcription");
-
-    if (failedAnnotationId) {
-      try {
-        await deleteFileSetAnnotation({
-          variables: { annotationId: failedAnnotationId },
-          refetchQueries: [{ query: GET_WORK, variables: { id: workId } }],
-          awaitRefetchQueries: true,
-        });
-      } catch (error) {
-        flashTranscriptionError(error);
-        return;
-      }
-    }
-
-    runTranscribeMutation();
-  };
-
   if (workLoading) return null;
+
+  // The Generate button stays available so an existing — human or AI —
+  // transcription can be regenerated, except while one is being produced. When
+  // there is content to draw on, a checkbox offers to feed it to the model as
+  // context for the regeneration.
+  const canGenerate = !generating;
+
+  // No annotation and no manual draft yet: offer the reviewer Karen's two-way
+  // entry choice — let the model generate one, or open a blank editor to type
+  // one in by hand. Once either path is taken (or an annotation exists), the
+  // editor below takes over.
+  const showEditor = Boolean(annotation) || manualEntry;
 
   return (
     <div
@@ -160,50 +160,86 @@ function WorkTabsStructureTranscriptionWorkflow({
         flexGrow: 1,
         flexShrink: 1,
         display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        flexDirection: "column",
+        minHeight: 0,
       }}
     >
-      {!annotation || annotationFailed ? (
-        manualEntry ? (
-          <WorkTabsStructureTranscriptionPane
-            annotation={{
-              content: "",
-              id: null,
-              status: "completed",
-              type: "transcription",
-            }}
-            hasTranscriptionCallback={hasTranscriptionCallback}
-            onContentChange={onContentChange}
-          />
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "0.75rem",
-            }}
+      {!showEditor ? (
+        <div
+          style={{
+            display: "flex",
+            flexGrow: 1,
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.75rem",
+          }}
+        >
+          <Button
+            isPrimary
+            isLowercase
+            onClick={handleStartTranscription}
+            style={{ gap: "0.5rem" }}
           >
-            <Button
-              isPrimary
-              isLowercase
-              onClick={handleStartTranscription}
-              style={{ gap: "0.5rem" }}
-            >
-              Generate Transcription
-            </Button>
-            <Button isLowercase onClick={() => setManualEntry(true)}>
-              Enter Manually
-            </Button>
-          </div>
-        )
+            Generate Transcription
+          </Button>
+          <Button isLowercase onClick={() => setManualEntry(true)}>
+            Enter Manually
+          </Button>
+        </div>
       ) : (
-        <WorkTabsStructureTranscriptionPane
-          annotation={annotation}
-          hasTranscriptionCallback={hasTranscriptionCallback}
-          onContentChange={onContentChange}
-        />
+        <>
+          <div
+            className="is-flex is-align-items-center is-justify-content-space-between mb-2"
+            style={{ gap: "0.5rem", minHeight: "2rem" }}
+          >
+            <AnnotationOriginBadge annotation={annotation} />
+            {canGenerate && (
+              <div
+                className="is-flex is-align-items-center is-justify-content-flex-end"
+                style={{ gap: "0.75rem" }}
+              >
+                {hasContent && (
+                  <label className="checkbox is-size-7">
+                    <input
+                      type="checkbox"
+                      className="mr-1"
+                      checked={useExistingAsContext}
+                      onChange={(e) =>
+                        setUseExistingAsContext(e.target.checked)
+                      }
+                    />
+                    Use existing transcription as context
+                  </label>
+                )}
+                <Button
+                  isPrimary
+                  isLowercase
+                  isSmall
+                  onClick={handleStartTranscription}
+                  style={{ gap: "0.5rem" }}
+                >
+                  Generate Transcription
+                </Button>
+              </div>
+            )}
+          </div>
+          <WorkTabsStructureTranscriptionPane
+            annotation={
+              annotation || {
+                content: "",
+                id: null,
+                status: "completed",
+                type: "transcription",
+              }
+            }
+            hasTranscriptionCallback={hasTranscriptionCallback}
+            onContentChange={(value) => {
+              setHasContent(Boolean(value && value.trim()));
+              onContentChange?.(value);
+            }}
+          />
+        </>
       )}
     </div>
   );

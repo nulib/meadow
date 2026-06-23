@@ -27,16 +27,24 @@ jest.mock("@nulib/design-system", () => {
   };
 });
 
-// Pane component → simple div so we can assert props
+// Pane component → render a real textarea (the live editor the Workflow reads
+// at generate time) and report its content so the context checkbox can appear.
 jest.mock("@js/components/Work/Tabs/Structure/Transcription/Pane", () => {
   const React = require("react");
   return {
     __esModule: true,
-    default: function MockPane({ annotation }) {
+    default: function MockPane({ annotation, onContentChange = () => {} }) {
+      const content = annotation?.content || "";
+      React.useEffect(() => {
+        onContentChange(content);
+      }, [content]);
       return (
-        <div
+        <textarea
           data-testid="transcription-pane"
           data-annotation-id={annotation?.id || ""}
+          id="file-set-transcription-textarea"
+          defaultValue={content}
+          onChange={(e) => onContentChange(e.target.value)}
         />
       );
     },
@@ -168,8 +176,34 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
       );
     });
 
-    // Still no Pane yet (annotation will appear on a subsequent fetch)
-    expect(screen.queryByTestId("transcription-pane")).not.toBeInTheDocument();
+    // With no annotation yet, the reviewer is still on the entry choice
+    // (Generate / Enter Manually) — the editor opens once a transcription
+    // exists or manual entry is chosen.
+    expect(
+      screen.getByRole("button", { name: /enter manually/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("opens a blank editor when Enter Manually is clicked", async () => {
+    const workMocks = [
+      {
+        request: { query: GET_WORK, variables: { id: workId } },
+        result: { data: { work: baseWork } },
+      },
+      {
+        request: { query: GET_WORK, variables: { id: workId } },
+        result: { data: { work: baseWork } },
+      },
+    ];
+
+    renderWorkflow({ mocks: workMocks });
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: /enter manually/i }),
+    );
+
+    // The textarea Pane appears so a transcription can be typed from scratch.
+    expect(screen.getByTestId("transcription-pane")).toBeInTheDocument();
   });
 
   it("renders GraphQL errors from TRANSCRIBE_FILE_SET when transcription fails", async () => {
@@ -289,9 +323,123 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
     const wrapper = container.firstChild;
     expect(wrapper).toHaveAttribute("data-annotation", "ann-1");
 
-    // No "Generate Transcription" button when we already have an annotation
+    // The Generate button stays available so an existing transcription can be
+    // regenerated (optionally seeding the model with it as context).
     expect(
-      screen.queryByRole("button", { name: /generate transcription/i }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: /generate transcription/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("sends the live editor text as context when the checkbox is checked", async () => {
+    const existingAnnotation = {
+      id: "ann-1",
+      status: "completed",
+      type: "transcription",
+      content: "Reviewer draft text",
+      __typename: "Annotation",
+    };
+
+    const workMock = {
+      request: { query: GET_WORK, variables: { id: workId } },
+      result: {
+        data: {
+          work: {
+            ...baseWork,
+            fileSets: [
+              {
+                id: fileSetId,
+                annotations: [existingAnnotation],
+                __typename: "FileSet",
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    const transcribeWithContext = {
+      request: {
+        query: TRANSCRIBE_FILE_SET,
+        variables: { fileSetId, context: "Reviewer draft text" },
+      },
+      result: { data: { transcribeFileSet: { id: fileSetId } } },
+    };
+
+    renderWorkflow({
+      mocks: [workMock, workMock, transcribeWithContext],
+      hookData: { data: { fileSetAnnotation: existingAnnotation } },
+    });
+
+    // The checkbox appears because there is existing content to use as context.
+    const checkbox = await screen.findByRole("checkbox", {
+      name: /use existing transcription as context/i,
+    });
+    fireEvent.click(checkbox);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /generate transcription/i }),
+    );
+
+    // The mutation mock only matches if context was sent; the success toast
+    // firing confirms the matched mutation ran.
+    await waitFor(() => {
+      expect(toastWrapper).toHaveBeenCalledWith(
+        "is-success",
+        "Generating transcription",
+      );
+    });
+  });
+
+  it("omits context when the checkbox is left unchecked", async () => {
+    const existingAnnotation = {
+      id: "ann-1",
+      status: "completed",
+      type: "transcription",
+      content: "Reviewer draft text",
+      __typename: "Annotation",
+    };
+
+    const workMock = {
+      request: { query: GET_WORK, variables: { id: workId } },
+      result: {
+        data: {
+          work: {
+            ...baseWork,
+            fileSets: [
+              {
+                id: fileSetId,
+                annotations: [existingAnnotation],
+                __typename: "FileSet",
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    // No `context` variable on this mock; it only matches the bare regeneration.
+    const transcribeNoContext = {
+      request: {
+        query: TRANSCRIBE_FILE_SET,
+        variables: { fileSetId },
+      },
+      result: { data: { transcribeFileSet: { id: fileSetId } } },
+    };
+
+    renderWorkflow({
+      mocks: [workMock, workMock, transcribeNoContext],
+      hookData: { data: { fileSetAnnotation: existingAnnotation } },
+    });
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: /generate transcription/i }),
+    );
+
+    await waitFor(() => {
+      expect(toastWrapper).toHaveBeenCalledWith(
+        "is-success",
+        "Generating transcription",
+      );
+    });
   });
 });

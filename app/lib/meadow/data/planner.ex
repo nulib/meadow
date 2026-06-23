@@ -55,6 +55,7 @@ defmodule Meadow.Data.Planner do
      ```
   """
   import Ecto.Query, warn: false
+  alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment}
   alias Meadow.Data.Schemas.{Plan, PlanChange}
   alias Meadow.Data.Schemas.Work
@@ -722,9 +723,22 @@ defmodule Meadow.Data.Planner do
       {:ok, %PlanChange{status: :approved}}
   """
   def approve_plan_change(%PlanChange{} = change, user \\ nil) do
-    change
-    |> PlanChange.approve(user)
-    |> Repo.update()
+    Repo.transaction(fn ->
+      case change
+           |> PlanChange.approve(user)
+           |> Repo.update() do
+        {:ok, updated_change} ->
+          Provenance.record_review_for_plan_change(updated_change, "approved", user)
+          updated_change
+
+        {:error, changeset} ->
+          Repo.rollback(changeset)
+      end
+    end)
+    |> case do
+      {:ok, updated_change} -> {:ok, updated_change}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """
@@ -735,10 +749,23 @@ defmodule Meadow.Data.Planner do
       iex> reject_plan_change(change, "Translation incorrect")
       {:ok, %PlanChange{status: :rejected}}
   """
-  def reject_plan_change(%PlanChange{} = change, notes \\ nil) do
-    change
-    |> PlanChange.reject(notes)
-    |> Repo.update()
+  def reject_plan_change(%PlanChange{} = change, notes \\ nil, user \\ nil) do
+    Repo.transaction(fn ->
+      case change
+           |> PlanChange.reject(notes)
+           |> Repo.update() do
+        {:ok, updated_change} ->
+          Provenance.record_review_for_plan_change(updated_change, "rejected", user, notes)
+          updated_change
+
+        {:error, changeset} ->
+          Repo.rollback(changeset)
+      end
+    end)
+    |> case do
+      {:ok, updated_change} -> {:ok, updated_change}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """
@@ -760,44 +787,78 @@ defmodule Meadow.Data.Planner do
   Approves all proposed changes for a given plan
   """
   def approve_proposed_plan_changes(%Plan{} = plan, user \\ nil) do
-    timestamp = DateTime.utc_now()
+    with {:ok, {changes, count}} <-
+           Repo.transaction(fn ->
+             timestamp = DateTime.utc_now()
+             change_ids = proposed_change_ids(plan.id)
 
-    {count, _} =
-      from(c in PlanChange,
-        where: c.plan_id == ^plan.id and c.status == :proposed,
-        where: ^change_fragment(:not_empty),
-        update: [set: [status: :approved, user: ^user, updated_at: ^timestamp]]
-      )
-      |> Repo.update_all([])
+             {count, _} =
+               from(c in PlanChange,
+                 where: c.id in ^change_ids,
+                 update: [set: [status: :approved, user: ^user, updated_at: ^timestamp]]
+               )
+               |> Repo.update_all([])
 
-    # Broadcast updates for each approved plan change since update_all bypasses callbacks
-    if count > 0 do
-      from(c in PlanChange,
-        where: c.plan_id == ^plan.id and c.status == :approved,
-        where: ^change_fragment(:not_empty)
-      )
-      |> Repo.all()
-      |> Enum.each(&broadcast_plan_change_update(&1, "updated"))
+             changes = list_plan_changes_by_ids(change_ids, :approved)
+
+             Enum.each(changes, &Provenance.record_review_for_plan_change(&1, "approved", user))
+
+             {changes, count}
+           end) do
+      Enum.each(changes, &broadcast_plan_change_update(&1, "updated"))
+
+      {:ok, maybe_reload_plan(plan), count}
     end
+  end
 
-    {:ok, maybe_reload_plan(plan), count}
+  defp proposed_change_ids(plan_id) do
+    from(c in PlanChange,
+      where: c.plan_id == ^plan_id and c.status == :proposed,
+      where: ^change_fragment(:not_empty),
+      select: c.id
+    )
+    |> Repo.all()
+  end
+
+  defp list_plan_changes_by_ids([], _status), do: []
+
+  defp list_plan_changes_by_ids(change_ids, status) do
+    from(c in PlanChange,
+      where: c.id in ^change_ids and c.status == ^status,
+      where: ^change_fragment(:not_empty)
+    )
+    |> Repo.all()
   end
 
   @doc """
   Rejects all proposed changes for a given plan
   """
-  def reject_proposed_plan_changes(%Plan{} = plan, notes \\ nil) do
-    timestamp = DateTime.utc_now()
+  def reject_proposed_plan_changes(%Plan{} = plan, notes \\ nil, user \\ nil) do
+    with {:ok, {changes, count}} <-
+           Repo.transaction(fn ->
+             timestamp = DateTime.utc_now()
+             change_ids = proposed_change_ids(plan.id)
 
-    {count, _} =
-      from(c in PlanChange,
-        where: c.plan_id == ^plan.id and c.status == :proposed,
-        where: ^change_fragment(:not_empty),
-        update: [set: [status: :rejected, notes: ^notes, updated_at: ^timestamp]]
-      )
-      |> Repo.update_all([])
+             {count, _} =
+               from(c in PlanChange,
+                 where: c.id in ^change_ids,
+                 update: [set: [status: :rejected, notes: ^notes, updated_at: ^timestamp]]
+               )
+               |> Repo.update_all([])
 
-    {:ok, maybe_reload_plan(plan), count}
+             changes = list_plan_changes_by_ids(change_ids, :rejected)
+
+             Enum.each(
+               changes,
+               &Provenance.record_review_for_plan_change(&1, "rejected", user, notes)
+             )
+
+             {changes, count}
+           end) do
+      Enum.each(changes, &broadcast_plan_change_update(&1, "updated"))
+
+      {:ok, maybe_reload_plan(plan), count}
+    end
   end
 
   @doc """
@@ -927,20 +988,28 @@ defmodule Meadow.Data.Planner do
   end
 
   defp apply_single_change(change) do
+    # Snapshot the affected fields before mutating the work, so provenance can
+    # tell whether the AI overwrote pre-existing human/legacy content.
+    prior_values = prior_values_for_change(change)
+
     try do
       apply_change_to_work(change)
     rescue
       err -> {:error, Exception.message(err)}
     end
-    |> handle_change_result(change)
+    |> handle_change_result(change, prior_values)
   end
 
-  defp handle_change_result({:ok, _work}, change) do
+  defp handle_change_result({:ok, _work}, change, prior_values) do
+    Provenance.record_apply_for_plan_change(change, change.user, prior_values)
+
     mark_plan_change_completed(change)
     |> unwrap_or_rollback()
   end
 
-  defp handle_change_result({:error, reason}, _change) do
+  defp handle_change_result({:error, reason}, _change, _prior_values) do
+    # The enclosing transaction is already aborting, so any provenance written
+    # here would be rolled back along with the failed change. Just roll back.
     Repo.rollback(reason)
   end
 
@@ -966,9 +1035,23 @@ defmodule Meadow.Data.Planner do
       {:ok, %PlanChange{status: :completed}}
   """
   def apply_plan_change(%PlanChange{} = change) do
-    case apply_change_to_work(change) do
-      {:ok, _work} ->
-        mark_plan_change_completed(change)
+    prior_values = prior_values_for_change(change)
+
+    Repo.transaction(fn ->
+      case apply_change_to_work(change) do
+        {:ok, _work} ->
+          Provenance.record_apply_for_plan_change(change, change.user, prior_values)
+
+          mark_plan_change_completed(change)
+          |> unwrap_or_rollback()
+
+        {:error, reason} ->
+          Repo.rollback(reason)
+      end
+    end)
+    |> case do
+      {:ok, updated_change} ->
+        {:ok, updated_change}
 
       {:error, reason} ->
         mark_plan_change_error(change, inspect(reason))
@@ -1077,6 +1160,13 @@ defmodule Meadow.Data.Planner do
 
       work ->
         apply_operations_to_work(work, plan_change)
+    end
+  end
+
+  defp prior_values_for_change(%PlanChange{work_id: work_id} = change) do
+    case Repo.get(Work, work_id) do
+      nil -> %{}
+      work -> Provenance.prior_values_for_change(work, change)
     end
   end
 

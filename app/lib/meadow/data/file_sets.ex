@@ -8,8 +8,9 @@ defmodule Meadow.Data.FileSets do
 
   alias Ecto.Multi
 
+  alias Meadow.AI.Provenance
   alias Meadow.Config
-  alias Meadow.Data.{Transcriber, Works}
+  alias Meadow.Data.Transcriber
   alias Meadow.Data.Schemas.{FileSet, FileSetAnnotation}
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Repo
@@ -611,19 +612,37 @@ defmodule Meadow.Data.FileSets do
 
   defp handle_transcription_result(annotation, {:ok, %{text: text} = transcription})
        when is_binary(text) do
-    result =
-      update_annotation(annotation, %{
-        status: "completed",
-        content: transcription.text,
-        language: transcription.languages
-      })
+    Repo.transaction(fn ->
+      updated_annotation =
+        annotation
+        |> update_annotation(%{
+          status: "completed",
+          content: transcription.text,
+          language: transcription.languages
+        })
+        |> unwrap_or_rollback()
 
-    add_transcription_note(annotation)
-    result
+      record_completed_transcription_provenance(updated_annotation, transcription)
+      |> unwrap_or_rollback()
+
+      updated_annotation
+    end)
   end
 
   defp handle_transcription_result(annotation, {:error, reason}) do
-    result = update_annotation(annotation, %{status: "error"})
+    result =
+      Repo.transaction(fn ->
+        updated_annotation =
+          annotation
+          |> update_annotation(%{status: "error"})
+          |> unwrap_or_rollback()
+
+        record_failed_transcription_provenance(updated_annotation, reason)
+        |> unwrap_or_rollback()
+
+        updated_annotation
+      end)
+
     publish_annotation_error(annotation, reason)
     result
   end
@@ -633,45 +652,21 @@ defmodule Meadow.Data.FileSets do
       "Transcription for file set #{annotation.file_set_id} returned blank text; marking annotation as error"
     )
 
-    result = update_annotation(annotation, %{status: "error"})
+    result =
+      Repo.transaction(fn ->
+        updated_annotation =
+          annotation
+          |> update_annotation(%{status: "error"})
+          |> unwrap_or_rollback()
+
+        record_failed_transcription_provenance(updated_annotation, :blank_transcription)
+        |> unwrap_or_rollback()
+
+        updated_annotation
+      end)
+
     publish_annotation_error(annotation, :blank_transcription)
     result
-  end
-
-  defp add_transcription_note(%{file_set_id: file_set_id, model: model}) do
-    case Repo.get(FileSet, file_set_id) |> Repo.preload(:work) do
-      %FileSet{work: work, core_metadata: %{label: label}} when not is_nil(work) ->
-        today = Date.utc_today() |> Date.to_iso8601()
-
-        note_text =
-          case model do
-            nil -> "Transcription generated for #{label} by AI on #{today}"
-            model_id -> "Transcription generated for #{label} by AI (#{model_id}) on #{today}"
-          end
-
-        new_note = %{
-          note: note_text,
-          type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
-        }
-
-        existing_notes =
-          (get_in(work, [Access.key(:descriptive_metadata), Access.key(:notes)]) || [])
-          |> Enum.map(fn
-            %_{} = struct -> Map.from_struct(struct)
-            map when is_map(map) -> map
-          end)
-
-        updated_metadata = %{
-          descriptive_metadata: %{
-            notes: existing_notes ++ [new_note]
-          }
-        }
-
-        Works.update_work(work, updated_metadata)
-
-      _ ->
-        :ok
-    end
   end
 
   defp fetch_file_set_for_transcription(file_set_id) do
@@ -693,14 +688,169 @@ defmodule Meadow.Data.FileSets do
   defp create_pending_annotation(file_set, opts) do
     model = Keyword.get(opts, :model, Config.ai(:transcriber_model))
     language = Keyword.get(opts, :language, ["en"])
+    context = Keyword.get(opts, :context)
+    actor = Keyword.get(opts, :actor)
 
-    create_annotation(file_set, %{
-      type: "transcription",
-      status: "pending",
-      language: language,
-      model: model
+    # Only one transcription is allowed per file set, so regenerating replaces any
+    # existing one. Resolve the new origin against the annotation being replaced
+    # *before* it is deleted: seeding the model with human-authored content makes
+    # the result an AI modification of human content, not a fresh generation.
+    existing = Repo.get_by(FileSetAnnotation, file_set_id: file_set.id, type: "transcription")
+    origin = regeneration_origin(context, existing)
+
+    Repo.transaction(fn ->
+      if existing do
+        Provenance.record_annotation_deletion(existing, actor)
+        Repo.delete(existing) |> unwrap_or_rollback()
+      end
+
+      activity =
+        %{
+          activity_type: "transcription",
+          model: model,
+          ai_use_type: "transcription",
+          access_mode: "controlled_internal_model",
+          reversibility: "reversible",
+          model_type: "transcription",
+          input: %{
+            file_set_id: file_set.id,
+            language: language,
+            context_used: present?(context),
+            transcription_origin: origin
+          },
+          work_id: file_set.work_id,
+          file_set_id: file_set.id
+        }
+        |> Provenance.create_activity()
+        |> unwrap_or_rollback()
+
+      Provenance.add_source(activity, %{
+        item_id: file_set.id,
+        item_type: "FileSet",
+        work_id: file_set.work_id,
+        file_set_id: file_set.id,
+        holding_organization: "Northwestern University Libraries",
+        relationship_role: "source",
+        premis_object_category: "file",
+        object_identifier_type: "Meadow FileSet",
+        object_identifier_value: file_set.id,
+        source_snapshot: %{accession_number: file_set.accession_number}
+      })
+      |> unwrap_or_rollback()
+
+      create_annotation(file_set, %{
+        type: "transcription",
+        status: "pending",
+        language: language,
+        model: model,
+        ai_activity_id: activity.id
+      })
+      |> unwrap_or_rollback()
+    end)
+  end
+
+  defp record_completed_transcription_provenance(
+         %{ai_activity_id: activity_id} = annotation,
+         transcription
+       )
+       when not is_nil(activity_id) do
+    activity = Provenance.get_activity!(activity_id)
+    origin = transcription_origin(activity)
+
+    # A generation seeded with human content is an AI *modification* of that
+    # content, so reflect it in the IPTC source type (algorithmicallyEnhanced)
+    # and C2PA action (edited) — otherwise it is purely AI-generated.
+    {source_type, c2pa_action} =
+      if origin == "ai_modified_human_content" do
+        {Provenance.enhanced_source_type(), "c2pa.edited"}
+      else
+        {Provenance.trained_source_type(), "c2pa.created"}
+      end
+
+    Provenance.record_target(
+      activity,
+      %{
+        target_type: "FileSetAnnotation",
+        target_id: annotation.id,
+        field_path: "file_set_annotations.content",
+        operation: "replace",
+        proposed_value: transcription.text,
+        origin: origin,
+        status: "applied",
+        premis_object_category: "representation",
+        object_identifier_type: "Meadow FileSetAnnotation",
+        object_identifier_value: annotation.id,
+        c2pa_action: c2pa_action,
+        digital_source_type_uri: source_type,
+        ingredient_relationship: "componentOf",
+        human_oversight_level: "human_review_required",
+        c2pa_assertion_label: "c2pa.ai-disclosure"
+      },
+      "applied"
+    )
+    |> unwrap_or_rollback()
+
+    Provenance.complete_activity(activity, %{
+      output: %{text: transcription.text, languages: transcription.languages}
     })
   end
+
+  defp record_completed_transcription_provenance(_annotation, _transcription), do: :ok
+
+  # The new transcription's origin, resolved when the pending annotation is
+  # created and stashed on the activity input. Defaults to a pure AI generation.
+  defp regeneration_origin(context, existing) do
+    if present?(context) and modifies_human_content?(existing) do
+      "ai_modified_human_content"
+    else
+      "ai_generated"
+    end
+  end
+
+  # Whether the annotation being replaced carries human-authored content. An
+  # annotation with no AI activity (or none recorded) is human; one whose latest
+  # provenance origin is anything other than a pristine `ai_generated` has had a
+  # human hand in it. A pure AI transcription has not.
+  defp modifies_human_content?(nil), do: true
+  defp modifies_human_content?(%FileSetAnnotation{ai_activity_id: nil}), do: true
+
+  defp modifies_human_content?(%FileSetAnnotation{id: id}) do
+    case Provenance.target_summary("FileSetAnnotation", id) |> List.first() do
+      %{origin: "ai_generated"} -> false
+      %{origin: _} -> true
+      _ -> true
+    end
+  end
+
+  defp transcription_origin(%{input: input}) when is_map(input) do
+    case input["transcription_origin"] || input[:transcription_origin] do
+      origin when origin in ["ai_generated", "ai_modified_human_content"] -> origin
+      _ -> "ai_generated"
+    end
+  end
+
+  defp transcription_origin(_), do: "ai_generated"
+
+  defp present?(value) when is_binary(value), do: String.trim(value) != ""
+  defp present?(_), do: false
+
+  defp record_failed_transcription_provenance(%{ai_activity_id: activity_id}, reason)
+       when not is_nil(activity_id) do
+    activity = Provenance.get_activity!(activity_id)
+
+    Enum.each(activity.targets, fn target ->
+      Provenance.add_event(target, %{event_type: "failed", notes: inspect(reason)})
+      |> unwrap_or_rollback()
+    end)
+
+    Provenance.fail_activity(activity, reason)
+  end
+
+  defp record_failed_transcription_provenance(_annotation, _reason), do: :ok
+
+  defp unwrap_or_rollback(:ok), do: :ok
+  defp unwrap_or_rollback({:ok, result}), do: result
+  defp unwrap_or_rollback({:error, reason}), do: Repo.rollback(reason)
 
   @doc """
   Updates the content of an annotation in S3 and updates the annotation record.
@@ -726,7 +876,17 @@ defmodule Meadow.Data.FileSets do
            get_annotation(annotation_id) || {:error, :not_found} do
       opts = Enum.into(opts, %{})
       attrs = Map.merge(%{content: content}, Map.take(opts, [:language]))
-      update_annotation(annotation, attrs)
+
+      with {:ok, updated} <- update_annotation(annotation, attrs) do
+        # Record a direct human edit of AI-generated annotation content (e.g. an
+        # AI transcription edited in the Access Files modal) so the provenance
+        # origin reflects human mediation ("AI + human edited") instead of
+        # silently staying "AI generated". No-op for annotations without AI
+        # provenance or when the content is unchanged. Uses the in-memory
+        # annotation, which still carries the prior content + ai_activity_id.
+        Provenance.record_annotation_manual_edit(annotation, content, Map.get(opts, :actor))
+        {:ok, updated}
+      end
     end
   end
 
@@ -1011,7 +1171,14 @@ defmodule Meadow.Data.FileSets do
   @doc """
   Deletes an annotation.
   """
-  def delete_annotation(%FileSetAnnotation{} = annotation) do
-    Repo.delete(annotation)
+  def delete_annotation(%FileSetAnnotation{} = annotation, actor \\ nil) do
+    with {:ok, deleted} <- Repo.delete(annotation) do
+      # Record the disposition of AI-generated content (e.g. a transcription) so
+      # the provenance trail reflects the human removal. No-op for annotations
+      # without AI provenance. Uses the in-memory annotation (which still carries
+      # content + ai_activity_id) since the row is now gone.
+      Provenance.record_annotation_deletion(annotation, actor)
+      {:ok, deleted}
+    end
   end
 end

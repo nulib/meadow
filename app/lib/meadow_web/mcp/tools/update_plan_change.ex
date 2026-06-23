@@ -74,14 +74,12 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
 
   alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
-  alias Meadow.Config
+  alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment, Planner}
   alias Meadow.Data.Schemas.WorkDescriptiveMetadata
   alias Meadow.Data.Types
   alias Meadow.Repo
   require Logger
-
-  @ai_note_prefix "Some metadata created with the assistance of AI"
 
   schema do
     field(:id, :string,
@@ -106,13 +104,24 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   def execute(%{id: id} = request, frame) do
     Logger.debug("MCP Server updating PlanChange: #{id}")
 
-    with {:ok, change} <- fetch_plan_change(id),
-         {:ok, attrs} <- build_attrs_result(request, change),
-         {:ok, updated_change} <- Planner.update_plan_change(change, attrs) do
-      updated_change = Repo.preload(updated_change, :plan)
-      maybe_auto_propose_plan(updated_change)
-      {:reply, Response.tool() |> Response.structured(serialize_change(updated_change)), frame}
-    else
+    result =
+      Repo.transaction(fn ->
+        with {:ok, change} <- fetch_plan_change(id),
+             {:ok, attrs} <- build_attrs_result(request, change),
+             {:ok, attrs} <- maybe_create_ai_activity(change, attrs),
+             {:ok, updated_change} <- Planner.update_plan_change(change, attrs) do
+          updated_change = Repo.preload(updated_change, :plan)
+          maybe_auto_propose_plan(updated_change)
+          updated_change
+        else
+          {:error, reason} -> Repo.rollback(reason)
+        end
+      end)
+
+    case result do
+      {:ok, updated_change} ->
+        {:reply, Response.tool() |> Response.structured(serialize_change(updated_change)), frame}
+
       {:error, reason} ->
         {:error, MCPError.execution(error_message(reason)), frame}
     end
@@ -144,19 +153,16 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
     end
   end
 
-  defp build_attrs(request, change) do
-    model = Config.ai(:model)
-
+  defp build_attrs(request) do
     request
     |> Map.take([:add, :delete, :replace, :status, :notes])
     |> Enrichment.enrich_controlled_terms()
     |> validate_schema_conformance()
-    |> inject_ai_note(model, change)
     |> validate_coded_terms()
   end
 
-  defp build_attrs_result(request, change) do
-    case build_attrs(request, change) do
+  defp build_attrs_result(request, _change) do
+    case build_attrs(request) do
       {:error, _} = error -> error
       attrs -> {:ok, attrs}
     end
@@ -177,6 +183,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
       error: change.error,
       inserted_at: change.inserted_at,
       updated_at: change.updated_at,
+      ai_activity_id: change.ai_activity_id,
       plan: serialize_plan(change.plan)
     }
   end
@@ -203,154 +210,53 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
     end)
   end
 
-  defp build_ai_note(model) do
-    current_date = Date.utc_today() |> Date.to_iso8601()
-
-    note_text =
-      case model do
-        nil ->
-          "#{@ai_note_prefix} on #{current_date}"
-
-        model_id ->
-          "#{@ai_note_prefix} (#{model_id}) on #{current_date}"
-      end
-
-    %{note: note_text, type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}}
-  end
-
-  defp inject_ai_note(attrs, _model, _change) when not is_map(attrs), do: attrs
-
-  defp inject_ai_note(attrs, model, change) do
+  defp maybe_create_ai_activity(change, attrs) do
     if has_metadata_changes?(attrs) do
-      ai_note = build_ai_note(model)
+      plan = Repo.preload(change, :plan).plan
 
-      updated_attrs =
-        if ai_note_already_present?(attrs, change, ai_note),
-          do: attrs,
-          else: do_inject_ai_note(attrs, ai_note)
+      with {:ok, activity} <-
+             Provenance.create_activity(%{
+               activity_type: "metadata_plan",
+               model: Meadow.Config.ai(:model),
+               ai_use_type: "metadata_generation",
+               access_mode: "retrieval_based",
+               reversibility: "reversible",
+               model_type: "generative_ai",
+               prompt_text: plan && plan.prompt,
+               input: %{
+                 plan_id: change.plan_id,
+                 plan_change_id: change.id,
+                 work_id: change.work_id
+               },
+               work_id: change.work_id,
+               plan_id: change.plan_id,
+               plan_change_id: change.id,
+               status: "completed",
+               completed_at: DateTime.utc_now()
+             }) do
+        Provenance.record_targets_for_operations(
+          activity,
+          "Work",
+          change.work_id,
+          attrs,
+          origin: "ai_generated",
+          status: "proposed",
+          event_type: "proposed",
+          target_attrs: %{
+            premis_object_category: "intellectual_entity",
+            object_identifier_type: "Meadow Work",
+            object_identifier_value: change.work_id,
+            digital_source_type_uri:
+              "https://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia",
+            human_oversight_level: "human_review_required",
+            c2pa_assertion_label: "c2pa.ai-disclosure"
+          }
+        )
 
-      normalize_ai_notes(updated_attrs)
+        {:ok, Map.put(attrs, :ai_activity_id, activity.id)}
+      end
     else
-      attrs
-    end
-  end
-
-  defp ai_note_already_present?(attrs, change, ai_note) do
-    [
-      Map.get(attrs, :add),
-      Map.get(attrs, :replace),
-      Map.get(change || %{}, :add),
-      Map.get(change || %{}, :replace)
-    ]
-    |> Enum.flat_map(&section_notes/1)
-    |> Enum.any?(&same_ai_note?(&1, ai_note))
-  end
-
-  defp section_notes(section) when is_map(section) do
-    case metadata_section(section) do
-      metadata when is_map(metadata) ->
-        case map_value(metadata, :notes) do
-          notes when is_list(notes) -> notes
-          _ -> []
-        end
-
-      _ ->
-        []
-    end
-  end
-
-  defp section_notes(_section), do: []
-
-  defp same_ai_note?(entry, _ai_note) when is_map(entry) do
-    entry_note = map_value(entry, :note)
-    entry_type = map_value(entry, :type)
-
-    is_binary(entry_note) and
-      String.starts_with?(entry_note, @ai_note_prefix) and
-      is_map(entry_type) and
-      map_value(entry_type, :id) == "LOCAL_NOTE" and
-      map_value(entry_type, :scheme) == "note_type"
-  end
-
-  defp same_ai_note?(_entry, _ai_note), do: false
-
-  defp do_inject_ai_note(attrs, ai_note) do
-    replace_section = Map.get(attrs, :replace) || %{}
-    replace_metadata = Map.get(replace_section, :descriptive_metadata) || %{}
-
-    case map_value(replace_metadata, :notes) do
-      replace_notes when is_list(replace_notes) ->
-        updated_replace_metadata =
-          Map.put(replace_metadata, :notes, append_unique_ai_note(replace_notes, ai_note))
-
-        updated_replace_section =
-          Map.put(replace_section, :descriptive_metadata, updated_replace_metadata)
-
-        Map.put(attrs, :replace, updated_replace_section)
-
-      _ ->
-        add_section = Map.get(attrs, :add) || %{}
-        descriptive_metadata = Map.get(add_section, :descriptive_metadata) || %{}
-        existing_notes = map_value(descriptive_metadata, :notes) || []
-
-        updated_descriptive_metadata =
-          Map.put(descriptive_metadata, :notes, append_unique_ai_note(existing_notes, ai_note))
-
-        updated_add_section =
-          Map.put(add_section, :descriptive_metadata, updated_descriptive_metadata)
-
-        Map.put(attrs, :add, updated_add_section)
-    end
-  end
-
-  defp append_unique_ai_note(notes, ai_note) when is_list(notes) do
-    if Enum.any?(notes, &same_ai_note?(&1, ai_note)) do
-      notes
-    else
-      notes ++ [ai_note]
-    end
-  end
-
-  defp normalize_ai_notes(attrs) when is_map(attrs) do
-    attrs
-    |> normalize_ai_notes_for_operation(:replace)
-    |> normalize_ai_notes_for_operation(:add)
-  end
-
-  defp normalize_ai_notes(attrs), do: attrs
-
-  defp normalize_ai_notes_for_operation(attrs, operation) do
-    case Map.get(attrs, operation) do
-      section when is_map(section) ->
-        metadata = Map.get(section, :descriptive_metadata) || %{}
-        notes = map_value(metadata, :notes)
-
-        if is_list(notes) do
-          normalized_notes = dedupe_ai_notes(notes)
-          updated_metadata = Map.put(metadata, :notes, normalized_notes)
-          updated_section = Map.put(section, :descriptive_metadata, updated_metadata)
-          Map.put(attrs, operation, updated_section)
-        else
-          attrs
-        end
-
-      _ ->
-        attrs
-    end
-  end
-
-  defp dedupe_ai_notes(notes) do
-    notes
-    |> Enum.reduce({[], false}, &dedupe_ai_note_entry/2)
-    |> elem(0)
-    |> Enum.reverse()
-  end
-
-  defp dedupe_ai_note_entry(note, {acc, seen_ai_note?}) do
-    case {same_ai_note?(note, nil), seen_ai_note?} do
-      {true, true} -> {acc, true}
-      {true, false} -> {[note | acc], true}
-      {false, _} -> {[note | acc], seen_ai_note?}
+      {:ok, attrs}
     end
   end
 

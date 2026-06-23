@@ -6,8 +6,16 @@ import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
 import { IDENTIFIER_METADATA } from "@js/services/metadata";
 import UIFormRelatedURL from "@js/components/UI/Form/RelatedURL";
 import { useCodeLists } from "@js/context/code-list-context";
+import {
+  FieldProvenanceBadge,
+  fieldProvenance,
+} from "@js/components/AIProvenance/Badges";
 
-const WorkTabsAboutIdentifiersMetadata = ({ work, isEditing }) => {
+const WorkTabsAboutIdentifiersMetadata = ({
+  work,
+  isEditing,
+  provenance = {},
+}) => {
   const codeLists = useCodeLists();
   const { ark, descriptiveMetadata } = work;
 
@@ -29,10 +37,15 @@ const WorkTabsAboutIdentifiersMetadata = ({ work, isEditing }) => {
           {isEditing ? (
             <UIFormFieldArray required name={item.name} label={item.label} />
           ) : (
-            <UIFormFieldArrayDisplay
-              values={descriptiveMetadata[item.name]}
-              label={item.label}
-            />
+            <>
+              <UIFormFieldArrayDisplay
+                values={descriptiveMetadata[item.name]}
+                label={item.label}
+              />
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, item.name)}
+              />
+            </>
           )}
         </div>
       ))}
@@ -51,15 +64,20 @@ const WorkTabsAboutIdentifiersMetadata = ({ work, isEditing }) => {
               name="relatedUrl"
             />
           ) : (
-            <div className="field content">
-              <ul data-testid="field-array-item-list">
-                {descriptiveMetadata.relatedUrl.map((relatedUrlEntry, i) => (
-                  <li className="mb-4" key={i}>
-                    {relatedUrlEntry.label.label} - {relatedUrlEntry.url}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <>
+              <div className="field content">
+                <ul data-testid="field-array-item-list">
+                  {descriptiveMetadata.relatedUrl.map((relatedUrlEntry, i) => (
+                    <li className="mb-4" key={i}>
+                      {relatedUrlEntry.label.label} - {relatedUrlEntry.url}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, "relatedUrl")}
+              />
+            </>
           )}
         </UIFormField>
       </div>
@@ -70,6 +88,7 @@ const WorkTabsAboutIdentifiersMetadata = ({ work, isEditing }) => {
 WorkTabsAboutIdentifiersMetadata.propTypes = {
   work: PropTypes.object,
   isEditing: PropTypes.bool,
+  provenance: PropTypes.object,
 };
 
 export default WorkTabsAboutIdentifiersMetadata;

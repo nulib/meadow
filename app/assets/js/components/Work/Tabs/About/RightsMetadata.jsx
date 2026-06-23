@@ -9,8 +9,16 @@ import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormTextarea from "@js/components/UI/Form/Textarea";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import { useCodeLists } from "@js/context/code-list-context";
+import {
+  FieldProvenanceBadge,
+  fieldProvenance,
+} from "@js/components/AIProvenance/Badges";
 
-const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
+const WorkTabsAboutRightsMetadata = ({
+  descriptiveMetadata,
+  isEditing,
+  provenance = {},
+}) => {
   const codeLists = useCodeLists();
 
   return (
@@ -25,10 +33,15 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
               isTextarea={item.inputEl && item.inputEl === "textarea"}
             />
           ) : (
-            <UIFormFieldArrayDisplay
-              values={descriptiveMetadata[item.name]}
-              label={item.label}
-            />
+            <>
+              <UIFormFieldArrayDisplay
+                values={descriptiveMetadata[item.name]}
+                label={item.label}
+              />
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, item.name)}
+              />
+            </>
           )}
         </div>
       ))}
@@ -53,7 +66,12 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
               }
             />
           ) : (
-            <UICodedTermItem item={descriptiveMetadata.license} />
+            <>
+              <UICodedTermItem item={descriptiveMetadata.license} />
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, "license")}
+              />
+            </>
           )}
         </UIFormField>
       </div>
@@ -68,7 +86,12 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
               defaultValue={descriptiveMetadata.termsOfUse}
             />
           ) : (
-            <p>{descriptiveMetadata.termsOfUse}</p>
+            <>
+              <p>{descriptiveMetadata.termsOfUse}</p>
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, "termsOfUse")}
+              />
+            </>
           )}
         </UIFormField>
       </div>
@@ -79,6 +102,7 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
 WorkTabsAboutRightsMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
+  provenance: PropTypes.object,
 };
 
 export default WorkTabsAboutRightsMetadata;

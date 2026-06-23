@@ -6,10 +6,15 @@ import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
 import { UNCONTROLLED_METADATA } from "@js/services/metadata";
 import UIFormNote from "@js/components/UI/Form/Note";
 import { useCodeLists } from "@js/context/code-list-context";
+import {
+  FieldProvenanceBadge,
+  fieldProvenance,
+} from "@js/components/AIProvenance/Badges";
 
 const WorkTabsAboutUncontrolledMetadata = ({
   descriptiveMetadata,
   isEditing,
+  provenance = {},
 }) => {
   const codeLists = useCodeLists();
 
@@ -25,10 +30,15 @@ const WorkTabsAboutUncontrolledMetadata = ({
               isTextarea={item.inputEl && item.inputEl === "textarea"}
             />
           ) : (
-            <UIFormFieldArrayDisplay
-              values={descriptiveMetadata[item.name]}
-              label={item.label}
-            />
+            <>
+              <UIFormFieldArrayDisplay
+                values={descriptiveMetadata[item.name]}
+                label={item.label}
+              />
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, item.name)}
+              />
+            </>
           )}
         </div>
       ))}
@@ -45,15 +55,20 @@ const WorkTabsAboutUncontrolledMetadata = ({
               name="notes"
             />
           ) : (
-            <div className="field content">
-              <ul data-testid="field-array-item-list">
-                {descriptiveMetadata.notes.map((noteEntry, i) => (
-                  <li className="mb-4" key={i}>
-                    {noteEntry.type.label} - {noteEntry.note}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <>
+              <div className="field content">
+                <ul data-testid="field-array-item-list">
+                  {descriptiveMetadata.notes.map((noteEntry, i) => (
+                    <li className="mb-4" key={i}>
+                      {noteEntry.type.label} - {noteEntry.note}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, "notes")}
+              />
+            </>
           )}
         </UIFormField>
       </div>
@@ -64,6 +79,7 @@ const WorkTabsAboutUncontrolledMetadata = ({
 WorkTabsAboutUncontrolledMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
+  provenance: PropTypes.object,
 };
 
 export default WorkTabsAboutUncontrolledMetadata;

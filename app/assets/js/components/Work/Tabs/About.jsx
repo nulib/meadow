@@ -30,6 +30,7 @@ import WorkTabsAboutUncontrolledMetadata from "./About/UncontrolledMetadata";
 import { toastWrapper } from "../../../services/helpers";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { useMutation } from "@apollo/client/react";
+import { provenanceByFieldPath } from "@js/components/AIProvenance/Badges";
 
 function prepFormData(work) {
   const { descriptiveMetadata } = work;
@@ -82,6 +83,10 @@ const WorkTabsAbout = ({ work }) => {
   const methods = useForm({ defaultValues: { ...workData } });
 
   const { descriptiveMetadata } = work;
+
+  // Lookup of AI provenance keyed by field_path, so individual metadata
+  // fields can show an inline "AI generated / reviewed" badge in context.
+  const provenance = provenanceByFieldPath(work.aiProvenanceSummary || []);
 
   // Is form being edited?
   const [isEditing, setIsEditing] = useIsEditing();
@@ -216,6 +221,7 @@ const WorkTabsAbout = ({ work }) => {
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
               published={work.published}
+              provenance={provenance}
             />
           )}
         </UIAccordion>
@@ -230,6 +236,7 @@ const WorkTabsAbout = ({ work }) => {
             <WorkTabsAboutControlledMetadata
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
+              provenance={provenance}
             />
           )}
         </UIAccordion>
@@ -243,6 +250,7 @@ const WorkTabsAbout = ({ work }) => {
             <WorkTabsAboutUncontrolledMetadata
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
+              provenance={provenance}
             />
           )}
         </UIAccordion>
@@ -257,6 +265,7 @@ const WorkTabsAbout = ({ work }) => {
             <WorkTabsAboutPhysicalMetadata
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
+              provenance={provenance}
             />
           )}
         </UIAccordion>
@@ -270,6 +279,7 @@ const WorkTabsAbout = ({ work }) => {
             <WorkTabsAboutRightsMetadata
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
+              provenance={provenance}
             />
           )}
         </UIAccordion>
@@ -283,6 +293,7 @@ const WorkTabsAbout = ({ work }) => {
             <WorkTabsAboutIdentifiersMetadata
               work={work}
               isEditing={isEditing}
+              provenance={provenance}
             />
           )}
         </UIAccordion>

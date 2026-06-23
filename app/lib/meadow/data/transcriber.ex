@@ -30,6 +30,9 @@ defmodule Meadow.Data.Transcriber do
   ## Options
 
     * `:prompt` - Override the default prompt sent with the request.
+    * `:context` - An existing transcription to provide to the model as a
+      reference (e.g. a human-entered draft). The image remains the source of
+      truth; the context is only used to resolve ambiguous passages.
     * `:max_tokens` - Limit the generation length (defaults to #{@default_max_tokens}).
 
   Note: This function uses Bedrock's streaming API for better performance and real-time feedback.
@@ -153,23 +156,26 @@ defmodule Meadow.Data.Transcriber do
         _ -> "jpeg"
       end
 
+    content =
+      [
+        %{
+          "image" => %{
+            "format" => image_format,
+            "source" => %{
+              "bytes" => encoded_image
+            }
+          }
+        },
+        %{
+          "text" => prompt
+        }
+      ] ++ context_content(Keyword.get(opts, :context))
+
     %{
       "messages" => [
         %{
           "role" => "user",
-          "content" => [
-            %{
-              "image" => %{
-                "format" => image_format,
-                "source" => %{
-                  "bytes" => encoded_image
-                }
-              }
-            },
-            %{
-              "text" => prompt
-            }
-          ]
+          "content" => content
         }
       ],
       "toolConfig" => %{
@@ -226,6 +232,37 @@ defmodule Meadow.Data.Transcriber do
       }
     }
   end
+
+  # An existing transcription (e.g. a human-entered draft) passed as its own
+  # message content block — kept separate from the instruction prompt so the
+  # model treats it as a reference, not as the authoritative answer. The image
+  # remains the source of truth. Returns [] when no usable context is given.
+  defp context_content(context) when is_binary(context) do
+    case String.trim(context) do
+      "" ->
+        []
+
+      trimmed ->
+        [
+          %{
+            "text" => """
+            An existing transcription of this image is provided below for
+            reference only. Use it to help resolve ambiguous or hard-to-read
+            passages, but the image remains the source of truth: correct any
+            errors, add anything it omits, and drop anything not actually
+            present in the image.
+
+            <existing_transcription>
+            #{trimmed}
+            </existing_transcription>
+            """
+            |> String.trim()
+          }
+        ]
+    end
+  end
+
+  defp context_content(_), do: []
 
   defp default_prompt(_file_set_id) do
     """

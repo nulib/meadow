@@ -46,4 +46,27 @@ describe("UIControlledVocabList", () => {
       expect(firstElLink).toHaveTextContent(items[0].term.id);
     });
   });
+
+  describe("per-item provenance", () => {
+    it("badges only the AI-attributed terms", () => {
+      render(
+        <UIControlledTermList
+          items={items}
+          title="Subject"
+          itemProvenance={[{ id: items[0].term.id, origin: "ai_generated" }]}
+        />,
+      );
+
+      const badges = screen.getAllByTestId("provenance-origin-badge");
+      expect(badges).toHaveLength(1);
+      expect(badges[0]).toHaveTextContent("AI generated");
+    });
+
+    it("renders no badges when no provenance is provided", () => {
+      render(<UIControlledTermList items={items} title="Subject" />);
+      expect(
+        screen.queryByTestId("provenance-origin-badge"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

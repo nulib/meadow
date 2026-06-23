@@ -8,6 +8,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   import Absinthe.Resolution.Helpers, only: [dataloader: 1]
   alias Meadow.Data
   alias Meadow.Data.Works
+  alias MeadowWeb.Resolvers.AIProvenance
   alias MeadowWeb.Resolvers
   alias MeadowWeb.Schema.Middleware
 
@@ -185,6 +186,10 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
     field(:project, :project, resolve: dataloader(Data))
     field(:ingest_sheet, :ingest_sheet, resolve: dataloader(Data))
+
+    field(:ai_provenance_summary, list_of(:ai_provenance_summary_entry),
+      resolve: &AIProvenance.work_summary/3
+    )
   end
 
   @desc "`controlled_fields` represents all controlled descriptive metadata fields on a work."

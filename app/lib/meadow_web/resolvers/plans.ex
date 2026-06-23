@@ -2,7 +2,9 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
   @moduledoc """
   Absinthe resolver for Plan related functionality
   """
+  alias Meadow.AI.Provenance
   alias Meadow.Data.Planner
+  alias Meadow.Repo
 
   def plan(_, %{id: id}, _) do
     case Planner.get_plan(id) do
@@ -55,9 +57,14 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
       plan_change ->
         result =
           case status do
-            :approved -> Planner.approve_plan_change(plan_change, user.username)
-            :rejected -> Planner.reject_plan_change(plan_change, Map.get(args, :notes))
-            _ -> {:error, "Invalid status transition"}
+            :approved ->
+              Planner.approve_plan_change(plan_change, user.username)
+
+            :rejected ->
+              Planner.reject_plan_change(plan_change, Map.get(args, :notes), user.username)
+
+            _ ->
+              {:error, "Invalid status transition"}
           end
 
         case result do
@@ -70,7 +77,7 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
     end
   end
 
-  def update_plan_change(_, %{id: id} = args, _) do
+  def update_plan_change(_, %{id: id} = args, %{context: %{current_user: user}}) do
     case Planner.get_plan_change(id) do
       nil ->
         {:error, "Plan change not found"}
@@ -83,7 +90,8 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
           |> Enum.reject(fn {_k, v} -> is_nil(v) end)
           |> Map.new()
 
-        case Planner.update_plan_change(plan_change, attrs) do
+        Repo.transaction(fn -> do_update_plan_change(plan_change, attrs, user) end)
+        |> case do
           {:ok, updated_change} ->
             {:ok, updated_change}
 
@@ -93,6 +101,15 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
           {:error, changeset} ->
             {:error, message: "Could not update plan change", details: changeset}
         end
+    end
+  end
+
+  defp do_update_plan_change(plan_change, attrs, user) do
+    Provenance.record_plan_manual_edit(plan_change, attrs, user.username)
+
+    case Planner.update_plan_change(plan_change, attrs) do
+      {:ok, updated_change} -> updated_change
+      {:error, reason} -> Repo.rollback(reason)
     end
   end
 
@@ -144,14 +161,13 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
     Planner.approve_proposed_plan_changes(plan, user.username)
   end
 
-  defp change_plan_changes(plan, :rejected, args, _user) do
-    Planner.reject_proposed_plan_changes(plan, Map.get(args, :notes))
+  defp change_plan_changes(plan, :rejected, args, user) do
+    Planner.reject_proposed_plan_changes(plan, Map.get(args, :notes), user.username)
   end
 
   defp change_plan_changes(_plan, _status, _args, _user) do
     {:error, "Invalid status transition"}
   end
-
 
   def delete_plan_change(_, args, _) do
     plan_change = Planner.get_plan_change!(args[:plan_change_id])
@@ -160,7 +176,7 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
       {:error, changeset} ->
         {
           :error,
-          message: "Could not delete plan_change", details: (changeset)
+          message: "Could not delete plan_change", details: changeset
         }
 
       {:ok, plan_change} ->
