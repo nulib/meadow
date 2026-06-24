@@ -9,6 +9,7 @@
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.984",
     "@middy/core": "^5.0",
-    "@middy/secrets-manager": "^5.0"
+    "@middy/secrets-manager": "^5.0",
+    "source-map-support": "^0.5.21"
   }
 }

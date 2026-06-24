@@ -1,6 +1,6 @@
-const { S3Client, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
-const concat = require("concat-stream");
-const sharp = require("sharp");
+import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import concat from "concat-stream";
+import sharp from "sharp";
 
 const MAX_DIMENSION = 15000;
 const TILE_SIZE = 256;
@@ -91,4 +91,4 @@ const s3ClientOpts = () => {
   return { endpoint, forcePathStyle, httpOptions: { timeout: 600000 } };
 };
 
-module.exports = { createPyramidTiff };
+export { createPyramidTiff };

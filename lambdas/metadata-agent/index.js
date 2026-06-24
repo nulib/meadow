@@ -1,3 +1,4 @@
+import "source-map-support/register.js";
 import { queryClaude } from "./execute.js";
 import debug from "debug";
 
