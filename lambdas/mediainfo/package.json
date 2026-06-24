@@ -2,13 +2,15 @@
   "name": "exif",
   "version": "0.1.0",
   "description": "Extract image exif data.",
+  "type": "module",
   "main": "index.js",
   "author": "bmquinn",
   "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/s3-request-presigner": "^3.981.0",
     "@aws-sdk/client-s3": "^3.975.0",
+    "@aws-sdk/s3-request-presigner": "^3.981.0",
     "mediainfo.js": "^0.1.5",
+    "source-map-support": "^0.5.21",
     "uri-js": "^4.4.1"
   }
 }

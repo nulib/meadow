@@ -1,5 +1,6 @@
-const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
-const crypto = require("crypto");
+import "source-map-support/register.js";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import crypto from "crypto";
 
 const handler = async (event, _context, _callback) => {
   return await generateDigest(event.bucket, event.key);
@@ -35,4 +36,4 @@ const s3ClientOpts = () => {
   return { endpoint, forcePathStyle, httpOptions: { timeout: 600000 } };
 };
 
-module.exports = { handler };
+export { handler };

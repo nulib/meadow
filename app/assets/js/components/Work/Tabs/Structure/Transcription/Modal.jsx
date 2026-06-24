@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import CloverImage from "@samvera/clover-iiif/image";
 import { Button, Notification } from "@nulib/design-system";
@@ -11,12 +11,15 @@ import { useMutation } from "@apollo/client/react";
 import {
   UPDATE_FILE_SET_ANNOTATION,
   DELETE_FILE_SET_ANNOTATION,
+  UPSERT_FILE_SET_ANNOTATION,
 } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
 import WorkTabsStructureTranscriptionWorkflow from "@js/components/Work/Tabs/Structure/Transcription/Workflow";
 
 function WorkTabsStructureTranscriptionModal({ isActive }) {
   const [textArea, setTextArea] = useState();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const initialValueRef = useRef("");
 
   const dispatch = useWorkDispatch();
   const iiifServerUrl = useContext(IIIFContext);
@@ -28,9 +31,15 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
   const iiifImageUrl = `${iiifServerUrl}${fileSetId}${IIIF_SIZES.IIIF_FULL}`;
 
   const [updateFileSetAnnotation] = useMutation(UPDATE_FILE_SET_ANNOTATION);
+  const [upsertFileSetAnnotation] = useMutation(UPSERT_FILE_SET_ANNOTATION);
   const [deleteFileSetAnnotation] = useMutation(DELETE_FILE_SET_ANNOTATION);
 
   useEffect(() => {
+    if (!isActive) {
+      setTextArea(null);
+      setIsDirty(false);
+      return;
+    }
     const textAreaElement = document.getElementById(
       "file-set-transcription-textarea",
     );
@@ -49,22 +58,31 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     const annotationContent = textArea?.value || "";
     const annotationId = textArea?.getAttribute("data-annotation-id");
 
-    updateFileSetAnnotation({
-      variables: {
-        annotationId: annotationId,
-        content: annotationContent,
-      },
-      onCompleted: () => {
-        handleClose();
-        toastWrapper("is-success", "Transcription successfully saved");
-      },
-      onError: (error) => {
-        toastWrapper(
-          "is-danger",
-          "Error saving transcription: " + error.message,
-        );
-      },
-    });
+    const onCompleted = () => {
+      handleClose();
+      toastWrapper("is-success", "Transcription successfully saved");
+    };
+    const onError = (error) => {
+      toastWrapper("is-danger", "Error saving transcription: " + error.message);
+    };
+
+    if (annotationId) {
+      updateFileSetAnnotation({
+        variables: { annotationId, content: annotationContent },
+        onCompleted,
+        onError,
+      });
+    } else {
+      upsertFileSetAnnotation({
+        variables: {
+          fileSetId,
+          type: "transcription",
+          content: annotationContent,
+        },
+        onCompleted,
+        onError,
+      });
+    }
   };
 
   const handleDeleteTranscription = () => {
@@ -102,10 +120,16 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     const textAreaElement = document.getElementById(
       "file-set-transcription-textarea",
     );
+    initialValueRef.current = textAreaElement?.value ?? "";
+    setIsDirty(false);
     setTextArea(textAreaElement);
   };
 
-  const hasTextArea = Boolean(textArea);
+  const handleContentChange = (value) => {
+    setIsDirty(value !== initialValueRef.current);
+  };
+
+  const hasAnnotationId = Boolean(textArea?.getAttribute("data-annotation-id"));
 
   return (
     <div className={classNames(["modal"], { "is-active": isActive })}>
@@ -157,12 +181,13 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
               workId={workId}
               hasTranscriptionCallback={handleHasTranscriptionCallback}
               isActive={isActive}
+              onContentChange={handleContentChange}
             />
           </div>
         </section>
 
         <footer className="modal-card-foot buttons is-justify-content-space-between">
-          {!confirmDelete && hasTextArea && (
+          {!confirmDelete && hasAnnotationId && (
             <div>
               <Button isDanger onClick={handleDeleteTranscription}>
                 Delete Transcription
@@ -178,7 +203,7 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
             ) : (
               <Button
                 isPrimary
-                disabled={!hasTextArea}
+                disabled={!isDirty}
                 onClick={handleSaveTranscription}
               >
                 Save

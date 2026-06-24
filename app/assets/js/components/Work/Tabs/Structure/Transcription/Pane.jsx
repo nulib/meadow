@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 function WorkTabsStructureTranscriptionPane({
   annotation,
   hasTranscriptionCallback,
+  onContentChange,
 }) {
   const textAreaRef = useRef(null);
   const { content, id, status, type } = annotation;
@@ -10,8 +11,8 @@ function WorkTabsStructureTranscriptionPane({
   useEffect(() => {
     if (!textAreaRef.current) return;
     if (typeof content === "string") {
-      hasTranscriptionCallback(true);
       textAreaRef.current.value = content;
+      hasTranscriptionCallback(true);
       return;
     }
   }, [content]);
@@ -52,6 +53,9 @@ function WorkTabsStructureTranscriptionPane({
         data-annotation-status={status}
         data-annotation-type={type}
         id="file-set-transcription-textarea"
+        onChange={
+          onContentChange ? (e) => onContentChange(e.target.value) : undefined
+        }
         ref={textAreaRef}
         style={{
           height: "100%",

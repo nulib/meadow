@@ -10,11 +10,19 @@ ifdef BUILD_LAYER
 	@make build-$*Layer
 else
 	@echo "Downloading prebuilt $* layer..."
-	curl -sLo $(LAYER_DIR)/$*Layer.zip https://nul-public.s3.amazonaws.com/lambda-layers/$*Layer.zip
+	curl -fsLo $(LAYER_DIR)/$*Layer.zip https://nul-public.s3.amazonaws.com/lambda-layers/$*Layer.zip || make build-$*Layer
 endif
 
 upload-%Layer: $(LAYER_DIR)/%Layer.zip
 	aws s3 cp $(LAYER_DIR)/$*Layer.zip s3://nul-public/lambda-layers/ --acl public-read
+
+build-claudeLayer:
+	@echo "Building claude layer..."
+	@TMP_DIR=$$(mktemp -d) ; \
+		cd $$TMP_DIR ; \
+		mkdir -p nodejs ; \
+		npm install --prefix ./nodejs --no-package-lock --no-save --os=linux --cpu=x64 --libc=glibc @anthropic-ai/claude-agent-sdk@0.2.38 ; \
+		zip -r "$(TARGET_DIR)/claudeLayer.zip" . >/dev/null
 
 build-exifToolLayer:
 	@echo "Building exifTool layer..."
@@ -62,7 +70,15 @@ else
 	aws s3 cp s3://nul-public/lambda-layers/perlLayer.zip
 endif
 
-all: $(LAYER_DIR)/exifToolLayer.zip $(LAYER_DIR)/ffmpegLayer.zip $(LAYER_DIR)/mediaInfoLayer.zip $(LAYER_DIR)/perlLayer.zip
+build-sharpLayer:
+	@echo "Building sharp layer..."
+	@TMP_DIR=$$(mktemp -d) ; \
+		cd $$TMP_DIR ; \
+		mkdir -p nodejs ; \
+		npm install --prefix ./nodejs --no-package-lock --no-save --os=linux --cpu=x64 --libc=glibc sharp@0.35.2 ; \
+		zip -r "$(TARGET_DIR)/sharpLayer.zip" . >/dev/null
+
+all: $(LAYER_DIR)/claudeLayer.zip $(LAYER_DIR)/exifToolLayer.zip $(LAYER_DIR)/ffmpegLayer.zip $(LAYER_DIR)/mediaInfoLayer.zip $(LAYER_DIR)/perlLayer.zip $(LAYER_DIR)/sharpLayer.zip
 upload: upload-exifToolLayer upload-ffmpegLayer upload-mediaInfoLayer upload-perlLayer
 clean: 
 	rm -f $(LAYER_DIR)/*.zip
