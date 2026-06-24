@@ -61,6 +61,33 @@ export const UPDATE_FILE_SET_ANNOTATION = gql`
   }
 `;
 
+export const UPSERT_FILE_SET_ANNOTATION = gql`
+  mutation upsertFileSetAnnotation(
+    $fileSetId: ID!
+    $type: String!
+    $content: String!
+    $language: [String]
+  ) {
+    upsertFileSetAnnotation(
+      fileSetId: $fileSetId
+      type: $type
+      content: $content
+      language: $language
+    ) {
+      content
+      fileSetId
+      id
+      insertedAt
+      language
+      model
+      s3Location
+      status
+      type
+      updatedAt
+    }
+  }
+`;
+
 export const DELETE_FILE_SET_ANNOTATION = gql`
   mutation deleteFileSetAnnotation($annotationId: ID!) {
     deleteFileSetAnnotation(annotationId: $annotationId) {

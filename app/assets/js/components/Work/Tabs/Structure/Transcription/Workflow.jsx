@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@nulib/design-system";
 import WorkTabsStructureTranscriptionPane from "@js/components/Work/Tabs/Structure/Transcription/Pane";
 import {
@@ -53,8 +53,10 @@ function WorkTabsStructureTranscriptionWorkflow({
   isActive,
   workId,
   hasTranscriptionCallback,
+  onContentChange,
 }) {
   const flashedAnnotationErrorIdRef = useRef(null);
+  const [manualEntry, setManualEntry] = useState(false);
   const { data: { fileSetAnnotation } = {} } = useFileSetAnnotation(fileSetId);
   const {
     data: { work } = {},
@@ -163,20 +165,44 @@ function WorkTabsStructureTranscriptionWorkflow({
       }}
     >
       {!annotation || annotationFailed ? (
-        <div>
-          <Button
-            isPrimary
-            isLowercase
-            onClick={handleStartTranscription}
-            style={{ gap: "0.5rem" }}
+        manualEntry ? (
+          <WorkTabsStructureTranscriptionPane
+            annotation={{
+              content: "",
+              id: null,
+              status: "completed",
+              type: "transcription",
+            }}
+            hasTranscriptionCallback={hasTranscriptionCallback}
+            onContentChange={onContentChange}
+          />
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "0.75rem",
+            }}
           >
-            Generate Transcription
-          </Button>
-        </div>
+            <Button
+              isPrimary
+              isLowercase
+              onClick={handleStartTranscription}
+              style={{ gap: "0.5rem" }}
+            >
+              Generate Transcription
+            </Button>
+            <Button isLowercase onClick={() => setManualEntry(true)}>
+              Enter Manually
+            </Button>
+          </div>
+        )
       ) : (
         <WorkTabsStructureTranscriptionPane
           annotation={annotation}
           hasTranscriptionCallback={hasTranscriptionCallback}
+          onContentChange={onContentChange}
         />
       )}
     </div>
