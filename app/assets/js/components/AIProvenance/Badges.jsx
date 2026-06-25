@@ -125,18 +125,6 @@ AnnotationOriginBadge.propTypes = {
 const INACTIVE_FIELD_STATUSES = ["deleted", "rejected", "failed"];
 
 /**
- * The origin to badge a live field with, or undefined when there is no
- * provenance or the recorded value is no longer live (deleted/rejected/failed)
- * and an inline badge would be stale. Shared by the field-level badge and the
- * per-value fallback in `UIFormFieldArrayDisplay`.
- */
-export function activeFieldOrigin(entry) {
-  if (!entry) return undefined;
-  if (INACTIVE_FIELD_STATUSES.includes(entry.status)) return undefined;
-  return entry.origin;
-}
-
-/**
  * Inline badge for a single metadata field, given its provenance summary
  * entry (or undefined). Renders nothing when there is no provenance, or when
  * the recorded value is no longer live (deleted/rejected/failed), so it is
@@ -144,11 +132,11 @@ export function activeFieldOrigin(entry) {
  * sections of the About tab.
  */
 export function FieldProvenanceBadge({ entry }) {
-  const origin = activeFieldOrigin(entry);
-  if (!origin) return null;
+  if (!entry) return null;
+  if (INACTIVE_FIELD_STATUSES.includes(entry.status)) return null;
   return (
     <span className="ml-2">
-      <OriginBadge origin={origin} title={provenanceTooltip(entry)} />
+      <OriginBadge origin={entry.origin} title={provenanceTooltip(entry)} />
     </span>
   );
 }
@@ -242,15 +230,7 @@ ProvenancePreviewBadge.propTypes = {
 export function valueItemIds(value) {
   const list = value && value.value !== undefined ? value.value : value;
   if (!Array.isArray(list)) return [];
-  return list
-    .map((item) => {
-      if (item == null) return null;
-      if (typeof item === "string") return item;
-      if (item.term && item.term.id) return item.term.id;
-      if (item.id) return item.id;
-      return null;
-    })
-    .filter(Boolean);
+  return list.map(provenanceItemId).filter(Boolean);
 }
 
 /**
@@ -262,13 +242,19 @@ function unwrapProvenanceValue(value) {
 }
 
 /**
- * Identifier for a single provenance value item, matching valueItemIds: a
- * controlled-term id, a plain id, or the string itself.
+ * Identifier for a single value item, used to line a displayed value up with its
+ * per-item AI provenance entry. Mirrors the backend's `item_identifier`: a
+ * controlled-term id, a note's text, a related_url's url, a plain id, or the
+ * string itself. Shared by valueItemIds and every per-item renderer so the id a
+ * value is badged by always matches the id the backend recorded.
  */
-function provenanceItemId(item) {
+export function provenanceItemId(item) {
   if (item == null) return null;
   if (typeof item === "string") return item;
   if (item.term && item.term.id) return item.term.id;
+  if (item.note) return item.note;
+  if (item.url) return item.url;
+  if (item.edtf) return item.edtf;
   if (item.id) return item.id;
   return null;
 }

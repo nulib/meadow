@@ -4,8 +4,6 @@ import useFacetLinkClick from "@js/hooks/useFacetLinkClick";
 import {
   FieldProvenanceBadge,
   OriginBadge,
-  activeFieldOrigin,
-  provenanceTooltip,
 } from "@js/components/AIProvenance/Badges";
 
 const UIFormFieldArrayDisplay = ({
@@ -19,20 +17,17 @@ const UIFormFieldArrayDisplay = ({
 
   const itemProvenance = provenance?.itemProvenance || [];
 
-  // Map of value -> AI origin so each value can be badged individually (e.g. an
-  // AI-generated alternate title next to one a human added). For plain-string
-  // fields the provenance item id is the value itself.
+  // Map of value -> AI origin so each AI-attributed value can be badged
+  // individually (e.g. an AI-generated alternate title next to one a human
+  // added). The backend reconciles each item against the AI's proposal, so an
+  // item the AI generated keeps its badge even after a human edits it in place
+  // (the entry is keyed by the item's current value). For plain-string fields
+  // the provenance item id is the value itself; values with no matching entry
+  // were added by a human and carry no AI attribution, so they stay unbadged.
   const originByValue = itemProvenance.reduce((acc, entry) => {
     if (entry?.id) acc[entry.id] = entry.origin;
     return acc;
   }, {});
-
-  // When a field carries per-item provenance, every value gets its own badge:
-  // values the AI proposed match by id; values a human has since edited no
-  // longer match that id, so they fall back to the field's overall origin
-  // (e.g. "AI + human edited") rather than losing their badge entirely.
-  const fieldOrigin = activeFieldOrigin(provenance);
-  const tooltip = provenanceTooltip(provenance);
 
   return (
     <>
@@ -42,9 +37,7 @@ const UIFormFieldArrayDisplay = ({
         </p>
         <ul data-testid="field-array-item-list">
           {values.map((value, i) => {
-            const matched = originByValue[value];
-            const origin =
-              matched ?? (itemProvenance.length ? fieldOrigin : undefined);
+            const origin = originByValue[value];
             return (
               <li key={i}>
                 {isFacetLink ? (
@@ -63,10 +56,7 @@ const UIFormFieldArrayDisplay = ({
                 )}
                 {origin && (
                   <span className="ml-2">
-                    <OriginBadge
-                      origin={origin}
-                      title={matched ? undefined : tooltip || undefined}
-                    />
+                    <OriginBadge origin={origin} />
                   </span>
                 )}
               </li>

@@ -211,6 +211,12 @@ describe("PlanPanelChangesDiff", () => {
                 fieldPath: "descriptive_metadata.alternate_title",
                 origin: "ai_generated",
                 proposedValue: { value: ["First alt", "Second alt"] },
+                // Per-item attribution comes straight from the backend's
+                // reconciled itemProvenance, keyed by each item's value.
+                itemProvenance: [
+                  { id: "First alt", origin: "ai_generated" },
+                  { id: "Second alt", origin: "ai_generated" },
+                ],
                 events: [
                   {
                     eventType: "proposed",

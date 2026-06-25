@@ -28,6 +28,15 @@ defmodule MeadowWeb.Resolvers.AIProvenance do
   end
 
   @doc """
+  Resolve per-item AI attribution for an activity target, reconciling the AI's
+  proposal against the field's current value. Shared with the work summary's
+  `item_provenance` so the plan diff and About tab badge items identically.
+  """
+  def target_item_provenance(target, _, _) do
+    {:ok, Provenance.item_provenance(target)}
+  end
+
+  @doc """
   Resolve the AI provenance summary for a single file set annotation (e.g. a
   transcription), so the UI can badge it as AI-generated, AI + human edited, or
   human-authored. Returns the most recent summary entry recorded against the

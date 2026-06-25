@@ -436,6 +436,183 @@ defmodule Meadow.AI.ProvenanceTest do
 
       assert Enum.map(subject_summary.item_provenance, & &1.id) == ai_subjects
       assert Enum.all?(subject_summary.item_provenance, &(&1.origin == "ai_generated"))
+
+      # Description: the AI's paragraph was edited in place, so its per-item
+      # entry is keyed by the *current* value and carries the human-edit origin
+      # rather than disappearing once it no longer matches the AI's wording.
+      description_summary =
+        Provenance.work_summary(work.id)
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.description"))
+
+      assert description_summary.item_provenance == [
+               %{id: "Reviewer description", origin: "ai_assisted_human_modified"}
+             ]
+    end
+  end
+
+  describe "item_provenance reconciliation" do
+    alias Meadow.AI.Provenance.Schemas.{Event, Target}
+
+    defp target_with_events(origin, proposed, current) do
+      %Target{
+        target_type: "Work",
+        target_id: "w1",
+        field_path: "descriptive_metadata.description",
+        origin: origin,
+        proposed_value: %{"value" => proposed},
+        events: [
+          %Event{
+            event_type: "proposed",
+            value_after: %{"value" => proposed},
+            occurred_at: ~U[2026-01-01 00:00:00.000000Z]
+          },
+          %Event{
+            event_type: "applied",
+            value_after: %{"value" => current},
+            occurred_at: ~U[2026-01-01 00:01:00.000000Z]
+          }
+        ]
+      }
+    end
+
+    test "keeps unchanged AI items as ai_generated" do
+      target = target_with_events("ai_generated", ["A", "B"], ["A", "B"])
+
+      assert Provenance.item_provenance(target) == [
+               %{id: "A", origin: "ai_generated"},
+               %{id: "B", origin: "ai_generated"}
+             ]
+    end
+
+    test "attributes an in-place edit of one item to the human, keyed by its new value" do
+      target = target_with_events("ai_assisted_human_modified", ["A", "B"], ["A", "B edited"])
+
+      assert Provenance.item_provenance(target) == [
+               %{id: "A", origin: "ai_generated"},
+               %{id: "B edited", origin: "ai_assisted_human_modified"}
+             ]
+    end
+
+    test "omits a human-added item that carries no AI lineage" do
+      target = target_with_events("ai_assisted_human_modified", ["A"], ["A", "Human added"])
+
+      assert Provenance.item_provenance(target) == [%{id: "A", origin: "ai_generated"}]
+    end
+
+    test "drops an AI item a human removed" do
+      target = target_with_events("ai_assisted_human_modified", ["A", "B"], ["A"])
+
+      assert Provenance.item_provenance(target) == [%{id: "A", origin: "ai_generated"}]
+    end
+
+    test "carries the ai_modified_human_content origin onto an edited item" do
+      target = target_with_events("ai_modified_human_content", ["A"], ["A edited"])
+
+      assert Provenance.item_provenance(target) == [
+               %{id: "A edited", origin: "ai_modified_human_content"}
+             ]
+    end
+
+    test "identifies note items by their text so each note is attributed" do
+      notes = [
+        %{"note" => "First note", "type" => %{"id" => "GENERAL_NOTE"}},
+        %{"note" => "Second note", "type" => %{"id" => "LOCAL_NOTE"}}
+      ]
+
+      target = target_with_events("ai_generated", notes, notes)
+
+      assert Provenance.item_provenance(target) == [
+               %{id: "First note", origin: "ai_generated"},
+               %{id: "Second note", origin: "ai_generated"}
+             ]
+    end
+
+    test "identifies related_url items by their url" do
+      urls = [
+        %{"url" => "https://example.com/a", "label" => %{"id" => "RELATED_INFO"}},
+        %{"url" => "https://example.com/b", "label" => %{"id" => "RELATED_INFO"}}
+      ]
+
+      target = target_with_events("ai_generated", urls, urls)
+
+      assert Provenance.item_provenance(target) == [
+               %{id: "https://example.com/a", origin: "ai_generated"},
+               %{id: "https://example.com/b", origin: "ai_generated"}
+             ]
+    end
+
+    test "ignores a valueless review event when determining the current value" do
+      # The applied event is the chronologically latest value, but the earlier
+      # `approved` event has a larger microsecond component. Comparing
+      # `occurred_at` by raw term order (microsecond before second) would wrongly
+      # pick the valueless review event and drop all per-item attribution.
+      target = %Target{
+        target_type: "Work",
+        target_id: "w1",
+        field_path: "descriptive_metadata.description",
+        origin: "ai_generated",
+        proposed_value: %{"value" => ["A", "B"]},
+        events: [
+          %Event{
+            event_type: "proposed",
+            value_after: %{"value" => ["A", "B"]},
+            occurred_at: ~U[2026-01-01 00:00:00.100000Z]
+          },
+          %Event{
+            event_type: "approved",
+            value_after: nil,
+            occurred_at: ~U[2026-01-01 00:00:05.465193Z]
+          },
+          %Event{
+            event_type: "applied",
+            value_after: %{"value" => ["A", "B"]},
+            occurred_at: ~U[2026-01-01 00:00:07.207908Z]
+          }
+        ]
+      }
+
+      assert Provenance.item_provenance(target) == [
+               %{id: "A", origin: "ai_generated"},
+               %{id: "B", origin: "ai_generated"}
+             ]
+    end
+
+    test "unions per-item provenance across multiple targets for the same field" do
+      work = work_fixture(%{descriptive_metadata: %{keywords: []}})
+
+      # Two separate activities each contribute one keyword to the same field.
+      for kw <- ["First keyword", "Second keyword"] do
+        {:ok, activity} =
+          Provenance.create_activity(%{
+            activity_type: "metadata_generation",
+            ai_use_type: "metadata_generation",
+            work_id: work.id,
+            status: "completed"
+          })
+
+        Provenance.record_targets_for_operations(
+          activity,
+          "Work",
+          work.id,
+          %{add: %{descriptive_metadata: %{keywords: [kw]}}},
+          origin: "ai_generated",
+          status: "applied",
+          event_type: "applied"
+        )
+      end
+
+      summary =
+        Provenance.work_summary(work.id)
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.keywords"))
+
+      # Both keywords are surfaced even though they come from different targets;
+      # collapsing to a single representative target would drop one.
+      assert Enum.sort(Enum.map(summary.item_provenance, & &1.id)) == [
+               "First keyword",
+               "Second keyword"
+             ]
+
+      assert Enum.all?(summary.item_provenance, &(&1.origin == "ai_generated"))
     end
   end
 

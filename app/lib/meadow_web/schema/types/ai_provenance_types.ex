@@ -123,6 +123,11 @@ defmodule MeadowWeb.Schema.AIProvenanceTypes do
     field(:c2pa_validation_status, :string)
     field(:c2pa_signature_status, :string)
     field(:events, list_of(:ai_activity_event))
+
+    @desc "Per-item AI attribution, reconciled against the field's current value."
+    field :item_provenance, list_of(:ai_provenance_item) do
+      resolve(&AIProvenance.target_item_provenance/3)
+    end
   end
 
   object :ai_activity_event do

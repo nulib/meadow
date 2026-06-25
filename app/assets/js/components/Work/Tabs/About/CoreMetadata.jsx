@@ -10,7 +10,9 @@ import { useCodeLists } from "@js/context/code-list-context";
 import { isEDTFValid } from "@js/services/helpers";
 import {
   FieldProvenanceBadge,
+  OriginBadge,
   fieldProvenance,
+  provenanceItemId,
 } from "@js/components/AIProvenance/Badges";
 
 const WorkTabsAboutCoreMetadata = ({
@@ -20,6 +22,16 @@ const WorkTabsAboutCoreMetadata = ({
   provenance = {},
 }) => {
   const codeLists = useCodeLists();
+
+  // Per-date AI origin, keyed by edtf (the backend's item identifier), so each
+  // date is badged individually rather than with one field-level badge.
+  const dateCreatedOriginById = (
+    fieldProvenance(provenance, "dateCreated")?.itemProvenance || []
+  ).reduce((acc, entry) => {
+    if (entry?.id) acc[entry.id] = entry.origin;
+    return acc;
+  }, {});
+
   const EDTFValidateFn = (value) => {
     return (
       isEDTFValid(value) || (
@@ -103,16 +115,23 @@ const WorkTabsAboutCoreMetadata = ({
               <ul className="field-array-item-list">
                 {descriptiveMetadata.dateCreated &&
                   descriptiveMetadata.dateCreated.length > 0 &&
-                  descriptiveMetadata.dateCreated.map((datefield, i) => (
-                    <li key={i}>
-                      {datefield ? datefield.humanized : "No Date specified"}
-                    </li>
-                  ))}
+                  descriptiveMetadata.dateCreated.map((datefield, i) => {
+                    const origin =
+                      datefield &&
+                      dateCreatedOriginById[provenanceItemId(datefield)];
+                    return (
+                      <li key={i}>
+                        {datefield ? datefield.humanized : "No Date specified"}
+                        {origin && (
+                          <span className="ml-2">
+                            <OriginBadge origin={origin} />
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
               </ul>
             </div>
-            <FieldProvenanceBadge
-              entry={fieldProvenance(provenance, "dateCreated")}
-            />
           </UIFormField>
         )}
       </div>

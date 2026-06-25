@@ -1614,6 +1614,10 @@ export type PlanChangeProvenanceQuery = {
       status: string;
       operation: string | null;
       proposedValue: unknown;
+      itemProvenance: Array<{
+        id: string | null;
+        origin: string | null;
+      } | null> | null;
       events: Array<{ eventType: string; valueAfter: unknown } | null> | null;
     } | null> | null;
   } | null> | null;
@@ -1795,14 +1799,14 @@ export type LivebookUrlQueryVariables = Exact<{ [key: string]: never }>;
 
 export type LivebookUrlQuery = { livebookUrl: { url: string | null } | null };
 
-export type UpsertFileSetAnnotationMutationVariables = Exact<{
+export type UpsertGeoreferenceAnnotationMutationVariables = Exact<{
   fileSetId: string | number;
   type: string;
   content: string;
   language?: Array<string | null | undefined> | string | null | undefined;
 }>;
 
-export type UpsertFileSetAnnotationMutation = {
+export type UpsertGeoreferenceAnnotationMutation = {
   upsertFileSetAnnotation: {
     id: string;
     fileSetId: string;
@@ -1901,6 +1905,7 @@ export type TranscribeFileSetMutationVariables = Exact<{
   fileSetId: string | number;
   language?: Array<string | null | undefined> | string | null | undefined;
   model?: string | null | undefined;
+  context?: string | null | undefined;
 }>;
 
 export type TranscribeFileSetMutation = {
@@ -1935,13 +1940,14 @@ export type UpdateFileSetAnnotationMutation = {
   } | null;
 };
 
-export type UpsertTranscriptionAnnotationMutationVariables = Exact<{
+export type UpsertFileSetAnnotationMutationVariables = Exact<{
   fileSetId: string | number;
   type: string;
   content: string;
+  language?: Array<string | null | undefined> | string | null | undefined;
 }>;
 
-export type UpsertTranscriptionAnnotationMutation = {
+export type UpsertFileSetAnnotationMutation = {
   upsertFileSetAnnotation: {
     content: string | null;
     fileSetId: string;
@@ -7686,6 +7692,23 @@ export const PlanChangeProvenanceDocument = {
                       },
                       {
                         kind: "Field",
+                        name: { kind: "Name", value: "itemProvenance" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "origin" },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: "Field",
                         name: { kind: "Name", value: "events" },
                         selectionSet: {
                           kind: "SelectionSet",
@@ -8665,13 +8688,13 @@ export const LivebookUrlDocument = {
     },
   ],
 } as unknown as DocumentNode<LivebookUrlQuery, LivebookUrlQueryVariables>;
-export const UpsertFileSetAnnotationDocument = {
+export const UpsertGeoreferenceAnnotationDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "upsertFileSetAnnotation" },
+      name: { kind: "Name", value: "upsertGeoreferenceAnnotation" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -8783,8 +8806,8 @@ export const UpsertFileSetAnnotationDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  UpsertFileSetAnnotationMutation,
-  UpsertFileSetAnnotationMutationVariables
+  UpsertGeoreferenceAnnotationMutation,
+  UpsertGeoreferenceAnnotationMutationVariables
 >;
 export const DeleteFileSetAnnotationDocument = {
   kind: "Document",
@@ -9160,6 +9183,14 @@ export const TranscribeFileSetDocument = {
           },
           type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
         },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "context" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -9190,6 +9221,14 @@ export const TranscribeFileSetDocument = {
                 value: {
                   kind: "Variable",
                   name: { kind: "Name", value: "model" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "context" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "context" },
                 },
               },
             ],
@@ -9321,13 +9360,13 @@ export const UpdateFileSetAnnotationDocument = {
   UpdateFileSetAnnotationMutation,
   UpdateFileSetAnnotationMutationVariables
 >;
-export const UpsertTranscriptionAnnotationDocument = {
+export const UpsertFileSetAnnotationDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "upsertTranscriptionAnnotation" },
+      name: { kind: "Name", value: "upsertFileSetAnnotation" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -9365,6 +9404,20 @@ export const UpsertTranscriptionAnnotationDocument = {
             },
           },
         },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "language" },
+          },
+          type: {
+            kind: "ListType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -9395,6 +9448,14 @@ export const UpsertTranscriptionAnnotationDocument = {
                 value: {
                   kind: "Variable",
                   name: { kind: "Name", value: "content" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "language" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "language" },
                 },
               },
             ],
@@ -9449,8 +9510,8 @@ export const UpsertTranscriptionAnnotationDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  UpsertTranscriptionAnnotationMutation,
-  UpsertTranscriptionAnnotationMutationVariables
+  UpsertFileSetAnnotationMutation,
+  UpsertFileSetAnnotationMutationVariables
 >;
 export const AuthoritiesSearchDocument = {
   kind: "Document",

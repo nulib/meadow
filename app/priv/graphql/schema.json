@@ -2428,6 +2428,22 @@
             {
               "args": [],
               "deprecationReason": null,
+              "description": "Per-item AI attribution, reconciled against the field's current value.",
+              "isDeprecated": false,
+              "name": "itemProvenance",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "AiProvenanceItem",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
               "name": "objectIdentifierType",
@@ -10225,6 +10241,16 @@
             },
             {
               "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "context",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
                 {
                   "defaultValue": null,
                   "description": null,

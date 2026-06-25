@@ -16,6 +16,7 @@ import EditDiffRowForm from "@js/components/Plan/Panel/EditDiffRowForm";
 import {
   OriginBadge,
   ProvenancePreviewBadge,
+  provenanceItemId,
   valueItemIds,
 } from "@js/components/AIProvenance/Badges";
 
@@ -45,22 +46,16 @@ function recordedOriginByPath(activities = []) {
 }
 
 /**
- * Map field_path -> per-item AI attribution, derived from each target's
- * original (proposed) value. Lets multivalued fields like subjects badge the
- * AI-suggested items individually so reviewer-added items aren't lumped in.
+ * Map field_path -> per-item AI attribution, taken straight from the backend's
+ * reconciled `itemProvenance` (the AI's proposal diffed against the current
+ * value). Using the server-computed attribution keeps the plan diff and the
+ * work About tab in lock-step rather than re-deriving it here.
  */
 function itemProvenanceByPath(activities = []) {
   const map = {};
   activities.forEach((activity) => {
     (activity.targets || []).forEach((target) => {
-      const proposed = (target.events || []).find(
-        (event) => event.eventType === "proposed",
-      );
-      const source = proposed?.valueAfter ?? target.proposedValue;
-      map[target.fieldPath] = valueItemIds(source).map((id) => ({
-        id,
-        origin: "ai_generated",
-      }));
+      map[target.fieldPath] = target.itemProvenance || [];
     });
   });
   return map;
@@ -106,8 +101,10 @@ const renderCodedTerm = (value) => {
 /**
  * Render a notes array
  */
-const renderNotes = (notes) => {
+const renderNotes = (notes, itemProvenance = []) => {
   if (!Array.isArray(notes) || notes.length === 0) return "—";
+
+  const originById = originLookup(itemProvenance);
 
   return (
     <ul>
@@ -115,6 +112,7 @@ const renderNotes = (notes) => {
         <li key={i}>
           {note.type?.label && <strong>{note.type.label}: </strong>}
           {note.note || "—"}
+          <ItemOriginBadge origin={originById[provenanceItemId(note)]} />
         </li>
       ))}
     </ul>
@@ -124,8 +122,10 @@ const renderNotes = (notes) => {
 /**
  * Render a related_url array
  */
-const renderRelatedUrls = (urls) => {
+const renderRelatedUrls = (urls, itemProvenance = []) => {
   if (!Array.isArray(urls) || urls.length === 0) return "—";
+
+  const originById = originLookup(itemProvenance);
 
   return (
     <ul>
@@ -139,6 +139,7 @@ const renderRelatedUrls = (urls) => {
           ) : (
             "—"
           )}
+          <ItemOriginBadge origin={originById[provenanceItemId(item)]} />
         </li>
       ))}
     </ul>
@@ -148,27 +149,36 @@ const renderRelatedUrls = (urls) => {
 /**
  * Render a nested coded term field (notes or related_url)
  */
-const renderNestedCodedTerm = (path, value) => {
+const renderNestedCodedTerm = (path, value, itemProvenance = []) => {
   if (path.endsWith("notes")) {
-    return renderNotes(value);
+    return renderNotes(value, itemProvenance);
   }
   if (path.endsWith("related_url")) {
-    return renderRelatedUrls(value);
+    return renderRelatedUrls(value, itemProvenance);
   }
   // Fallback to generic rendering
-  return renderGenericValue(value);
+  return renderGenericValue(value, itemProvenance);
 };
 
 /**
- * Identifier for a single generic value item, mirroring valueItemIds: a plain
- * string is its own id; objects carry a term/plain id. Used to line up a value
- * with its per-item AI provenance entry.
+ * Map of item id -> AI origin for a field's per-item provenance, so each value
+ * can look up its own attribution.
  */
-const genericItemId = (v) => {
-  if (typeof v === "string") return v;
-  if (v && typeof v === "object") return v.term?.id ?? v.id ?? null;
-  return null;
-};
+const originLookup = (itemProvenance = []) =>
+  itemProvenance.reduce((acc, entry) => {
+    if (entry?.id) acc[entry.id] = entry.origin;
+    return acc;
+  }, {});
+
+/**
+ * Inline per-item origin badge, or nothing when the item carries no AI origin.
+ */
+const ItemOriginBadge = ({ origin }) =>
+  origin ? (
+    <span className="ml-2">
+      <OriginBadge origin={origin} />
+    </span>
+  ) : null;
 
 /**
  * Whether any item in a (possibly array) value carries per-item AI provenance,
@@ -193,28 +203,17 @@ const renderGenericValue = (value, itemProvenance = []) => {
 
   if (Array.isArray(value)) {
     if (value.length === 0) return "—";
-    const originById = itemProvenance.reduce((acc, entry) => {
-      if (entry?.id) acc[entry.id] = entry.origin;
-      return acc;
-    }, {});
+    const originById = originLookup(itemProvenance);
     return (
       <ul>
-        {value.map((v, i) => {
-          const id = genericItemId(v);
-          const origin = id != null ? originById[id] : undefined;
-          return (
-            <li key={i}>
-              {typeof v === "object" && v !== null
-                ? v.humanized || v.edtf || JSON.stringify(v, null, 0)
-                : String(v)}
-              {origin && (
-                <span className="ml-2">
-                  <OriginBadge origin={origin} />
-                </span>
-              )}
-            </li>
-          );
-        })}
+        {value.map((v, i) => (
+          <li key={i}>
+            {typeof v === "object" && v !== null
+              ? v.humanized || v.edtf || JSON.stringify(v, null, 0)
+              : String(v)}
+            <ItemOriginBadge origin={originById[provenanceItemId(v)]} />
+          </li>
+        ))}
       </ul>
     );
   }
@@ -481,7 +480,11 @@ const PlanPanelChangesDiff = ({
                     itemProvenance={itemProvenances[change.path]}
                   />
                 ) : change.nestedCoded ? (
-                  renderNestedCodedTerm(change.path, change.value)
+                  renderNestedCodedTerm(
+                    change.path,
+                    change.value,
+                    itemProvenances[change.path],
+                  )
                 ) : isCodedTerm(change.path) ? (
                   renderCodedTerm(change.value)
                 ) : (

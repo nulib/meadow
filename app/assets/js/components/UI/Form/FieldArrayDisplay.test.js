@@ -42,7 +42,7 @@ describe("UIFormFieldArrayDisplay", () => {
     expect(screen.getByText("Metadata item #1").nodeName).toEqual("A");
   });
 
-  it("badges AI-proposed values individually and falls back to the field origin for edited ones", () => {
+  it("badges only the values that carry AI provenance", () => {
     render(
       <UIFormFieldArrayDisplay
         {...props}
@@ -54,15 +54,36 @@ describe("UIFormFieldArrayDisplay", () => {
       />,
     );
     const badges = screen.getAllByTestId("provenance-origin-badge");
-    // value[0] still matches the AI's proposed id; value[1]/value[2] were
-    // edited so they fall back to the field-level origin rather than losing
-    // their badge.
-    expect(badges).toHaveLength(3);
+    // Only value[0] matches the AI's proposed id; value[1]/value[2] were
+    // human-added or since-edited, so they carry no AI attribution and are
+    // intentionally left unbadged. The field-level badge is suppressed because
+    // at least one value is badged individually.
+    expect(badges).toHaveLength(1);
+    expect(badges[0]).toHaveTextContent("AI generated");
+  });
+
+  it("badges an edited AI item with its reconciled origin", () => {
+    // The backend keys item provenance by each item's *current* value, so an
+    // AI item a human edited in place still matches a value and keeps a badge —
+    // now reflecting the human edit rather than disappearing.
+    render(
+      <UIFormFieldArrayDisplay
+        {...props}
+        provenance={{
+          origin: "ai_assisted_human_modified",
+          status: "applied",
+          itemProvenance: [
+            { id: values[0], origin: "ai_generated" },
+            { id: values[1], origin: "ai_assisted_human_modified" },
+          ],
+        }}
+      />,
+    );
+    const badges = screen.getAllByTestId("provenance-origin-badge");
+    // value[0] unchanged AI, value[1] edited AI, value[2] human-added (unbadged).
+    expect(badges).toHaveLength(2);
     expect(badges[0]).toHaveTextContent("AI generated");
     expect(badges[1]).toHaveTextContent("AI + human edited");
-    expect(badges[2]).toHaveTextContent("AI + human edited");
-    // No separate trailing field badge when per-item provenance exists.
-    expect(screen.getAllByTestId("provenance-origin-badge")).toHaveLength(3);
   });
 
   it("renders a single field-level badge when there is no per-item provenance", () => {

@@ -618,7 +618,7 @@ defmodule Meadow.AI.Provenance do
         operation: target.operation,
         origin: target.origin || "human_or_legacy",
         proposed_value: target.proposed_value,
-        item_provenance: ai_item_provenance(target, events),
+        item_provenance: merge_item_provenance(targets),
         human_oversight_level: target.human_oversight_level,
         status: target.status,
         activity_id: activity.id,
@@ -694,7 +694,7 @@ defmodule Meadow.AI.Provenance do
         operation: target.operation,
         origin: target.origin || "human_or_legacy",
         proposed_value: target.proposed_value,
-        item_provenance: ai_item_provenance(target, events),
+        item_provenance: merge_item_provenance(targets),
         human_oversight_level: target.human_oversight_level,
         status: target.status,
         activity_id: activity.id,
@@ -831,19 +831,99 @@ defmodule Meadow.AI.Provenance do
 
   defp json_safe(value), do: value |> Jason.encode!() |> Jason.decode!()
 
-  # Per-item provenance for multivalued fields (subjects, creators, etc.): the
-  # identifiers the AI originally proposed, so each term can be badged
-  # individually and human-added items are not mislabeled as AI. Derived from the
-  # `proposed` event (the AI's untouched suggestion), falling back to the
-  # target's proposed_value.
-  defp ai_item_provenance(target, events) do
-    proposed = Enum.find(events, &(&1.event_type == "proposed"))
-    source = (proposed && proposed.value_after) || target.proposed_value
+  @doc """
+  Per-item AI attribution for a multivalued field (subjects, descriptions, …),
+  reconciling the AI's original proposal against the field's current value so
+  each item carries an honest origin:
 
-    source
-    |> value_item_ids()
-    |> Enum.map(&%{id: &1, origin: "ai_generated"})
+    * an item the AI proposed that is still present unchanged -> `ai_generated`
+    * an item the AI proposed that a human has since edited in place -> the
+      field's edit origin (`ai_assisted_human_modified` / `ai_modified_human_content`)
+    * an item a human added outright -> omitted (it carries no AI lineage)
+
+  Entries are keyed by the item's *current* identifier (a term id for controlled
+  terms, the raw string for free text) so the UI can line each displayed value up
+  with its attribution. Because works store multivalued fields as positional
+  lists with no stable per-item ids, unchanged items are matched by value and the
+  remainder positionally; reordering a list can therefore blur which item an edit
+  applies to, but in-place edits (the common case) are attributed correctly.
+  Shared by the work About tab (`item_provenance` on the provenance summary) and
+  the plan diff, so both stages show identical per-item attribution.
+  """
+  def item_provenance(%Target{} = target),
+    do: ai_item_provenance(target, target.events || [])
+
+  # A single field's value can be touched by several targets (e.g. one activity
+  # replaces a note and a later one adds another), so per-item attribution is the
+  # union of every target's items. Targets are merged oldest-first and deduped by
+  # id, so when two targets touch the same item the most recent attribution wins.
+  defp merge_item_provenance(targets) do
+    targets
+    |> Enum.sort_by(&summary_sort_key/1)
+    |> Enum.flat_map(&ai_item_provenance(&1, &1.events || []))
+    |> Enum.reverse()
+    |> Enum.uniq_by(& &1.id)
+    |> Enum.reverse()
   end
+
+  defp ai_item_provenance(target, events) do
+    reconcile_items(
+      proposed_value(target, events),
+      current_value(target, events),
+      item_edit_origin(target)
+    )
+  end
+
+  # The AI's untouched suggestion: the `proposed` event's value, falling back to
+  # the target's proposed_value.
+  defp proposed_value(target, events) do
+    case Enum.find(events, &(&1.event_type == "proposed")) do
+      %{value_after: value} when not is_nil(value) -> value
+      _ -> target.proposed_value
+    end
+  end
+
+  # The field's current value: the most recent value a human edit or apply step
+  # recorded; before any such event it is the AI's untouched proposal. Review
+  # events (approved/rejected) carry no value, so they are ignored here.
+  # `occurred_at` must be compared with `DateTime` — default term ordering sorts
+  # `DateTime` structs by microsecond before second and would pick the wrong one.
+  defp current_value(target, events) do
+    events
+    |> Enum.reject(&(&1.event_type == "proposed" or is_nil(&1.value_after)))
+    |> case do
+      [] -> target.proposed_value
+      later -> Enum.max_by(later, & &1.occurred_at, DateTime).value_after
+    end
+  end
+
+  # Reconcile the proposed and current item lists into per-item attribution.
+  # Items present in both (by id) are unchanged AI generations; the leftover
+  # current items are matched positionally to dropped proposed items and treated
+  # as in-place human edits of those AI items, while any current items beyond the
+  # dropped proposed items are human additions and carry no AI lineage.
+  defp reconcile_items(proposed_val, current_val, edit_origin) do
+    proposed = value_item_ids(proposed_val)
+    current = value_item_ids(current_val)
+
+    proposed_set = MapSet.new(proposed)
+    current_set = MapSet.new(current)
+
+    {unchanged, edited_current} =
+      Enum.split_with(current, &MapSet.member?(proposed_set, &1))
+
+    dropped_proposed = Enum.reject(proposed, &MapSet.member?(current_set, &1))
+
+    edited =
+      edited_current
+      |> Enum.zip(dropped_proposed)
+      |> Enum.map(fn {id, _was} -> %{id: id, origin: edit_origin} end)
+
+    Enum.map(unchanged, &%{id: &1, origin: "ai_generated"}) ++ edited
+  end
+
+  defp item_edit_origin(%{origin: "ai_modified_human_content"}), do: "ai_modified_human_content"
+  defp item_edit_origin(_), do: "ai_assisted_human_modified"
 
   defp value_item_ids(%{"value" => list}) when is_list(list) do
     list |> Enum.map(&item_identifier/1) |> Enum.reject(&is_nil/1)
@@ -857,6 +937,12 @@ defmodule Meadow.AI.Provenance do
 
   defp item_identifier(%{"term" => %{"id" => id}}), do: id
   defp item_identifier(%{term: %{id: id}}), do: id
+  defp item_identifier(%{"note" => note}) when is_binary(note), do: note
+  defp item_identifier(%{note: note}) when is_binary(note), do: note
+  defp item_identifier(%{"url" => url}) when is_binary(url), do: url
+  defp item_identifier(%{url: url}) when is_binary(url), do: url
+  defp item_identifier(%{"edtf" => edtf}) when is_binary(edtf), do: edtf
+  defp item_identifier(%{edtf: edtf}) when is_binary(edtf), do: edtf
   defp item_identifier(%{"id" => id}), do: id
   defp item_identifier(value) when is_binary(value), do: value
   defp item_identifier(_), do: nil

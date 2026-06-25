@@ -90,6 +90,10 @@ export const GET_PLAN_CHANGE_PROVENANCE = gql`
         status
         operation
         proposedValue
+        itemProvenance {
+          id
+          origin
+        }
         events {
           eventType
           valueAfter

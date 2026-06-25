@@ -7,8 +7,9 @@ import { UNCONTROLLED_METADATA } from "@js/services/metadata";
 import UIFormNote from "@js/components/UI/Form/Note";
 import { useCodeLists } from "@js/context/code-list-context";
 import {
-  FieldProvenanceBadge,
+  OriginBadge,
   fieldProvenance,
+  provenanceItemId,
 } from "@js/components/AIProvenance/Badges";
 
 const WorkTabsAboutUncontrolledMetadata = ({
@@ -17,6 +18,15 @@ const WorkTabsAboutUncontrolledMetadata = ({
   provenance = {},
 }) => {
   const codeLists = useCodeLists();
+
+  // Per-note AI origin, keyed by note text (the backend's item identifier), so
+  // each note is badged individually rather than with one field-level badge.
+  const notesOriginById = (
+    fieldProvenance(provenance, "notes")?.itemProvenance || []
+  ).reduce((acc, entry) => {
+    if (entry?.id) acc[entry.id] = entry.origin;
+    return acc;
+  }, {});
 
   return (
     <div className="columns is-multiline" data-testid="uncontrolled-metadata">
@@ -51,20 +61,23 @@ const WorkTabsAboutUncontrolledMetadata = ({
               name="notes"
             />
           ) : (
-            <>
-              <div className="field content">
-                <ul data-testid="field-array-item-list">
-                  {descriptiveMetadata.notes.map((noteEntry, i) => (
+            <div className="field content">
+              <ul data-testid="field-array-item-list">
+                {descriptiveMetadata.notes.map((noteEntry, i) => {
+                  const origin = notesOriginById[provenanceItemId(noteEntry)];
+                  return (
                     <li className="mb-4" key={i}>
                       {noteEntry.type.label} - {noteEntry.note}
+                      {origin && (
+                        <span className="ml-2">
+                          <OriginBadge origin={origin} />
+                        </span>
+                      )}
                     </li>
-                  ))}
-                </ul>
-              </div>
-              <FieldProvenanceBadge
-                entry={fieldProvenance(provenance, "notes")}
-              />
-            </>
+                  );
+                })}
+              </ul>
+            </div>
           )}
         </UIFormField>
       </div>
