@@ -545,6 +545,75 @@ defmodule Meadow.AI.ProvenanceTest do
     end
   end
 
+  describe "field summary supersession" do
+    alias Meadow.AI.Provenance.Schemas.Event
+    alias Meadow.Repo
+
+    defp record_field_target(work, attrs, event_type) do
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          model: "test-model",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          Map.merge(
+            %{
+              target_type: "Work",
+              target_id: work.id,
+              field_path: "descriptive_metadata.description",
+              operation: "replace"
+            },
+            attrs
+          ),
+          event_type
+        )
+
+      activity
+    end
+
+    # A human removes an AI value (recorded "Human replaced AI" / deleted), then
+    # a later AI activity regenerates the same field. The field's current
+    # provenance is the new AI value — the "Human replaced AI" entry must not
+    # stick around. The tie-break must be deterministic even when the two
+    # targets' events share an identical timestamp, so we force that here.
+    test "a later AI target supersedes an earlier human replacement on a tied timestamp" do
+      work = work_fixture(%{descriptive_metadata: %{description: ["AI desc"]}})
+
+      record_field_target(
+        work,
+        %{
+          proposed_value: ["AI desc"],
+          origin: "human_replacement_after_ai_suggestion",
+          status: "deleted"
+        },
+        "human_replaced"
+      )
+
+      record_field_target(
+        work,
+        %{proposed_value: ["New AI desc"], origin: "ai_generated", status: "applied"},
+        "applied"
+      )
+
+      # Collapse both events onto the same instant so the result is decided by
+      # the deterministic tie-break (newest target wins), not arbitrary row order.
+      {2, _} = Repo.update_all(Event, set: [occurred_at: ~U[2026-06-25 00:00:00.000000Z]])
+
+      assert [
+               %{
+                 field_path: "descriptive_metadata.description",
+                 origin: "ai_generated",
+                 status: "applied"
+               }
+             ] = Provenance.work_summary(work.id)
+    end
+  end
+
   describe "legacy notes" do
     test "dry-run detects recognized AI notes" do
       work =

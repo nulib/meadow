@@ -37,15 +37,11 @@ const WorkTabsAboutIdentifiersMetadata = ({
           {isEditing ? (
             <UIFormFieldArray required name={item.name} label={item.label} />
           ) : (
-            <>
-              <UIFormFieldArrayDisplay
-                values={descriptiveMetadata[item.name]}
-                label={item.label}
-              />
-              <FieldProvenanceBadge
-                entry={fieldProvenance(provenance, item.name)}
-              />
-            </>
+            <UIFormFieldArrayDisplay
+              values={descriptiveMetadata[item.name]}
+              label={item.label}
+              provenance={fieldProvenance(provenance, item.name)}
+            />
           )}
         </div>
       ))}

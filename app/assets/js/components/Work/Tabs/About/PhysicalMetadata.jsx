@@ -3,10 +3,7 @@ import PropTypes from "prop-types";
 import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
 import { METADATA_FIELDS, PHYSICAL_METADATA } from "@js/services/metadata";
-import {
-  FieldProvenanceBadge,
-  fieldProvenance,
-} from "@js/components/AIProvenance/Badges";
+import { fieldProvenance } from "@js/components/AIProvenance/Badges";
 
 const { BOX_NAME, BOX_NUMBER, FOLDER_NAME, FOLDER_NUMBER, SERIES } =
   METADATA_FIELDS;
@@ -24,19 +21,15 @@ const WorkTabsAboutPhysicalMetadata = ({
           {isEditing ? (
             <UIFormFieldArray required name={item.name} label={item.label} />
           ) : (
-            <>
-              <UIFormFieldArrayDisplay
-                values={descriptiveMetadata[item.name]}
-                isFacetLink={Boolean(
-                  itemsToLink.find((o) => o.name === item.name),
-                )}
-                label={item.label}
-                metadataItem={item}
-              />
-              <FieldProvenanceBadge
-                entry={fieldProvenance(provenance, item.name)}
-              />
-            </>
+            <UIFormFieldArrayDisplay
+              values={descriptiveMetadata[item.name]}
+              isFacetLink={Boolean(
+                itemsToLink.find((o) => o.name === item.name),
+              )}
+              label={item.label}
+              metadataItem={item}
+              provenance={fieldProvenance(provenance, item.name)}
+            />
           )}
         </div>
       ))}

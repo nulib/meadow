@@ -33,15 +33,11 @@ const WorkTabsAboutRightsMetadata = ({
               isTextarea={item.inputEl && item.inputEl === "textarea"}
             />
           ) : (
-            <>
-              <UIFormFieldArrayDisplay
-                values={descriptiveMetadata[item.name]}
-                label={item.label}
-              />
-              <FieldProvenanceBadge
-                entry={fieldProvenance(provenance, item.name)}
-              />
-            </>
+            <UIFormFieldArrayDisplay
+              values={descriptiveMetadata[item.name]}
+              label={item.label}
+              provenance={fieldProvenance(provenance, item.name)}
+            />
           )}
         </div>
       ))}

@@ -118,17 +118,37 @@ AnnotationOriginBadge.propTypes = {
   annotation: PropTypes.object,
 };
 
+// Statuses whose value is no longer the field's live value, so an inline
+// field badge would be stale (e.g. a "Human replaced AI" tag lingering on a
+// field whose AI content was removed). The full history still surfaces these
+// in the Provenance tab's activity log.
+const INACTIVE_FIELD_STATUSES = ["deleted", "rejected", "failed"];
+
+/**
+ * The origin to badge a live field with, or undefined when there is no
+ * provenance or the recorded value is no longer live (deleted/rejected/failed)
+ * and an inline badge would be stale. Shared by the field-level badge and the
+ * per-value fallback in `UIFormFieldArrayDisplay`.
+ */
+export function activeFieldOrigin(entry) {
+  if (!entry) return undefined;
+  if (INACTIVE_FIELD_STATUSES.includes(entry.status)) return undefined;
+  return entry.origin;
+}
+
 /**
  * Inline badge for a single metadata field, given its provenance summary
- * entry (or undefined). Renders nothing when there is no provenance, so it
- * is safe to drop next to any field. Shared by the Core and Controlled
- * metadata sections of the About tab.
+ * entry (or undefined). Renders nothing when there is no provenance, or when
+ * the recorded value is no longer live (deleted/rejected/failed), so it is
+ * safe to drop next to any field. Shared by the Core and Controlled metadata
+ * sections of the About tab.
  */
 export function FieldProvenanceBadge({ entry }) {
-  if (!entry) return null;
+  const origin = activeFieldOrigin(entry);
+  if (!origin) return null;
   return (
     <span className="ml-2">
-      <OriginBadge origin={entry.origin} title={provenanceTooltip(entry)} />
+      <OriginBadge origin={origin} title={provenanceTooltip(entry)} />
     </span>
   );
 }

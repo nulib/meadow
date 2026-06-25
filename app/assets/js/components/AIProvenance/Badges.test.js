@@ -6,6 +6,7 @@ import {
   ProvenancePreviewBadge,
   ProvenanceEventValues,
   AnnotationOriginBadge,
+  FieldProvenanceBadge,
   annotationOrigin,
   fieldProvenance,
   predictedOrigin,
@@ -112,6 +113,58 @@ describe("AIProvenance Badges", () => {
       expect(fieldProvenance(provenance, "stylePeriod")).toEqual({
         origin: "ai_generated",
       });
+    });
+  });
+
+  describe("FieldProvenanceBadge", () => {
+    it("badges a live AI-generated field", () => {
+      const { getByTestId } = render(
+        <FieldProvenanceBadge
+          entry={{ origin: "ai_generated", status: "applied" }}
+        />,
+      );
+      expect(getByTestId("provenance-origin-badge")).toHaveTextContent(
+        "AI generated",
+      );
+    });
+
+    it("renders nothing without an entry", () => {
+      const { queryByTestId } = render(<FieldProvenanceBadge />);
+      expect(queryByTestId("provenance-origin-badge")).not.toBeInTheDocument();
+    });
+
+    // Once a human removes the AI value, the field is empty and the
+    // "Human replaced AI" label should not linger next to it.
+    it("renders nothing for a deleted value", () => {
+      const { queryByTestId } = render(
+        <FieldProvenanceBadge
+          entry={{
+            origin: "human_replacement_after_ai_suggestion",
+            status: "deleted",
+          }}
+        />,
+      );
+      expect(queryByTestId("provenance-origin-badge")).not.toBeInTheDocument();
+    });
+
+    it("renders nothing for rejected or failed values", () => {
+      const rejected = render(
+        <FieldProvenanceBadge
+          entry={{ origin: "ai_generated", status: "rejected" }}
+        />,
+      );
+      expect(
+        rejected.queryByTestId("provenance-origin-badge"),
+      ).not.toBeInTheDocument();
+
+      const failed = render(
+        <FieldProvenanceBadge
+          entry={{ origin: "ai_generated", status: "failed" }}
+        />,
+      );
+      expect(
+        failed.queryByTestId("provenance-origin-badge"),
+      ).not.toBeInTheDocument();
     });
   });
 

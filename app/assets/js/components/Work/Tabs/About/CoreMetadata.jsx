@@ -66,15 +66,11 @@ const WorkTabsAboutCoreMetadata = ({
             isTextarea={true}
           />
         ) : (
-          <>
-            <UIFormFieldArrayDisplay
-              values={descriptiveMetadata.description}
-              label="Description"
-            />
-            <FieldProvenanceBadge
-              entry={fieldProvenance(provenance, "description")}
-            />
-          </>
+          <UIFormFieldArrayDisplay
+            values={descriptiveMetadata.description}
+            label="Description"
+            provenance={fieldProvenance(provenance, "description")}
+          />
         )}
       </div>
 
@@ -89,6 +85,7 @@ const WorkTabsAboutCoreMetadata = ({
           <UIFormFieldArrayDisplay
             values={descriptiveMetadata.alternateTitle}
             label="Alternate Title"
+            provenance={fieldProvenance(provenance, "alternateTitle")}
           />
         )}
       </div>

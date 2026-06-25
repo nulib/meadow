@@ -200,6 +200,57 @@ describe("PlanPanelChangesDiff", () => {
     expect(items.map((li) => li.textContent)).toEqual(["One", "Two", "Three"]);
   });
 
+  test("badges each AI-proposed item in a non-controlled multivalued field", () => {
+    mockUseQuery.mockReturnValue({
+      data: {
+        aiActivities: [
+          {
+            id: "a1",
+            targets: [
+              {
+                fieldPath: "descriptive_metadata.alternate_title",
+                origin: "ai_generated",
+                proposedValue: { value: ["First alt", "Second alt"] },
+                events: [
+                  {
+                    eventType: "proposed",
+                    valueAfter: { value: ["First alt", "Second alt"] },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    mockToRows
+      .mockReturnValueOnce([
+        {
+          id: "add-alt",
+          method: "add",
+          path: "descriptive_metadata.alternate_title",
+          label: "Alternate Title",
+          value: ["First alt", "Second alt"],
+          controlled: false,
+        },
+      ])
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([]);
+
+    render(
+      <PlanPanelChangesDiff
+        proposedChanges={baseProposed}
+        planChangeId="pc-1"
+      />,
+    );
+
+    // One badge per AI-proposed value...
+    expect(screen.getAllByTestId("provenance-origin-badge")).toHaveLength(2);
+    // ...and the field-level preview badge is suppressed to avoid a duplicate.
+    expect(screen.queryByTestId("provenance-preview")).not.toBeInTheDocument();
+  });
+
   test("renders non-controlled arrays of objects as bullet list of JSON items", () => {
     mockToRows
       .mockReturnValueOnce([

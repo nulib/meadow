@@ -14,6 +14,7 @@ import { Button } from "@nulib/design-system";
 import { useMutation, useQuery } from "@apollo/client/react";
 import EditDiffRowForm from "@js/components/Plan/Panel/EditDiffRowForm";
 import {
+  OriginBadge,
   ProvenancePreviewBadge,
   valueItemIds,
 } from "@js/components/AIProvenance/Badges";
@@ -159,24 +160,61 @@ const renderNestedCodedTerm = (path, value) => {
 };
 
 /**
- * Render a generic (non-controlled) value
+ * Identifier for a single generic value item, mirroring valueItemIds: a plain
+ * string is its own id; objects carry a term/plain id. Used to line up a value
+ * with its per-item AI provenance entry.
  */
-const renderGenericValue = (value) => {
+const genericItemId = (v) => {
+  if (typeof v === "string") return v;
+  if (v && typeof v === "object") return v.term?.id ?? v.id ?? null;
+  return null;
+};
+
+/**
+ * Whether any item in a (possibly array) value carries per-item AI provenance,
+ * so callers can skip the field-level preview badge once items are badged
+ * individually.
+ */
+const hasItemProvenance = (value, itemProvenance = []) => {
+  if (!Array.isArray(value) || !itemProvenance.length) return false;
+  const ids = new Set(itemProvenance.map((entry) => entry?.id));
+  return valueItemIds(value).some((id) => ids.has(id));
+};
+
+/**
+ * Render a generic (non-controlled) value. For multivalued fields, each item
+ * the AI proposed is badged individually (via itemProvenance) so reviewers can
+ * see attribution per value rather than one badge for the whole field.
+ */
+const renderGenericValue = (value, itemProvenance = []) => {
   if (value == null) return "—";
   if (typeof value !== "object") return String(value);
   if (value instanceof Date) return value.toISOString();
 
   if (Array.isArray(value)) {
     if (value.length === 0) return "—";
+    const originById = itemProvenance.reduce((acc, entry) => {
+      if (entry?.id) acc[entry.id] = entry.origin;
+      return acc;
+    }, {});
     return (
       <ul>
-        {value.map((v, i) => (
-          <li key={i}>
-            {typeof v === "object" && v !== null
-              ? v.humanized || v.edtf || JSON.stringify(v, null, 0)
-              : String(v)}
-          </li>
-        ))}
+        {value.map((v, i) => {
+          const id = genericItemId(v);
+          const origin = id != null ? originById[id] : undefined;
+          return (
+            <li key={i}>
+              {typeof v === "object" && v !== null
+                ? v.humanized || v.edtf || JSON.stringify(v, null, 0)
+                : String(v)}
+              {origin && (
+                <span className="ml-2">
+                  <OriginBadge origin={origin} />
+                </span>
+              )}
+            </li>
+          );
+        })}
       </ul>
     );
   }
@@ -447,18 +485,25 @@ const PlanPanelChangesDiff = ({
                 ) : isCodedTerm(change.path) ? (
                   renderCodedTerm(change.value)
                 ) : (
-                  renderGenericValue(change.value)
+                  renderGenericValue(change.value, itemProvenances[change.path])
                 )}
                 {/* Controlled fields badge their AI-suggested items
-                    individually via UIControlledTermList, so skip the
-                    field-level preview badge to avoid a duplicate. */}
-                {!change.controlled && (
-                  <ProvenancePreviewBadge
-                    method={change.method}
-                    currentValue={getCurrentValue(change.path, currentWork)}
-                    recordedOrigin={recordedOrigins[change.path]}
-                  />
-                )}
+                    individually via UIControlledTermList; multivalued
+                    non-controlled fields badge their items via
+                    renderGenericValue. Either way, skip the field-level
+                    preview badge once items are badged individually to avoid
+                    a duplicate. */}
+                {!change.controlled &&
+                  !hasItemProvenance(
+                    change.value,
+                    itemProvenances[change.path],
+                  ) && (
+                    <ProvenancePreviewBadge
+                      method={change.method}
+                      currentValue={getCurrentValue(change.path, currentWork)}
+                      recordedOrigin={recordedOrigins[change.path]}
+                    />
+                  )}
               </td>
               <td style={{ whiteSpace: "nowrap" }}>
                 {!(

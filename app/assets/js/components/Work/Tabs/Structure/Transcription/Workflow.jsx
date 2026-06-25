@@ -146,10 +146,6 @@ function WorkTabsStructureTranscriptionWorkflow({
   // context for the regeneration.
   const canGenerate = !generating;
 
-  // No annotation and no manual draft yet: offer the reviewer Karen's two-way
-  // entry choice — let the model generate one, or open a blank editor to type
-  // one in by hand. Once either path is taken (or an annotation exists), the
-  // editor below takes over.
   const showEditor = Boolean(annotation) || manualEntry;
 
   return (

@@ -1180,11 +1180,25 @@ defmodule Meadow.AI.Provenance do
   defp event_field(nil, _key), do: nil
   defp event_field(event, key), do: Map.get(event, key)
 
+  # Sort key for choosing the target that represents a field's *current*
+  # provenance state when several activities have touched the same field. We
+  # want the most recent action to win, so a later AI re-generation supersedes
+  # an earlier human replacement (rather than the "Human replaced AI" label
+  # sticking around). The key is a fully-ordered tuple — latest event time,
+  # then the target's own creation time, then its id — so `Enum.max_by` is
+  # deterministic even when two targets share an event timestamp (down to the
+  # microsecond) instead of falling back to arbitrary row order. We compare on
+  # unix microseconds so the ordering is chronological rather than relying on
+  # DateTime struct term order.
   defp summary_sort_key(target) do
-    target.events
-    |> Enum.map(& &1.occurred_at)
-    |> Enum.reject(&is_nil/1)
-    |> Enum.max(fn -> target.inserted_at end)
+    latest_event =
+      target.events
+      |> Enum.map(& &1.occurred_at)
+      |> Enum.reject(&is_nil/1)
+      |> Enum.max(DateTime, fn -> target.inserted_at end)
+
+    {DateTime.to_unix(latest_event, :microsecond),
+     DateTime.to_unix(target.inserted_at, :microsecond), target.id}
   end
 
   defp first_event_at(events, type) do
