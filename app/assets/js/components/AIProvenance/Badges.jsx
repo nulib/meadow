@@ -271,13 +271,35 @@ function provenanceItemLabel(item) {
     const base = item.term.label || item.term.id || "—";
     return item.role && item.role.label ? `${base} (${item.role.label})` : base;
   }
+  // related_url: { url, label: { id, label, scheme } } — the entry's `label`
+  // is a coded-term object, so render its `.label` string, never the object.
+  if (item.url) {
+    const labelText = codedLabelText(item.label);
+    return labelText ? `${labelText}: ${item.url}` : item.url;
+  }
+  // notes: { note, type: { id, label, scheme } }
+  if (item.note) {
+    const typeLabel = codedLabelText(item.type);
+    return typeLabel ? `${typeLabel}: ${item.note}` : item.note;
+  }
   return (
-    item.label ||
+    codedLabelText(item.label) ||
     item.humanized ||
     item.edtf ||
     item.id ||
     JSON.stringify(item, null, 0)
   );
+}
+
+/**
+ * A coded-term `label` may arrive as a resolved `{ id, label, scheme }` object
+ * or as a bare string. Return a renderable string in either case (never an
+ * object, which React refuses to render as a child).
+ */
+function codedLabelText(label) {
+  if (label == null) return "";
+  if (typeof label === "string") return label;
+  return label.label || label.id || "";
 }
 
 /**

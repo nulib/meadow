@@ -5,6 +5,7 @@ import {
   StatusPill,
   ProvenancePreviewBadge,
   ProvenanceEventValues,
+  ProvenanceValue,
   AnnotationOriginBadge,
   FieldProvenanceBadge,
   annotationOrigin,
@@ -280,6 +281,50 @@ describe("AIProvenance Badges", () => {
         <ProvenanceEventValues valueBefore={null} valueAfter={null} />,
       );
       expect(queryByTestId("provenance-event-values")).toBeNull();
+    });
+  });
+
+  describe("ProvenanceValue", () => {
+    it("renders a related_url entry's coded-term label as text, not an object", () => {
+      // Regression: the entry's `label` is a coded-term object, which React
+      // refuses to render directly ("Objects are not valid as a React child").
+      const { getByTestId } = render(
+        <ProvenanceValue
+          value={[
+            {
+              url: "https://www.library.northwestern.edu",
+              label: {
+                id: "RELATED_INFORMATION",
+                label: "Related Information",
+                scheme: "related_url",
+              },
+            },
+          ]}
+        />,
+      );
+      expect(getByTestId("provenance-value")).toHaveTextContent(
+        "Related Information: https://www.library.northwestern.edu",
+      );
+    });
+
+    it("renders a note entry with its coded type label", () => {
+      const { getByTestId } = render(
+        <ProvenanceValue
+          value={[
+            {
+              note: "Condition is fragile",
+              type: {
+                id: "GENERAL_NOTE",
+                label: "General Note",
+                scheme: "note_type",
+              },
+            },
+          ]}
+        />,
+      );
+      expect(getByTestId("provenance-value")).toHaveTextContent(
+        "General Note: Condition is fragile",
+      );
     });
   });
 });
