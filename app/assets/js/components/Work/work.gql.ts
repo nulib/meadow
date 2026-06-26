@@ -96,6 +96,7 @@ export const GET_WORK = gql`
         operation
         origin
         proposedValue
+        currentValue
         itemProvenance {
           id
           origin

@@ -413,6 +413,7 @@ defmodule Meadow.AI.Provenance do
     ai_modified_human_content
     ai_assisted_human_modified
     human_replacement_after_ai_suggestion
+    human_attested_after_ai
   )
 
   @doc """
@@ -421,10 +422,18 @@ defmodule Meadow.AI.Provenance do
   carries AI provenance and whose value changed, flip the origin to reflect
   human mediation and append an event capturing the AI value -> human value
   transition. Fields with no AI provenance are left untouched.
+
+  Pass `except:` a list of `field_path`s to skip — used when those fields are
+  being recorded through the explicit human-attestation path instead, so they
+  don't also pick up a spurious `human_edited`/`ai_assisted_human_modified`
+  event.
   """
-  def record_work_manual_edit(work_before, work_after, actor) do
+  def record_work_manual_edit(work_before, work_after, actor, opts \\ []) do
+    except = Keyword.get(opts, :except, [])
+
     work_before.id
     |> applied_ai_targets()
+    |> Enum.reject(&(&1.field_path in except))
     |> Enum.each(fn target ->
       before_value = field_value(work_before, target.field_path)
       after_value = field_value(work_after, target.field_path)
@@ -435,6 +444,111 @@ defmodule Meadow.AI.Provenance do
     end)
 
     :ok
+  end
+
+  @doc """
+  Record an explicit human attestation that the live value of one or more
+  AI-provenanced fields is now human-authored — e.g. a cataloger asserting
+  responsibility for a title that AI originally proposed. Unlike
+  `record_work_manual_edit/4`, this is an *explicit* action driven by the
+  caller, never inferred from a value change: the new value may be identical to
+  the AI value, nearly identical, or completely different.
+
+  For each requested `field_path` that currently carries applied AI provenance,
+  the same target is reclassified to `human_attested_after_ai` (status stays
+  `applied`) and a `human_attested` event is appended, capturing `value_before`
+  and `value_after` (even when equal) along with the actor and an optional
+  reason note. Prior AI targets/events are preserved untouched.
+
+  `field_path`s with no applied AI provenance are reported as errors and never
+  fabricate a target. Requires a non-nil `actor`. Returns
+  `{:ok, attested_paths}` when every requested field was attested, or
+  `{:error, reasons}` (a keyword list of `{field_path, reason}`) otherwise.
+
+  Options: `:reason` — optional note stored on each event.
+  """
+  def record_work_human_attestation(work_before, work_after, field_paths, actor, opts \\ [])
+
+  def record_work_human_attestation(_before, _after, _field_paths, nil, _opts),
+    do: {:error, [actor: :missing_actor]}
+
+  def record_work_human_attestation(work_before, work_after, field_paths, actor, opts) do
+    reason = Keyword.get(opts, :reason)
+
+    targets_by_path =
+      work_before.id
+      |> applied_ai_targets()
+      |> Map.new(&{&1.field_path, &1})
+
+    {ok, errors} =
+      Enum.reduce(field_paths, {[], []}, fn field_path, {ok, errors} ->
+        case attest_field(targets_by_path, work_before, work_after, field_path, actor, reason) do
+          :ok -> {[field_path | ok], errors}
+          {:error, reason} -> {ok, [{field_path, reason} | errors]}
+        end
+      end)
+
+    case errors do
+      [] -> {:ok, Enum.reverse(ok)}
+      _ -> {:error, Enum.reverse(errors)}
+    end
+  end
+
+  defp attest_field(targets_by_path, work_before, work_after, field_path, actor, reason) do
+    case Map.get(targets_by_path, field_path) do
+      %Target{} = target ->
+        before_value = field_value(work_before, field_path)
+        after_value = field_value(work_after, field_path)
+
+        case attest_human_authored_for_target(target, before_value, after_value, actor, reason) do
+          :error -> {:error, :record_failed}
+          _ -> :ok
+        end
+
+      nil ->
+        {:error, :no_ai_provenance}
+    end
+  end
+
+  # Persist the attestation reclassification and its event atomically (same
+  # transaction-and-rescue contract as `record_manual_edit_for_target/4`): a
+  # failure here must not take down the caller's save.
+  defp attest_human_authored_for_target(target, before_value, after_value, actor, reason) do
+    Repo.transaction(fn ->
+      apply_human_attestation!(target, before_value, after_value, actor, reason)
+    end)
+  rescue
+    error ->
+      Logger.warning(
+        "Failed to record human-attestation provenance for target #{target.id} " <>
+          "(#{target.field_path}): #{Exception.message(error)}"
+      )
+
+      :error
+  end
+
+  # Reclassify the live target as human-attested after prior AI provenance and
+  # append the attestation event. Keeps status "applied" so the field stays
+  # live; preserves the target's earlier AI events. `value_before`/`value_after`
+  # are recorded even when equal, so a same-value attestation is auditable.
+  defp apply_human_attestation!(target, before_value, after_value, actor, reason) do
+    target
+    |> Target.changeset(%{
+      origin: "human_attested_after_ai",
+      status: "applied",
+      human_oversight_level: "human_attested",
+      c2pa_action: "c2pa.edited"
+    })
+    |> Repo.update!()
+
+    add_event!(target, %{
+      event_type: "human_attested",
+      actor: actor,
+      value_before: before_value,
+      value_after: after_value,
+      notes: reason,
+      c2pa_action: "c2pa.edited"
+    })
   end
 
   # Persist the target reclassification and its event atomically so the
@@ -683,6 +797,7 @@ defmodule Meadow.AI.Provenance do
         operation: target.operation,
         origin: target.origin || "human_or_legacy",
         proposed_value: target.proposed_value,
+        current_value: current_value(target, events),
         item_provenance: merge_item_provenance(targets),
         human_oversight_level: target.human_oversight_level,
         status: target.status,
@@ -759,6 +874,7 @@ defmodule Meadow.AI.Provenance do
         operation: target.operation,
         origin: target.origin || "human_or_legacy",
         proposed_value: target.proposed_value,
+        current_value: current_value(target, events),
         item_provenance: merge_item_provenance(targets),
         human_oversight_level: target.human_oversight_level,
         status: target.status,
@@ -1248,6 +1364,7 @@ defmodule Meadow.AI.Provenance do
 
   defp c2pa_action_for_event("applied"), do: "c2pa.edited"
   defp c2pa_action_for_event("deleted"), do: "c2pa.removed"
+  defp c2pa_action_for_event("human_attested"), do: "c2pa.edited"
   defp c2pa_action_for_event("legacy_note_migrated"), do: "c2pa.opened"
   defp c2pa_action_for_event(_), do: nil
 
@@ -1255,12 +1372,14 @@ defmodule Meadow.AI.Provenance do
        when origin in ["ai_assisted_human_modified", "human_replacement_after_ai_suggestion"],
        do: "human_modified"
 
+  defp human_oversight_for_origin("human_attested_after_ai"), do: "human_attested"
   defp human_oversight_for_origin("ai_generated"), do: "human_review_required"
   defp human_oversight_for_origin("human_generated"), do: "human_created"
   defp human_oversight_for_origin(_), do: nil
 
   defp premis_event_type("proposed"), do: "metadata generation"
   defp premis_event_type("human_edited"), do: "metadata modification"
+  defp premis_event_type("human_attested"), do: "metadata modification"
   defp premis_event_type("human_replaced"), do: "metadata replacement"
   defp premis_event_type("approved"), do: "validation"
   defp premis_event_type("rejected"), do: "validation"

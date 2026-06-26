@@ -68,6 +68,16 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       resolve(&Resolvers.Data.update_work/3)
     end
 
+    @desc "Mark one or more AI-provenanced fields' live values as human-authored, preserving AI history"
+    field :attest_human_authored_metadata, :work do
+      arg(:work_id, non_null(:id))
+      arg(:field_paths, non_null(list_of(non_null(:string))))
+      arg(:reason, :string)
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.attest_human_authored_metadata/3)
+    end
+
     @desc "Set the representative FileSet (Access or Auxiliary) for a Work"
     field :set_work_image, :work do
       arg(:work_id, non_null(:id))
@@ -306,6 +316,15 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:behavior, :coded_term_input)
     field(:published, :boolean)
     field(:collection_id, :id)
+
+    @desc "Fields to mark as human-authored after prior AI provenance, recorded in the same save"
+    field(:human_authored_attestations, list_of(:human_authored_attestation_input))
+  end
+
+  @desc "An explicit assertion that a field's live value is human-authored despite prior AI provenance"
+  input_object :human_authored_attestation_input do
+    field(:field_path, non_null(:string))
+    field(:reason, :string)
   end
 
   @desc "Input fields for works administrative metadata"

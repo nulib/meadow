@@ -44,7 +44,7 @@ function SummaryTable({ summary }) {
               </td>
               <td>
                 <ProvenanceValue
-                  value={entry.proposedValue}
+                  value={entry.currentValue ?? entry.proposedValue}
                   itemProvenance={entry.itemProvenance}
                 />
               </td>

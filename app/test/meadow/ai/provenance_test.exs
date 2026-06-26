@@ -720,6 +720,144 @@ defmodule Meadow.AI.ProvenanceTest do
       assert target.origin == "ai_assisted_human_modified"
       assert Enum.any?(target.events, &(&1.event_type == "human_edited"))
     end
+
+    test "except: skips fields recorded through the attestation path", %{work: work} do
+      edited = put_in(work.descriptive_metadata.description, ["Human-edited description"])
+
+      Provenance.record_work_manual_edit(work, edited, "bmq449",
+        except: ["descriptive_metadata.description"]
+      )
+
+      # Untouched by the manual-edit path: still the original AI applied state.
+      assert %{"descriptive_metadata.description" => %{origin: "ai_generated"}} =
+               Provenance.target_summary_map("Work", work.id)
+    end
+  end
+
+  describe "explicit human attestation" do
+    setup do
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{title: "AI title", description: ["AI description"]}
+        })
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_direct_apply",
+          model: "test-model",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: work.id,
+            field_path: "descriptive_metadata.title",
+            operation: "replace",
+            proposed_value: "AI title",
+            origin: "ai_generated",
+            status: "applied"
+          },
+          "applied"
+        )
+
+      %{work: work}
+    end
+
+    defp title_entry(work_id) do
+      Provenance.work_summary(work_id)
+      |> Enum.find(&(&1.field_path == "descriptive_metadata.title"))
+    end
+
+    defp title_events(work_id) do
+      [target] = Provenance.list_activities(work_id: work_id) |> hd() |> Map.fetch!(:targets)
+      target.events
+    end
+
+    test "different value records human_attested_after_ai and preserves AI history", %{work: work} do
+      after_work = put_in(work.descriptive_metadata.title, "Cataloger title")
+
+      assert {:ok, ["descriptive_metadata.title"]} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 after_work,
+                 ["descriptive_metadata.title"],
+                 "bmq449",
+                 reason: "Re-entered from catalog record"
+               )
+
+      entry = title_entry(work.id)
+      assert entry.origin == "human_attested_after_ai"
+      assert entry.status == "applied"
+      assert entry.latest_event_type == "human_attested"
+      assert entry.human_oversight_level == "human_attested"
+      refute entry.origin == "ai_assisted_human_modified"
+
+      # The summary's value reflects the live (attested) value, not the stale AI
+      # proposal, so the Provenance tab agrees with the work's About tab.
+      assert entry.proposed_value == %{"value" => "AI title"}
+      assert entry.current_value == %{"value" => "Cataloger title"}
+
+      event_types = title_events(work.id) |> Enum.map(& &1.event_type)
+      assert "applied" in event_types
+      assert "human_attested" in event_types
+
+      attested = title_events(work.id) |> Enum.find(&(&1.event_type == "human_attested"))
+      assert attested.actor == "bmq449"
+      assert attested.notes == "Re-entered from catalog record"
+      assert attested.value_before == %{"value" => "AI title"}
+      assert attested.value_after == %{"value" => "Cataloger title"}
+      assert attested.premis_event_type == "metadata modification"
+      assert attested.c2pa_action == "c2pa.edited"
+    end
+
+    test "identical value is allowed and records equal before/after", %{work: work} do
+      assert {:ok, ["descriptive_metadata.title"]} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.title"],
+                 "bmq449"
+               )
+
+      entry = title_entry(work.id)
+      assert entry.origin == "human_attested_after_ai"
+      assert entry.latest_event_type == "human_attested"
+
+      attested = title_events(work.id) |> Enum.find(&(&1.event_type == "human_attested"))
+      assert attested.value_before == %{"value" => "AI title"}
+      assert attested.value_after == %{"value" => "AI title"}
+    end
+
+    test "field with no AI provenance returns a validation error and fabricates nothing", %{
+      work: work
+    } do
+      assert {:error, [{"descriptive_metadata.description", :no_ai_provenance}]} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.description"],
+                 "bmq449"
+               )
+
+      # The title (the only AI field) is untouched.
+      assert title_entry(work.id).origin == "ai_generated"
+    end
+
+    test "requires an actor", %{work: work} do
+      assert {:error, [actor: :missing_actor]} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.title"],
+                 nil
+               )
+
+      assert title_entry(work.id).origin == "ai_generated"
+    end
   end
 
   describe "field summary supersession" do

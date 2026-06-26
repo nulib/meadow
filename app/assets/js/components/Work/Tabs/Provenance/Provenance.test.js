@@ -50,4 +50,27 @@ describe("WorkTabsProvenance", () => {
       "AI generated",
     );
   });
+
+  it("shows the live current value, not the stale AI proposal", async () => {
+    const work = {
+      id: "work-1",
+      aiProvenanceSummary: [
+        {
+          ...workWithProvenance.aiProvenanceSummary[0],
+          fieldPath: "descriptive_metadata.title",
+          origin: "human_attested_after_ai",
+          proposedValue: { value: "AI title" },
+          currentValue: { value: "Cataloger title" },
+        },
+      ],
+    };
+    const { getByText, queryByText } = renderWithRouterApollo(
+      <WorkTabsProvenance work={work} />,
+      { mocks: [] },
+    );
+    await waitFor(() => {
+      expect(getByText("Cataloger title")).toBeInTheDocument();
+    });
+    expect(queryByText("AI title")).not.toBeInTheDocument();
+  });
 });

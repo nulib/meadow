@@ -31,6 +31,10 @@ import { toastWrapper } from "../../../services/helpers";
 import useIsEditing from "../../../hooks/useIsEditing";
 import { useMutation } from "@apollo/client/react";
 import { provenanceByFieldPath } from "@js/components/AIProvenance/Badges";
+import {
+  AttestationProvider,
+  useAttestation,
+} from "@js/components/AIProvenance/Attestation";
 
 function prepFormData(work) {
   const { descriptiveMetadata } = work;
@@ -87,6 +91,11 @@ const WorkTabsAbout = ({ work }) => {
   // Lookup of AI provenance keyed by field_path, so individual metadata
   // fields can show an inline "AI generated / reviewed" badge in context.
   const provenance = provenanceByFieldPath(work.aiProvenanceSummary || []);
+
+  // Explicit human-authored attestations selected on AI-provenanced fields,
+  // submitted alongside the work update so editing a value and marking it
+  // human-authored happen in a single save.
+  const { attestationsInput } = useAttestation();
 
   // Is form being edited?
   const [isEditing, setIsEditing] = useIsEditing();
@@ -166,6 +175,11 @@ const WorkTabsAbout = ({ work }) => {
         term,
         currentFormValues[term.name],
       );
+    }
+
+    const humanAuthoredAttestations = attestationsInput();
+    if (humanAuthoredAttestations) {
+      workUpdateInput.humanAuthoredAttestations = humanAuthoredAttestations;
     }
 
     updateWork({
@@ -306,4 +320,16 @@ WorkTabsAbout.propTypes = {
   work: PropTypes.object,
 };
 
-export default React.memo(WorkTabsAbout);
+// Wrap the form in the attestation provider so per-field "mark human-authored"
+// controls and the submit handler share state.
+const WorkTabsAboutWithAttestation = (props) => (
+  <AttestationProvider>
+    <WorkTabsAbout {...props} />
+  </AttestationProvider>
+);
+
+WorkTabsAboutWithAttestation.propTypes = {
+  work: PropTypes.object,
+};
+
+export default React.memo(WorkTabsAboutWithAttestation);

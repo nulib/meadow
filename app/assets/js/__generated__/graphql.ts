@@ -321,6 +321,12 @@ export type FileSetUpdate = {
   structuralMetadata?: FileSetStructuralMetadataInput | null | undefined;
 };
 
+/** An explicit assertion that a field's live value is human-authored despite prior AI provenance */
+export type HumanAuthoredAttestationInput = {
+  fieldPath: string;
+  reason?: string | null | undefined;
+};
+
 /** Overall status of the Ingest Sheet */
 export type IngestSheetStatus =
   /** Approved, ingest in progress */
@@ -517,6 +523,11 @@ export type WorkUpdateInput = {
   behavior?: CodedTermInput | null | undefined;
   collectionId?: string | number | null | undefined;
   descriptiveMetadata?: WorkDescriptiveMetadataInput | null | undefined;
+  /** Fields to mark as human-authored after prior AI provenance, recorded in the same save */
+  humanAuthoredAttestations?:
+    | Array<HumanAuthoredAttestationInput | null | undefined>
+    | null
+    | undefined;
   published?: boolean | null | undefined;
   visibility?: CodedTermInput | null | undefined;
 };
@@ -2110,6 +2121,7 @@ export type WorkQueryQuery = {
       operation: string | null;
       origin: string;
       proposedValue: unknown;
+      currentValue: unknown;
       humanOversightLevel: string | null;
       status: string | null;
       activityId: string;
@@ -10320,6 +10332,10 @@ export const WorkQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "proposedValue" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "currentValue" },
                       },
                       {
                         kind: "Field",

@@ -136,6 +136,17 @@ describe("AIProvenance Badges", () => {
       expect(queryByTestId("provenance-origin-badge")).not.toBeInTheDocument();
     });
 
+    it("badges a human-attested value distinctly from 'AI + human edited'", () => {
+      const { getByTestId } = render(
+        <FieldProvenanceBadge
+          entry={{ origin: "human_attested_after_ai", status: "applied" }}
+        />,
+      );
+      const badge = getByTestId("provenance-origin-badge");
+      expect(badge).toHaveTextContent("Human attested");
+      expect(badge).not.toHaveTextContent("AI + human edited");
+    });
+
     // Once a human removes the AI value, the field is empty and the
     // "Human replaced AI" label should not linger next to it.
     it("renders nothing for a deleted value", () => {
@@ -283,6 +294,20 @@ describe("AIProvenance Badges", () => {
         <ProvenanceEventValues valueBefore={null} valueAfter={null} />,
       );
       expect(queryByTestId("provenance-event-values")).toBeNull();
+    });
+
+    it("calls out an unchanged value attested as human-authored", () => {
+      const { getByTestId } = render(
+        <ProvenanceEventValues
+          valueBefore={{ value: "AI title" }}
+          valueAfter={{ value: "AI title" }}
+        />,
+      );
+      const el = getByTestId("provenance-event-values");
+      expect(el).toHaveTextContent(
+        "Value unchanged; human attested responsibility for the live value.",
+      );
+      expect(el).not.toHaveTextContent("From:");
     });
   });
 

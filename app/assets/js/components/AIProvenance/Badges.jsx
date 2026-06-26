@@ -44,6 +44,10 @@ export const ORIGIN_META = {
     label: "Human replaced AI",
     color: DOT.green,
   },
+  human_attested_after_ai: {
+    label: "Human attested",
+    color: DOT.green,
+  },
   human_generated: { label: "Human", color: DOT.grey },
   legacy_ai_note_detected: { label: "Legacy AI note", color: DOT.amber },
   human_or_legacy: { label: "Human / legacy", color: DOT.grey },
@@ -425,6 +429,18 @@ export function ProvenanceEventValues({ valueBefore, valueAfter }) {
   const before = unwrapProvenanceValue(valueBefore);
   const after = unwrapProvenanceValue(valueAfter);
   if (!hasValue(before) && !hasValue(after)) return null;
+  // A human attestation can record an unchanged value (the human asserts
+  // responsibility for the same value the AI proposed). Call that out rather
+  // than showing an identical From/To pair that looks like a no-op edit.
+  if (hasValue(before) && JSON.stringify(before) === JSON.stringify(after)) {
+    return (
+      <div className="mt-1" data-testid="provenance-event-values">
+        <div className="is-size-7 has-text-grey">
+          Value unchanged; human attested responsibility for the live value.
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="mt-1" data-testid="provenance-event-values">
       <ProvenanceEventValue label="From" value={valueBefore} />
@@ -535,6 +551,12 @@ export function provenanceTooltip(entry) {
   if (!entry) return "";
   const meta = ORIGIN_META[entry.origin];
   const parts = [meta ? meta.label : humanize(entry.origin)];
+  if (entry.origin === "human_attested_after_ai") {
+    parts.push(
+      "A human asserted responsibility for this value after prior AI provenance. " +
+        "The AI history is retained in the Provenance tab.",
+    );
+  }
   if (entry.model) parts.push(`model ${entry.model}`);
   if (entry.reviewer) {
     const when = entry.reviewedAt

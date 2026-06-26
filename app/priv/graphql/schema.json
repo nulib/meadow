@@ -2835,6 +2835,18 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
+              "name": "currentValue",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Json",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
               "name": "fieldPath",
               "type": {
                 "kind": "NON_NULL",
@@ -7896,6 +7908,41 @@
           "possibleTypes": null
         },
         {
+          "description": "An explicit assertion that a field's live value is human-authored despite prior AI provenance",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "fieldPath",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "reason",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "HumanAuthoredAttestationInput",
+          "possibleTypes": null
+        },
+        {
           "description": "The `ID` scalar type represents a unique identifier, often used to\nrefetch an object or as key for a cache. The ID type appears in a JSON\nresponse as a String; however, it is not intended to be human-readable.\nWhen expected as an input type, any string (such as `\"4\"`) or integer\n(such as `4`) input value will be accepted as an ID.",
           "enumValues": null,
           "fields": null,
@@ -8664,6 +8711,65 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "StatusMessage",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "fieldPaths",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "LIST",
+                      "name": null,
+                      "ofType": {
+                        "kind": "NON_NULL",
+                        "name": null,
+                        "ofType": {
+                          "kind": "SCALAR",
+                          "name": "String",
+                          "ofType": null
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "reason",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "workId",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Mark one or more AI-provenanced fields' live values as human-authored, preserving AI history",
+              "isDeprecated": false,
+              "name": "attestHumanAuthoredMetadata",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Work",
                 "ofType": null
               }
             },
@@ -16593,6 +16699,20 @@
                 "kind": "INPUT_OBJECT",
                 "name": "WorkDescriptiveMetadataInput",
                 "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": "Fields to mark as human-authored after prior AI provenance, recorded in the same save",
+              "name": "humanAuthoredAttestations",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "HumanAuthoredAttestationInput",
+                  "ofType": null
+                }
               }
             },
             {

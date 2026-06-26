@@ -172,6 +172,7 @@ defmodule MeadowWeb.Schema.AIProvenanceTypes do
     field(:operation, :string)
     field(:origin, non_null(:string))
     field(:proposed_value, :json)
+    field(:current_value, :json)
     field(:item_provenance, list_of(:ai_provenance_item))
     field(:human_oversight_level, :string)
     field(:status, :string)

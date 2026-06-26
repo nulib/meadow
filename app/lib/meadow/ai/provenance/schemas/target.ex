@@ -11,6 +11,7 @@ defmodule Meadow.AI.Provenance.Schemas.Target do
     ai_modified_human_content
     ai_assisted_human_modified
     human_replacement_after_ai_suggestion
+    human_attested_after_ai
     human_generated
     legacy_ai_note_detected
     human_or_legacy

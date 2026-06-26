@@ -10,6 +10,7 @@ defmodule Meadow.AI.Provenance.Schemas.Event do
     proposed
     human_edited
     human_replaced
+    human_attested
     approved
     rejected
     applied

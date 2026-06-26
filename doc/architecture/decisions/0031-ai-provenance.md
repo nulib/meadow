@@ -64,7 +64,24 @@ The model is shaped around the entities the three standards share:
 - **Targets** are the specific fields an activity proposes to change
   (`field_path`, operation, before/after snapshots, `origin`).
 - **Events** are the audit trail on a target (proposed, applied, reviewed,
-  deleted), each linkable to **Agents** (human or software) by role.
+  human-edited, human-attested, deleted), each linkable to **Agents** (human or
+  software) by role.
+
+Human mediation of an AI value is itself part of the audit trail, and we record
+it as **explicitly chosen actions, never inferred from string comparison**. An
+ordinary edit of an AI value flips the target to `ai_assisted_human_modified`
+("AI + human edited") and appends a `human_edited` event; clearing it records a
+deletion. Separately, a cataloger may **attest** that the live value is now
+human-authored even though AI proposed it earlier — for example re-entering a
+title from the original catalog record. That is a distinct, explicit path
+(`human_attested_after_ai` origin, `human_attested` event) that **appends** to
+the AI history rather than rewriting or deleting it: the original AI generation
+remains, and the attestation captures actor, timestamp, before/after values, and
+an optional reason. The before and after values may be identical — a same-value
+attestation is allowed and recorded transparently, so the model can claim "this
+value had prior AI provenance and a human later took responsibility for it"
+without ever claiming the value was independently human-authored or laundering
+the AI badge away.
 
 Persist the standard-specific attributes as **annotations on the canonical
 records, not as the storage format**: PREMIS object categories/identifiers and

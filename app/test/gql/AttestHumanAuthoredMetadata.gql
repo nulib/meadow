@@ -1,0 +1,15 @@
+mutation ($work_id: ID!, $field_paths: [String!]!, $reason: String) {
+  attestHumanAuthoredMetadata(
+    workId: $work_id
+    fieldPaths: $field_paths
+    reason: $reason
+  ) {
+    id
+    aiProvenanceSummary {
+      fieldPath
+      origin
+      status
+      latestEventType
+    }
+  }
+}

@@ -14,6 +14,7 @@ import {
   fieldProvenance,
   provenanceItemId,
 } from "@js/components/AIProvenance/Badges";
+import { HumanAuthoredFieldControl } from "@js/components/AIProvenance/Attestation";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,
@@ -50,13 +51,20 @@ const WorkTabsAboutCoreMetadata = ({
       <div className="column is-two-thirds">
         <UIFormField label="Title">
           {isEditing ? (
-            <UIInput
-              isReactHookForm
-              name="title"
-              label="Title"
-              data-testid="title"
-              defaultValue={descriptiveMetadata.title}
-            />
+            <>
+              <UIInput
+                isReactHookForm
+                name="title"
+                label="Title"
+                data-testid="title"
+                defaultValue={descriptiveMetadata.title}
+              />
+              <HumanAuthoredFieldControl
+                entry={fieldProvenance(provenance, "title")}
+                name="title"
+                originalValue={descriptiveMetadata.title}
+              />
+            </>
           ) : (
             <p>
               {descriptiveMetadata.title}

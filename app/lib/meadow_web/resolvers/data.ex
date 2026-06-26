@@ -45,16 +45,65 @@ defmodule MeadowWeb.Resolvers.Data do
 
   def update_work(_, %{id: id, work: work_params}, resolution) do
     work = Works.get_work!(id)
+    {attestations, work_params} = Map.pop(work_params, :human_authored_attestations, [])
 
     case Works.update_work(work, work_params) do
       {:error, changeset} ->
         {:error, message: "Could not update work", details: humanize_work_changeset(changeset)}
 
       {:ok, updated_work} ->
+        actor = actor_username(resolution)
+        attested_paths = Enum.map(attestations, & &1.field_path)
+
         # Record any direct human edits of AI-provenanced fields so the origin
         # reflects human mediation instead of silently staying "AI generated".
-        Provenance.record_work_manual_edit(work, updated_work, actor_username(resolution))
+        # Skip fields the user explicitly attested as human-authored — those go
+        # through the attestation path below so they don't also pick up an
+        # "AI + human edited" event.
+        Provenance.record_work_manual_edit(work, updated_work, actor, except: attested_paths)
+        record_attestations(work, updated_work, attestations, actor)
         {:ok, updated_work}
+    end
+  end
+
+  # Record an explicit human attestation for each field the user marked as
+  # human-authored. Reasons may differ per field, so record them one field at a
+  # time. Failures are logged inside Provenance and must not fail the save.
+  defp record_attestations(_work, _updated_work, [], _actor), do: :ok
+
+  defp record_attestations(work, updated_work, attestations, actor) do
+    Enum.each(attestations, fn %{field_path: field_path} = attestation ->
+      Provenance.record_work_human_attestation(
+        work,
+        updated_work,
+        [field_path],
+        actor,
+        reason: Map.get(attestation, :reason)
+      )
+    end)
+  end
+
+  def attest_human_authored_metadata(
+        _,
+        %{work_id: work_id, field_paths: field_paths} = args,
+        resolution
+      ) do
+    work = Works.get_work!(work_id)
+
+    # Attest-without-edit: the live work is unchanged, so before == after. The
+    # attestation event still records both values for an auditable trail.
+    case Provenance.record_work_human_attestation(
+           work,
+           work,
+           field_paths,
+           actor_username(resolution),
+           reason: Map.get(args, :reason)
+         ) do
+      {:ok, _attested} ->
+        {:ok, Works.get_work!(work_id)}
+
+      {:error, reasons} ->
+        {:error, message: "Could not attest human-authored metadata", details: inspect(reasons)}
     end
   end
 
