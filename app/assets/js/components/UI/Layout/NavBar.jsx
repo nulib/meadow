@@ -24,6 +24,7 @@ import IconText from "@js/components/UI/IconText";
 import NLogo from "@js/components/northwesternN.svg?react";
 import UIMeadowVersion from "@js/components/UI/MeadowVersion";
 import UIDevBgToggle from "@js/components/UI/DevBgToggle";
+import AIProvenanceBadgeToggle from "@js/components/AIProvenance/BadgeToggle";
 import useEnvironment from "@js/hooks/useEnvironment";
 
 /** @jsx jsx */
@@ -249,6 +250,9 @@ const UILayoutNavBar = () => {
                     <AuthDisplayAuthorized level="ADMINISTRATOR">
                       <RoleNavDropdown />
                     </AuthDisplayAuthorized>
+                    <UILayoutNavDropdownItem>
+                      <AIProvenanceBadgeToggle />
+                    </UILayoutNavDropdownItem>
                     <UILayoutNavDropdownItem>
                       <a role="menuitem" onClick={handleLogoutClick}>
                         Logout

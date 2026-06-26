@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useAIProvenanceBadges } from "@js/context/ai-provenance-context";
 
 /**
  * Shared display helpers for AI provenance data exposed by Meadow's
@@ -45,6 +46,8 @@ function humanize(value) {
 }
 
 export function OriginBadge({ origin, title }) {
+  const { visible } = useAIProvenanceBadges();
+  if (!visible) return null;
   if (!origin) return null;
   const meta = ORIGIN_META[origin] || {
     label: humanize(origin),
@@ -67,6 +70,8 @@ OriginBadge.propTypes = {
 };
 
 export function StatusPill({ status }) {
+  const { visible } = useAIProvenanceBadges();
+  if (!visible) return null;
   if (!status) return null;
   const meta = STATUS_META[status] || {
     label: humanize(status),

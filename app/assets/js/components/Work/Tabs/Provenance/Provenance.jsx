@@ -8,6 +8,7 @@ import {
   ProvenanceValue,
   ProvenanceEvents,
 } from "@js/components/AIProvenance/Badges";
+import { AIProvenanceBadgesAlwaysVisible } from "@js/context/ai-provenance-context";
 import { GET_WORK_AI_ACTIVITIES } from "./provenance.gql";
 
 function formatDate(value) {
@@ -192,26 +193,31 @@ const WorkTabsProvenance = ({ work }) => {
   }
 
   return (
-    <div data-testid="provenance-tab">
-      <TabsStickyHeader title="AI Provenance">
-        <button
-          className="button is-light"
-          data-testid="toggle-activity-log"
-          onClick={() => setShowLog((v) => !v)}
-        >
-          {showLog ? "Hide activity log" : "View activity log"}
-        </button>
-      </TabsStickyHeader>
+    <AIProvenanceBadgesAlwaysVisible>
+      <div data-testid="provenance-tab">
+        <TabsStickyHeader title="AI Provenance">
+          <button
+            className="button is-light"
+            data-testid="toggle-activity-log"
+            onClick={() => setShowLog((v) => !v)}
+          >
+            {showLog ? "Hide activity log" : "View activity log"}
+          </button>
+        </TabsStickyHeader>
 
-      <SummaryTable summary={summary} />
+        <SummaryTable summary={summary} />
 
-      {showLog && loading && (
-        <progress className="progress is-small is-primary" />
-      )}
-      {showLog && (
-        <ActivityLog activities={activities} fileSets={work?.fileSets || []} />
-      )}
-    </div>
+        {showLog && loading && (
+          <progress className="progress is-small is-primary" />
+        )}
+        {showLog && (
+          <ActivityLog
+            activities={activities}
+            fileSets={work?.fileSets || []}
+          />
+        )}
+      </div>
+    </AIProvenanceBadgesAlwaysVisible>
   );
 };
 
