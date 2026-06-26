@@ -661,6 +661,167 @@ describe("PlanPanelChangesDiff", () => {
       ).not.toBeInTheDocument();
     });
 
+    test("badges the current value with its existing (before) provenance origin", () => {
+      mockToRows
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([
+          {
+            id: "replace-description",
+            method: "replace",
+            path: "descriptive_metadata.description",
+            label: "Description",
+            value: "New description",
+            controlled: false,
+          },
+        ]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "scalar",
+        current: "Old description",
+        resulting: "New description",
+        changed: true,
+      });
+
+      const currentWork = {
+        descriptiveMetadata: { description: "Old description" },
+        aiProvenanceSummary: [
+          {
+            fieldPath: "descriptive_metadata.description",
+            origin: "ai_generated",
+            status: "applied",
+          },
+        ],
+      };
+
+      render(
+        <PlanPanelChangesDiff
+          proposedChanges={approvedProposed}
+          currentWork={currentWork}
+        />,
+      );
+
+      const dataRow = screen.getAllByRole("row")[1];
+      const currentCell = within(dataRow).getAllByRole("cell")[2];
+      // The before badge sits in the Current value cell, not the preview.
+      expect(
+        within(currentCell).getByTestId("provenance-origin-badge"),
+      ).toHaveTextContent("AI generated");
+      expect(
+        within(currentCell).queryByTestId("provenance-preview"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("badges each AI-attributed item individually instead of the whole field", () => {
+      // The AI proposed two of the three resulting subjects; the diff items
+      // carry the backend-matching itemId so each AI item gets its own badge.
+      mockUseQuery.mockReturnValue({
+        data: {
+          aiActivities: [
+            {
+              id: "a1",
+              targets: [
+                {
+                  fieldPath: "descriptive_metadata.subject",
+                  origin: "ai_generated",
+                  itemProvenance: [
+                    { id: "s2", origin: "ai_generated" },
+                    { id: "s3", origin: "ai_generated" },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      mockToRows
+        .mockReturnValueOnce([
+          {
+            id: "add-subject",
+            method: "add",
+            path: "descriptive_metadata.subject",
+            label: "Subject",
+            value: [
+              { term: { id: "s2", label: "Photographs" } },
+              { term: { id: "s3", label: "Maps" } },
+            ],
+            controlled: true,
+          },
+        ])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "list",
+        current: [
+          { key: "s1", display: "Aerial", itemId: "s1", status: "unchanged" },
+        ],
+        resulting: [
+          { key: "s1", display: "Aerial", itemId: "s1", status: "unchanged" },
+          { key: "s2", display: "Photographs", itemId: "s2", status: "added" },
+          { key: "s3", display: "Maps", itemId: "s3", status: "added" },
+        ],
+      });
+
+      render(
+        <PlanPanelChangesDiff
+          proposedChanges={approvedProposed}
+          planChangeId="pc-1"
+          currentWork={{ aiProvenanceSummary: [] }}
+        />,
+      );
+
+      const newCell = within(screen.getAllByRole("row")[1]).getAllByRole(
+        "cell",
+      )[3];
+      // One badge per AI-proposed item (s2, s3)...
+      expect(
+        within(newCell).getAllByTestId("provenance-origin-badge"),
+      ).toHaveLength(2);
+      // ...and no field-level preview badge once items are badged individually.
+      expect(
+        within(newCell).queryByTestId("provenance-preview"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("renders no before badge for a field with no recorded provenance", () => {
+      mockToRows
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([
+          {
+            id: "replace-title",
+            method: "replace",
+            path: "descriptive_metadata.title",
+            label: "Title",
+            value: "New",
+            controlled: false,
+          },
+        ]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "scalar",
+        current: "Old",
+        resulting: "New",
+        changed: true,
+      });
+
+      render(
+        <PlanPanelChangesDiff
+          proposedChanges={approvedProposed}
+          currentWork={{ aiProvenanceSummary: [] }}
+        />,
+      );
+
+      const currentCell = within(screen.getAllByRole("row")[1]).getAllByRole(
+        "cell",
+      )[2];
+      expect(
+        within(currentCell).queryByTestId("provenance-origin-badge"),
+      ).not.toBeInTheDocument();
+    });
+
     test("calls getCurrentValue with the row path and currentWork", () => {
       mockToRows
         .mockReturnValueOnce([

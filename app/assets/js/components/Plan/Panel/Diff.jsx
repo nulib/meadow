@@ -16,6 +16,8 @@ import EditDiffRowForm from "@js/components/Plan/Panel/EditDiffRowForm";
 import {
   OriginBadge,
   ProvenancePreviewBadge,
+  FieldProvenanceBadge,
+  provenanceByFieldPath,
   provenanceItemId,
   valueItemIds,
 } from "@js/components/AIProvenance/Badges";
@@ -223,13 +225,28 @@ const renderGenericValue = (value, itemProvenance = []) => {
 };
 
 /**
- * Render a list of diff items ({key, display, status, url?}) for one cell in
- * the approved diff table.  Items are marked added, removed, or unchanged.
+ * Whether any item in a diff list carries per-item AI provenance, so the
+ * field-level badge can be suppressed once items are badged individually
+ * (mirrors hasItemProvenance for the editable PROPOSED table).
  */
-const DiffItemList = ({ items }) => {
+const diffItemsBadged = (items, itemProvenance = []) => {
+  if (!Array.isArray(items) || !items.length || !itemProvenance.length)
+    return false;
+  const ids = new Set(itemProvenance.map((entry) => entry?.id));
+  return items.some((item) => ids.has(item.itemId));
+};
+
+/**
+ * Render a list of diff items ({key, display, status, url?, itemId}) for one
+ * cell in the approved diff table. Items are marked added, removed, or
+ * unchanged, and each AI-attributed item is badged individually with its own
+ * origin (via itemProvenance) rather than the field carrying one badge.
+ */
+const DiffItemList = ({ items, itemProvenance = [] }) => {
   if (!items || items.length === 0) {
     return <span>—</span>;
   }
+  const originById = originLookup(itemProvenance);
   return (
     <ul>
       {items.map((item, i) => (
@@ -244,6 +261,7 @@ const DiffItemList = ({ items }) => {
           {item.id && item.id !== item.display && (
             <span className="plan-diff-term-id"> ({item.id})</span>
           )}
+          <ItemOriginBadge origin={originById[item.itemId]} />
         </li>
       ))}
     </ul>
@@ -273,6 +291,12 @@ const PlanPanelChangesDiff = ({
   });
   const recordedOrigins = recordedOriginByPath(provenanceData?.aiActivities);
   const itemProvenances = itemProvenanceByPath(provenanceData?.aiActivities);
+  // The work's existing per-field provenance, used to badge the "Current value"
+  // (before) column in the diff table so reviewers can read the provenance
+  // transition — e.g. an "AI generated" value about to become "AI edited".
+  const summaryByPath = provenanceByFieldPath(
+    currentWork?.aiProvenanceSummary || [],
+  );
 
   const isProposed = proposedChanges?.status === "PROPOSED";
 
@@ -416,6 +440,20 @@ const PlanPanelChangesDiff = ({
             {changes.map((change) => {
               const currentValue = getCurrentValue(change.path, currentWork);
               const diff = computeRowDiff(change, currentValue);
+              const summaryEntry = summaryByPath[change.path];
+              // Per-item provenance for each side: the work's existing
+              // attribution badges the "before" items; the AI proposal's
+              // reconciled attribution badges the "after" items.
+              const beforeItemProvenance = summaryEntry?.itemProvenance || [];
+              const afterItemProvenance = itemProvenances[change.path] || [];
+              const beforeBadgedPerItem = diffItemsBadged(
+                diff.current,
+                beforeItemProvenance,
+              );
+              const afterBadgedPerItem = diffItemsBadged(
+                diff.resulting,
+                afterItemProvenance,
+              );
               return (
                 <tr key={change.id} data-method={change.method}>
                   <td>{change.label}</td>
@@ -424,24 +462,41 @@ const PlanPanelChangesDiff = ({
                   </td>
                   <td>
                     {diff.kind === "list" ? (
-                      <DiffItemList items={diff.current} />
+                      <DiffItemList
+                        items={diff.current}
+                        itemProvenance={beforeItemProvenance}
+                      />
                     ) : (
                       <span>{diff.current || "—"}</span>
+                    )}
+                    {/* "Before" badge: the provenance the current value already
+                        carries, so the transition to the new value is legible.
+                        Skipped once items are badged individually. */}
+                    {!beforeBadgedPerItem && (
+                      <FieldProvenanceBadge entry={summaryEntry} />
                     )}
                   </td>
                   <td>
                     {diff.kind === "list" ? (
-                      <DiffItemList items={diff.resulting} />
+                      <DiffItemList
+                        items={diff.resulting}
+                        itemProvenance={afterItemProvenance}
+                      />
                     ) : (
                       <span data-diff-changed={diff.changed}>
                         {diff.resulting || "—"}
                       </span>
                     )}
-                    <ProvenancePreviewBadge
-                      method={change.method}
-                      currentValue={currentValue}
-                      recordedOrigin={recordedOrigins[change.path]}
-                    />
+                    {/* "After" badge: the provenance this AI change will be
+                        recorded with once applied. Skipped once items are badged
+                        individually. */}
+                    {!afterBadgedPerItem && (
+                      <ProvenancePreviewBadge
+                        method={change.method}
+                        currentValue={currentValue}
+                        recordedOrigin={recordedOrigins[change.path]}
+                      />
+                    )}
                   </td>
                 </tr>
               );
