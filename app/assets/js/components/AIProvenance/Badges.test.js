@@ -22,7 +22,9 @@ describe("AIProvenance Badges", () => {
     const { getByTestId } = render(<OriginBadge origin="ai_generated" />);
     const badge = getByTestId("provenance-origin-badge");
     expect(badge).toHaveTextContent("AI generated");
-    expect(badge).toHaveClass("is-info");
+    // Neutral pill with a colored identification dot, not a full color tag.
+    expect(badge).toHaveClass("provenance-badge");
+    expect(badge.style.getPropertyValue("--provenance-dot")).toBe("#5091cd");
   });
 
   it("falls back to a humanized label for unknown origins", () => {
@@ -43,7 +45,7 @@ describe("AIProvenance Badges", () => {
     );
     const badge = getByTestId("provenance-origin-badge");
     expect(badge).toHaveTextContent("AI edited");
-    expect(badge).toHaveClass("is-link");
+    expect(badge.style.getPropertyValue("--provenance-dot")).toBe("#007fa4");
   });
 
   describe("annotationOrigin / AnnotationOriginBadge", () => {

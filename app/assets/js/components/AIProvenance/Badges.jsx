@@ -8,26 +8,49 @@ import { useAIProvenanceBadges } from "@js/context/ai-provenance-context";
  *
  * Origin describes where a value came from in the AI-assisted workflow;
  * status describes where it sits in the proposed -> reviewed -> applied
- * lifecycle. Both are plain strings on the backend, so we map them to
- * Bulma tag colors and human labels here.
+ * lifecycle. Both are plain strings on the backend.
+ *
+ * Origin badges are a neutral light-grey pill with dark text and a small
+ * colored dot (rendered via the `.provenance-badge::before` pseudo-element,
+ * fed the `--provenance-dot` custom property) for at-a-glance identification,
+ * using Meadow's toned-down secondary palette. Status pills stay full-color
+ * Bulma tags.
  */
 
+// Dot palette drawn from Meadow's secondary colors (see
+// styles/scss/_variables.scss), chosen so the hues read as semantically
+// meaningful and stay easy to tell apart at dot size. No purple by request.
+const DOT = {
+  blue: "#5091cd", // AI authored
+  teal: "#007fa4", // AI edited an existing value
+  brightGreen: "#58b947", // AI-assisted, human-touched
+  green: "#008656", // human-owned
+  amber: "#d9c826", // legacy AI note, worth attention
+  grey: "#716c6b", // neutral / human / legacy
+};
+
+// Origins read as a spectrum from machine to human, with no alarm colors:
+// cool blues for AI-authored content, greens once a human is involved (a
+// lighter green for AI-assisted edits, a deeper green once a human owns the
+// value), amber to flag a legacy AI note, and neutral grey for human/legacy.
 export const ORIGIN_META = {
-  ai_generated: { label: "AI generated", className: "is-info" },
-  ai_modified_human_content: { label: "AI edited", className: "is-link" },
+  ai_generated: { label: "AI generated", color: DOT.blue },
+  ai_modified_human_content: { label: "AI edited", color: DOT.teal },
   ai_assisted_human_modified: {
     label: "AI + human edited",
-    className: "is-link",
+    color: DOT.brightGreen,
   },
   human_replacement_after_ai_suggestion: {
     label: "Human replaced AI",
-    className: "is-warning",
+    color: DOT.green,
   },
-  human_generated: { label: "Human", className: "is-light" },
-  legacy_ai_note_detected: { label: "Legacy AI note", className: "is-warning" },
-  human_or_legacy: { label: "Human / legacy", className: "is-light" },
+  human_generated: { label: "Human", color: DOT.grey },
+  legacy_ai_note_detected: { label: "Legacy AI note", color: DOT.amber },
+  human_or_legacy: { label: "Human / legacy", color: DOT.grey },
 };
 
+// Status stays a full-color Bulma badge — it marks where a value sits in the
+// proposed -> reviewed -> applied lifecycle and reads well as a solid color.
 export const STATUS_META = {
   proposed: { label: "Proposed", className: "is-warning" },
   reviewed: { label: "Reviewed", className: "is-info" },
@@ -51,11 +74,12 @@ export function OriginBadge({ origin, title }) {
   if (!origin) return null;
   const meta = ORIGIN_META[origin] || {
     label: humanize(origin),
-    className: "is-light",
+    color: "#716c6b",
   };
   return (
     <span
-      className={`tag ${meta.className}`}
+      className="tag provenance-badge"
+      style={{ "--provenance-dot": meta.color }}
       data-testid="provenance-origin-badge"
       title={title || meta.label}
     >
