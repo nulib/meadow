@@ -7,11 +7,14 @@ defmodule Meadow.AI.Provenance do
   require Logger
 
   alias Meadow.AI.Provenance.Schemas.{Activity, Agent, Event, EventAgent, Source, Target}
+  alias Meadow.Config
+  alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Repo
 
   @default_system_name "Meadow"
   @default_user_category "staff"
   @default_retention_policy "retain_internal"
+  @holding_organization "Northwestern University Libraries"
 
   # IPTC digitalSourceType vocabulary. `trainedAlgorithmicMedia` means the value
   # was produced purely by a generative model; `algorithmicallyEnhanced` means a
@@ -56,6 +59,68 @@ defmodule Meadow.AI.Provenance do
     |> normalize_source_attrs()
     |> Source.changeset()
     |> Repo.insert()
+  end
+
+  @doc """
+  Citation-complete source attrs for a Work used as AI source material. Includes
+  the work's collection and public access link alongside the holding
+  organization and item id, so the resulting source can grade `complete` (see
+  `citation_completeness/1`). Preloads the collection if it isn't already.
+  """
+  def work_source_attrs(%Work{} = work) do
+    work = Repo.preload(work, :collection)
+
+    %{
+      item_id: work.id,
+      item_type: "Work",
+      work_id: work.id,
+      collection_id: work.collection_id,
+      collection_title: work.collection && work.collection.title,
+      holding_organization: @holding_organization,
+      access_link: work_access_link(work.id),
+      relationship_role: "source",
+      premis_object_category: "intellectual_entity",
+      object_identifier_type: "Meadow Work",
+      object_identifier_value: work.id,
+      source_snapshot: %{accession_number: work.accession_number}
+    }
+  end
+
+  @doc """
+  Citation-complete source attrs for a FileSet used as AI source material. A file
+  set is accessed through its parent work, so the collection and access link are
+  drawn from the work; preloads `work: :collection` if needed.
+  """
+  def file_set_source_attrs(%FileSet{} = file_set) do
+    file_set = Repo.preload(file_set, work: :collection)
+    work = file_set.work
+
+    %{
+      item_id: file_set.id,
+      item_type: "FileSet",
+      work_id: file_set.work_id,
+      file_set_id: file_set.id,
+      collection_id: work && work.collection_id,
+      collection_title: work && work.collection && work.collection.title,
+      holding_organization: @holding_organization,
+      access_link: work_access_link(file_set.work_id),
+      relationship_role: "source",
+      premis_object_category: "file",
+      object_identifier_type: "Meadow FileSet",
+      object_identifier_value: file_set.id,
+      source_snapshot: %{accession_number: file_set.accession_number}
+    }
+  end
+
+  # Public Digital Collections item page for a work, used as the access link for
+  # a work or its file sets. Returns nil when no DC url is configured.
+  defp work_access_link(nil), do: nil
+
+  defp work_access_link(work_id) do
+    case Config.digital_collections_url() do
+      nil -> nil
+      base -> Path.join([base, "items", work_id])
+    end
   end
 
   def add_target(%Activity{id: activity_id}, attrs) when is_map(attrs),

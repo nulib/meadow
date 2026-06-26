@@ -90,17 +90,7 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadata do
           |> Provenance.create_activity()
           |> unwrap_or_rollback()
 
-        Provenance.add_source(activity, %{
-          item_id: work_id,
-          item_type: "Work",
-          work_id: work_id,
-          holding_organization: "Northwestern University Libraries",
-          relationship_role: "source",
-          premis_object_category: "intellectual_entity",
-          object_identifier_type: "Meadow Work",
-          object_identifier_value: work_id,
-          source_snapshot: %{accession_number: work.accession_number}
-        })
+        Provenance.add_source(activity, Provenance.work_source_attrs(work))
         |> unwrap_or_rollback()
 
         Provenance.record_targets_for_operations(

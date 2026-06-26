@@ -50,6 +50,53 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
              ] = Provenance.work_summary(plan_change.work_id)
     end
 
+    test "records the targeted work as a citation-complete source" do
+      collection = collection_fixture(%{title: "Source Collection"})
+      work = work_fixture(%{collection_id: collection.id})
+      {:ok, plan} = Planner.create_plan(%{prompt: "Test plan"})
+
+      {:ok, plan_change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          add: %{},
+          status: :pending
+        })
+
+      params = %{
+        "id" => plan_change.id,
+        "replace" => %{
+          "descriptive_metadata" => %{"title" => "Updated Title"}
+        },
+        "status" => "proposed"
+      }
+
+      assert {:ok, [{:text, _response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
+
+      assert [
+               %{
+                 source_count: 1,
+                 citation_completeness: "complete"
+               }
+             ] = Provenance.work_summary(work.id)
+
+      assert [
+               %{
+                 item_id: item_id,
+                 item_type: "Work",
+                 collection_id: collection_id,
+                 collection_title: "Source Collection",
+                 holding_organization: "Northwestern University Libraries",
+                 access_link: access_link
+               }
+             ] = Provenance.list_activities(work_id: work.id) |> hd() |> Map.fetch!(:sources)
+
+      assert item_id == work.id
+      assert collection_id == collection.id
+      assert access_link =~ work.id
+    end
+
     test "rejects title objects", %{plan_change: plan_change} do
       params = %{
         "id" => plan_change.id,

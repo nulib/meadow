@@ -724,18 +724,7 @@ defmodule Meadow.Data.FileSets do
         |> Provenance.create_activity()
         |> unwrap_or_rollback()
 
-      Provenance.add_source(activity, %{
-        item_id: file_set.id,
-        item_type: "FileSet",
-        work_id: file_set.work_id,
-        file_set_id: file_set.id,
-        holding_organization: "Northwestern University Libraries",
-        relationship_role: "source",
-        premis_object_category: "file",
-        object_identifier_type: "Meadow FileSet",
-        object_identifier_value: file_set.id,
-        source_snapshot: %{accession_number: file_set.accession_number}
-      })
+      Provenance.add_source(activity, Provenance.file_set_source_attrs(file_set))
       |> unwrap_or_rollback()
 
       create_annotation(file_set, %{

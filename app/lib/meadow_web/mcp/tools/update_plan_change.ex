@@ -76,7 +76,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   alias Anubis.Server.Response
   alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment, Planner}
-  alias Meadow.Data.Schemas.WorkDescriptiveMetadata
+  alias Meadow.Data.Schemas.{Work, WorkDescriptiveMetadata}
   alias Meadow.Data.Types
   alias Meadow.Repo
   require Logger
@@ -203,6 +203,16 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
     }
   end
 
+  # The agent generates a plan by reading the work it targets, so record that work
+  # as the activity's source. A missing work just skips the source rather than
+  # failing the change.
+  defp record_work_source(activity, work_id) do
+    case Repo.get(Work, work_id) do
+      nil -> :ok
+      work -> Provenance.add_source(activity, Provenance.work_source_attrs(work))
+    end
+  end
+
   defp has_metadata_changes?(attrs) do
     Enum.any?([:add, :delete, :replace], fn key ->
       val = Map.get(attrs, key)
@@ -234,6 +244,8 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
                status: "completed",
                completed_at: DateTime.utc_now()
              }) do
+        record_work_source(activity, change.work_id)
+
         Provenance.record_targets_for_operations(
           activity,
           "Work",
