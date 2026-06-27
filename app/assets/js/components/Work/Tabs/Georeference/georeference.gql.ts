@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client/core";
 
 export const UPSERT_FILE_SET_ANNOTATION = gql`
-  mutation upsertFileSetAnnotation(
+  mutation upsertGeoreferenceAnnotation(
     $fileSetId: ID!
     $type: String!
     $content: String!

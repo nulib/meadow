@@ -89,6 +89,33 @@ export const GET_WORK = gql`
       id
       accessionNumber
       ark
+      aiProvenanceSummary {
+        fieldPath
+        targetType
+        targetId
+        operation
+        origin
+        proposedValue
+        currentValue
+        itemProvenance {
+          id
+          origin
+        }
+        humanOversightLevel
+        status
+        activityId
+        activityType
+        aiUseType
+        model
+        modelProvider
+        generatedAt
+        reviewer
+        reviewedAt
+        appliedAt
+        latestEventType
+        sourceCount
+        citationCompleteness
+      }
       behavior {
         id
         label
@@ -239,6 +266,14 @@ export const GET_WORK = gql`
           status
           language
           content
+          aiProvenance {
+            origin
+            status
+            model
+            reviewer
+            reviewedAt
+            generatedAt
+          }
         }
         coreMetadata {
           altText
@@ -315,6 +350,14 @@ export const GET_WORKS = gql`
           status
           language
           content
+          aiProvenance {
+            origin
+            status
+            model
+            reviewer
+            reviewedAt
+            generatedAt
+          }
         }
         accessionNumber
         coreMetadata {
@@ -404,6 +447,24 @@ export const SET_WORK_IMAGE = gql`
     setWorkImage(fileSetId: $fileSetId, workId: $workId) {
       id
       representativeImage
+    }
+  }
+`;
+
+export const ATTEST_HUMAN_AUTHORED_METADATA = gql`
+  mutation AttestHumanAuthoredMetadata(
+    $workId: ID!
+    $fieldPaths: [String!]!
+    $itemIds: [String!]
+    $reason: String
+  ) {
+    attestHumanAuthoredMetadata(
+      workId: $workId
+      fieldPaths: $fieldPaths
+      itemIds: $itemIds
+      reason: $reason
+    ) {
+      id
     }
   }
 `;

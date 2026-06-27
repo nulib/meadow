@@ -10,10 +10,13 @@ import { toastWrapper } from "@js/services/helpers";
 import { useMutation } from "@apollo/client/react";
 import {
   UPDATE_FILE_SET_ANNOTATION,
-  DELETE_FILE_SET_ANNOTATION,
   UPSERT_FILE_SET_ANNOTATION,
+  DELETE_FILE_SET_ANNOTATION,
 } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
+import { GET_WORK } from "@js/components/Work/work.gql";
 import WorkTabsStructureTranscriptionWorkflow from "@js/components/Work/Tabs/Structure/Transcription/Workflow";
+
+const TRANSCRIPTION_TYPE = "transcription";
 
 function WorkTabsStructureTranscriptionModal({ isActive }) {
   const [textArea, setTextArea] = useState();
@@ -62,10 +65,15 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
       handleClose();
       toastWrapper("is-success", "Transcription successfully saved");
     };
+
     const onError = (error) => {
       toastWrapper("is-danger", "Error saving transcription: " + error.message);
     };
 
+    // An existing annotation is edited in place (preserving its AI provenance,
+    // which is what flips an AI transcription to "AI + human edited"). A
+    // transcription typed from scratch has no annotation id yet, so upsert one
+    // by type — it is recorded as human-authored.
     if (annotationId) {
       updateFileSetAnnotation({
         variables: { annotationId, content: annotationContent },
@@ -76,9 +84,10 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
       upsertFileSetAnnotation({
         variables: {
           fileSetId,
-          type: "transcription",
+          type: TRANSCRIPTION_TYPE,
           content: annotationContent,
         },
+        refetchQueries: [{ query: GET_WORK, variables: { id: workId } }],
         onCompleted,
         onError,
       });
@@ -129,7 +138,11 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     setIsDirty(value !== initialValueRef.current);
   };
 
-  const hasAnnotationId = Boolean(textArea?.getAttribute("data-annotation-id"));
+  // Only a saved annotation can be deleted; a transcription typed from scratch
+  // has no annotation id yet.
+  const hasSavedAnnotation = Boolean(
+    textArea?.getAttribute("data-annotation-id"),
+  );
 
   return (
     <div className={classNames(["modal"], { "is-active": isActive })}>
@@ -187,7 +200,7 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
         </section>
 
         <footer className="modal-card-foot buttons is-justify-content-space-between">
-          {!confirmDelete && hasAnnotationId && (
+          {!confirmDelete && hasSavedAnnotation && (
             <div>
               <Button isDanger onClick={handleDeleteTranscription}>
                 Delete Transcription

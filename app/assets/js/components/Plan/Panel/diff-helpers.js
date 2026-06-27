@@ -7,6 +7,7 @@ import {
   TEXT_ARRAY_FIELDS,
 } from "@js/components/Plan/fields";
 import { CONTROLLED_METADATA } from "@js/services/metadata";
+import { provenanceItemId } from "@js/components/AIProvenance/Badges";
 
 // ---------- path utilities ----------
 
@@ -42,8 +43,16 @@ const getCurrentValue = (path, work) => {
  * `key`     — stable string used to match an old item against a delta item
  * `display` — human-readable text rendered in the diff cell
  * `url`     — (optional) href value for related_url items
+ * `itemId`  — the id the backend records this item's AI provenance under
+ *             (controlled-term id, note text, url, …), so a diff cell can line
+ *             each item up with its own per-item origin badge
  */
-const normalizeItem = (path, item) => {
+const normalizeItem = (path, item) => ({
+  ...buildNormalizedItem(path, item),
+  itemId: provenanceItemId(item),
+});
+
+const buildNormalizedItem = (path, item) => {
   // Controlled vocabulary fields
   // Delta:   [{term: string | {id, label}, role?}]
   // Current: [{term: {id, label}, role?}]
