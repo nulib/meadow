@@ -1751,6 +1751,18 @@
             {
               "args": [],
               "deprecationReason": null,
+              "description": "For a per-item attestation, the identifier of the attested item; null for whole-field events",
+              "isDeprecated": false,
+              "name": "itemIdentifier",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
               "name": "notes",
@@ -7928,6 +7940,24 @@
             },
             {
               "defaultValue": null,
+              "description": "When given, attest only these item identifiers within the field (multivalued fields); omit to attest the whole field",
+              "name": "itemIds",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            {
+              "defaultValue": null,
               "description": null,
               "name": "reason",
               "type": {
@@ -8719,6 +8749,43 @@
                 {
                   "defaultValue": null,
                   "description": null,
+                  "name": "annotationId",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "reason",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Mark an AI-generated annotation's content as human-authored, preserving AI history",
+              "isDeprecated": false,
+              "name": "attestHumanAuthoredAnnotation",
+              "type": {
+                "kind": "OBJECT",
+                "name": "FileSetAnnotation",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
                   "name": "fieldPaths",
                   "type": {
                     "kind": "NON_NULL",
@@ -8734,6 +8801,24 @@
                           "name": "String",
                           "ofType": null
                         }
+                      }
+                    }
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": "When given, attest only these item identifiers within the field(s) (multivalued fields); omit to attest whole fields",
+                  "name": "itemIds",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
                       }
                     }
                   }

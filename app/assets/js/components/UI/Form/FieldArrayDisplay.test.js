@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import UIFormFieldArrayDisplay from "./FieldArrayDisplay";
 
 const values = ["Metadata item #1", "Metadata item #2", "Metadata item #3"];
@@ -43,7 +44,7 @@ describe("UIFormFieldArrayDisplay", () => {
   });
 
   it("badges only the values that carry AI provenance", () => {
-    render(
+    renderWithRouterApollo(
       <UIFormFieldArrayDisplay
         {...props}
         provenance={{
@@ -52,6 +53,7 @@ describe("UIFormFieldArrayDisplay", () => {
           itemProvenance: [{ id: values[0], origin: "ai_generated" }],
         }}
       />,
+      { mocks: [] },
     );
     const badges = screen.getAllByTestId("provenance-origin-badge");
     // Only value[0] matches the AI's proposed id; value[1]/value[2] were
@@ -66,7 +68,7 @@ describe("UIFormFieldArrayDisplay", () => {
     // The backend keys item provenance by each item's *current* value, so an
     // AI item a human edited in place still matches a value and keeps a badge —
     // now reflecting the human edit rather than disappearing.
-    render(
+    renderWithRouterApollo(
       <UIFormFieldArrayDisplay
         {...props}
         provenance={{
@@ -78,6 +80,7 @@ describe("UIFormFieldArrayDisplay", () => {
           ],
         }}
       />,
+      { mocks: [] },
     );
     const badges = screen.getAllByTestId("provenance-origin-badge");
     // value[0] unchanged AI, value[1] edited AI, value[2] human-added (unbadged).

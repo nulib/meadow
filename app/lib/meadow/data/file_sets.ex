@@ -880,6 +880,34 @@ defmodule Meadow.Data.FileSets do
   end
 
   @doc """
+  Mark an AI-generated annotation's live content as human-authored, preserving
+  its AI provenance history (see `Provenance.record_annotation_human_attestation/3`).
+  Does not change the annotation's content. Returns `{:ok, annotation}` on
+  success, `{:error, :not_found}` for a missing annotation, or the provenance
+  error (e.g. `{:error, :no_ai_provenance}`).
+
+  ## Options
+
+    * `:actor` - username taking responsibility for the value (required)
+    * `:reason` - optional note stored on the attestation event
+  """
+  def attest_annotation_content(annotation_id, opts \\ %{}) do
+    opts = Enum.into(opts, %{})
+
+    with %FileSetAnnotation{} = annotation <-
+           get_annotation(annotation_id) || {:error, :not_found} do
+      case Provenance.record_annotation_human_attestation(
+             annotation,
+             Map.get(opts, :actor),
+             reason: Map.get(opts, :reason)
+           ) do
+        :ok -> {:ok, annotation}
+        {:error, reason} -> {:error, reason}
+      end
+    end
+  end
+
+  @doc """
   Creates or updates a completed annotation for a file set by type.
 
   Geographic annotation types are validated before persistence:

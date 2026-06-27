@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import UIControlledTermList from "./List";
 
 const items = [
@@ -49,12 +50,13 @@ describe("UIControlledVocabList", () => {
 
   describe("per-item provenance", () => {
     it("badges only the AI-attributed terms", () => {
-      render(
+      renderWithRouterApollo(
         <UIControlledTermList
           items={items}
           title="Subject"
           itemProvenance={[{ id: items[0].term.id, origin: "ai_generated" }]}
         />,
+        { mocks: [] },
       );
 
       const badges = screen.getAllByTestId("provenance-origin-badge");

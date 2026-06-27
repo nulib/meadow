@@ -535,6 +535,43 @@ defmodule Meadow.Data.FileSetAnnotationsTest do
 
       assert edited_targets == []
     end
+
+    test "attesting an AI transcription marks it human-authored and preserves content",
+         %{annotation: annotation, activity: activity} do
+      assert {:ok, %FileSetAnnotation{content: "AI transcription text"}} =
+               FileSets.attest_annotation_content(annotation.id,
+                 actor: "bmq449",
+                 reason: "Verified against the image"
+               )
+
+      [target] = Provenance.get_activity!(activity.id).targets
+      attested = Enum.find(target.events, &(&1.event_type == "human_attested"))
+
+      assert target.origin == "human_attested_after_ai"
+      assert target.status == "applied"
+      assert target.human_oversight_level == "human_attested"
+      assert attested.actor == "bmq449"
+      assert attested.notes == "Verified against the image"
+      assert attested.value_before == %{"value" => "AI transcription text"}
+      assert attested.value_after == %{"value" => "AI transcription text"}
+    end
+
+    test "attesting a non-AI annotation is an error and records nothing", %{file_set: file_set} do
+      {:ok, plain} =
+        FileSets.create_annotation(file_set, %{
+          type: "caption",
+          status: "completed",
+          content: "human caption"
+        })
+
+      assert {:error, :no_ai_provenance} =
+               FileSets.attest_annotation_content(plain.id, actor: "bmq449")
+    end
+
+    test "attesting requires an actor", %{annotation: annotation} do
+      assert {:error, :missing_actor} =
+               FileSets.attest_annotation_content(annotation.id, reason: "no actor")
+    end
   end
 
   defp use_transcriber_mock(_context) do

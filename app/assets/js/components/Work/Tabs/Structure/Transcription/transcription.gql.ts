@@ -122,3 +122,19 @@ export const DELETE_FILE_SET_ANNOTATION = gql`
     }
   }
 `;
+
+export const ATTEST_HUMAN_AUTHORED_ANNOTATION = gql`
+  mutation AttestHumanAuthoredAnnotation($annotationId: ID!, $reason: String) {
+    attestHumanAuthoredAnnotation(
+      annotationId: $annotationId
+      reason: $reason
+    ) {
+      id
+      fileSetId
+      aiProvenance {
+        origin
+        status
+      }
+    }
+  }
+`;

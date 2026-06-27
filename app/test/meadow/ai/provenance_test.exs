@@ -860,6 +860,287 @@ defmodule Meadow.AI.ProvenanceTest do
     end
   end
 
+  describe "per-item human attestation" do
+    setup do
+      work =
+        work_fixture(%{descriptive_metadata: %{description: ["Desc A", "Desc B"]}})
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_direct_apply",
+          model: "test-model",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: work.id,
+            field_path: "descriptive_metadata.description",
+            operation: "replace",
+            proposed_value: ["Desc A", "Desc B"],
+            origin: "ai_generated",
+            status: "applied"
+          },
+          "applied"
+        )
+
+      %{work: work}
+    end
+
+    defp description_summary(work_id) do
+      Provenance.work_summary(work_id)
+      |> Enum.find(&(&1.field_path == "descriptive_metadata.description"))
+    end
+
+    test "attests one item and leaves siblings as AI generated", %{work: work} do
+      assert {:ok, ["descriptive_metadata.description"]} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.description"],
+                 "bmq449",
+                 item_ids: ["Desc A"],
+                 reason: "Verified against finding aid"
+               )
+
+      summary = description_summary(work.id)
+
+      # The field as a whole is NOT reclassified — only the named item is.
+      assert summary.origin == "ai_generated"
+
+      assert summary.item_provenance == [
+               %{id: "Desc A", origin: "human_attested_after_ai"},
+               %{id: "Desc B", origin: "ai_generated"}
+             ]
+
+      # The field's live value is unchanged by a per-item attestation.
+      assert summary.current_value == %{"value" => ["Desc A", "Desc B"]}
+    end
+
+    test "records a human_attested event scoped to the item", %{work: work} do
+      assert {:ok, _} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.description"],
+                 "bmq449",
+                 item_ids: ["Desc A"],
+                 reason: "Verified"
+               )
+
+      [target] = Provenance.list_activities(work_id: work.id) |> hd() |> Map.fetch!(:targets)
+      attested = Enum.find(target.events, &(&1.event_type == "human_attested"))
+
+      assert attested.item_identifier == "Desc A"
+      assert attested.actor == "bmq449"
+      assert attested.notes == "Verified"
+      assert attested.value_before == %{"value" => "Desc A"}
+      assert attested.value_after == %{"value" => "Desc A"}
+    end
+
+    test "attesting multiple items records one event each", %{work: work} do
+      assert {:ok, _} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.description"],
+                 "bmq449",
+                 item_ids: ["Desc A", "Desc B"]
+               )
+
+      assert description_summary(work.id).item_provenance == [
+               %{id: "Desc A", origin: "human_attested_after_ai"},
+               %{id: "Desc B", origin: "human_attested_after_ai"}
+             ]
+    end
+
+    test "an item id with no AI lineage is an error and fabricates nothing", %{work: work} do
+      assert {:error, [{"descriptive_metadata.description", :no_ai_provenance}]} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.description"],
+                 "bmq449",
+                 item_ids: ["Not an AI item"]
+               )
+
+      # No attestation recorded: both items keep their AI origin.
+      assert Enum.all?(
+               description_summary(work.id).item_provenance,
+               &(&1.origin == "ai_generated")
+             )
+    end
+  end
+
+  describe "field provenance lifecycle (integration)" do
+    @lifecycle_path "descriptive_metadata.description"
+
+    # Drive one AI generation/edit of the description through the real plan
+    # pipeline: a fresh activity proposes a `replace`, then applies it. The
+    # applied origin is decided by `finalize_apply_target!` — an apply over a
+    # non-empty `prior_value` is recorded as `ai_modified_human_content` ("AI
+    # edited"); over an empty one it stays `ai_generated`. Each call creates a new
+    # target that supersedes the field's previous one.
+    defp apply_ai_edit(work, value, prior_value) do
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          ai_use_type: "metadata_generation",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      operations = %{replace: %{descriptive_metadata: %{description: value}}}
+
+      Provenance.record_targets_for_operations(activity, "Work", work.id, operations,
+        origin: "ai_generated",
+        status: "proposed",
+        event_type: "proposed"
+      )
+
+      plan_change = %{
+        ai_activity_id: activity.id,
+        work_id: work.id,
+        add: %{},
+        delete: %{},
+        replace: operations.replace
+      }
+
+      Provenance.record_apply_for_plan_change(plan_change, "system", %{
+        @lifecycle_path => prior_value
+      })
+
+      activity
+    end
+
+    # The work_summary entry for the description field — the source of the
+    # About-tab badge (its `origin`) and the field's live provenance state.
+    defp lifecycle_entry(work_id) do
+      Provenance.work_summary(work_id)
+      |> Enum.find(&(&1.field_path == @lifecycle_path))
+    end
+
+    # A work struct carrying a given description value, for the functions that
+    # read the live field value (manual edit, attestation) rather than a plan.
+    defp work_with_description(work, value),
+      do: put_in(work.descriptive_metadata.description, value)
+
+    test "walks a field from AI generated through attestation and AI/human edits" do
+      v1 = ["AI description v1"]
+      v3 = ["AI description v3"]
+      v4 = ["Human edited v4"]
+      v5 = ["AI description v5"]
+
+      work = work_fixture(%{descriptive_metadata: %{description: v1}})
+
+      # 1. AI generates the description (applied over an empty prior value).
+      apply_ai_edit(work, v1, [])
+      entry = lifecycle_entry(work.id)
+      assert entry.origin == "ai_generated"
+      assert entry.latest_event_type == "applied"
+
+      # 2. A cataloger attests the AI value as human-authored (no content change).
+      at_v1 = work_with_description(work, v1)
+
+      assert {:ok, [@lifecycle_path]} =
+               Provenance.record_work_human_attestation(at_v1, at_v1, [@lifecycle_path], "bmq449",
+                 reason: "Verified against the source"
+               )
+
+      entry = lifecycle_entry(work.id)
+      assert entry.origin == "human_attested_after_ai"
+      assert entry.latest_event_type == "human_attested"
+
+      # 3. AI re-edits the field, overwriting the human-attested value ("AI edited").
+      apply_ai_edit(work, v3, v1)
+      entry = lifecycle_entry(work.id)
+      assert entry.origin == "ai_modified_human_content"
+      assert entry.latest_event_type == "applied"
+
+      # 4. A human edits the AI value in place ("AI + human edited").
+      assert :ok =
+               Provenance.record_work_manual_edit(
+                 work_with_description(work, v3),
+                 work_with_description(work, v4),
+                 "bmq449"
+               )
+
+      entry = lifecycle_entry(work.id)
+      assert entry.origin == "ai_assisted_human_modified"
+      assert entry.latest_event_type == "human_edited"
+
+      # 5. AI re-edits again, overwriting the human-edited value ("AI edited").
+      apply_ai_edit(work, v5, v4)
+      entry = lifecycle_entry(work.id)
+      assert entry.origin == "ai_modified_human_content"
+      assert entry.latest_event_type == "applied"
+
+      # 6. The cataloger attests the latest AI value again ("Human attested").
+      at_v5 = work_with_description(work, v5)
+
+      assert {:ok, [@lifecycle_path]} =
+               Provenance.record_work_human_attestation(at_v5, at_v5, [@lifecycle_path], "bmq449")
+
+      entry = lifecycle_entry(work.id)
+      assert entry.origin == "human_attested_after_ai"
+      assert entry.latest_event_type == "human_attested"
+
+      # Activity log: each AI edit is its own activity/target; human attest/edit
+      # append to the current target. Three activities, oldest first.
+      activities =
+        Provenance.list_activities(work_id: work.id)
+        |> Enum.sort_by(& &1.inserted_at, DateTime)
+
+      assert length(activities) == 3
+
+      # Each activity owns one description target; its event timeline tells the
+      # per-stage story.
+      event_types =
+        Enum.map(activities, fn activity ->
+          [target] = activity.targets
+
+          target.events
+          |> Enum.sort_by(& &1.occurred_at, DateTime)
+          |> Enum.map(& &1.event_type)
+        end)
+
+      assert event_types == [
+               ["proposed", "applied", "human_attested"],
+               ["proposed", "applied", "human_edited"],
+               ["proposed", "applied", "human_attested"]
+             ]
+
+      # The disposition of each target matches the lifecycle's resting origins.
+      assert Enum.map(activities, fn activity -> hd(activity.targets).origin end) == [
+               "human_attested_after_ai",
+               "ai_assisted_human_modified",
+               "human_attested_after_ai"
+             ]
+
+      # Spot-check the log's content, not just its shape: the step-4 edit captured
+      # the AI -> human value transition...
+      [_a1, a2, _a3] = activities
+      [t2] = a2.targets
+      human_edited = Enum.find(t2.events, &(&1.event_type == "human_edited"))
+      assert human_edited.actor == "bmq449"
+      assert human_edited.value_before == %{"value" => v3}
+      assert human_edited.value_after == %{"value" => v4}
+
+      # ...and the first attestation recorded an unchanged before/after value.
+      [a1 | _] = activities
+      [t1] = a1.targets
+      attested = Enum.find(t1.events, &(&1.event_type == "human_attested"))
+      assert attested.actor == "bmq449"
+      assert attested.value_before == %{"value" => v1}
+      assert attested.value_after == %{"value" => v1}
+      assert attested.notes == "Verified against the source"
+    end
+  end
+
   describe "field summary supersession" do
     alias Meadow.AI.Provenance.Schemas.Event
     alias Meadow.Repo

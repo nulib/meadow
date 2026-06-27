@@ -324,6 +324,8 @@ export type FileSetUpdate = {
 /** An explicit assertion that a field's live value is human-authored despite prior AI provenance */
 export type HumanAuthoredAttestationInput = {
   fieldPath: string;
+  /** When given, attest only these item identifiers within the field (multivalued fields); omit to attest the whole field */
+  itemIds?: Array<string> | null | undefined;
   reason?: string | null | undefined;
 };
 
@@ -1869,6 +1871,7 @@ export type GetWorkAiActivitiesQuery = {
         occurredAt: unknown;
         outcome: string | null;
         notes: string | null;
+        itemIdentifier: string | null;
         valueBefore: unknown;
         valueAfter: unknown;
       } | null> | null;
@@ -1978,6 +1981,19 @@ export type UpsertFileSetAnnotationMutation = {
       reviewedAt: unknown;
       generatedAt: unknown;
     } | null;
+  } | null;
+};
+
+export type AttestHumanAuthoredAnnotationMutationVariables = Exact<{
+  annotationId: string | number;
+  reason?: string | null | undefined;
+}>;
+
+export type AttestHumanAuthoredAnnotationMutation = {
+  attestHumanAuthoredAnnotation: {
+    id: string;
+    fileSetId: string;
+    aiProvenance: { origin: string; status: string | null } | null;
   } | null;
 };
 
@@ -2398,6 +2414,17 @@ export type SetWorkImageMutationVariables = Exact<{
 
 export type SetWorkImageMutation = {
   setWorkImage: { id: string; representativeImage: string | null } | null;
+};
+
+export type AttestHumanAuthoredMetadataMutationVariables = Exact<{
+  workId: string | number;
+  fieldPaths: Array<string> | string;
+  itemIds?: Array<string> | string | null | undefined;
+  reason?: string | null | undefined;
+}>;
+
+export type AttestHumanAuthoredMetadataMutation = {
+  attestHumanAuthoredMetadata: { id: string } | null;
 };
 
 export type UpdateWorkMutationVariables = Exact<{
@@ -8988,6 +9015,10 @@ export const GetWorkAiActivitiesDocument = {
                             },
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "itemIdentifier" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "valueBefore" },
                             },
                             {
@@ -9524,6 +9555,91 @@ export const UpsertFileSetAnnotationDocument = {
 } as unknown as DocumentNode<
   UpsertFileSetAnnotationMutation,
   UpsertFileSetAnnotationMutationVariables
+>;
+export const AttestHumanAuthoredAnnotationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "AttestHumanAuthoredAnnotation" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "annotationId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "reason" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "attestHumanAuthoredAnnotation" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "annotationId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "annotationId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "reason" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "reason" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "fileSetId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "aiProvenance" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "origin" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AttestHumanAuthoredAnnotationMutation,
+  AttestHumanAuthoredAnnotationMutationVariables
 >;
 export const AuthoritiesSearchDocument = {
   kind: "Document",
@@ -11780,6 +11896,126 @@ export const SetWorkImageDocument = {
 } as unknown as DocumentNode<
   SetWorkImageMutation,
   SetWorkImageMutationVariables
+>;
+export const AttestHumanAuthoredMetadataDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "AttestHumanAuthoredMetadata" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "workId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "fieldPaths" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "ListType",
+              type: {
+                kind: "NonNullType",
+                type: {
+                  kind: "NamedType",
+                  name: { kind: "Name", value: "String" },
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "itemIds" },
+          },
+          type: {
+            kind: "ListType",
+            type: {
+              kind: "NonNullType",
+              type: {
+                kind: "NamedType",
+                name: { kind: "Name", value: "String" },
+              },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "reason" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "attestHumanAuthoredMetadata" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "workId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "workId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "fieldPaths" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "fieldPaths" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "itemIds" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "itemIds" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "reason" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "reason" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AttestHumanAuthoredMetadataMutation,
+  AttestHumanAuthoredMetadataMutationVariables
 >;
 export const UpdateWorkDocument = {
   kind: "Document",

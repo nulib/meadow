@@ -28,6 +28,7 @@ defmodule Meadow.AI.Provenance.Schemas.Event do
     field(:occurred_at, :utc_datetime_usec)
     field(:value_before, :map)
     field(:value_after, :map)
+    field(:item_identifier, :string)
     field(:notes, :string)
     field(:premis_event_type, :string)
     field(:outcome, :string)
@@ -50,6 +51,7 @@ defmodule Meadow.AI.Provenance.Schemas.Event do
       :occurred_at,
       :value_before,
       :value_after,
+      :item_identifier,
       :notes,
       :premis_event_type,
       :outcome,

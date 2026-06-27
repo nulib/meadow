@@ -5,6 +5,7 @@ import {
   FieldProvenanceBadge,
   OriginBadge,
 } from "@js/components/AIProvenance/Badges";
+import { ItemAttestation } from "@js/components/AIProvenance/ItemAttestationControl";
 
 const UIFormFieldArrayDisplay = ({
   isFacetLink,
@@ -12,6 +13,7 @@ const UIFormFieldArrayDisplay = ({
   metadataItem,
   provenance,
   values = [],
+  workId,
 }) => {
   const { handleFacetLinkClick } = useFacetLinkClick();
 
@@ -59,6 +61,14 @@ const UIFormFieldArrayDisplay = ({
                     <OriginBadge origin={origin} />
                   </span>
                 )}
+                {origin && (
+                  <ItemAttestation
+                    origin={origin}
+                    workId={workId}
+                    fieldPath={provenance?.fieldPath}
+                    itemId={value}
+                  />
+                )}
               </li>
             );
           })}
@@ -78,6 +88,7 @@ UIFormFieldArrayDisplay.propTypes = {
   metadataItem: PropTypes.object,
   provenance: PropTypes.object,
   values: PropTypes.array,
+  workId: PropTypes.string,
 };
 
 export default UIFormFieldArrayDisplay;

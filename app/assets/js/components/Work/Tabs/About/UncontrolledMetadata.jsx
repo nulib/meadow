@@ -11,11 +11,13 @@ import {
   fieldProvenance,
   provenanceItemId,
 } from "@js/components/AIProvenance/Badges";
+import { ItemAttestation } from "@js/components/AIProvenance/ItemAttestationControl";
 
 const WorkTabsAboutUncontrolledMetadata = ({
   descriptiveMetadata,
   isEditing,
   provenance = {},
+  workId,
 }) => {
   const codeLists = useCodeLists();
 
@@ -44,6 +46,7 @@ const WorkTabsAboutUncontrolledMetadata = ({
               values={descriptiveMetadata[item.name]}
               label={item.label}
               provenance={fieldProvenance(provenance, item.name)}
+              workId={workId}
             />
           )}
         </div>
@@ -73,6 +76,16 @@ const WorkTabsAboutUncontrolledMetadata = ({
                           <OriginBadge origin={origin} />
                         </span>
                       )}
+                      {origin && (
+                        <ItemAttestation
+                          origin={origin}
+                          workId={workId}
+                          fieldPath={
+                            fieldProvenance(provenance, "notes")?.fieldPath
+                          }
+                          itemId={provenanceItemId(noteEntry)}
+                        />
+                      )}
                     </li>
                   );
                 })}
@@ -89,6 +102,7 @@ WorkTabsAboutUncontrolledMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
   provenance: PropTypes.object,
+  workId: PropTypes.string,
 };
 
 export default WorkTabsAboutUncontrolledMetadata;

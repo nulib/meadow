@@ -232,6 +232,7 @@ const WorkTabsAbout = ({ work }) => {
             <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutCoreMetadata
+              workId={work.id}
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
               published={work.published}
@@ -248,6 +249,7 @@ const WorkTabsAbout = ({ work }) => {
             <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutControlledMetadata
+              workId={work.id}
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
               provenance={provenance}
@@ -262,6 +264,7 @@ const WorkTabsAbout = ({ work }) => {
             <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutUncontrolledMetadata
+              workId={work.id}
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
               provenance={provenance}
@@ -277,6 +280,7 @@ const WorkTabsAbout = ({ work }) => {
             <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutPhysicalMetadata
+              workId={work.id}
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
               provenance={provenance}
@@ -291,6 +295,7 @@ const WorkTabsAbout = ({ work }) => {
             <Skeleton rows={10} />
           ) : (
             <WorkTabsAboutRightsMetadata
+              workId={work.id}
               descriptiveMetadata={descriptiveMetadata}
               isEditing={isEditing}
               provenance={provenance}

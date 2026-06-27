@@ -18,6 +18,7 @@ const WorkTabsAboutRightsMetadata = ({
   descriptiveMetadata,
   isEditing,
   provenance = {},
+  workId,
 }) => {
   const codeLists = useCodeLists();
 
@@ -37,6 +38,7 @@ const WorkTabsAboutRightsMetadata = ({
               values={descriptiveMetadata[item.name]}
               label={item.label}
               provenance={fieldProvenance(provenance, item.name)}
+              workId={workId}
             />
           )}
         </div>
@@ -99,6 +101,7 @@ WorkTabsAboutRightsMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
   provenance: PropTypes.object,
+  workId: PropTypes.string,
 };
 
 export default WorkTabsAboutRightsMetadata;

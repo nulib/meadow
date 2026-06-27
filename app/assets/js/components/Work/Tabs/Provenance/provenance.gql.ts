@@ -34,6 +34,7 @@ export const GET_WORK_AI_ACTIVITIES = gql`
           occurredAt
           outcome
           notes
+          itemIdentifier
           valueBefore
           valueAfter
         }

@@ -90,6 +90,16 @@ export function isAttestable(entry) {
 }
 
 /**
+ * Whether a single item of a multivalued field (given its per-item origin) can
+ * still be meaningfully attested as human-authored: AI was involved and it has
+ * not already been attested. Single-sources the attestable rule with the
+ * field-level `isAttestable`, used by the per-item display control.
+ */
+export function isItemAttestable(origin) {
+  return ATTESTABLE_ORIGINS.includes(origin);
+}
+
+/**
  * Confirmation shown when a user attests a value that has NOT been changed from
  * the AI-provenanced value. We don't block — legitimate human attestation of an
  * identical value is allowed — but we confirm to prevent accidental "badge

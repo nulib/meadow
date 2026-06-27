@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { useFileSetAnnotation } from "@js/hooks/useFileSetAnnotation";
 import { toastWrapper } from "@js/services/helpers";
 import { AnnotationOriginBadge } from "@js/components/AIProvenance/Badges";
+import AnnotationAttestationControl from "@js/components/AIProvenance/AnnotationAttestationControl";
 
 import { GET_WORK } from "@js/components/Work/work.gql";
 
@@ -186,40 +187,42 @@ function WorkTabsStructureTranscriptionWorkflow({
       ) : (
         <>
           <div
-            className="is-flex is-align-items-center is-justify-content-space-between mb-2"
+            className="is-flex is-align-items-center is-flex-wrap-wrap mb-2"
             style={{ gap: "0.5rem", minHeight: "2rem" }}
           >
             <AnnotationOriginBadge annotation={annotation} />
-            {canGenerate && (
-              <div
-                className="is-flex is-align-items-center is-justify-content-flex-end"
-                style={{ gap: "0.75rem" }}
-              >
-                {hasContent && (
-                  <label className="checkbox is-size-7">
-                    <input
-                      type="checkbox"
-                      className="mr-1"
-                      checked={useExistingAsContext}
-                      onChange={(e) =>
-                        setUseExistingAsContext(e.target.checked)
-                      }
-                    />
-                    Use existing transcription as context
-                  </label>
-                )}
-                <Button
-                  isPrimary
-                  isLowercase
-                  isSmall
-                  onClick={handleStartTranscription}
-                  style={{ gap: "0.5rem" }}
-                >
-                  Generate Transcription
-                </Button>
-              </div>
-            )}
+            <AnnotationAttestationControl
+              annotation={annotation}
+              workId={workId}
+            />
           </div>
+          {canGenerate && (
+            <div
+              className="is-flex is-align-items-center is-flex-wrap-wrap mb-2"
+              style={{ gap: "0.5rem 0.75rem" }}
+            >
+              <Button
+                isPrimary
+                isLowercase
+                isSmall
+                onClick={handleStartTranscription}
+                style={{ gap: "0.5rem", flexShrink: 0 }}
+              >
+                Generate Transcription
+              </Button>
+              {hasContent && (
+                <label className="checkbox is-size-7" style={{ flexShrink: 1 }}>
+                  <input
+                    type="checkbox"
+                    className="mr-1"
+                    checked={useExistingAsContext}
+                    onChange={(e) => setUseExistingAsContext(e.target.checked)}
+                  />
+                  Use existing transcription as context
+                </label>
+              )}
+            </div>
+          )}
           <WorkTabsStructureTranscriptionPane
             annotation={
               annotation || {

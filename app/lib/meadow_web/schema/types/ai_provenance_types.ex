@@ -138,6 +138,10 @@ defmodule MeadowWeb.Schema.AIProvenanceTypes do
     field(:occurred_at, non_null(:datetime))
     field(:value_before, :json)
     field(:value_after, :json)
+
+    @desc "For a per-item attestation, the identifier of the attested item; null for whole-field events"
+    field(:item_identifier, :string)
+
     field(:notes, :string)
     field(:premis_event_type, :string)
     field(:outcome, :string)

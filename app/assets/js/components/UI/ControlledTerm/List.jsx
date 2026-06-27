@@ -5,8 +5,15 @@ import { FACET_SENSORS } from "../../../services/reactive-search";
 import UIFacetLink from "../FacetLink";
 import UITooltip from "@js/components/UI/Tooltip/Tooltip";
 import { OriginBadge } from "@js/components/AIProvenance/Badges";
+import { ItemAttestation } from "@js/components/AIProvenance/ItemAttestationControl";
 
-const UIControlledTermList = ({ items = [], title, itemProvenance = [] }) => {
+const UIControlledTermList = ({
+  items = [],
+  title,
+  itemProvenance = [],
+  workId,
+  fieldPath,
+}) => {
   const { componentId } =
     FACET_SENSORS.find((facet) => facet.title === title) || {};
 
@@ -37,6 +44,14 @@ const UIControlledTermList = ({ items = [], title, itemProvenance = [] }) => {
                     <span className="ml-2">
                       <OriginBadge origin={originById[item.term.id]} />
                     </span>
+                  )}
+                  {originById[item.term?.id] && (
+                    <ItemAttestation
+                      origin={originById[item.term.id]}
+                      workId={workId}
+                      fieldPath={fieldPath}
+                      itemId={item.term?.id}
+                    />
                   )}
                 </div>
                 <div className="tooltip-content">
@@ -88,6 +103,8 @@ UIControlledTermList.propTypes = {
       origin: PropTypes.string,
     }),
   ),
+  workId: PropTypes.string,
+  fieldPath: PropTypes.string,
 };
 
 export default UIControlledTermList;

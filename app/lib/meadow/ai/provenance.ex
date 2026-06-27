@@ -465,7 +465,13 @@ defmodule Meadow.AI.Provenance do
   `{:ok, attested_paths}` when every requested field was attested, or
   `{:error, reasons}` (a keyword list of `{field_path, reason}`) otherwise.
 
-  Options: `:reason` — optional note stored on each event.
+  Options:
+    * `:reason` — optional note stored on each event.
+    * `:item_ids` — when given, attest only the named items of a multivalued
+      field (see `attest_items_for_target/6`) instead of the whole field. Item
+      ids that don't currently carry AI provenance in that field are reported as
+      errors and never fabricated. Applies to every `field_path` in the call, so
+      callers pass a single field at a time when attesting items.
   """
   def record_work_human_attestation(work_before, work_after, field_paths, actor, opts \\ [])
 
@@ -474,6 +480,7 @@ defmodule Meadow.AI.Provenance do
 
   def record_work_human_attestation(work_before, work_after, field_paths, actor, opts) do
     reason = Keyword.get(opts, :reason)
+    item_ids = Keyword.get(opts, :item_ids)
 
     targets_by_path =
       work_before.id
@@ -482,7 +489,10 @@ defmodule Meadow.AI.Provenance do
 
     {ok, errors} =
       Enum.reduce(field_paths, {[], []}, fn field_path, {ok, errors} ->
-        case attest_field(targets_by_path, work_before, work_after, field_path, actor, reason) do
+        case attest_field(targets_by_path, work_before, work_after, field_path, actor,
+               reason: reason,
+               item_ids: item_ids
+             ) do
           :ok -> {[field_path | ok], errors}
           {:error, reason} -> {ok, [{field_path, reason} | errors]}
         end
@@ -494,14 +504,25 @@ defmodule Meadow.AI.Provenance do
     end
   end
 
-  defp attest_field(targets_by_path, work_before, work_after, field_path, actor, reason) do
+  defp attest_field(targets_by_path, work_before, work_after, field_path, actor, opts) do
+    reason = Keyword.get(opts, :reason)
+    item_ids = Keyword.get(opts, :item_ids)
+
     case Map.get(targets_by_path, field_path) do
       %Target{} = target ->
         before_value = field_value(work_before, field_path)
         after_value = field_value(work_after, field_path)
 
-        case attest_human_authored_for_target(target, before_value, after_value, actor, reason) do
+        result =
+          if present_item_ids?(item_ids) do
+            attest_items_for_target(target, before_value, after_value, item_ids, actor, reason)
+          else
+            attest_human_authored_for_target(target, before_value, after_value, actor, reason)
+          end
+
+        case result do
           :error -> {:error, :record_failed}
+          {:error, _reason} = error -> error
           _ -> :ok
         end
 
@@ -509,6 +530,9 @@ defmodule Meadow.AI.Provenance do
         {:error, :no_ai_provenance}
     end
   end
+
+  defp present_item_ids?(item_ids) when is_list(item_ids), do: item_ids != []
+  defp present_item_ids?(_), do: false
 
   # Persist the attestation reclassification and its event atomically (same
   # transaction-and-rescue contract as `record_manual_edit_for_target/4`): a
@@ -549,6 +573,68 @@ defmodule Meadow.AI.Provenance do
       notes: reason,
       c2pa_action: "c2pa.edited"
     })
+  end
+
+  @doc """
+  Attest individual items of a multivalued field's target as human-authored. For
+  each requested item id (a controlled-term id, a plain string, …) that currently
+  carries AI provenance in the field, append a `human_attested` event scoped to
+  that item via `item_identifier`, capturing the single item's before/after
+  value. Unlike `attest_human_authored_for_target/5` this leaves the target's
+  field-wide `origin`/`status` untouched — only the named items are reclassified,
+  surfaced through `item_provenance/1`'s per-item attribution. Item ids with no AI
+  lineage in the field are rejected without recording anything (`{:error,
+  :no_ai_provenance}`), so a human-added item can't be laundered as attested.
+  """
+  def attest_items_for_target(target, before_value, after_value, item_ids, actor, reason) do
+    attestable_ids = target |> item_provenance() |> MapSet.new(& &1.id)
+
+    case Enum.reject(item_ids, &MapSet.member?(attestable_ids, &1)) do
+      [] ->
+        record_item_attestations(target, before_value, after_value, item_ids, actor, reason)
+
+      _invalid ->
+        {:error, :no_ai_provenance}
+    end
+  end
+
+  # Append one per-item `human_attested` event per requested id, atomically (same
+  # transaction-and-rescue contract as the whole-field path): provenance is
+  # recorded after the work is already saved, so a failure here must not fail the
+  # user's edit.
+  defp record_item_attestations(target, before_value, after_value, item_ids, actor, reason) do
+    Repo.transaction(fn ->
+      Enum.each(item_ids, fn item_id ->
+        add_event!(target, %{
+          event_type: "human_attested",
+          actor: actor,
+          item_identifier: item_id,
+          value_before: item_by_identifier(before_value, item_id),
+          value_after: item_by_identifier(after_value, item_id),
+          notes: reason,
+          c2pa_action: "c2pa.edited"
+        })
+      end)
+    end)
+
+    :ok
+  rescue
+    error ->
+      Logger.warning(
+        "Failed to record per-item human-attestation provenance for target #{target.id} " <>
+          "(#{target.field_path}): #{Exception.message(error)}"
+      )
+
+      :error
+  end
+
+  # Find the single item of a (multivalued) field value whose identity matches
+  # `id`, using the same identity rules as `item_identifier/1` so the value
+  # recorded on a per-item event lines up with the per-item attribution.
+  defp item_by_identifier(field_value, id) do
+    field_value
+    |> List.wrap()
+    |> Enum.find(fn item -> item_identifier(item) == id end)
   end
 
   # Persist the target reclassification and its event atomically so the
@@ -638,6 +724,50 @@ defmodule Meadow.AI.Provenance do
   end
 
   def record_annotation_manual_edit(_annotation, _new_content, _actor), do: :ok
+
+  @doc """
+  Record an explicit human attestation that an AI-generated file set annotation
+  (e.g. a transcription) is now human-authored — the annotation counterpart of
+  `record_work_human_attestation/5`. Unlike `record_annotation_manual_edit/3`,
+  this is an explicit action, never inferred from a content change: the live
+  content may be identical to the AI value. The matching applied target is
+  reclassified to `human_attested_after_ai` (status stays `applied`) and a
+  `human_attested` event is appended capturing the content as `value_before` and
+  `value_after`, preserving prior AI events.
+
+  Requires a non-nil `actor`. Returns `:ok`, `{:error, :missing_actor}` when no
+  actor is given, or `{:error, :no_ai_provenance}` for an annotation with no
+  applied AI provenance (never fabricates a target).
+
+  Options: `:reason` — optional note stored on the event.
+  """
+  def record_annotation_human_attestation(annotation, actor, opts \\ [])
+
+  def record_annotation_human_attestation(_annotation, nil, _opts),
+    do: {:error, :missing_actor}
+
+  def record_annotation_human_attestation(
+        %{ai_activity_id: activity_id, id: annotation_id, content: content},
+        actor,
+        opts
+      )
+      when not is_nil(activity_id) do
+    reason = Keyword.get(opts, :reason)
+
+    case find_annotation_target(activity_id, annotation_id) do
+      %Target{origin: origin} = target when origin in @ai_involved_origins ->
+        case attest_human_authored_for_target(target, content, content, actor, reason) do
+          :error -> {:error, :record_failed}
+          _ -> :ok
+        end
+
+      _ ->
+        {:error, :no_ai_provenance}
+    end
+  end
+
+  def record_annotation_human_attestation(_annotation, _actor, _opts),
+    do: {:error, :no_ai_provenance}
 
   defp applied_ai_targets(work_id) do
     from(t in Target,
@@ -1048,11 +1178,25 @@ defmodule Meadow.AI.Provenance do
   end
 
   defp ai_item_provenance(target, events) do
-    reconcile_items(
-      proposed_value(target, events),
-      current_value(target, events),
-      item_edit_origin(target)
-    )
+    attested = attested_item_ids(events)
+
+    proposed_value(target, events)
+    |> reconcile_items(current_value(target, events), item_edit_origin(target))
+    |> Enum.map(fn entry ->
+      if MapSet.member?(attested, entry.id),
+        do: %{entry | origin: "human_attested_after_ai"},
+        else: entry
+    end)
+  end
+
+  # Items explicitly attested as human-authored, by identifier — the per-item
+  # counterpart of flipping a whole target to `human_attested_after_ai`. A
+  # `human_attested` event with no `item_identifier` is a whole-field attestation
+  # and is handled via the target's own origin, so it is ignored here.
+  defp attested_item_ids(events) do
+    events
+    |> Enum.filter(&(&1.event_type == "human_attested" and not is_nil(&1.item_identifier)))
+    |> MapSet.new(& &1.item_identifier)
   end
 
   # The AI's untouched suggestion: the `proposed` event's value, falling back to
@@ -1066,12 +1210,17 @@ defmodule Meadow.AI.Provenance do
 
   # The field's current value: the most recent value a human edit or apply step
   # recorded; before any such event it is the AI's untouched proposal. Review
-  # events (approved/rejected) carry no value, so they are ignored here.
+  # events (approved/rejected) carry no value, so they are ignored here. Per-item
+  # attestation events carry a single item as their `value_after` (and an
+  # `item_identifier`), so they are excluded too — they describe one item's
+  # authorship, not the field's whole live value.
   # `occurred_at` must be compared with `DateTime` — default term ordering sorts
   # `DateTime` structs by microsecond before second and would pick the wrong one.
   defp current_value(target, events) do
     events
-    |> Enum.reject(&(&1.event_type == "proposed" or is_nil(&1.value_after)))
+    |> Enum.reject(
+      &(&1.event_type == "proposed" or is_nil(&1.value_after) or not is_nil(&1.item_identifier))
+    )
     |> case do
       [] -> target.proposed_value
       later -> Enum.max_by(later, & &1.occurred_at, DateTime).value_after

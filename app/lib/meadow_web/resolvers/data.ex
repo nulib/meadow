@@ -78,7 +78,8 @@ defmodule MeadowWeb.Resolvers.Data do
         updated_work,
         [field_path],
         actor,
-        reason: Map.get(attestation, :reason)
+        reason: Map.get(attestation, :reason),
+        item_ids: Map.get(attestation, :item_ids)
       )
     end)
   end
@@ -97,7 +98,8 @@ defmodule MeadowWeb.Resolvers.Data do
            work,
            field_paths,
            actor_username(resolution),
-           reason: Map.get(args, :reason)
+           reason: Map.get(args, :reason),
+           item_ids: Map.get(args, :item_ids)
          ) do
       {:ok, _attested} ->
         {:ok, Works.get_work!(work_id)}
@@ -251,6 +253,22 @@ defmodule MeadowWeb.Resolvers.Data do
 
       {:error, reason} ->
         {:error, message: "Could not update annotation", details: inspect(reason)}
+    end
+  end
+
+  def attest_human_authored_annotation(_, %{annotation_id: annotation_id} = args, resolution) do
+    case FileSets.attest_annotation_content(annotation_id,
+           actor: actor_username(resolution),
+           reason: Map.get(args, :reason)
+         ) do
+      {:ok, annotation} ->
+        {:ok, annotation}
+
+      {:error, :not_found} ->
+        {:error, message: "Annotation not found"}
+
+      {:error, reason} ->
+        {:error, message: "Could not attest annotation", details: inspect(reason)}
     end
   end
 

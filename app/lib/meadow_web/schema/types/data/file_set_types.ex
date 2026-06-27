@@ -110,6 +110,15 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.delete_file_set_annotation/3)
     end
+
+    @desc "Mark an AI-generated annotation's content as human-authored, preserving AI history"
+    field :attest_human_authored_annotation, :file_set_annotation do
+      arg(:annotation_id, non_null(:id))
+      arg(:reason, :string)
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.attest_human_authored_annotation/3)
+    end
   end
 
   object :file_set_subscriptions do

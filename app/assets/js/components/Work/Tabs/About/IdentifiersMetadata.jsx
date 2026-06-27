@@ -11,6 +11,7 @@ import {
   fieldProvenance,
   provenanceItemId,
 } from "@js/components/AIProvenance/Badges";
+import { ItemAttestation } from "@js/components/AIProvenance/ItemAttestationControl";
 
 const WorkTabsAboutIdentifiersMetadata = ({
   work,
@@ -51,6 +52,7 @@ const WorkTabsAboutIdentifiersMetadata = ({
               values={descriptiveMetadata[item.name]}
               label={item.label}
               provenance={fieldProvenance(provenance, item.name)}
+              workId={work.id}
             />
           )}
         </div>
@@ -82,6 +84,16 @@ const WorkTabsAboutIdentifiersMetadata = ({
                         <span className="ml-2">
                           <OriginBadge origin={origin} />
                         </span>
+                      )}
+                      {origin && (
+                        <ItemAttestation
+                          origin={origin}
+                          workId={work.id}
+                          fieldPath={
+                            fieldProvenance(provenance, "relatedUrl")?.fieldPath
+                          }
+                          itemId={provenanceItemId(relatedUrlEntry)}
+                        />
                       )}
                     </li>
                   );

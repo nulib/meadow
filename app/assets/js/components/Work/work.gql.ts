@@ -451,6 +451,24 @@ export const SET_WORK_IMAGE = gql`
   }
 `;
 
+export const ATTEST_HUMAN_AUTHORED_METADATA = gql`
+  mutation AttestHumanAuthoredMetadata(
+    $workId: ID!
+    $fieldPaths: [String!]!
+    $itemIds: [String!]
+    $reason: String
+  ) {
+    attestHumanAuthoredMetadata(
+      workId: $workId
+      fieldPaths: $fieldPaths
+      itemIds: $itemIds
+      reason: $reason
+    ) {
+      id
+    }
+  }
+`;
+
 export const UPDATE_WORK = gql`
   mutation UpdateWork($id: ID!, $work: WorkUpdateInput!) {
     updateWork(id: $id, work: $work) {

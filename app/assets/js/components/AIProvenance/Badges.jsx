@@ -481,6 +481,11 @@ export function ProvenanceEvents({ events = [] }) {
             {event.actor ? `${event.actor} · ` : ""}
             {formatEventDate(event.occurredAt)}
           </div>
+          {event.itemIdentifier && (
+            <div className="is-size-7 has-text-grey" data-testid="event-item">
+              Item: {event.itemIdentifier}
+            </div>
+          )}
           <ProvenanceEventValues
             valueBefore={event.valueBefore}
             valueAfter={event.valueAfter}

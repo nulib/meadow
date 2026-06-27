@@ -73,6 +73,10 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       arg(:work_id, non_null(:id))
       arg(:field_paths, non_null(list_of(non_null(:string))))
       arg(:reason, :string)
+
+      @desc "When given, attest only these item identifiers within the field(s) (multivalued fields); omit to attest whole fields"
+      arg(:item_ids, list_of(non_null(:string)))
+
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.attest_human_authored_metadata/3)
@@ -325,6 +329,9 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   input_object :human_authored_attestation_input do
     field(:field_path, non_null(:string))
     field(:reason, :string)
+
+    @desc "When given, attest only these item identifiers within the field (multivalued fields); omit to attest the whole field"
+    field(:item_ids, list_of(non_null(:string)))
   end
 
   @desc "Input fields for works administrative metadata"

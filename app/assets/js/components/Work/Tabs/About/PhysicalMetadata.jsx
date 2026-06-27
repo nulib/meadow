@@ -13,6 +13,7 @@ const WorkTabsAboutPhysicalMetadata = ({
   descriptiveMetadata,
   isEditing,
   provenance = {},
+  workId,
 }) => {
   return (
     <div className="columns is-multiline" data-testid="physical-metadata">
@@ -29,6 +30,7 @@ const WorkTabsAboutPhysicalMetadata = ({
               label={item.label}
               metadataItem={item}
               provenance={fieldProvenance(provenance, item.name)}
+              workId={workId}
             />
           )}
         </div>
@@ -41,6 +43,7 @@ WorkTabsAboutPhysicalMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
   provenance: PropTypes.object,
+  workId: PropTypes.string,
 };
 
 export default WorkTabsAboutPhysicalMetadata;

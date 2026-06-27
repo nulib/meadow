@@ -1,0 +1,10 @@
+mutation ($annotation_id: ID!, $reason: String) {
+  attestHumanAuthoredAnnotation(annotationId: $annotation_id, reason: $reason) {
+    id
+    aiProvenance {
+      origin
+      status
+      latestEventType
+    }
+  }
+}

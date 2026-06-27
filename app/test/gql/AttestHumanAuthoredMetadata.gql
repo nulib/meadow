@@ -1,7 +1,13 @@
-mutation ($work_id: ID!, $field_paths: [String!]!, $reason: String) {
+mutation (
+  $work_id: ID!
+  $field_paths: [String!]!
+  $item_ids: [String!]
+  $reason: String
+) {
   attestHumanAuthoredMetadata(
     workId: $work_id
     fieldPaths: $field_paths
+    itemIds: $item_ids
     reason: $reason
   ) {
     id
@@ -10,6 +16,10 @@ mutation ($work_id: ID!, $field_paths: [String!]!, $reason: String) {
       origin
       status
       latestEventType
+      itemProvenance {
+        id
+        origin
+      }
     }
   }
 }

@@ -11,6 +11,7 @@ const WorkTabsAboutControlledMetadata = ({
   descriptiveMetadata,
   isEditing,
   provenance = {},
+  workId,
 }) => {
   const codeLists = useCodeLists();
 
@@ -45,6 +46,8 @@ const WorkTabsAboutControlledMetadata = ({
                     itemProvenance={
                       fieldProvenance(provenance, name)?.itemProvenance
                     }
+                    workId={workId}
+                    fieldPath={fieldProvenance(provenance, name)?.fieldPath}
                   />
                 )}
               </UIFormField>
@@ -59,6 +62,7 @@ WorkTabsAboutControlledMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
   provenance: PropTypes.object,
+  workId: PropTypes.string,
 };
 
 export default WorkTabsAboutControlledMetadata;

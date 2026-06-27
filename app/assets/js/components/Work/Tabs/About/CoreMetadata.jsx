@@ -5,6 +5,7 @@ import UIFormField from "@js/components/UI/Form/Field";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
+import { ItemAttestation } from "@js/components/AIProvenance/ItemAttestationControl";
 import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
 import { isEDTFValid } from "@js/services/helpers";
@@ -21,6 +22,7 @@ const WorkTabsAboutCoreMetadata = ({
   isEditing,
   published,
   provenance = {},
+  workId,
 }) => {
   const codeLists = useCodeLists();
 
@@ -90,6 +92,7 @@ const WorkTabsAboutCoreMetadata = ({
             values={descriptiveMetadata.description}
             label="Description"
             provenance={fieldProvenance(provenance, "description")}
+            workId={workId}
           />
         )}
       </div>
@@ -106,6 +109,7 @@ const WorkTabsAboutCoreMetadata = ({
             values={descriptiveMetadata.alternateTitle}
             label="Alternate Title"
             provenance={fieldProvenance(provenance, "alternateTitle")}
+            workId={workId}
           />
         )}
       </div>
@@ -134,6 +138,17 @@ const WorkTabsAboutCoreMetadata = ({
                           <span className="ml-2">
                             <OriginBadge origin={origin} />
                           </span>
+                        )}
+                        {origin && (
+                          <ItemAttestation
+                            origin={origin}
+                            workId={workId}
+                            fieldPath={
+                              fieldProvenance(provenance, "dateCreated")
+                                ?.fieldPath
+                            }
+                            itemId={provenanceItemId(datefield)}
+                          />
                         )}
                       </li>
                     );
@@ -183,6 +198,7 @@ WorkTabsAboutCoreMetadata.propTypes = {
   isEditing: PropTypes.bool,
   published: PropTypes.bool,
   provenance: PropTypes.object,
+  workId: PropTypes.string,
 };
 
 export default WorkTabsAboutCoreMetadata;

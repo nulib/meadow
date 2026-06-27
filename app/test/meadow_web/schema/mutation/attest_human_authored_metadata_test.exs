@@ -58,6 +58,62 @@ defmodule MeadowWeb.Schema.Mutation.AttestHumanAuthoredMetadataTest do
     assert title["latestEventType"] == "human_attested"
   end
 
+  # Seed a work with an applied AI-generated multivalued field (description) so
+  # individual items can be attested.
+  defp work_with_ai_descriptions do
+    work = work_fixture(%{descriptive_metadata: %{description: ["Desc A", "Desc B"]}})
+
+    {:ok, activity} =
+      Provenance.create_activity(%{
+        activity_type: "metadata_direct_apply",
+        work_id: work.id,
+        status: "completed"
+      })
+
+    {:ok, _target} =
+      Provenance.record_target(
+        activity,
+        %{
+          target_type: "Work",
+          target_id: work.id,
+          field_path: "descriptive_metadata.description",
+          operation: "replace",
+          proposed_value: ["Desc A", "Desc B"],
+          origin: "ai_generated",
+          status: "applied"
+        },
+        "applied"
+      )
+
+    work
+  end
+
+  test "attests a single item of a multivalued field, leaving siblings AI" do
+    work = work_with_ai_descriptions()
+
+    {:ok, result} =
+      query_gql(
+        variables: %{
+          "work_id" => work.id,
+          "field_paths" => ["descriptive_metadata.description"],
+          "item_ids" => ["Desc A"],
+          "reason" => "Verified"
+        },
+        context: gql_context(%{role: :editor})
+      )
+
+    summary = get_in(result, [:data, "attestHumanAuthoredMetadata", "aiProvenanceSummary"])
+    description = Enum.find(summary, &(&1["fieldPath"] == "descriptive_metadata.description"))
+
+    # The field as a whole stays AI generated; only the named item flips.
+    assert description["origin"] == "ai_generated"
+
+    assert description["itemProvenance"] == [
+             %{"id" => "Desc A", "origin" => "human_attested_after_ai"},
+             %{"id" => "Desc B", "origin" => "ai_generated"}
+           ]
+  end
+
   test "returns an error for a field with no AI provenance" do
     work = work_with_ai_title()
 
