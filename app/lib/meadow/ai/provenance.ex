@@ -1514,7 +1514,6 @@ defmodule Meadow.AI.Provenance do
   defp c2pa_action_for_event("applied"), do: "c2pa.edited"
   defp c2pa_action_for_event("deleted"), do: "c2pa.removed"
   defp c2pa_action_for_event("human_attested"), do: "c2pa.edited"
-  defp c2pa_action_for_event("legacy_note_migrated"), do: "c2pa.opened"
   defp c2pa_action_for_event(_), do: nil
 
   defp human_oversight_for_origin(origin)
@@ -1535,7 +1534,6 @@ defmodule Meadow.AI.Provenance do
   defp premis_event_type("applied"), do: "metadata update"
   defp premis_event_type("deleted"), do: "deletion"
   defp premis_event_type("failed"), do: "metadata update"
-  defp premis_event_type("legacy_note_migrated"), do: "metadata migration"
   defp premis_event_type(value), do: value
 
   defp event_outcome("rejected"), do: "failure"

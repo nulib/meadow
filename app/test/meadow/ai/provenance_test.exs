@@ -3,7 +3,6 @@ defmodule Meadow.AI.ProvenanceTest do
 
   alias Meadow.AI.Provenance
   alias Meadow.AI.Provenance.Export.{C2PAReadiness, PREMIS, UVA}
-  alias Meadow.AI.Provenance.LegacyNotes
 
   describe "activities" do
     test "creates activities, sources, targets, and events" do
@@ -1205,67 +1204,6 @@ defmodule Meadow.AI.ProvenanceTest do
                  field_path: "descriptive_metadata.description",
                  origin: "ai_generated",
                  status: "applied"
-               }
-             ] = Provenance.work_summary(work.id)
-    end
-  end
-
-  describe "legacy notes" do
-    test "dry-run detects recognized AI notes" do
-      work =
-        work_fixture(%{
-          descriptive_metadata: %{
-            title: "Legacy",
-            notes: [
-              %{
-                note:
-                  "Some metadata created with the assistance of AI (claude-test) on 2026-02-09",
-                type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
-              }
-            ]
-          }
-        })
-
-      assert [
-               %{
-                 work_id: work_id,
-                 parsed_model: "claude-test",
-                 candidate_field_paths: ["descriptive_metadata"]
-               }
-             ] = LegacyNotes.dry_run()
-
-      assert work_id == work.id
-    end
-
-    test "apply creates legacy provenance and removes only recognized AI notes" do
-      work =
-        work_fixture(%{
-          descriptive_metadata: %{
-            title: "Legacy",
-            notes: [
-              %{
-                note:
-                  "Some metadata created with the assistance of AI (claude-test) on 2026-02-09",
-                type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
-              },
-              %{
-                note: "Keep this local note",
-                type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
-              }
-            ]
-          }
-        })
-
-      assert [%{work_id: work_id}] = LegacyNotes.apply()
-      assert work_id == work.id
-
-      fresh = Meadow.Data.Works.get_work!(work.id)
-      assert Enum.map(fresh.descriptive_metadata.notes, & &1.note) == ["Keep this local note"]
-
-      assert [
-               %{
-                 field_path: "descriptive_metadata",
-                 origin: "legacy_ai_note_detected"
                }
              ] = Provenance.work_summary(work.id)
     end

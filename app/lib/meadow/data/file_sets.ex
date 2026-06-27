@@ -10,7 +10,7 @@ defmodule Meadow.Data.FileSets do
 
   alias Meadow.AI.Provenance
   alias Meadow.Config
-  alias Meadow.Data.Transcriber
+  alias Meadow.Data.{Transcriber, Works}
   alias Meadow.Data.Schemas.{FileSet, FileSetAnnotation}
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Repo
@@ -612,21 +612,25 @@ defmodule Meadow.Data.FileSets do
 
   defp handle_transcription_result(annotation, {:ok, %{text: text} = transcription})
        when is_binary(text) do
-    Repo.transaction(fn ->
-      updated_annotation =
-        annotation
-        |> update_annotation(%{
-          status: "completed",
-          content: transcription.text,
-          language: transcription.languages
-        })
+    result =
+      Repo.transaction(fn ->
+        updated_annotation =
+          annotation
+          |> update_annotation(%{
+            status: "completed",
+            content: transcription.text,
+            language: transcription.languages
+          })
+          |> unwrap_or_rollback()
+
+        record_completed_transcription_provenance(updated_annotation, transcription)
         |> unwrap_or_rollback()
 
-      record_completed_transcription_provenance(updated_annotation, transcription)
-      |> unwrap_or_rollback()
+        updated_annotation
+      end)
 
-      updated_annotation
-    end)
+    add_transcription_note(annotation)
+    result
   end
 
   defp handle_transcription_result(annotation, {:error, reason}) do
@@ -667,6 +671,42 @@ defmodule Meadow.Data.FileSets do
 
     publish_annotation_error(annotation, :blank_transcription)
     result
+  end
+
+  defp add_transcription_note(%{file_set_id: file_set_id, model: model}) do
+    case Repo.get(FileSet, file_set_id) |> Repo.preload(:work) do
+      %FileSet{work: work, core_metadata: %{label: label}} when not is_nil(work) ->
+        today = Date.utc_today() |> Date.to_iso8601()
+
+        note_text =
+          case model do
+            nil -> "Transcription generated for #{label} by AI on #{today}"
+            model_id -> "Transcription generated for #{label} by AI (#{model_id}) on #{today}"
+          end
+
+        new_note = %{
+          note: note_text,
+          type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
+        }
+
+        existing_notes =
+          (get_in(work, [Access.key(:descriptive_metadata), Access.key(:notes)]) || [])
+          |> Enum.map(fn
+            %_{} = struct -> Map.from_struct(struct)
+            map when is_map(map) -> map
+          end)
+
+        updated_metadata = %{
+          descriptive_metadata: %{
+            notes: existing_notes ++ [new_note]
+          }
+        }
+
+        Works.update_work(work, updated_metadata)
+
+      _ ->
+        :ok
+    end
   end
 
   defp fetch_file_set_for_transcription(file_set_id) do

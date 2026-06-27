@@ -13,11 +13,10 @@ defmodule Meadow.AI.Provenance.Schemas.Target do
     human_replacement_after_ai_suggestion
     human_attested_after_ai
     human_generated
-    legacy_ai_note_detected
     human_or_legacy
   )
 
-  @statuses ~w(proposed reviewed applied rejected failed deleted legacy)
+  @statuses ~w(proposed reviewed applied rejected failed deleted)
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @foreign_key_type Ecto.UUID

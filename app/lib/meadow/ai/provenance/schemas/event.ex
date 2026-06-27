@@ -16,7 +16,6 @@ defmodule Meadow.AI.Provenance.Schemas.Event do
     applied
     deleted
     failed
-    legacy_note_migrated
   )
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}

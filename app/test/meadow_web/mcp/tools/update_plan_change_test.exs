@@ -50,6 +50,35 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
              ] = Provenance.work_summary(plan_change.work_id)
     end
 
+    test "injects an AI disclosure note into the plan change metadata", %{
+      plan_change: plan_change
+    } do
+      params = %{
+        "id" => plan_change.id,
+        "replace" => %{
+          "descriptive_metadata" => %{
+            "title" => "Updated Title"
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
+
+      result = Jason.decode!(response)
+
+      assert [%{"note" => note_text, "type" => %{"id" => "LOCAL_NOTE"}}] =
+               get_in(result, ["add", "descriptive_metadata", "notes"])
+
+      assert note_text =~ "Some metadata created with the assistance of AI"
+
+      # The disclosure note is persisted with the change (and applied to the
+      # work) but is not itself tracked as an AI-generated provenance target.
+      assert [%{field_path: "descriptive_metadata.title"}] =
+               Provenance.work_summary(plan_change.work_id)
+    end
+
     test "records the targeted work as a citation-complete source" do
       collection = collection_fixture(%{title: "Source Collection"})
       work = work_fixture(%{collection_id: collection.id})

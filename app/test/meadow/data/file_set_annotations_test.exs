@@ -244,10 +244,14 @@ defmodule Meadow.Data.FileSetAnnotationsTest do
                    applied_at: %DateTime{}
                  }
                ] = Meadow.AI.Provenance.work_summary(work.id)
-      end
 
-      fresh_work = Meadow.Data.Works.get_work!(work.id)
-      assert fresh_work.descriptive_metadata.notes == []
+        fresh_work = Meadow.Data.Works.get_work!(work.id)
+
+        assert [%{note: note_text, type: %{id: "LOCAL_NOTE"}}] =
+                 fresh_work.descriptive_metadata.notes
+
+        assert note_text =~ "Transcription generated for Page 1 by AI"
+      end
     end
 
     test "transcribe_file_set/2 forwards the :context option to the transcriber" do

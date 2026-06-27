@@ -21,6 +21,7 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadata do
     id: :string,
     label: :string
   }
+  @ai_note_prefix "Some metadata created with the assistance of AI"
 
   schema do
     field(:work_id, :string,
@@ -60,13 +61,22 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadata do
         %{role: %{id: "TOPICAL", scheme: "subject_role"}, term: %{id: id}}
       end)
 
+    current_date = Date.utc_today() |> Date.to_iso8601()
+    note_text = "#{@ai_note_prefix} (#{Config.ai(:model)}) on #{current_date}"
+
     result =
       Repo.transaction(fn ->
         updated_work =
           case Works.update_work(work, %{
                  descriptive_metadata: %{
                    description: [description],
-                   subject: subject_attrs
+                   subject: subject_attrs,
+                   notes: [
+                     %{
+                       note: note_text,
+                       type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
+                     }
+                   ]
                  }
                }) do
             {:ok, updated_work} -> updated_work
