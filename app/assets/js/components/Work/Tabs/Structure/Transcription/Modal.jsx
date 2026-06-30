@@ -6,13 +6,15 @@ import classNames from "classnames";
 import { useWorkDispatch, useWorkState } from "@js/context/work-context";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import { IIIF_SIZES } from "@js/services/global-vars";
-import { toastWrapper } from "@js/services/helpers";
-import { useMutation } from "@apollo/client/react";
+import { toastWrapper, downloadBlob } from "@js/services/helpers";
+import { useMutation, useQuery } from "@apollo/client/react";
 import {
   UPDATE_FILE_SET_ANNOTATION,
   DELETE_FILE_SET_ANNOTATION,
   UPSERT_FILE_SET_ANNOTATION,
 } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
+import { GET_WORK } from "@js/components/Work/work.gql";
+import { IconDownload } from "@js/components/Icon";
 import WorkTabsStructureTranscriptionWorkflow from "@js/components/Work/Tabs/Structure/Transcription/Workflow";
 
 function WorkTabsStructureTranscriptionModal({ isActive }) {
@@ -29,6 +31,14 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
   } = useWorkState();
 
   const iiifImageUrl = `${iiifServerUrl}${fileSetId}${IIIF_SIZES.IIIF_FULL}`;
+
+  const { data: { work } = {} } = useQuery(GET_WORK, {
+    variables: { id: workId },
+    skip: !workId,
+  });
+  const accessionNumber = work?.fileSets?.find(
+    (fs) => fs.id === fileSetId,
+  )?.accessionNumber;
 
   const [updateFileSetAnnotation] = useMutation(UPDATE_FILE_SET_ANNOTATION);
   const [upsertFileSetAnnotation] = useMutation(UPSERT_FILE_SET_ANNOTATION);
@@ -96,6 +106,16 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     setConfirmDelete(true);
   };
 
+  const handleDownloadTranscription = () => {
+    const content = textArea?.value || "";
+    if (!content) {
+      toastWrapper("is-danger", "No transcription to download");
+      return;
+    }
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    downloadBlob(blob, `transcription-${accessionNumber || fileSetId}.txt`);
+  };
+
   const handleConfirmDelete = () => {
     const annotationId = textArea?.getAttribute("data-annotation-id");
 
@@ -103,6 +123,7 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
       variables: {
         annotationId: annotationId,
       },
+      refetchQueries: [{ query: GET_WORK, variables: { id: workId } }],
       onCompleted: () => {
         handleClose();
         toastWrapper("is-success", "Transcription successfully deleted");
@@ -187,11 +208,17 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
         </section>
 
         <footer className="modal-card-foot buttons is-justify-content-space-between">
-          {!confirmDelete && hasAnnotationId && (
-            <div>
-              <Button isDanger onClick={handleDeleteTranscription}>
-                Delete Transcription
+          {!confirmDelete && (hasAnnotationId || isDirty) && (
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <Button onClick={handleDownloadTranscription}>
+                <IconDownload />
+                <span>Download Transcription</span>
               </Button>
+              {hasAnnotationId && (
+                <Button isDanger onClick={handleDeleteTranscription}>
+                  Delete Transcription
+                </Button>
+              )}
             </div>
           )}
           <div className="is-flex is-justify-content-flex-end is-flex-grow-1">
