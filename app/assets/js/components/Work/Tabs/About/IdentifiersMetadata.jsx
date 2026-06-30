@@ -6,10 +6,29 @@ import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
 import { IDENTIFIER_METADATA } from "@js/services/metadata";
 import UIFormRelatedURL from "@js/components/UI/Form/RelatedURL";
 import { useCodeLists } from "@js/context/code-list-context";
+import {
+  OriginBadge,
+  fieldProvenance,
+  provenanceItemId,
+} from "@js/components/AIProvenance/Badges";
+import { ItemAttestation } from "@js/components/AIProvenance/ItemAttestationControl";
 
-const WorkTabsAboutIdentifiersMetadata = ({ work, isEditing }) => {
+const WorkTabsAboutIdentifiersMetadata = ({
+  work,
+  isEditing,
+  provenance = {},
+}) => {
   const codeLists = useCodeLists();
   const { ark, descriptiveMetadata } = work;
+
+  // Per-URL AI origin, keyed by url (the backend's item identifier), so each
+  // related URL is badged individually rather than with one field-level badge.
+  const relatedUrlOriginById = (
+    fieldProvenance(provenance, "relatedUrl")?.itemProvenance || []
+  ).reduce((acc, entry) => {
+    if (entry?.id) acc[entry.id] = entry.origin;
+    return acc;
+  }, {});
 
   return (
     <div className="columns is-multiline" data-testid="identifiers-metadata">
@@ -32,6 +51,8 @@ const WorkTabsAboutIdentifiersMetadata = ({ work, isEditing }) => {
             <UIFormFieldArrayDisplay
               values={descriptiveMetadata[item.name]}
               label={item.label}
+              provenance={fieldProvenance(provenance, item.name)}
+              workId={work.id}
             />
           )}
         </div>
@@ -53,11 +74,30 @@ const WorkTabsAboutIdentifiersMetadata = ({ work, isEditing }) => {
           ) : (
             <div className="field content">
               <ul data-testid="field-array-item-list">
-                {descriptiveMetadata.relatedUrl.map((relatedUrlEntry, i) => (
-                  <li className="mb-4" key={i}>
-                    {relatedUrlEntry.label.label} - {relatedUrlEntry.url}
-                  </li>
-                ))}
+                {descriptiveMetadata.relatedUrl.map((relatedUrlEntry, i) => {
+                  const origin =
+                    relatedUrlOriginById[provenanceItemId(relatedUrlEntry)];
+                  return (
+                    <li className="mb-4" key={i}>
+                      {relatedUrlEntry.label.label} - {relatedUrlEntry.url}
+                      {origin && (
+                        <span className="ml-2">
+                          <OriginBadge origin={origin} />
+                        </span>
+                      )}
+                      {origin && (
+                        <ItemAttestation
+                          origin={origin}
+                          workId={work.id}
+                          fieldPath={
+                            fieldProvenance(provenance, "relatedUrl")?.fieldPath
+                          }
+                          itemId={provenanceItemId(relatedUrlEntry)}
+                        />
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}
@@ -70,6 +110,7 @@ const WorkTabsAboutIdentifiersMetadata = ({ work, isEditing }) => {
 WorkTabsAboutIdentifiersMetadata.propTypes = {
   work: PropTypes.object,
   isEditing: PropTypes.bool,
+  provenance: PropTypes.object,
 };
 
 export default WorkTabsAboutIdentifiersMetadata;

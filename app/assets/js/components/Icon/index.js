@@ -42,6 +42,7 @@ import IconUpload from "@js/components/Icon/Upload";
 import IconVideo from "@js/components/Icon/Video";
 import IconView from "@js/components/Icon/View";
 import IconUser from "@js/components/Icon/User";
+import IconUserCheck from "@js/components/Icon/UserCheck";
 
 export {
   IconAdd,
@@ -88,4 +89,5 @@ export {
   IconVideo,
   IconView,
   IconUser,
+  IconUserCheck,
 };

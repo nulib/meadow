@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+import { renderWithRouterApollo } from "@js/services/testing-helpers";
 import UIControlledTermList from "./List";
 
 const items = [
@@ -44,6 +45,30 @@ describe("UIControlledVocabList", () => {
       const firstElLink = screen.getAllByTestId("external-link")[0];
       expect(firstElLink).toHaveAttribute("target");
       expect(firstElLink).toHaveTextContent(items[0].term.id);
+    });
+  });
+
+  describe("per-item provenance", () => {
+    it("badges only the AI-attributed terms", () => {
+      renderWithRouterApollo(
+        <UIControlledTermList
+          items={items}
+          title="Subject"
+          itemProvenance={[{ id: items[0].term.id, origin: "ai_generated" }]}
+        />,
+        { mocks: [] },
+      );
+
+      const badges = screen.getAllByTestId("provenance-origin-badge");
+      expect(badges).toHaveLength(1);
+      expect(badges[0]).toHaveTextContent("AI generated");
+    });
+
+    it("renders no badges when no provenance is provided", () => {
+      render(<UIControlledTermList items={items} title="Subject" />);
+      expect(
+        screen.queryByTestId("provenance-origin-badge"),
+      ).not.toBeInTheDocument();
     });
   });
 });

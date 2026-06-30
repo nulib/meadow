@@ -2,6 +2,7 @@ defmodule Meadow.Data.PlannerTest do
   use Meadow.AuthorityCase
   use Meadow.DataCase
 
+  alias Meadow.AI.Provenance
   alias Meadow.Data.Planner
   alias Meadow.Data.Schemas.{Plan, PlanChange}
 
@@ -597,6 +598,52 @@ defmodule Meadow.Data.PlannerTest do
 
       assert error_message == ~s'"#{invalid_plan_id}" is invalid'
     end
+
+    test "records human replacement provenance when reviewer replaces AI proposal", %{
+      plan: plan,
+      work: work
+    } do
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          work_id: work.id,
+          plan_id: plan.id,
+          status: "completed"
+        })
+
+      Provenance.record_targets_for_operations(
+        activity,
+        "Work",
+        work.id,
+        %{replace: %{descriptive_metadata: %{description: ["AI proposal"]}}},
+        origin: "ai_generated",
+        status: "proposed",
+        event_type: "proposed"
+      )
+
+      {:ok, change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          replace: %{descriptive_metadata: %{description: ["AI proposal"]}},
+          ai_activity_id: activity.id
+        })
+
+      Provenance.record_plan_manual_edit(
+        change,
+        %{replace: %{descriptive_metadata: %{title: "Human title"}}},
+        "curator@example.edu"
+      )
+
+      assert {:ok, _updated} =
+               Planner.update_plan_change(change, %{
+                 replace: %{descriptive_metadata: %{title: "Human title"}}
+               })
+
+      summary = Provenance.work_summary(work.id)
+      assert Enum.any?(summary, &(&1.origin == "human_replacement_after_ai_suggestion"))
+      assert Enum.any?(summary, &(&1.origin == "human_generated"))
+    end
   end
 
   describe "approve_plan_change/2" do
@@ -756,23 +803,98 @@ defmodule Meadow.Data.PlannerTest do
     assert error_plan.error |> String.contains?(~s(cannot load `[\\"Updated\\"]` as type :string))
   end
 
+  test "rolls back apply provenance when work update fails", %{plan: plan, work: work} do
+    {:ok, activity} =
+      Provenance.create_activity(%{
+        activity_type: "metadata_plan",
+        work_id: work.id,
+        plan_id: plan.id,
+        status: "completed"
+      })
+
+    Provenance.record_targets_for_operations(
+      activity,
+      "Work",
+      work.id,
+      %{replace: %{descriptive_metadata: %{title: ["Updated"]}}},
+      origin: "ai_generated",
+      status: "reviewed",
+      event_type: "approved"
+    )
+
+    {:ok, change} =
+      Planner.create_plan_change(%{
+        plan_id: plan.id,
+        work_id: work.id,
+        replace: %{descriptive_metadata: %{title: ["Updated"]}},
+        status: :approved,
+        ai_activity_id: activity.id
+      })
+
+    Planner.approve_plan_change(change)
+    {:ok, plan} = Planner.approve_plan(plan)
+
+    assert {:ok, error_plan} = Planner.apply_plan(plan)
+    assert error_plan.status == :error
+
+    events =
+      activity.id
+      |> Provenance.get_activity!()
+      |> Map.fetch!(:targets)
+      |> Enum.flat_map(& &1.events)
+      |> Enum.map(& &1.event_type)
+
+    refute "applied" in events
+    refute "failed" in events
+  end
+
   describe "apply_plan_change/1" do
     test "applies replace change to work", %{plan: plan} do
       work = work_fixture()
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          work_id: work.id,
+          plan_id: plan.id,
+          status: "completed"
+        })
 
       {:ok, change} =
         Planner.create_plan_change(%{
           plan_id: plan.id,
           work_id: work.id,
           replace: %{descriptive_metadata: %{title: "New Title"}},
-          status: :approved
+          status: :approved,
+          ai_activity_id: activity.id
         })
+
+      Provenance.record_targets_for_operations(
+        activity,
+        "Work",
+        work.id,
+        %{replace: %{descriptive_metadata: %{title: "New Title"}}},
+        origin: "ai_generated",
+        status: "reviewed",
+        event_type: "approved"
+      )
 
       assert {:ok, completed_change} = Planner.apply_plan_change(change)
       assert completed_change.status == :completed
 
       updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
       assert updated_work.descriptive_metadata.title == "New Title"
+
+      # The fixture work already has a (human-authored) title, so applying the
+      # AI replacement is recorded as a modification of human content, not a
+      # fresh generation.
+      assert [
+               %{
+                 field_path: "descriptive_metadata.title",
+                 origin: "ai_modified_human_content",
+                 applied_at: %DateTime{}
+               }
+             ] = Provenance.work_summary(work.id)
     end
 
     test "applies delete change to controlled field", %{plan: plan} do

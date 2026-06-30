@@ -1,0 +1,24 @@
+// AI provenance badges (see js/components/AIProvenance/Badges.jsx).
+//
+// Toned-down treatment: a neutral light-grey pill with dark text, identified
+// by a small colored dot rather than a bold full-background color. The dot
+// color is passed per badge via the `--provenance-dot` custom property; we
+// fall back to a muted grey when none is supplied.
+.provenance-badge {
+  background-color: $light-grey;
+  color: $rich-black-80;
+  font-weight: 400;
+
+  &::before {
+    content: "";
+    display: inline-block;
+    flex: none;
+    width: 0.75em;
+    height: 0.75em;
+    margin-right: 0.5em;
+    border-radius: 50%;
+    background-color: var(--provenance-dot, #{$rich-black-50});
+    // Subtle ring so even the lighter dots stay defined on the grey pill.
+    box-shadow: inset 0 0 0 1px rgba($black, 0.2);
+  }
+}

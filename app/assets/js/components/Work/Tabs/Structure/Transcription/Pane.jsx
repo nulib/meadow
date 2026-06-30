@@ -3,19 +3,25 @@ import React, { useEffect, useRef } from "react";
 function WorkTabsStructureTranscriptionPane({
   annotation,
   hasTranscriptionCallback,
-  onContentChange,
+  onContentChange = () => {},
 }) {
   const textAreaRef = useRef(null);
-  const { content, id, status, type } = annotation;
+  const { content, id, status, type } = annotation || {};
 
   useEffect(() => {
     if (!textAreaRef.current) return;
+    // While a transcription is generating, leave the textarea inert (and the
+    // modal's Save disabled). Otherwise surface it to the modal as soon as it
+    // mounts — even with no existing annotation — so a person can author one
+    // from scratch. Hydrate any existing content first, then report it as the
+    // unedited baseline so the modal's dirty tracking treats it as pristine.
+    if (status === "in_progress") return;
     if (typeof content === "string") {
       textAreaRef.current.value = content;
-      hasTranscriptionCallback(true);
-      return;
     }
-  }, [content]);
+    hasTranscriptionCallback(true);
+    onContentChange(textAreaRef.current.value);
+  }, [content, status]);
 
   return (
     <div
@@ -53,10 +59,8 @@ function WorkTabsStructureTranscriptionPane({
         data-annotation-status={status}
         data-annotation-type={type}
         id="file-set-transcription-textarea"
-        onChange={
-          onContentChange ? (e) => onContentChange(e.target.value) : undefined
-        }
         ref={textAreaRef}
+        onChange={(e) => onContentChange(e.target.value)}
         style={{
           height: "100%",
           whiteSpace: "pre-wrap",

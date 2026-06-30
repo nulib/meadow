@@ -76,6 +76,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       arg(:file_set_id, non_null(:id))
       arg(:language, list_of(:string))
       arg(:model, :string)
+      arg(:context, :string)
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.transcribe_file_set/3)
@@ -108,6 +109,15 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.delete_file_set_annotation/3)
+    end
+
+    @desc "Mark an AI-generated annotation's content as human-authored, preserving AI history"
+    field :attest_human_authored_annotation, :file_set_annotation do
+      arg(:annotation_id, non_null(:id))
+      arg(:reason, :string)
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.attest_human_authored_annotation/3)
     end
   end
 
@@ -250,9 +260,15 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field(:s3_location, :string)
     field(:status, non_null(:string))
     field(:error, :string)
+    field(:ai_activity_id, :id)
     field(:inserted_at, non_null(:datetime))
     field(:updated_at, non_null(:datetime))
 
     field :content, :string
+
+    @desc "AI provenance summary for this annotation (origin, model, reviewer, etc.)"
+    field(:ai_provenance, :ai_provenance_summary_entry,
+      resolve: &Resolvers.AIProvenance.annotation_summary/3
+    )
   end
 end

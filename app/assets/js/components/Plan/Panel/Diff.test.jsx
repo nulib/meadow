@@ -18,8 +18,10 @@ const mockComputeRowDiff = jest.fn(() => ({
   changed: false,
 }));
 
+const mockUseQuery = jest.fn(() => ({ data: undefined }));
 jest.mock("@apollo/client/react", () => ({
   useMutation: () => [jest.fn()],
+  useQuery: (...args) => mockUseQuery(...args),
 }));
 
 jest.mock("@nulib/design-system", () => ({
@@ -48,7 +50,10 @@ jest.mock("@js/components/Icon", () => ({
   IconDelete: () => <span data-testid="icon-delete" />,
 }));
 
-jest.mock("../plan.gql", () => ({ UPDATE_PLAN_CHANGE: "UPDATE_PLAN_CHANGE" }));
+jest.mock("../plan.gql", () => ({
+  UPDATE_PLAN_CHANGE: "UPDATE_PLAN_CHANGE",
+  GET_PLAN_CHANGE_PROVENANCE: "GET_PLAN_CHANGE_PROVENANCE",
+}));
 
 jest.mock("@js/components/Plan/Panel/EditDiffRowForm", () => ({
   __esModule: true,
@@ -67,6 +72,7 @@ const { default: PlanPanelChangesDiff } = await import("./Diff");
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUseQuery.mockReturnValue({ data: undefined });
 });
 
 // Status "PROPOSED" keeps existing tests in the editable single-column table
@@ -100,6 +106,51 @@ describe("PlanPanelChangesDiff", () => {
     expect(ctl).toHaveAttribute("data-title", "Subject");
     expect(ctl).toHaveAttribute("data-count", "1");
     expect(mockToArray).toHaveBeenCalledTimes(1);
+  });
+
+  test("preview badge reflects a recorded human edit of an AI suggestion", () => {
+    mockUseQuery.mockReturnValue({
+      data: {
+        aiActivities: [
+          {
+            id: "a1",
+            targets: [
+              {
+                fieldPath: "descriptive_metadata.description",
+                origin: "ai_assisted_human_modified",
+                status: "reviewed",
+                operation: "replace",
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    mockToRows
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([
+        {
+          id: "replace-description",
+          method: "replace",
+          path: "descriptive_metadata.description",
+          label: "Description",
+          value: "Reviewer description",
+          controlled: false,
+        },
+      ]);
+
+    render(
+      <PlanPanelChangesDiff
+        proposedChanges={baseProposed}
+        planChangeId="pc-1"
+      />,
+    );
+
+    expect(screen.getByTestId("provenance-preview")).toHaveTextContent(
+      "AI + human edited",
+    );
   });
 
   test("renders non-controlled primitive values directly", () => {
@@ -147,6 +198,63 @@ describe("PlanPanelChangesDiff", () => {
     const list = screen.getByRole("list");
     const items = within(list).getAllByRole("listitem");
     expect(items.map((li) => li.textContent)).toEqual(["One", "Two", "Three"]);
+  });
+
+  test("badges each AI-proposed item in a non-controlled multivalued field", () => {
+    mockUseQuery.mockReturnValue({
+      data: {
+        aiActivities: [
+          {
+            id: "a1",
+            targets: [
+              {
+                fieldPath: "descriptive_metadata.alternate_title",
+                origin: "ai_generated",
+                proposedValue: { value: ["First alt", "Second alt"] },
+                // Per-item attribution comes straight from the backend's
+                // reconciled itemProvenance, keyed by each item's value.
+                itemProvenance: [
+                  { id: "First alt", origin: "ai_generated" },
+                  { id: "Second alt", origin: "ai_generated" },
+                ],
+                events: [
+                  {
+                    eventType: "proposed",
+                    valueAfter: { value: ["First alt", "Second alt"] },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    mockToRows
+      .mockReturnValueOnce([
+        {
+          id: "add-alt",
+          method: "add",
+          path: "descriptive_metadata.alternate_title",
+          label: "Alternate Title",
+          value: ["First alt", "Second alt"],
+          controlled: false,
+        },
+      ])
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([]);
+
+    render(
+      <PlanPanelChangesDiff
+        proposedChanges={baseProposed}
+        planChangeId="pc-1"
+      />,
+    );
+
+    // One badge per AI-proposed value...
+    expect(screen.getAllByTestId("provenance-origin-badge")).toHaveLength(2);
+    // ...and the field-level preview badge is suppressed to avoid a duplicate.
+    expect(screen.queryByTestId("provenance-preview")).not.toBeInTheDocument();
   });
 
   test("renders non-controlled arrays of objects as bullet list of JSON items", () => {
@@ -550,6 +658,167 @@ describe("PlanPanelChangesDiff", () => {
       // The term id span should not appear
       expect(
         document.querySelector(".plan-diff-term-id"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("badges the current value with its existing (before) provenance origin", () => {
+      mockToRows
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([
+          {
+            id: "replace-description",
+            method: "replace",
+            path: "descriptive_metadata.description",
+            label: "Description",
+            value: "New description",
+            controlled: false,
+          },
+        ]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "scalar",
+        current: "Old description",
+        resulting: "New description",
+        changed: true,
+      });
+
+      const currentWork = {
+        descriptiveMetadata: { description: "Old description" },
+        aiProvenanceSummary: [
+          {
+            fieldPath: "descriptive_metadata.description",
+            origin: "ai_generated",
+            status: "applied",
+          },
+        ],
+      };
+
+      render(
+        <PlanPanelChangesDiff
+          proposedChanges={approvedProposed}
+          currentWork={currentWork}
+        />,
+      );
+
+      const dataRow = screen.getAllByRole("row")[1];
+      const currentCell = within(dataRow).getAllByRole("cell")[2];
+      // The before badge sits in the Current value cell, not the preview.
+      expect(
+        within(currentCell).getByTestId("provenance-origin-badge"),
+      ).toHaveTextContent("AI generated");
+      expect(
+        within(currentCell).queryByTestId("provenance-preview"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("badges each AI-attributed item individually instead of the whole field", () => {
+      // The AI proposed two of the three resulting subjects; the diff items
+      // carry the backend-matching itemId so each AI item gets its own badge.
+      mockUseQuery.mockReturnValue({
+        data: {
+          aiActivities: [
+            {
+              id: "a1",
+              targets: [
+                {
+                  fieldPath: "descriptive_metadata.subject",
+                  origin: "ai_generated",
+                  itemProvenance: [
+                    { id: "s2", origin: "ai_generated" },
+                    { id: "s3", origin: "ai_generated" },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      mockToRows
+        .mockReturnValueOnce([
+          {
+            id: "add-subject",
+            method: "add",
+            path: "descriptive_metadata.subject",
+            label: "Subject",
+            value: [
+              { term: { id: "s2", label: "Photographs" } },
+              { term: { id: "s3", label: "Maps" } },
+            ],
+            controlled: true,
+          },
+        ])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "list",
+        current: [
+          { key: "s1", display: "Aerial", itemId: "s1", status: "unchanged" },
+        ],
+        resulting: [
+          { key: "s1", display: "Aerial", itemId: "s1", status: "unchanged" },
+          { key: "s2", display: "Photographs", itemId: "s2", status: "added" },
+          { key: "s3", display: "Maps", itemId: "s3", status: "added" },
+        ],
+      });
+
+      render(
+        <PlanPanelChangesDiff
+          proposedChanges={approvedProposed}
+          planChangeId="pc-1"
+          currentWork={{ aiProvenanceSummary: [] }}
+        />,
+      );
+
+      const newCell = within(screen.getAllByRole("row")[1]).getAllByRole(
+        "cell",
+      )[3];
+      // One badge per AI-proposed item (s2, s3)...
+      expect(
+        within(newCell).getAllByTestId("provenance-origin-badge"),
+      ).toHaveLength(2);
+      // ...and no field-level preview badge once items are badged individually.
+      expect(
+        within(newCell).queryByTestId("provenance-preview"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("renders no before badge for a field with no recorded provenance", () => {
+      mockToRows
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([
+          {
+            id: "replace-title",
+            method: "replace",
+            path: "descriptive_metadata.title",
+            label: "Title",
+            value: "New",
+            controlled: false,
+          },
+        ]);
+
+      mockComputeRowDiff.mockReturnValue({
+        kind: "scalar",
+        current: "Old",
+        resulting: "New",
+        changed: true,
+      });
+
+      render(
+        <PlanPanelChangesDiff
+          proposedChanges={approvedProposed}
+          currentWork={{ aiProvenanceSummary: [] }}
+        />,
+      );
+
+      const currentCell = within(screen.getAllByRole("row")[1]).getAllByRole(
+        "cell",
+      )[2];
+      expect(
+        within(currentCell).queryByTestId("provenance-origin-badge"),
       ).not.toBeInTheDocument();
     });
 

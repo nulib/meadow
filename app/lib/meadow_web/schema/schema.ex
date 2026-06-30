@@ -29,6 +29,7 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.ChatTypes)
   import_types(__MODULE__.Data.PlanTypes)
   import_types(__MODULE__.EvalTypes)
+  import_types(__MODULE__.AIProvenanceTypes)
 
   query do
     import_fields(:account_queries)
@@ -46,6 +47,7 @@ defmodule MeadowWeb.Schema do
     import_fields(:preservation_check_queries)
     import_fields(:s3_queries)
     import_fields(:work_queries)
+    import_fields(:ai_provenance_queries)
   end
 
   mutation do

@@ -9,10 +9,59 @@ import {
   computeRowDiff,
 } from "@js/components/Plan/Panel/diff-helpers";
 import { IconEdit, IconDelete } from "@js/components/Icon";
-import { UPDATE_PLAN_CHANGE } from "../plan.gql";
+import { UPDATE_PLAN_CHANGE, GET_PLAN_CHANGE_PROVENANCE } from "../plan.gql";
 import { Button } from "@nulib/design-system";
-import { useMutation } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import EditDiffRowForm from "@js/components/Plan/Panel/EditDiffRowForm";
+import {
+  OriginBadge,
+  ProvenancePreviewBadge,
+  FieldProvenanceBadge,
+  provenanceByFieldPath,
+  provenanceItemId,
+  valueItemIds,
+} from "@js/components/AIProvenance/Badges";
+
+// Origins that signal a human has already shaped the value; these win over a
+// less-specific recorded origin when more than one target exists for a field.
+const HUMAN_TOUCHED = [
+  "ai_assisted_human_modified",
+  "human_replacement_after_ai_suggestion",
+  "human_generated",
+];
+
+/**
+ * Map field_path -> recorded origin for a plan change's provenance targets,
+ * preferring an origin that reflects a human edit when several exist.
+ */
+function recordedOriginByPath(activities = []) {
+  const map = {};
+  activities.forEach((activity) => {
+    (activity.targets || []).forEach((target) => {
+      const existing = map[target.fieldPath];
+      if (!existing || HUMAN_TOUCHED.includes(target.origin)) {
+        map[target.fieldPath] = target.origin;
+      }
+    });
+  });
+  return map;
+}
+
+/**
+ * Map field_path -> per-item AI attribution, taken straight from the backend's
+ * reconciled `itemProvenance` (the AI's proposal diffed against the current
+ * value). Using the server-computed attribution keeps the plan diff and the
+ * work About tab in lock-step rather than re-deriving it here.
+ */
+function itemProvenanceByPath(activities = []) {
+  const map = {};
+  activities.forEach((activity) => {
+    (activity.targets || []).forEach((target) => {
+      map[target.fieldPath] = target.itemProvenance || [];
+    });
+  });
+  return map;
+}
 
 /**
  * Tag indicating the method of change
@@ -54,8 +103,10 @@ const renderCodedTerm = (value) => {
 /**
  * Render a notes array
  */
-const renderNotes = (notes) => {
+const renderNotes = (notes, itemProvenance = []) => {
   if (!Array.isArray(notes) || notes.length === 0) return "—";
+
+  const originById = originLookup(itemProvenance);
 
   return (
     <ul>
@@ -63,6 +114,7 @@ const renderNotes = (notes) => {
         <li key={i}>
           {note.type?.label && <strong>{note.type.label}: </strong>}
           {note.note || "—"}
+          <ItemOriginBadge origin={originById[provenanceItemId(note)]} />
         </li>
       ))}
     </ul>
@@ -72,8 +124,10 @@ const renderNotes = (notes) => {
 /**
  * Render a related_url array
  */
-const renderRelatedUrls = (urls) => {
+const renderRelatedUrls = (urls, itemProvenance = []) => {
   if (!Array.isArray(urls) || urls.length === 0) return "—";
+
+  const originById = originLookup(itemProvenance);
 
   return (
     <ul>
@@ -87,6 +141,7 @@ const renderRelatedUrls = (urls) => {
           ) : (
             "—"
           )}
+          <ItemOriginBadge origin={originById[provenanceItemId(item)]} />
         </li>
       ))}
     </ul>
@@ -96,27 +151,61 @@ const renderRelatedUrls = (urls) => {
 /**
  * Render a nested coded term field (notes or related_url)
  */
-const renderNestedCodedTerm = (path, value) => {
+const renderNestedCodedTerm = (path, value, itemProvenance = []) => {
   if (path.endsWith("notes")) {
-    return renderNotes(value);
+    return renderNotes(value, itemProvenance);
   }
   if (path.endsWith("related_url")) {
-    return renderRelatedUrls(value);
+    return renderRelatedUrls(value, itemProvenance);
   }
   // Fallback to generic rendering
-  return renderGenericValue(value);
+  return renderGenericValue(value, itemProvenance);
 };
 
 /**
- * Render a generic (non-controlled) value
+ * Map of item id -> AI origin for a field's per-item provenance, so each value
+ * can look up its own attribution.
  */
-const renderGenericValue = (value) => {
+const originLookup = (itemProvenance = []) =>
+  itemProvenance.reduce((acc, entry) => {
+    if (entry?.id) acc[entry.id] = entry.origin;
+    return acc;
+  }, {});
+
+/**
+ * Inline per-item origin badge, or nothing when the item carries no AI origin.
+ */
+const ItemOriginBadge = ({ origin }) =>
+  origin ? (
+    <span className="ml-2">
+      <OriginBadge origin={origin} />
+    </span>
+  ) : null;
+
+/**
+ * Whether any item in a (possibly array) value carries per-item AI provenance,
+ * so callers can skip the field-level preview badge once items are badged
+ * individually.
+ */
+const hasItemProvenance = (value, itemProvenance = []) => {
+  if (!Array.isArray(value) || !itemProvenance.length) return false;
+  const ids = new Set(itemProvenance.map((entry) => entry?.id));
+  return valueItemIds(value).some((id) => ids.has(id));
+};
+
+/**
+ * Render a generic (non-controlled) value. For multivalued fields, each item
+ * the AI proposed is badged individually (via itemProvenance) so reviewers can
+ * see attribution per value rather than one badge for the whole field.
+ */
+const renderGenericValue = (value, itemProvenance = []) => {
   if (value == null) return "—";
   if (typeof value !== "object") return String(value);
   if (value instanceof Date) return value.toISOString();
 
   if (Array.isArray(value)) {
     if (value.length === 0) return "—";
+    const originById = originLookup(itemProvenance);
     return (
       <ul>
         {value.map((v, i) => (
@@ -124,6 +213,7 @@ const renderGenericValue = (value) => {
             {typeof v === "object" && v !== null
               ? v.humanized || v.edtf || JSON.stringify(v, null, 0)
               : String(v)}
+            <ItemOriginBadge origin={originById[provenanceItemId(v)]} />
           </li>
         ))}
       </ul>
@@ -135,13 +225,28 @@ const renderGenericValue = (value) => {
 };
 
 /**
- * Render a list of diff items ({key, display, status, url?}) for one cell in
- * the approved diff table.  Items are marked added, removed, or unchanged.
+ * Whether any item in a diff list carries per-item AI provenance, so the
+ * field-level badge can be suppressed once items are badged individually
+ * (mirrors hasItemProvenance for the editable PROPOSED table).
  */
-const DiffItemList = ({ items }) => {
+const diffItemsBadged = (items, itemProvenance = []) => {
+  if (!Array.isArray(items) || !items.length || !itemProvenance.length)
+    return false;
+  const ids = new Set(itemProvenance.map((entry) => entry?.id));
+  return items.some((item) => ids.has(item.itemId));
+};
+
+/**
+ * Render a list of diff items ({key, display, status, url?, itemId}) for one
+ * cell in the approved diff table. Items are marked added, removed, or
+ * unchanged, and each AI-attributed item is badged individually with its own
+ * origin (via itemProvenance) rather than the field carrying one badge.
+ */
+const DiffItemList = ({ items, itemProvenance = [] }) => {
   if (!items || items.length === 0) {
     return <span>—</span>;
   }
+  const originById = originLookup(itemProvenance);
   return (
     <ul>
       {items.map((item, i) => (
@@ -156,6 +261,7 @@ const DiffItemList = ({ items }) => {
           {item.id && item.id !== item.display && (
             <span className="plan-diff-term-id"> ({item.id})</span>
           )}
+          <ItemOriginBadge origin={originById[item.itemId]} />
         </li>
       ))}
     </ul>
@@ -167,9 +273,30 @@ const PlanPanelChangesDiff = ({
   planChangeId,
   currentWork,
 }) => {
-  const [updatePlanChange] = useMutation(UPDATE_PLAN_CHANGE);
+  // Editing/deleting a row records a manual edit on the backend (the target's
+  // origin becomes ai_assisted_human_modified / human_replacement_after_ai_suggestion),
+  // so refetch the provenance to keep the preview badges in sync.
+  const [updatePlanChange] = useMutation(UPDATE_PLAN_CHANGE, {
+    awaitRefetchQueries: true,
+    refetchQueries: planChangeId
+      ? [{ query: GET_PLAN_CHANGE_PROVENANCE, variables: { planChangeId } }]
+      : [],
+  });
   const [editingRowId, setEditingRowId] = useState(null);
   const [deletingRowId, setDeletingRowId] = useState(null);
+
+  const { data: provenanceData } = useQuery(GET_PLAN_CHANGE_PROVENANCE, {
+    variables: { planChangeId },
+    skip: !planChangeId,
+  });
+  const recordedOrigins = recordedOriginByPath(provenanceData?.aiActivities);
+  const itemProvenances = itemProvenanceByPath(provenanceData?.aiActivities);
+  // The work's existing per-field provenance, used to badge the "Current value"
+  // (before) column in the diff table so reviewers can read the provenance
+  // transition — e.g. an "AI generated" value about to become "AI edited".
+  const summaryByPath = provenanceByFieldPath(
+    currentWork?.aiProvenanceSummary || [],
+  );
 
   const isProposed = proposedChanges?.status === "PROPOSED";
 
@@ -313,6 +440,20 @@ const PlanPanelChangesDiff = ({
             {changes.map((change) => {
               const currentValue = getCurrentValue(change.path, currentWork);
               const diff = computeRowDiff(change, currentValue);
+              const summaryEntry = summaryByPath[change.path];
+              // Per-item provenance for each side: the work's existing
+              // attribution badges the "before" items; the AI proposal's
+              // reconciled attribution badges the "after" items.
+              const beforeItemProvenance = summaryEntry?.itemProvenance || [];
+              const afterItemProvenance = itemProvenances[change.path] || [];
+              const beforeBadgedPerItem = diffItemsBadged(
+                diff.current,
+                beforeItemProvenance,
+              );
+              const afterBadgedPerItem = diffItemsBadged(
+                diff.resulting,
+                afterItemProvenance,
+              );
               return (
                 <tr key={change.id} data-method={change.method}>
                   <td>{change.label}</td>
@@ -321,18 +462,40 @@ const PlanPanelChangesDiff = ({
                   </td>
                   <td>
                     {diff.kind === "list" ? (
-                      <DiffItemList items={diff.current} />
+                      <DiffItemList
+                        items={diff.current}
+                        itemProvenance={beforeItemProvenance}
+                      />
                     ) : (
                       <span>{diff.current || "—"}</span>
+                    )}
+                    {/* "Before" badge: the provenance the current value already
+                        carries, so the transition to the new value is legible.
+                        Skipped once items are badged individually. */}
+                    {!beforeBadgedPerItem && (
+                      <FieldProvenanceBadge entry={summaryEntry} />
                     )}
                   </td>
                   <td>
                     {diff.kind === "list" ? (
-                      <DiffItemList items={diff.resulting} />
+                      <DiffItemList
+                        items={diff.resulting}
+                        itemProvenance={afterItemProvenance}
+                      />
                     ) : (
                       <span data-diff-changed={diff.changed}>
                         {diff.resulting || "—"}
                       </span>
+                    )}
+                    {/* "After" badge: the provenance this AI change will be
+                        recorded with once applied. Skipped once items are badged
+                        individually. */}
+                    {!afterBadgedPerItem && (
+                      <ProvenancePreviewBadge
+                        method={change.method}
+                        currentValue={currentValue}
+                        recordedOrigin={recordedOrigins[change.path]}
+                      />
                     )}
                   </td>
                 </tr>
@@ -369,14 +532,36 @@ const PlanPanelChangesDiff = ({
                   <UIControlledTermList
                     title={change.label}
                     items={toArray(change.value)}
+                    itemProvenance={itemProvenances[change.path]}
                   />
                 ) : change.nestedCoded ? (
-                  renderNestedCodedTerm(change.path, change.value)
+                  renderNestedCodedTerm(
+                    change.path,
+                    change.value,
+                    itemProvenances[change.path],
+                  )
                 ) : isCodedTerm(change.path) ? (
                   renderCodedTerm(change.value)
                 ) : (
-                  renderGenericValue(change.value)
+                  renderGenericValue(change.value, itemProvenances[change.path])
                 )}
+                {/* Controlled fields badge their AI-suggested items
+                    individually via UIControlledTermList; multivalued
+                    non-controlled fields badge their items via
+                    renderGenericValue. Either way, skip the field-level
+                    preview badge once items are badged individually to avoid
+                    a duplicate. */}
+                {!change.controlled &&
+                  !hasItemProvenance(
+                    change.value,
+                    itemProvenances[change.path],
+                  ) && (
+                    <ProvenancePreviewBadge
+                      method={change.method}
+                      currentValue={getCurrentValue(change.path, currentWork)}
+                      recordedOrigin={recordedOrigins[change.path]}
+                    />
+                  )}
               </td>
               <td style={{ whiteSpace: "nowrap" }}>
                 {!(

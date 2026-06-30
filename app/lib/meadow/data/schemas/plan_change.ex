@@ -74,6 +74,7 @@ defmodule Meadow.Data.Schemas.PlanChange do
     field(:notes, :string)
     field(:completed_at, :utc_datetime_usec)
     field(:error, :string)
+    field(:ai_activity_id, Ecto.UUID)
 
     belongs_to(:plan, Plan, foreign_key: :plan_id, references: :id, define_field: false)
 
@@ -93,7 +94,8 @@ defmodule Meadow.Data.Schemas.PlanChange do
       :user,
       :notes,
       :completed_at,
-      :error
+      :error,
+      :ai_activity_id
     ])
     |> validate_required([:work_id])
     |> validate_at_least_one_operation()

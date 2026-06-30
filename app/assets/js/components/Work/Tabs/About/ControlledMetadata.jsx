@@ -5,10 +5,13 @@ import UIFormField from "../../../UI/Form/Field";
 import UIFormControlledTermArray from "../../../UI/Form/ControlledTermArray";
 import { CONTROLLED_METADATA } from "../../../../services/metadata";
 import { useCodeLists } from "@js/context/code-list-context";
+import { fieldProvenance } from "@js/components/AIProvenance/Badges";
 
 const WorkTabsAboutControlledMetadata = ({
   descriptiveMetadata,
   isEditing,
+  provenance = {},
+  workId,
 }) => {
   const codeLists = useCodeLists();
 
@@ -40,6 +43,11 @@ const WorkTabsAboutControlledMetadata = ({
                   <UIControlledTermList
                     items={descriptiveMetadata[name]}
                     title={label}
+                    itemProvenance={
+                      fieldProvenance(provenance, name)?.itemProvenance
+                    }
+                    workId={workId}
+                    fieldPath={fieldProvenance(provenance, name)?.fieldPath}
                   />
                 )}
               </UIFormField>
@@ -53,6 +61,8 @@ const WorkTabsAboutControlledMetadata = ({
 WorkTabsAboutControlledMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
+  provenance: PropTypes.object,
+  workId: PropTypes.string,
 };
 
 export default WorkTabsAboutControlledMetadata;

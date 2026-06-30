@@ -74,9 +74,9 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
 
   alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
-  alias Meadow.Config
+  alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment, Planner}
-  alias Meadow.Data.Schemas.WorkDescriptiveMetadata
+  alias Meadow.Data.Schemas.{Work, WorkDescriptiveMetadata}
   alias Meadow.Data.Types
   alias Meadow.Repo
   require Logger
@@ -106,13 +106,24 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   def execute(%{id: id} = request, frame) do
     Logger.debug("MCP Server updating PlanChange: #{id}")
 
-    with {:ok, change} <- fetch_plan_change(id),
-         {:ok, attrs} <- build_attrs_result(request, change),
-         {:ok, updated_change} <- Planner.update_plan_change(change, attrs) do
-      updated_change = Repo.preload(updated_change, :plan)
-      maybe_auto_propose_plan(updated_change)
-      {:reply, Response.tool() |> Response.structured(serialize_change(updated_change)), frame}
-    else
+    result =
+      Repo.transaction(fn ->
+        with {:ok, change} <- fetch_plan_change(id),
+             {:ok, attrs} <- build_attrs_result(request, change),
+             {:ok, attrs} <- maybe_create_ai_activity(change, attrs),
+             {:ok, updated_change} <- Planner.update_plan_change(change, attrs) do
+          updated_change = Repo.preload(updated_change, :plan)
+          maybe_auto_propose_plan(updated_change)
+          updated_change
+        else
+          {:error, reason} -> Repo.rollback(reason)
+        end
+      end)
+
+    case result do
+      {:ok, updated_change} ->
+        {:reply, Response.tool() |> Response.structured(serialize_change(updated_change)), frame}
+
       {:error, reason} ->
         {:error, MCPError.execution(error_message(reason)), frame}
     end
@@ -144,19 +155,16 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
     end
   end
 
-  defp build_attrs(request, change) do
-    model = Config.ai(:model)
-
+  defp build_attrs(request) do
     request
     |> Map.take([:add, :delete, :replace, :status, :notes])
     |> Enrichment.enrich_controlled_terms()
     |> validate_schema_conformance()
-    |> inject_ai_note(model, change)
     |> validate_coded_terms()
   end
 
-  defp build_attrs_result(request, change) do
-    case build_attrs(request, change) do
+  defp build_attrs_result(request, _change) do
+    case build_attrs(request) do
       {:error, _} = error -> error
       attrs -> {:ok, attrs}
     end
@@ -177,6 +185,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
       error: change.error,
       inserted_at: change.inserted_at,
       updated_at: change.updated_at,
+      ai_activity_id: change.ai_activity_id,
       plan: serialize_plan(change.plan)
     }
   end
@@ -196,11 +205,79 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
     }
   end
 
+  # The agent generates a plan by reading the work it targets, so record that work
+  # as the activity's source. A missing work just skips the source rather than
+  # failing the change.
+  defp record_work_source(activity, work_id) do
+    case Repo.get(Work, work_id) do
+      nil -> :ok
+      work -> Provenance.add_source(activity, Provenance.work_source_attrs(work))
+    end
+  end
+
   defp has_metadata_changes?(attrs) do
     Enum.any?([:add, :delete, :replace], fn key ->
       val = Map.get(attrs, key)
       not is_nil(val) and val != %{}
     end)
+  end
+
+  defp maybe_create_ai_activity(change, attrs) do
+    if has_metadata_changes?(attrs) do
+      plan = Repo.preload(change, :plan).plan
+
+      with {:ok, activity} <-
+             Provenance.create_activity(%{
+               activity_type: "metadata_plan",
+               model: Meadow.Config.ai(:model),
+               ai_use_type: "metadata_generation",
+               access_mode: "retrieval_based",
+               reversibility: "reversible",
+               model_type: "generative_ai",
+               prompt_text: plan && plan.prompt,
+               input: %{
+                 plan_id: change.plan_id,
+                 plan_change_id: change.id,
+                 work_id: change.work_id
+               },
+               work_id: change.work_id,
+               plan_id: change.plan_id,
+               plan_change_id: change.id,
+               status: "completed",
+               completed_at: DateTime.utc_now()
+             }) do
+        record_work_source(activity, change.work_id)
+
+        Provenance.record_targets_for_operations(
+          activity,
+          "Work",
+          change.work_id,
+          attrs,
+          origin: "ai_generated",
+          status: "proposed",
+          event_type: "proposed",
+          target_attrs: %{
+            premis_object_category: "intellectual_entity",
+            object_identifier_type: "Meadow Work",
+            object_identifier_value: change.work_id,
+            digital_source_type_uri:
+              "https://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia",
+            human_oversight_level: "human_review_required",
+            c2pa_assertion_label: "c2pa.ai-disclosure"
+          }
+        )
+
+        # Inject the human-readable AI disclosure note *after* recording
+        # provenance targets, so the note is persisted with the change (and
+        # applied to the work) without itself being tracked as an AI-generated
+        # provenance target.
+        attrs_with_note = inject_ai_note(attrs, Meadow.Config.ai(:model), change)
+
+        {:ok, Map.put(attrs_with_note, :ai_activity_id, activity.id)}
+      end
+    else
+      {:ok, attrs}
+    end
   end
 
   defp build_ai_note(model) do
