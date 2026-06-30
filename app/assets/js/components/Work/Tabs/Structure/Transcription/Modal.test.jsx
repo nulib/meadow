@@ -7,6 +7,7 @@ import {
   UPDATE_FILE_SET_ANNOTATION,
   DELETE_FILE_SET_ANNOTATION,
 } from "./transcription.gql";
+import { GET_WORK } from "@js/components/Work/work.gql";
 
 // --- Mocks ---
 
@@ -36,9 +37,10 @@ jest.mock("@js/context/work-context", () => ({
   useWorkState: jest.fn(),
 }));
 
-// toast wrapper
+// toast wrapper and download helper
 jest.mock("@js/services/helpers", () => ({
   toastWrapper: jest.fn(),
+  downloadBlob: jest.fn(),
 }));
 
 // Mock Workflow so it renders the textarea the modal is looking for,
@@ -283,6 +285,26 @@ describe("WorkTabsStructureTranscriptionModal", () => {
       type: "toggleTranscriptionModal",
       fileSetId: null,
     });
+  });
+
+  it("downloads transcription text when Download button is clicked", async () => {
+    // downloadBlob is mocked via jest.mock("@js/services/helpers", …) above.
+    // Assert it is called with a Blob and a filename derived from the file set.
+    // We don't provide a GET_WORK mock here so the accession number is unavailable
+    // and the filename falls back to the fileSetId ("fs-123").
+    const { downloadBlob } = await import("@js/services/helpers");
+
+    renderModal();
+
+    const downloadButton = await screen.findByRole("button", {
+      name: /download transcription/i,
+    });
+    fireEvent.click(downloadButton);
+
+    expect(downloadBlob).toHaveBeenCalledWith(
+      expect.any(Blob),
+      "transcription-fs-123.txt",
+    );
   });
 
   it("shows error toast when delete mutation fails", async () => {
