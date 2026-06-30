@@ -1,9 +1,9 @@
-const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
-const URI = require("uri-js");
-const fs = require("fs");
-const path = require("path");
-const tmp = require("tmp-promise");
-const { spawn } = require("child_process");
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import URI from "uri-js";
+import fs from "fs";
+import path from "path";
+import tmp from "tmp-promise";
+import { spawn } from "child_process";
 
 const includeTags = [
   "Artist",
@@ -127,4 +127,4 @@ const s3ClientOpts = () => {
   return { endpoint, forcePathStyle, httpOptions: { timeout: 600000 } };
 };
 
-module.exports = { extract, version };
+export { extract, version };

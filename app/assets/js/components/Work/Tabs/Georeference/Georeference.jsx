@@ -7,8 +7,9 @@ import {
   GEONAMES_PLACE,
 } from "@js/components/Work/controlledVocabulary.gql";
 import { Button, Notification } from "@nulib/design-system";
+import Map from "@samvera/clover-iiif/map";
+import { parseGeoreferenceAnnotation } from "@samvera/clover-iiif/helpers";
 import ImageCoordinatePicker from "./ImageCoordinatePicker";
-import LeafletMap from "./LeafletMap";
 import UITabsStickyHeader from "@js/components/UI/Tabs/StickyHeader";
 import {
   DELETE_FILE_SET_ANNOTATION,
@@ -20,13 +21,13 @@ import {
   annotationByType,
   buildGeoreferenceAnnotation,
   buildNavPlaceFeatureCollection,
-  controlPointsFromGeoreferenceAnnotation,
   GEOJSON_GEOMETRY_TYPES,
   getDefaultFileSet,
   getFileSetImageDimensions,
   getImageServiceUrl,
   getFileSetLabel,
   isImageFileSet,
+  parseAnnotationContent,
   parseNavPlaceGeoJson,
   placesFromNavPlaceAnnotation,
 } from "./helpers";
@@ -476,8 +477,8 @@ function WorkTabsGeoreference({ isActive, work }) {
     setDraftCoordinates([]);
     setDraftParts([]);
     setDrawError("");
-    const nextGcpPairs = controlPointsFromGeoreferenceAnnotation(
-      georeferenceAnnotation,
+    const nextGcpPairs = parseGeoreferenceAnnotation(
+      parseAnnotationContent(georeferenceAnnotation),
     );
     const nextPlaces = placesFromNavPlaceAnnotation(navPlaceAnnotation);
     setGcpPairs(nextGcpPairs);
@@ -889,16 +890,23 @@ function WorkTabsGeoreference({ isActive, work }) {
                 </div>
                 <div>
                   <h3 className="is-size-5 mb-3">Map coordinates</h3>
-                  <LeafletMap
-                    center={mapCenter}
-                    markers={mapMarkers}
-                    onMapPointSelected={handleMapPointSelected}
-                    previewAnnotation={
-                      showGeoreferencePreview ? previewAnnotation : null
-                    }
-                    useCrosshairCursor
-                    fitToData={!pendingImageCoords && !pendingGeoCoords}
-                  />
+                  <div
+                    className="georeference-map"
+                    data-testid="georeference-map"
+                  >
+                    <Map
+                      center={mapCenter}
+                      markers={mapMarkers}
+                      onMapClick={handleMapPointSelected}
+                      georefAnnotation={
+                        showGeoreferencePreview ? previewAnnotation : null
+                      }
+                      showImageOverlay
+                      showControlPoints={false}
+                      useCrosshairCursor
+                      fitToData={!pendingImageCoords && !pendingGeoCoords}
+                    />
+                  </div>
                   <label className="checkbox mt-2">
                     <input
                       type="checkbox"
@@ -1032,19 +1040,24 @@ function WorkTabsGeoreference({ isActive, work }) {
                 </div>
                 <div>
                   <h3 className="is-size-5 mb-3">Map</h3>
-                  <LeafletMap
-                    center={mapCenter}
-                    markers={mapMarkers}
-                    geoJson={locationGeoJson}
-                    onMapPointSelected={handleMapPointSelected}
-                    useCrosshairCursor
-                    fitToData={
-                      mode === "location" &&
-                      !hasDraftGeometry &&
-                      (!selectedGeoNamesPlace ||
-                        !!selectedGeoNamesPlace.bboxGeometry)
-                    }
-                  />
+                  <div
+                    className="georeference-map"
+                    data-testid="georeference-map"
+                  >
+                    <Map
+                      center={mapCenter}
+                      markers={mapMarkers}
+                      geoJson={locationGeoJson}
+                      onMapClick={handleMapPointSelected}
+                      useCrosshairCursor
+                      fitToData={
+                        mode === "location" &&
+                        !hasDraftGeometry &&
+                        (!selectedGeoNamesPlace ||
+                          !!selectedGeoNamesPlace.bboxGeometry)
+                      }
+                    />
+                  </div>
                 </div>
               </div>
 

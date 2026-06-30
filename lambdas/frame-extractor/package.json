@@ -1,6 +1,7 @@
 {
   "name": "frame-extractor",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "license": "Apache-2.0",
   "private": true,
@@ -10,6 +11,7 @@
     "fluent-ffmpeg": "^2.1.2",
     "fs": "^0.0.1-security",
     "m3u8-file-parser": "^0.2.4",
+    "source-map-support": "^0.5.21",
     "tempy": "^3.2.0",
     "uri-js": "^4.4.1"
   }

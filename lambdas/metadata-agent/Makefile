@@ -1,4 +1,2 @@
-build-metadataAgent:
-	find . -maxdepth 1 -type f ! -name 'Makefile' -exec cp {} "$(ARTIFACTS_DIR)/" \;
-	bun install --cwd $(ARTIFACTS_DIR) --production --frozen-lockfile || \
-	  bun install --cwd $(ARTIFACTS_DIR) --production
+EXTERNAL := @anthropic-ai/claude-agent-sdk sharp
+include ../lambda.mk

@@ -2,6 +2,7 @@
   "name": "mime-type",
   "version": "0.1.0",
   "description": "Extract mime-type.",
+  "type": "module",
   "main": "index.js",
   "author": "kdid",
   "license": "Apache-2.0",
@@ -10,6 +11,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.987.0",
-    "file-type": "^16.0"
+    "file-type": "^16.0",
+    "source-map-support": "^0.5.21"
   }
 }

@@ -39,14 +39,8 @@ env-check:
 layers:
 	cd layers/build && make all
 
-build-image:
-	docker build \
-		--build-arg BUN_VERSION=$(BUN_VERSION) \
-		-t $(SAM_BUILD_IMAGE) \
-		-f Dockerfile.sam-bun .
-
-build: layers build-image
-	sam build --use-container --build-image $(SAM_BUILD_IMAGE) --cached
+build: layers
+	sam build --build-in-source --cached
 
 start: deps layers
 	./start_multi.sh $(SAM_PORT) $(PIPELINE_THREADS)

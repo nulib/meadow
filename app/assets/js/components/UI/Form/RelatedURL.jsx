@@ -74,7 +74,7 @@ const UIFormRelatedURL = ({
                       type="hidden"
                       name={`${itemName}.labelId`}
                       {...register(`${itemName}.labelId`)}
-                      value={item.label ? item.label.id : ""}
+                      value={item.label ? item.label.id : item.labelId}
                     />
                   </div>
                 )}

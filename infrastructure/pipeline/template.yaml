@@ -24,6 +24,11 @@ Parameters:
     Description: Custom S3 endpoint (for local development with LocalStack)
     Default: ""
 Resources:
+  claudeLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleRuntimes: ["nodejs22.x"]
+      ContentUri: ./layers/claudeLayer.zip
   exifToolLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -44,6 +49,11 @@ Resources:
     Properties:
       CompatibleRuntimes: ["nodejs22.x"]
       ContentUri: ./layers/perlLayer.zip
+  sharpLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleRuntimes: ["nodejs22.x"]
+      ContentUri: ./layers/sharpLayer.zip
   digester:
     Type: AWS::Serverless::Function
     Properties:
@@ -58,16 +68,16 @@ Resources:
           AWS_S3_ENDPOINT: !Ref S3Endpoint
           AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
       Policies:
-      - Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: "s3:*"
-            Resource:
-              - !Sub "arn:aws:s3:::*"
-              - !Sub "arn:aws:s3:::*/*"
-            Condition:
-              StringEquals:
-                "aws:ResourceTag/Project": !Ref ProjectName
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: "s3:*"
+              Resource:
+                - !Sub "arn:aws:s3:::*"
+                - !Sub "arn:aws:s3:::*/*"
+              Condition:
+                StringEquals:
+                  "aws:ResourceTag/Project": !Ref ProjectName
     Metadata:
       BuildMethod: makefile
   exif:
@@ -90,16 +100,16 @@ Resources:
           AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
           EXIFTOOL: "/opt/bin/exiftool"
       Policies:
-      - Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: "s3:*"
-            Resource:
-              - !Sub "arn:aws:s3:::*"
-              - !Sub "arn:aws:s3:::*/*"
-            Condition:
-              StringEquals:
-                "aws:ResourceTag/Project": !Ref ProjectName
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: "s3:*"
+              Resource:
+                - !Sub "arn:aws:s3:::*"
+                - !Sub "arn:aws:s3:::*/*"
+              Condition:
+                StringEquals:
+                  "aws:ResourceTag/Project": !Ref ProjectName
     Metadata:
       BuildMethod: makefile
   frameExtractor:
@@ -120,24 +130,24 @@ Resources:
           FFMPEG_PATH: "/opt/bin/ffmpeg"
           FFPROBE_PATH: "/opt/bin/ffprobe"
       Policies:
-      - Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: "s3:*"
-            Resource:
-              - !Sub "arn:aws:s3:::*"
-              - !Sub "arn:aws:s3:::*/*"
-            Condition:
-              StringEquals:
-                "aws:ResourceTag/Project": !Ref ProjectName
-          - Effect: Allow
-            Action: "s3:*"
-            Resource:
-              - !Sub "arn:aws:s3:::*"
-              - !Sub "arn:aws:s3:::*/*"
-            Condition:
-              StringEquals:
-                "aws:ResourceTag/Project": "IIIF Server"
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: "s3:*"
+              Resource:
+                - !Sub "arn:aws:s3:::*"
+                - !Sub "arn:aws:s3:::*/*"
+              Condition:
+                StringEquals:
+                  "aws:ResourceTag/Project": !Ref ProjectName
+            - Effect: Allow
+              Action: "s3:*"
+              Resource:
+                - !Sub "arn:aws:s3:::*"
+                - !Sub "arn:aws:s3:::*/*"
+              Condition:
+                StringEquals:
+                  "aws:ResourceTag/Project": "IIIF Server"
     Metadata:
       BuildMethod: makefile
   mediainfo:
@@ -157,16 +167,16 @@ Resources:
           AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
           MEDIAINFO_PATH: "/opt/bin/mediainfo"
       Policies:
-      - Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: "s3:*"
-            Resource:
-              - !Sub "arn:aws:s3:::*"
-              - !Sub "arn:aws:s3:::*/*"
-            Condition:
-              StringEquals:
-                "aws:ResourceTag/Project": !Ref ProjectName
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: "s3:*"
+              Resource:
+                - !Sub "arn:aws:s3:::*"
+                - !Sub "arn:aws:s3:::*/*"
+              Condition:
+                StringEquals:
+                  "aws:ResourceTag/Project": !Ref ProjectName
     Metadata:
       BuildMethod: makefile
   metadataAgent:
@@ -176,6 +186,8 @@ Resources:
       CodeUri: ../../lambdas/metadata-agent
       Handler: index.handler
       Runtime: nodejs22.x
+      Layers:
+        - !Ref claudeLayer
       MemorySize: 512
       Timeout: 300
       Environment:
@@ -184,16 +196,16 @@ Resources:
           CLAUDE_CONFIG_DIR: /tmp
           DEBUG: metadata-agent:execute
       Policies:
-      - Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - "bedrock:InvokeModel"
-              - "bedrock:InvokeModelWithResponseStream"
-            Resource: 
-              - "arn:aws:bedrock:*::foundation-model/*"
-              - "arn:aws:bedrock:*:*:inference-profile/*"
-              - "arn:aws:bedrock:*:*:application-inference-profile/*"
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "bedrock:InvokeModel"
+                - "bedrock:InvokeModelWithResponseStream"
+              Resource:
+                - "arn:aws:bedrock:*::foundation-model/*"
+                - "arn:aws:bedrock:*:*:inference-profile/*"
+                - "arn:aws:bedrock:*:*:application-inference-profile/*"
     Metadata:
       BuildMethod: makefile
   mimeType:
@@ -210,16 +222,16 @@ Resources:
           AWS_S3_ENDPOINT: !Ref S3Endpoint
           AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
       Policies:
-      - Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: "s3:*"
-            Resource:
-              - !Sub "arn:aws:s3:::*"
-              - !Sub "arn:aws:s3:::*/*"
-            Condition:
-              StringEquals:
-                "aws:ResourceTag/Project": !Ref ProjectName
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: "s3:*"
+              Resource:
+                - !Sub "arn:aws:s3:::*"
+                - !Sub "arn:aws:s3:::*/*"
+              Condition:
+                StringEquals:
+                  "aws:ResourceTag/Project": !Ref ProjectName
     Metadata:
       BuildMethod: makefile
   pyramidTiff:
@@ -231,6 +243,7 @@ Resources:
       Runtime: nodejs22.x
       Layers:
         - !Ref ffmpegLayer
+        - !Ref sharpLayer
       MemorySize: 8192
       Timeout: 240
       Environment:
@@ -240,24 +253,24 @@ Resources:
           NODE_OPTIONS: "--max-old-space-size=8192"
           VIPS_DISC_THRESHOLD: "3500m"
       Policies:
-      - Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: "s3:*"
-            Resource:
-              - !Sub "arn:aws:s3:::*"
-              - !Sub "arn:aws:s3:::*/*"
-            Condition:
-              StringEquals:
-                "aws:ResourceTag/Project": !Ref ProjectName
-          - Effect: Allow
-            Action: "s3:*"
-            Resource:
-              - !Sub "arn:aws:s3:::*"
-              - !Sub "arn:aws:s3:::*/*"
-            Condition:
-              StringEquals:
-                "aws:ResourceTag/Project": "IIIF Server"
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: "s3:*"
+              Resource:
+                - !Sub "arn:aws:s3:::*"
+                - !Sub "arn:aws:s3:::*/*"
+              Condition:
+                StringEquals:
+                  "aws:ResourceTag/Project": !Ref ProjectName
+            - Effect: Allow
+              Action: "s3:*"
+              Resource:
+                - !Sub "arn:aws:s3:::*"
+                - !Sub "arn:aws:s3:::*/*"
+              Condition:
+                StringEquals:
+                  "aws:ResourceTag/Project": "IIIF Server"
     Metadata:
       BuildMethod: makefile
   streamAuthorizer:
@@ -279,14 +292,14 @@ Resources:
                 - edgelambda.amazonaws.com
                 - lambda.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - "sts:AssumeRole"
       Policies:
-      - Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: "es:ESHttpGet"
-            Resource:
-              - !Sub "arn:aws:es:*:${AWS::AccountId}:domain/*"
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: "es:ESHttpGet"
+              Resource:
+                - !Sub "arn:aws:es:*:${AWS::AccountId}:domain/*"
     Metadata:
       BuildMethod: makefile
   pipelineConfiguration:
@@ -294,9 +307,9 @@ Resources:
     Properties:
       Name:
         Fn::Join:
-        - "/"
-        - - !Ref ConfigPrefix
-          - "config/meadow-pipeline"
+          - "/"
+          - - !Ref ConfigPrefix
+            - "config/meadow-pipeline"
       Description: Configuration secrets for Meadow Ingest Pipeline
       SecretString:
         Fn::ToJsonString:
@@ -313,11 +326,11 @@ Resources:
       Name: !Ref streamAuthorizer
       SecretString:
         Fn::ToJsonString:
-          dcApiEndpoint: !Sub '{{resolve:secretsmanager:${ConfigPrefix}/config/dcapi:SecretString:base_url}}'
+          dcApiEndpoint: !Sub "{{resolve:secretsmanager:${ConfigPrefix}/config/dcapi:SecretString:base_url}}"
           allowedFrom: !Ref TrustedReferers
   streamAuthorizerConfigurationAccess:
     Type: AWS::SecretsManager::ResourcePolicy
-    Properties: 
+    Properties:
       BlockPublicPolicy: true
       ResourcePolicy:
         Version: "2012-10-17"

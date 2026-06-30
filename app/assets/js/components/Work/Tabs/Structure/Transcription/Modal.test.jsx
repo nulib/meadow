@@ -41,18 +41,30 @@ jest.mock("@js/services/helpers", () => ({
   toastWrapper: jest.fn(),
 }));
 
-// Mock Workflow so it renders the textarea the modal is looking for
+// Mock Workflow so it renders the textarea the modal is looking for,
+// wiring hasTranscriptionCallback and onContentChange the same way the real
+// Workflow/Pane pair does so dirty-state tracking works in tests.
 jest.mock("@js/components/Work/Tabs/Structure/Transcription/Workflow", () => {
   const React = require("react");
+  const { useEffect } = React;
   return {
     __esModule: true,
-    default: function MockWorkflow() {
+    default: function MockWorkflow({
+      hasTranscriptionCallback,
+      onContentChange,
+    }) {
+      useEffect(() => {
+        hasTranscriptionCallback?.();
+      }, []);
       return (
         <textarea
           id="file-set-transcription-textarea"
           data-annotation-id="ann-1"
           data-annotation-type="transcription"
           defaultValue="Existing transcription"
+          onChange={
+            onContentChange ? (e) => onContentChange(e.target.value) : undefined
+          }
         />
       );
     },
@@ -99,14 +111,18 @@ describe("WorkTabsStructureTranscriptionModal", () => {
     expect(image.getAttribute("src")).toContain("fs-123");
   });
 
-  it("disables Save when textarea is not yet found", async () => {
-    // The effect that finds the textarea runs after mount, so on first paint
-    // Save may be disabled. We can at least assert it's a button and becomes
-    // enabled once the textarea exists.
+  it("Save is disabled until the user edits the textarea", async () => {
     renderModal();
 
     const saveButton = await screen.findByRole("button", { name: /save/i });
-    // After the effect + mock Workflow render, it should be enabled:
+
+    // Save stays disabled even after the textarea is found — no changes yet.
+    await waitFor(() => expect(saveButton).toBeDisabled());
+
+    // Simulate the user typing a change.
+    const textarea = document.getElementById("file-set-transcription-textarea");
+    fireEvent.change(textarea, { target: { value: "Edited transcription" } });
+
     await waitFor(() => expect(saveButton).not.toBeDisabled());
   });
 
@@ -117,14 +133,14 @@ describe("WorkTabsStructureTranscriptionModal", () => {
           query: UPDATE_FILE_SET_ANNOTATION,
           variables: {
             annotationId: "ann-1",
-            content: "Existing transcription",
+            content: "Edited transcription",
           },
         },
         result: {
           data: {
             updateFileSetAnnotation: {
               id: "ann-1",
-              content: "Existing transcription",
+              content: "Edited transcription",
             },
           },
         },
@@ -135,7 +151,9 @@ describe("WorkTabsStructureTranscriptionModal", () => {
 
     const saveButton = await screen.findByRole("button", { name: /save/i });
 
-    // Wait until textarea is found and Save enabled
+    // Edit the textarea to make Save active.
+    const textarea = document.getElementById("file-set-transcription-textarea");
+    fireEvent.change(textarea, { target: { value: "Edited transcription" } });
     await waitFor(() => expect(saveButton).not.toBeDisabled());
 
     fireEvent.click(saveButton);
@@ -161,7 +179,7 @@ describe("WorkTabsStructureTranscriptionModal", () => {
           query: UPDATE_FILE_SET_ANNOTATION,
           variables: {
             annotationId: "ann-1",
-            content: "Existing transcription",
+            content: "Edited transcription",
           },
         },
         error: new Error("Boom"),
@@ -171,6 +189,9 @@ describe("WorkTabsStructureTranscriptionModal", () => {
     renderModal({ mocks: mutationMocks });
 
     const saveButton = await screen.findByRole("button", { name: /save/i });
+
+    const textarea = document.getElementById("file-set-transcription-textarea");
+    fireEvent.change(textarea, { target: { value: "Edited transcription" } });
     await waitFor(() => expect(saveButton).not.toBeDisabled());
 
     fireEvent.click(saveButton);

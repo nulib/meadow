@@ -45,20 +45,20 @@ jest.mock("./ImageCoordinatePicker", () => ({
   ),
 }));
 
-jest.mock("./LeafletMap", () => ({
+jest.mock("@samvera/clover-iiif/map", () => ({
   __esModule: true,
   default: ({
     fitToData,
     geoJson,
+    georefAnnotation,
     markers = [],
-    onMapPointSelected,
-    previewAnnotation,
+    onMapClick,
     useCrosshairCursor,
   }) => (
     <div
-      data-testid="mock-leaflet-map"
+      data-testid="mock-clover-map"
       data-crosshair-cursor={useCrosshairCursor ? "true" : "false"}
-      data-has-preview={previewAnnotation ? "true" : "false"}
+      data-has-preview={georefAnnotation ? "true" : "false"}
     >
       {fitToData && <span>fit-to-data</span>}
       {geoJson?.features?.map((feature, index) => (
@@ -77,7 +77,7 @@ jest.mock("./LeafletMap", () => ({
           const coordinates =
             mockMapCoordinates[mockMapClickIndex % mockMapCoordinates.length];
           mockMapClickIndex += 1;
-          onMapPointSelected(coordinates);
+          onMapClick(coordinates);
         }}
       >
         Pick map point
@@ -487,7 +487,7 @@ describe("WorkTabsGeoreference", () => {
       ],
     });
 
-    expect(screen.getByTestId("mock-leaflet-map")).toHaveAttribute(
+    expect(screen.getByTestId("mock-clover-map")).toHaveAttribute(
       "data-crosshair-cursor",
       "true",
     );
@@ -512,7 +512,7 @@ describe("WorkTabsGeoreference", () => {
       "Preview rectified image on map",
     );
     expect(previewToggle).toBeDisabled();
-    expect(screen.getByTestId("mock-leaflet-map")).toHaveAttribute(
+    expect(screen.getByTestId("mock-clover-map")).toHaveAttribute(
       "data-has-preview",
       "false",
     );
@@ -523,14 +523,14 @@ describe("WorkTabsGeoreference", () => {
     }
 
     expect(previewToggle).toBeEnabled();
-    expect(screen.getByTestId("mock-leaflet-map")).toHaveAttribute(
+    expect(screen.getByTestId("mock-clover-map")).toHaveAttribute(
       "data-has-preview",
       "true",
     );
 
     fireEvent.click(previewToggle);
 
-    expect(screen.getByTestId("mock-leaflet-map")).toHaveAttribute(
+    expect(screen.getByTestId("mock-clover-map")).toHaveAttribute(
       "data-has-preview",
       "false",
     );
@@ -556,7 +556,7 @@ describe("WorkTabsGeoreference", () => {
     renderWithRouterApollo(<WorkTabsGeoreference isActive work={work} />);
 
     fireEvent.click(await screen.findByText("Location"));
-    expect(screen.getByTestId("mock-leaflet-map")).toHaveAttribute(
+    expect(screen.getByTestId("mock-clover-map")).toHaveAttribute(
       "data-crosshair-cursor",
       "true",
     );
