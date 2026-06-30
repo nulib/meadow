@@ -9,8 +9,17 @@ import UIFormInput from "@js/components/UI/Form/Input";
 import UIFormTextarea from "@js/components/UI/Form/Textarea";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import { useCodeLists } from "@js/context/code-list-context";
+import {
+  FieldProvenanceBadge,
+  fieldProvenance,
+} from "@js/components/AIProvenance/Badges";
 
-const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
+const WorkTabsAboutRightsMetadata = ({
+  descriptiveMetadata,
+  isEditing,
+  provenance = {},
+  workId,
+}) => {
   const codeLists = useCodeLists();
 
   return (
@@ -28,6 +37,8 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
             <UIFormFieldArrayDisplay
               values={descriptiveMetadata[item.name]}
               label={item.label}
+              provenance={fieldProvenance(provenance, item.name)}
+              workId={workId}
             />
           )}
         </div>
@@ -53,7 +64,12 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
               }
             />
           ) : (
-            <UICodedTermItem item={descriptiveMetadata.license} />
+            <>
+              <UICodedTermItem item={descriptiveMetadata.license} />
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, "license")}
+              />
+            </>
           )}
         </UIFormField>
       </div>
@@ -68,7 +84,12 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
               defaultValue={descriptiveMetadata.termsOfUse}
             />
           ) : (
-            <p>{descriptiveMetadata.termsOfUse}</p>
+            <>
+              <p>{descriptiveMetadata.termsOfUse}</p>
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, "termsOfUse")}
+              />
+            </>
           )}
         </UIFormField>
       </div>
@@ -79,6 +100,8 @@ const WorkTabsAboutRightsMetadata = ({ descriptiveMetadata, isEditing }) => {
 WorkTabsAboutRightsMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
+  provenance: PropTypes.object,
+  workId: PropTypes.string,
 };
 
 export default WorkTabsAboutRightsMetadata;

@@ -5,16 +5,36 @@ import UIFormField from "@js/components/UI/Form/Field";
 import UIFormSelect from "@js/components/UI/Form/Select";
 import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
+import { ItemAttestation } from "@js/components/AIProvenance/ItemAttestationControl";
 import UICodedTermItem from "@js/components/UI/CodedTerm/Item";
 import { useCodeLists } from "@js/context/code-list-context";
 import { isEDTFValid } from "@js/services/helpers";
+import {
+  FieldProvenanceBadge,
+  OriginBadge,
+  fieldProvenance,
+  provenanceItemId,
+} from "@js/components/AIProvenance/Badges";
+import { HumanAuthoredFieldControl } from "@js/components/AIProvenance/Attestation";
 
 const WorkTabsAboutCoreMetadata = ({
   descriptiveMetadata,
   isEditing,
   published,
+  provenance = {},
+  workId,
 }) => {
   const codeLists = useCodeLists();
+
+  // Per-date AI origin, keyed by edtf (the backend's item identifier), so each
+  // date is badged individually rather than with one field-level badge.
+  const dateCreatedOriginById = (
+    fieldProvenance(provenance, "dateCreated")?.itemProvenance || []
+  ).reduce((acc, entry) => {
+    if (entry?.id) acc[entry.id] = entry.origin;
+    return acc;
+  }, {});
+
   const EDTFValidateFn = (value) => {
     return (
       isEDTFValid(value) || (
@@ -33,15 +53,27 @@ const WorkTabsAboutCoreMetadata = ({
       <div className="column is-two-thirds">
         <UIFormField label="Title">
           {isEditing ? (
-            <UIInput
-              isReactHookForm
-              name="title"
-              label="Title"
-              data-testid="title"
-              defaultValue={descriptiveMetadata.title}
-            />
+            <>
+              <UIInput
+                isReactHookForm
+                name="title"
+                label="Title"
+                data-testid="title"
+                defaultValue={descriptiveMetadata.title}
+              />
+              <HumanAuthoredFieldControl
+                entry={fieldProvenance(provenance, "title")}
+                name="title"
+                originalValue={descriptiveMetadata.title}
+              />
+            </>
           ) : (
-            <p>{descriptiveMetadata.title}</p>
+            <p>
+              {descriptiveMetadata.title}
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, "title")}
+              />
+            </p>
           )}
         </UIFormField>
       </div>
@@ -59,6 +91,8 @@ const WorkTabsAboutCoreMetadata = ({
           <UIFormFieldArrayDisplay
             values={descriptiveMetadata.description}
             label="Description"
+            provenance={fieldProvenance(provenance, "description")}
+            workId={workId}
           />
         )}
       </div>
@@ -74,6 +108,8 @@ const WorkTabsAboutCoreMetadata = ({
           <UIFormFieldArrayDisplay
             values={descriptiveMetadata.alternateTitle}
             label="Alternate Title"
+            provenance={fieldProvenance(provenance, "alternateTitle")}
+            workId={workId}
           />
         )}
       </div>
@@ -91,11 +127,32 @@ const WorkTabsAboutCoreMetadata = ({
               <ul className="field-array-item-list">
                 {descriptiveMetadata.dateCreated &&
                   descriptiveMetadata.dateCreated.length > 0 &&
-                  descriptiveMetadata.dateCreated.map((datefield, i) => (
-                    <li key={i}>
-                      {datefield ? datefield.humanized : "No Date specified"}
-                    </li>
-                  ))}
+                  descriptiveMetadata.dateCreated.map((datefield, i) => {
+                    const origin =
+                      datefield &&
+                      dateCreatedOriginById[provenanceItemId(datefield)];
+                    return (
+                      <li key={i}>
+                        {datefield ? datefield.humanized : "No Date specified"}
+                        {origin && (
+                          <span className="ml-2">
+                            <OriginBadge origin={origin} />
+                          </span>
+                        )}
+                        {origin && (
+                          <ItemAttestation
+                            origin={origin}
+                            workId={workId}
+                            fieldPath={
+                              fieldProvenance(provenance, "dateCreated")
+                                ?.fieldPath
+                            }
+                            itemId={provenanceItemId(datefield)}
+                          />
+                        )}
+                      </li>
+                    );
+                  })}
               </ul>
             </div>
           </UIFormField>
@@ -123,7 +180,12 @@ const WorkTabsAboutCoreMetadata = ({
               }
             />
           ) : (
-            <UICodedTermItem item={descriptiveMetadata.rightsStatement} />
+            <>
+              <UICodedTermItem item={descriptiveMetadata.rightsStatement} />
+              <FieldProvenanceBadge
+                entry={fieldProvenance(provenance, "rightsStatement")}
+              />
+            </>
           )}
         </UIFormField>
       </div>
@@ -135,6 +197,8 @@ WorkTabsAboutCoreMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
   published: PropTypes.bool,
+  provenance: PropTypes.object,
+  workId: PropTypes.string,
 };
 
 export default WorkTabsAboutCoreMetadata;
