@@ -47,4 +47,30 @@ describe("WorkTabsAboutCoreMetadata component", () => {
       }
     });
   });
+
+  it("shows an AI provenance badge on Alternate Title in display mode", async () => {
+    const Wrapped = withReactHookForm(WorkTabsAboutCoreMetadata, {
+      isEditing: false,
+      descriptiveMetadata: mockWork.descriptiveMetadata,
+      provenance: {
+        "descriptive_metadata.alternate_title": {
+          origin: "ai_generated",
+          status: "applied",
+        },
+      },
+    });
+    const { getAllByTestId } = renderWithRouterApollo(
+      <CodeListProvider>
+        <Wrapped />
+      </CodeListProvider>,
+      { mocks: allCodeListMocks },
+    );
+
+    await waitFor(() => {
+      const badges = getAllByTestId("provenance-origin-badge");
+      expect(badges.some((badge) => badge.textContent === "AI generated")).toBe(
+        true,
+      );
+    });
+  });
 });

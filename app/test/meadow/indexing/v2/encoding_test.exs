@@ -4,6 +4,7 @@ defmodule Meadow.Indexing.V2.EncodingTest do
   use Meadow.IndexCase
 
   alias Meadow.Config
+  alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, FileSets, Indexer, Works}
   alias Meadow.Data.Schemas.{Collection, FileSet, Work}
   alias Meadow.Search.Document
@@ -36,6 +37,78 @@ defmodule Meadow.Indexing.V2.EncodingTest do
         assert doc |> get_in([:title]) ==
                  metadata.title
       end
+    end
+
+    test "work encodes compact AI provenance", %{work: subject} do
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_direct_apply",
+          model: "test-model",
+          work_id: subject.id,
+          status: "completed"
+        })
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: subject.id,
+            field_path: "descriptive_metadata.description",
+            operation: "replace",
+            proposed_value: ["Description"],
+            origin: "ai_generated",
+            status: "applied"
+          },
+          "applied"
+        )
+
+      doc = subject |> Document.encode(2)
+
+      assert %{
+               origin: "ai_generated",
+               model: "test-model",
+               activity_id: activity_id
+             } = doc |> get_in([:ai_provenance, "descriptive_metadata.description"])
+
+      assert activity_id == activity.id
+    end
+
+    test "indexes a work with AI provenance without bulk mapping errors", %{work: subject} do
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_direct_apply",
+          model: "test-model",
+          work_id: subject.id,
+          status: "completed"
+        })
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: subject.id,
+            field_path: "descriptive_metadata.description",
+            operation: "replace",
+            proposed_value: ["Description"],
+            origin: "ai_generated",
+            status: "applied"
+          },
+          "applied"
+        )
+
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          Indexer.synchronize_index()
+        end)
+
+      refute log =~ "Bulk upload encountered errors"
+
+      source = indexed_doc(Work, 2, subject.id)
+
+      assert get_in(source, ["ai_provenance", "descriptive_metadata.description", "origin"]) ==
+               "ai_generated"
     end
 
     test "work encodes nav_place", %{work: subject} do

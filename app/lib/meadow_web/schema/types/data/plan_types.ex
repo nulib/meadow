@@ -124,6 +124,7 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
     field(:notes, :string)
     field(:completed_at, :datetime)
     field(:error, :string)
+    field(:ai_activity_id, :id)
     field(:inserted_at, :datetime)
     field(:updated_at, :datetime)
   end
@@ -158,6 +159,9 @@ defmodule MeadowWeb.Schema.Data.PlanTypes do
   object :plan_change_update do
     field(:plan_id, non_null(:id), description: "The plan ID")
     field(:plan_change, :plan_change, description: "The updated plan change")
-    field(:action, non_null(:string), description: "The action that occurred: 'created', 'updated', 'deleted'")
+
+    field(:action, non_null(:string),
+      description: "The action that occurred: 'created', 'updated', 'deleted'"
+    )
   end
 end

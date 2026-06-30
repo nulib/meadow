@@ -3,6 +3,7 @@ defmodule MeadowWeb.Resolvers.Data do
   Absinthe GraphQL query resolver for Data Context
 
   """
+  alias Meadow.AI.Provenance
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Data.Works.TransferFileSets
   alias Meadow.Pipeline
@@ -42,17 +43,74 @@ defmodule MeadowWeb.Resolvers.Data do
   defp set_error_key({:value_id, value}, operation), do: %{operation => value}
   defp set_error_key(property, _), do: property
 
-  def update_work(_, %{id: id, work: work_params}, _) do
+  def update_work(_, %{id: id, work: work_params}, resolution) do
     work = Works.get_work!(id)
+    {attestations, work_params} = Map.pop(work_params, :human_authored_attestations, [])
 
     case Works.update_work(work, work_params) do
       {:error, changeset} ->
         {:error, message: "Could not update work", details: humanize_work_changeset(changeset)}
 
-      {:ok, work} ->
-        {:ok, work}
+      {:ok, updated_work} ->
+        actor = actor_username(resolution)
+        attested_paths = Enum.map(attestations, & &1.field_path)
+
+        # Record any direct human edits of AI-provenanced fields so the origin
+        # reflects human mediation instead of silently staying "AI generated".
+        # Skip fields the user explicitly attested as human-authored — those go
+        # through the attestation path below so they don't also pick up an
+        # "AI + human edited" event.
+        Provenance.record_work_manual_edit(work, updated_work, actor, except: attested_paths)
+        record_attestations(work, updated_work, attestations, actor)
+        {:ok, updated_work}
     end
   end
+
+  # Record an explicit human attestation for each field the user marked as
+  # human-authored. Reasons may differ per field, so record them one field at a
+  # time. Failures are logged inside Provenance and must not fail the save.
+  defp record_attestations(_work, _updated_work, [], _actor), do: :ok
+
+  defp record_attestations(work, updated_work, attestations, actor) do
+    Enum.each(attestations, fn %{field_path: field_path} = attestation ->
+      Provenance.record_work_human_attestation(
+        work,
+        updated_work,
+        [field_path],
+        actor,
+        reason: Map.get(attestation, :reason),
+        item_ids: Map.get(attestation, :item_ids)
+      )
+    end)
+  end
+
+  def attest_human_authored_metadata(
+        _,
+        %{work_id: work_id, field_paths: field_paths} = args,
+        resolution
+      ) do
+    work = Works.get_work!(work_id)
+
+    # Attest-without-edit: the live work is unchanged, so before == after. The
+    # attestation event still records both values for an auditable trail.
+    case Provenance.record_work_human_attestation(
+           work,
+           work,
+           field_paths,
+           actor_username(resolution),
+           reason: Map.get(args, :reason),
+           item_ids: Map.get(args, :item_ids)
+         ) do
+      {:ok, _attested} ->
+        {:ok, Works.get_work!(work_id)}
+
+      {:error, reasons} ->
+        {:error, message: "Could not attest human-authored metadata", details: inspect(reasons)}
+    end
+  end
+
+  defp actor_username(%{context: %{current_user: %{username: username}}}), do: username
+  defp actor_username(_), do: nil
 
   def set_work_image(_, %{work_id: work_id, file_set_id: file_set_id}, _) do
     work = Works.get_work!(work_id)
@@ -142,11 +200,13 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
-  def transcribe_file_set(_, args, _) do
+  def transcribe_file_set(_, args, resolution) do
     opts =
       []
       |> maybe_add_opt(:language, args[:language])
       |> maybe_add_opt(:model, args[:model])
+      |> maybe_add_opt(:context, args[:context])
+      |> maybe_add_opt(:actor, actor_username(resolution))
 
     case FileSets.transcribe_file_set(args[:file_set_id], opts) do
       {:ok, annotation} ->
@@ -175,8 +235,9 @@ defmodule MeadowWeb.Resolvers.Data do
 
   defp transcribe_file_set_error_details(reason), do: inspect(reason)
 
-  def update_file_set_annotation(_, args, _) do
-    opts = if args[:language], do: %{language: args[:language]}, else: %{}
+  def update_file_set_annotation(_, args, resolution) do
+    opts = %{actor: actor_username(resolution)}
+    opts = if args[:language], do: Map.put(opts, :language, args[:language]), else: opts
 
     case FileSets.update_annotation_content(args[:annotation_id], args[:content], opts) do
       {:ok, annotation} ->
@@ -192,6 +253,22 @@ defmodule MeadowWeb.Resolvers.Data do
 
       {:error, reason} ->
         {:error, message: "Could not update annotation", details: inspect(reason)}
+    end
+  end
+
+  def attest_human_authored_annotation(_, %{annotation_id: annotation_id} = args, resolution) do
+    case FileSets.attest_annotation_content(annotation_id,
+           actor: actor_username(resolution),
+           reason: Map.get(args, :reason)
+         ) do
+      {:ok, annotation} ->
+        {:ok, annotation}
+
+      {:error, :not_found} ->
+        {:error, message: "Annotation not found"}
+
+      {:error, reason} ->
+        {:error, message: "Could not attest annotation", details: inspect(reason)}
     end
   end
 
@@ -223,13 +300,13 @@ defmodule MeadowWeb.Resolvers.Data do
     end
   end
 
-  def delete_file_set_annotation(_, args, _) do
+  def delete_file_set_annotation(_, args, resolution) do
     case FileSets.get_annotation(args[:annotation_id]) do
       nil ->
         {:error, message: "Annotation not found"}
 
       annotation ->
-        case FileSets.delete_annotation(annotation) do
+        case FileSets.delete_annotation(annotation, actor_username(resolution)) do
           {:ok, annotation} ->
             {:ok, annotation}
 

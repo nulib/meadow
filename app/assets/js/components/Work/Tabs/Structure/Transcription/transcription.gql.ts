@@ -14,6 +14,14 @@ export const FILE_SET_ANNOTATION = gql`
       error
       type
       updatedAt
+      aiProvenance {
+        origin
+        status
+        model
+        reviewer
+        reviewedAt
+        generatedAt
+      }
     }
   }
 `;
@@ -32,11 +40,13 @@ export const TRANSCRIBE_FILE_SET = gql`
     $fileSetId: ID!
     $language: [String]
     $model: String
+    $context: String
   ) {
     transcribeFileSet(
       fileSetId: $fileSetId
       language: $language
       model: $model
+      context: $context
     ) {
       id
       status
@@ -57,6 +67,14 @@ export const UPDATE_FILE_SET_ANNOTATION = gql`
       status
       type
       updatedAt
+      aiProvenance {
+        origin
+        status
+        model
+        reviewer
+        reviewedAt
+        generatedAt
+      }
     }
   }
 `;
@@ -84,6 +102,14 @@ export const UPSERT_FILE_SET_ANNOTATION = gql`
       status
       type
       updatedAt
+      aiProvenance {
+        origin
+        status
+        model
+        reviewer
+        reviewedAt
+        generatedAt
+      }
     }
   }
 `;
@@ -93,6 +119,22 @@ export const DELETE_FILE_SET_ANNOTATION = gql`
     deleteFileSetAnnotation(annotationId: $annotationId) {
       id
       fileSetId
+    }
+  }
+`;
+
+export const ATTEST_HUMAN_AUTHORED_ANNOTATION = gql`
+  mutation AttestHumanAuthoredAnnotation($annotationId: ID!, $reason: String) {
+    attestHumanAuthoredAnnotation(
+      annotationId: $annotationId
+      reason: $reason
+    ) {
+      id
+      fileSetId
+      aiProvenance {
+        origin
+        status
+      }
     }
   }
 `;

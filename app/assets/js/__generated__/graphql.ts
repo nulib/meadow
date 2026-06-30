@@ -321,6 +321,14 @@ export type FileSetUpdate = {
   structuralMetadata?: FileSetStructuralMetadataInput | null | undefined;
 };
 
+/** An explicit assertion that a field's live value is human-authored despite prior AI provenance */
+export type HumanAuthoredAttestationInput = {
+  fieldPath: string;
+  /** When given, attest only these item identifiers within the field (multivalued fields); omit to attest the whole field */
+  itemIds?: Array<string> | null | undefined;
+  reason?: string | null | undefined;
+};
+
 /** Overall status of the Ingest Sheet */
 export type IngestSheetStatus =
   /** Approved, ingest in progress */
@@ -517,6 +525,11 @@ export type WorkUpdateInput = {
   behavior?: CodedTermInput | null | undefined;
   collectionId?: string | number | null | undefined;
   descriptiveMetadata?: WorkDescriptiveMetadataInput | null | undefined;
+  /** Fields to mark as human-authored after prior AI provenance, recorded in the same save */
+  humanAuthoredAttestations?:
+    | Array<HumanAuthoredAttestationInput | null | undefined>
+    | null
+    | undefined;
   published?: boolean | null | undefined;
   visibility?: CodedTermInput | null | undefined;
 };
@@ -1025,6 +1038,91 @@ export type ClearEvalTrialScoreMutation = {
   } | null;
 };
 
+export type GetAiActivitiesQueryVariables = Exact<{
+  activityType?: string | null | undefined;
+  aiUseType?: string | null | undefined;
+  status?: string | null | undefined;
+  limit?: number | null | undefined;
+}>;
+
+export type GetAiActivitiesQuery = {
+  aiActivities: Array<{
+    id: string;
+    activityType: string;
+    aiUseType: string | null;
+    status: string;
+    model: string | null;
+    modelProvider: string | null;
+    workId: string | null;
+    costUsd: number | null;
+    startedAt: unknown;
+    completedAt: unknown;
+    insertedAt: unknown;
+  } | null> | null;
+};
+
+export type GetAiActivityQueryVariables = Exact<{
+  id: string | number;
+}>;
+
+export type GetAiActivityQuery = {
+  aiActivity: {
+    id: string;
+    activityType: string;
+    aiUseType: string | null;
+    accessMode: string | null;
+    reversibility: string | null;
+    status: string;
+    error: string | null;
+    model: string | null;
+    modelProvider: string | null;
+    modelVersion: string | null;
+    promptVersion: string | null;
+    costUsd: number | null;
+    workId: string | null;
+    fileSetId: string | null;
+    planId: string | null;
+    startedAt: unknown;
+    completedAt: unknown;
+    sources: Array<{
+      id: string;
+      itemType: string | null;
+      itemId: string | null;
+      collectionTitle: string | null;
+      holdingOrganization: string | null;
+      accessLink: string | null;
+      restricted: boolean | null;
+    } | null> | null;
+    targets: Array<{
+      id: string;
+      targetType: string;
+      fieldPath: string;
+      operation: string | null;
+      origin: string;
+      status: string;
+      proposedValue: unknown;
+      events: Array<{
+        id: string;
+        eventType: string;
+        actor: string | null;
+        occurredAt: unknown;
+        outcome: string | null;
+        notes: string | null;
+        agentLinks: Array<{
+          id: string;
+          role: string;
+          agent: {
+            id: string;
+            agentType: string;
+            name: string;
+            version: string | null;
+          } | null;
+        } | null> | null;
+      } | null> | null;
+    } | null> | null;
+  } | null;
+};
+
 export type CsvMetadataUpdateMutationVariables = Exact<{
   filename: string;
   source: string;
@@ -1516,6 +1614,28 @@ export type PlanChangesQuery = {
   } | null> | null;
 };
 
+export type PlanChangeProvenanceQueryVariables = Exact<{
+  planChangeId: string | number;
+}>;
+
+export type PlanChangeProvenanceQuery = {
+  aiActivities: Array<{
+    id: string;
+    targets: Array<{
+      fieldPath: string;
+      origin: string;
+      status: string;
+      operation: string | null;
+      proposedValue: unknown;
+      itemProvenance: Array<{
+        id: string | null;
+        origin: string | null;
+      } | null> | null;
+      events: Array<{ eventType: string; valueAfter: unknown } | null> | null;
+    } | null> | null;
+  } | null> | null;
+};
+
 export type UpdatePlanStatusMutationVariables = Exact<{
   id: string | number;
   status: PlanStatus;
@@ -1692,14 +1812,14 @@ export type LivebookUrlQueryVariables = Exact<{ [key: string]: never }>;
 
 export type LivebookUrlQuery = { livebookUrl: { url: string | null } | null };
 
-export type UpsertFileSetAnnotationMutationVariables = Exact<{
+export type UpsertGeoreferenceAnnotationMutationVariables = Exact<{
   fileSetId: string | number;
   type: string;
   content: string;
   language?: Array<string | null | undefined> | string | null | undefined;
 }>;
 
-export type UpsertFileSetAnnotationMutation = {
+export type UpsertGeoreferenceAnnotationMutation = {
   upsertFileSetAnnotation: {
     id: string;
     fileSetId: string;
@@ -1720,6 +1840,45 @@ export type DeleteFileSetAnnotationMutation = {
   deleteFileSetAnnotation: { id: string; fileSetId: string } | null;
 };
 
+export type GetWorkAiActivitiesQueryVariables = Exact<{
+  workId?: string | number | null | undefined;
+}>;
+
+export type GetWorkAiActivitiesQuery = {
+  aiActivities: Array<{
+    id: string;
+    activityType: string;
+    aiUseType: string | null;
+    status: string;
+    model: string | null;
+    modelProvider: string | null;
+    startedAt: unknown;
+    completedAt: unknown;
+    costUsd: number | null;
+    fileSetId: string | null;
+    targets: Array<{
+      id: string;
+      targetType: string;
+      fieldPath: string;
+      operation: string | null;
+      origin: string;
+      status: string;
+      proposedValue: unknown;
+      events: Array<{
+        id: string;
+        eventType: string;
+        actor: string | null;
+        occurredAt: unknown;
+        outcome: string | null;
+        notes: string | null;
+        itemIdentifier: string | null;
+        valueBefore: unknown;
+        valueAfter: unknown;
+      } | null> | null;
+    } | null> | null;
+  } | null> | null;
+};
+
 export type FileSetAnnotationSubscriptionVariables = Exact<{
   fileSetId: string | number;
 }>;
@@ -1737,6 +1896,14 @@ export type FileSetAnnotationSubscription = {
     error: string | null;
     type: string;
     updatedAt: unknown;
+    aiProvenance: {
+      origin: string;
+      status: string | null;
+      model: string | null;
+      reviewer: string | null;
+      reviewedAt: unknown;
+      generatedAt: unknown;
+    } | null;
   } | null;
 };
 
@@ -1752,6 +1919,7 @@ export type TranscribeFileSetMutationVariables = Exact<{
   fileSetId: string | number;
   language?: Array<string | null | undefined> | string | null | undefined;
   model?: string | null | undefined;
+  context?: string | null | undefined;
 }>;
 
 export type TranscribeFileSetMutation = {
@@ -1775,6 +1943,57 @@ export type UpdateFileSetAnnotationMutation = {
     status: string;
     type: string;
     updatedAt: unknown;
+    aiProvenance: {
+      origin: string;
+      status: string | null;
+      model: string | null;
+      reviewer: string | null;
+      reviewedAt: unknown;
+      generatedAt: unknown;
+    } | null;
+  } | null;
+};
+
+export type UpsertFileSetAnnotationMutationVariables = Exact<{
+  fileSetId: string | number;
+  type: string;
+  content: string;
+  language?: Array<string | null | undefined> | string | null | undefined;
+}>;
+
+export type UpsertFileSetAnnotationMutation = {
+  upsertFileSetAnnotation: {
+    content: string | null;
+    fileSetId: string;
+    id: string;
+    insertedAt: unknown;
+    language: Array<string | null> | null;
+    model: string | null;
+    s3Location: string | null;
+    status: string;
+    type: string;
+    updatedAt: unknown;
+    aiProvenance: {
+      origin: string;
+      status: string | null;
+      model: string | null;
+      reviewer: string | null;
+      reviewedAt: unknown;
+      generatedAt: unknown;
+    } | null;
+  } | null;
+};
+
+export type AttestHumanAuthoredAnnotationMutationVariables = Exact<{
+  annotationId: string | number;
+  reason?: string | null | undefined;
+}>;
+
+export type AttestHumanAuthoredAnnotationMutation = {
+  attestHumanAuthoredAnnotation: {
+    id: string;
+    fileSetId: string;
+    aiProvenance: { origin: string; status: string | null } | null;
   } | null;
 };
 
@@ -1905,11 +2124,39 @@ export type WorkQueryQuery = {
   work: {
     id: string;
     accessionNumber: string;
+    ark: string | null;
     insertedAt: unknown;
     manifestUrl: string | null;
     published: boolean | null;
     representativeImage: string | null;
     updatedAt: unknown;
+    aiProvenanceSummary: Array<{
+      fieldPath: string;
+      targetType: string;
+      targetId: string;
+      operation: string | null;
+      origin: string;
+      proposedValue: unknown;
+      currentValue: unknown;
+      humanOversightLevel: string | null;
+      status: string | null;
+      activityId: string;
+      activityType: string | null;
+      aiUseType: string | null;
+      model: string | null;
+      modelProvider: string | null;
+      generatedAt: unknown;
+      reviewer: string | null;
+      reviewedAt: unknown;
+      appliedAt: unknown;
+      latestEventType: string | null;
+      sourceCount: number | null;
+      citationCompleteness: string | null;
+      itemProvenance: Array<{
+        id: string | null;
+        origin: string | null;
+      } | null> | null;
+    } | null> | null;
     behavior: { id: string | null; label: string | null } | null;
     administrativeMetadata: {
       projectCycle: string | null;
@@ -1926,7 +2173,6 @@ export type WorkQueryQuery = {
     descriptiveMetadata: {
       abstract: Array<string | null> | null;
       alternateTitle: Array<string | null> | null;
-      ark: string | null;
       boxName: Array<string | null> | null;
       boxNumber: Array<string | null> | null;
       caption: Array<string | null> | null;
@@ -2022,6 +2268,14 @@ export type WorkQueryQuery = {
         status: string;
         language: Array<string | null> | null;
         content: string | null;
+        aiProvenance: {
+          origin: string;
+          status: string | null;
+          model: string | null;
+          reviewer: string | null;
+          reviewedAt: unknown;
+          generatedAt: unknown;
+        } | null;
       } | null> | null;
       coreMetadata: {
         altText: string | null;
@@ -2078,6 +2332,14 @@ export type WorksQueryQuery = {
         status: string;
         language: Array<string | null> | null;
         content: string | null;
+        aiProvenance: {
+          origin: string;
+          status: string | null;
+          model: string | null;
+          reviewer: string | null;
+          reviewedAt: unknown;
+          generatedAt: unknown;
+        } | null;
       } | null> | null;
       coreMetadata: {
         altText: string | null;
@@ -2152,6 +2414,17 @@ export type SetWorkImageMutationVariables = Exact<{
 
 export type SetWorkImageMutation = {
   setWorkImage: { id: string; representativeImage: string | null } | null;
+};
+
+export type AttestHumanAuthoredMetadataMutationVariables = Exact<{
+  workId: string | number;
+  fieldPaths: Array<string> | string;
+  itemIds?: Array<string> | string | null | undefined;
+  reason?: string | null | undefined;
+}>;
+
+export type AttestHumanAuthoredMetadataMutation = {
+  attestHumanAuthoredMetadata: { id: string } | null;
 };
 
 export type UpdateWorkMutationVariables = Exact<{
@@ -4890,6 +5163,343 @@ export const ClearEvalTrialScoreDocument = {
   ClearEvalTrialScoreMutation,
   ClearEvalTrialScoreMutationVariables
 >;
+export const GetAiActivitiesDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GetAIActivities" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "activityType" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "aiUseType" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "status" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "limit" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "aiActivities" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "activityType" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "activityType" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "aiUseType" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "aiUseType" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "status" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "status" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "limit" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "limit" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "activityType" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "aiUseType" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "model" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "modelProvider" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "workId" } },
+                { kind: "Field", name: { kind: "Name", value: "costUsd" } },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
+                { kind: "Field", name: { kind: "Name", value: "completedAt" } },
+                { kind: "Field", name: { kind: "Name", value: "insertedAt" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetAiActivitiesQuery,
+  GetAiActivitiesQueryVariables
+>;
+export const GetAiActivityDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GetAIActivity" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "aiActivity" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "activityType" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "aiUseType" } },
+                { kind: "Field", name: { kind: "Name", value: "accessMode" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "reversibility" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "error" } },
+                { kind: "Field", name: { kind: "Name", value: "model" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "modelProvider" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "modelVersion" },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "promptVersion" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "costUsd" } },
+                { kind: "Field", name: { kind: "Name", value: "workId" } },
+                { kind: "Field", name: { kind: "Name", value: "fileSetId" } },
+                { kind: "Field", name: { kind: "Name", value: "planId" } },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
+                { kind: "Field", name: { kind: "Name", value: "completedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "sources" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "itemType" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "itemId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "collectionTitle" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "holdingOrganization" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "accessLink" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "restricted" },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "targets" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "targetType" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "fieldPath" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "operation" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "origin" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "proposedValue" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "events" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "eventType" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "actor" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "occurredAt" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "outcome" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "notes" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "agentLinks" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "id" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "role" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "agent" },
+                                    selectionSet: {
+                                      kind: "SelectionSet",
+                                      selections: [
+                                        {
+                                          kind: "Field",
+                                          name: { kind: "Name", value: "id" },
+                                        },
+                                        {
+                                          kind: "Field",
+                                          name: {
+                                            kind: "Name",
+                                            value: "agentType",
+                                          },
+                                        },
+                                        {
+                                          kind: "Field",
+                                          name: { kind: "Name", value: "name" },
+                                        },
+                                        {
+                                          kind: "Field",
+                                          name: {
+                                            kind: "Name",
+                                            value: "version",
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetAiActivityQuery, GetAiActivityQueryVariables>;
 export const CsvMetadataUpdateDocument = {
   kind: "Document",
   definitions: [
@@ -7053,6 +7663,120 @@ export const PlanChangesDocument = {
     },
   ],
 } as unknown as DocumentNode<PlanChangesQuery, PlanChangesQueryVariables>;
+export const PlanChangeProvenanceDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "planChangeProvenance" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "planChangeId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "aiActivities" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "planChangeId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "planChangeId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "targets" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "fieldPath" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "origin" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "operation" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "proposedValue" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "itemProvenance" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "origin" },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "events" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "eventType" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "valueAfter" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  PlanChangeProvenanceQuery,
+  PlanChangeProvenanceQueryVariables
+>;
 export const UpdatePlanStatusDocument = {
   kind: "Document",
   definitions: [
@@ -8003,13 +8727,13 @@ export const LivebookUrlDocument = {
     },
   ],
 } as unknown as DocumentNode<LivebookUrlQuery, LivebookUrlQueryVariables>;
-export const UpsertFileSetAnnotationDocument = {
+export const UpsertGeoreferenceAnnotationDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "upsertFileSetAnnotation" },
+      name: { kind: "Name", value: "upsertGeoreferenceAnnotation" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -8121,8 +8845,8 @@ export const UpsertFileSetAnnotationDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  UpsertFileSetAnnotationMutation,
-  UpsertFileSetAnnotationMutationVariables
+  UpsertGeoreferenceAnnotationMutation,
+  UpsertGeoreferenceAnnotationMutationVariables
 >;
 export const DeleteFileSetAnnotationDocument = {
   kind: "Document",
@@ -8176,6 +8900,148 @@ export const DeleteFileSetAnnotationDocument = {
   DeleteFileSetAnnotationMutation,
   DeleteFileSetAnnotationMutationVariables
 >;
+export const GetWorkAiActivitiesDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GetWorkAIActivities" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "workId" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "aiActivities" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "workId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "workId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "activityType" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "aiUseType" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "model" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "modelProvider" },
+                },
+                { kind: "Field", name: { kind: "Name", value: "startedAt" } },
+                { kind: "Field", name: { kind: "Name", value: "completedAt" } },
+                { kind: "Field", name: { kind: "Name", value: "costUsd" } },
+                { kind: "Field", name: { kind: "Name", value: "fileSetId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "targets" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "targetType" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "fieldPath" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "operation" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "origin" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "proposedValue" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "events" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "eventType" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "actor" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "occurredAt" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "outcome" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "notes" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "itemIdentifier" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "valueBefore" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "valueAfter" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetWorkAiActivitiesQuery,
+  GetWorkAiActivitiesQueryVariables
+>;
 export const FileSetAnnotationDocument = {
   kind: "Document",
   definitions: [
@@ -8226,6 +9092,36 @@ export const FileSetAnnotationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "error" } },
                 { kind: "Field", name: { kind: "Name", value: "type" } },
                 { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "aiProvenance" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "origin" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "model" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "reviewer" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "reviewedAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "generatedAt" },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -8330,6 +9226,14 @@ export const TranscribeFileSetDocument = {
           },
           type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
         },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "context" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
       ],
       selectionSet: {
         kind: "SelectionSet",
@@ -8360,6 +9264,14 @@ export const TranscribeFileSetDocument = {
                 value: {
                   kind: "Variable",
                   name: { kind: "Name", value: "model" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "context" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "context" },
                 },
               },
             ],
@@ -8450,6 +9362,36 @@ export const UpdateFileSetAnnotationDocument = {
                 { kind: "Field", name: { kind: "Name", value: "status" } },
                 { kind: "Field", name: { kind: "Name", value: "type" } },
                 { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "aiProvenance" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "origin" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "model" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "reviewer" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "reviewedAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "generatedAt" },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -8460,6 +9402,244 @@ export const UpdateFileSetAnnotationDocument = {
 } as unknown as DocumentNode<
   UpdateFileSetAnnotationMutation,
   UpdateFileSetAnnotationMutationVariables
+>;
+export const UpsertFileSetAnnotationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "upsertFileSetAnnotation" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "fileSetId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "type" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "content" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "language" },
+          },
+          type: {
+            kind: "ListType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "upsertFileSetAnnotation" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "fileSetId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "fileSetId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "type" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "type" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "content" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "content" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "language" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "language" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "fileSetId" } },
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "insertedAt" } },
+                { kind: "Field", name: { kind: "Name", value: "language" } },
+                { kind: "Field", name: { kind: "Name", value: "model" } },
+                { kind: "Field", name: { kind: "Name", value: "s3Location" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                { kind: "Field", name: { kind: "Name", value: "type" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedAt" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "aiProvenance" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "origin" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "model" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "reviewer" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "reviewedAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "generatedAt" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpsertFileSetAnnotationMutation,
+  UpsertFileSetAnnotationMutationVariables
+>;
+export const AttestHumanAuthoredAnnotationDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "AttestHumanAuthoredAnnotation" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "annotationId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "reason" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "attestHumanAuthoredAnnotation" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "annotationId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "annotationId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "reason" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "reason" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+                { kind: "Field", name: { kind: "Name", value: "fileSetId" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "aiProvenance" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "origin" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AttestHumanAuthoredAnnotationMutation,
+  AttestHumanAuthoredAnnotationMutationVariables
 >;
 export const AuthoritiesSearchDocument = {
   kind: "Document",
@@ -9238,6 +10418,114 @@ export const WorkQueryDocument = {
                   kind: "Field",
                   name: { kind: "Name", value: "accessionNumber" },
                 },
+                { kind: "Field", name: { kind: "Name", value: "ark" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "aiProvenanceSummary" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "fieldPath" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "targetType" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "targetId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "operation" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "origin" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "proposedValue" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "currentValue" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "itemProvenance" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "origin" },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "humanOversightLevel" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "status" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "activityId" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "activityType" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "aiUseType" },
+                      },
+                      { kind: "Field", name: { kind: "Name", value: "model" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "modelProvider" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "generatedAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "reviewer" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "reviewedAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "appliedAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "latestEventType" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "sourceCount" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "citationCompleteness" },
+                      },
+                    ],
+                  },
+                },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "behavior" },
@@ -9358,7 +10646,6 @@ export const WorkQueryDocument = {
                         kind: "Field",
                         name: { kind: "Name", value: "alternateTitle" },
                       },
-                      { kind: "Field", name: { kind: "Name", value: "ark" } },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "boxName" },
@@ -9863,6 +11150,42 @@ export const WorkQueryDocument = {
                               kind: "Field",
                               name: { kind: "Name", value: "content" },
                             },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "aiProvenance" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "origin" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "status" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "model" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "reviewer" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "reviewedAt" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: {
+                                      kind: "Name",
+                                      value: "generatedAt",
+                                    },
+                                  },
+                                ],
+                              },
+                            },
                           ],
                         },
                       },
@@ -10129,6 +11452,42 @@ export const WorksQueryDocument = {
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "content" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "aiProvenance" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "origin" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "status" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "model" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "reviewer" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: { kind: "Name", value: "reviewedAt" },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: {
+                                      kind: "Name",
+                                      value: "generatedAt",
+                                    },
+                                  },
+                                ],
+                              },
                             },
                           ],
                         },
@@ -10537,6 +11896,126 @@ export const SetWorkImageDocument = {
 } as unknown as DocumentNode<
   SetWorkImageMutation,
   SetWorkImageMutationVariables
+>;
+export const AttestHumanAuthoredMetadataDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "AttestHumanAuthoredMetadata" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "workId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "fieldPaths" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "ListType",
+              type: {
+                kind: "NonNullType",
+                type: {
+                  kind: "NamedType",
+                  name: { kind: "Name", value: "String" },
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "itemIds" },
+          },
+          type: {
+            kind: "ListType",
+            type: {
+              kind: "NonNullType",
+              type: {
+                kind: "NamedType",
+                name: { kind: "Name", value: "String" },
+              },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "reason" },
+          },
+          type: { kind: "NamedType", name: { kind: "Name", value: "String" } },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "attestHumanAuthoredMetadata" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "workId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "workId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "fieldPaths" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "fieldPaths" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "itemIds" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "itemIds" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "reason" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "reason" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AttestHumanAuthoredMetadataMutation,
+  AttestHumanAuthoredMetadataMutationVariables
 >;
 export const UpdateWorkDocument = {
   kind: "Document",
