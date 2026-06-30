@@ -1,7 +1,7 @@
-const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
-const FileType = require("file-type");
-const path = require("path");
-
+import "source-map-support/register.js";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import FileType from "file-type";
+import path from "path";
 
 const handler = async (event, _context, _callback) => {
   return await extractMimeType(event);
@@ -29,8 +29,8 @@ const extractMimeType = async (event) => {
     // response: {"ext":"jpg","mime":"image/jpeg"}
     const fileType = await FileType.fromBuffer(firstK);
     if (fileType) {
-      console.log('identified file as', JSON.stringify(fileType));
-      return { ...fileType, verified: true };  
+      console.log("identified file as", JSON.stringify(fileType));
+      return { ...fileType, verified: true };
     } else {
       return fallback(event);
     }
@@ -44,11 +44,13 @@ const fallback = (event) => {
   const ext = path.extname(event.key).replace(/^\./, "");
   const mime = event.fallback;
 
-  if (mime === undefined) 
-    return { ext, mime: "application/octet-stream", verified: false }
+  if (mime === undefined)
+    return { ext, mime: "application/octet-stream", verified: false };
 
-  if (mime && (! mime.match(/xml$/)) && FileType.mimeTypes.has(mime)) {
-    console.warn(`${path.basename(event.key)} attempting to fall back to ${mime} but magic number doesn't match.`);
+  if (mime && !mime.match(/xml$/) && FileType.mimeTypes.has(mime)) {
+    console.warn(
+      `${path.basename(event.key)} attempting to fall back to ${mime} but magic number doesn't match.`
+    );
     return undefined;
   }
 
@@ -56,8 +58,8 @@ const fallback = (event) => {
     ext: path.extname(event.key).replace(/^\./, ""),
     mime: mime,
     verified: false
-  }
-}
+  };
+};
 
 const s3ClientOpts = () => {
   const forcePathStyle = process.env.AWS_S3_FORCE_PATH_STYLE === "true";
@@ -65,4 +67,4 @@ const s3ClientOpts = () => {
   return { endpoint, forcePathStyle, httpOptions: { timeout: 600000 } };
 };
 
-module.exports = { handler };
+export { handler };

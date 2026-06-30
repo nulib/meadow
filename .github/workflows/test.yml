@@ -43,6 +43,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-hex-v7-${{ hashFiles('app/mix.lock') }}
             ${{ runner.os }}-hex-v7-
+      - name: Install exiftool & ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y exiftool ffmpeg
+        env:
+          DEBIAN_FRONTEND: noninteractive
       - name: Install Elixir dependencies
         run: make app-compile
         env:

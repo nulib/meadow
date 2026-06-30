@@ -47,16 +47,6 @@
   cursor: grabbing !important;
 }
 
-.georeference-map.leaflet-crosshair .leaflet-pane,
-.georeference-map.leaflet-crosshair .leaflet-pane * {
-  cursor: crosshair !important;
-}
-
-.georeference-map.leaflet-dragging .leaflet-pane,
-.georeference-map.leaflet-dragging .leaflet-pane * {
-  cursor: grabbing !important;
-}
-
 .georeference-empty {
   display: flex;
   align-items: center;

@@ -32,7 +32,14 @@ process.stdin.on("data", (data) => {
   const payload = JSON.parse(data);
   handler(payload, {})
     .then((result) => writeln("[return] " + JSON.stringify(result)))
-    .catch((err) => writeln("[fatal] " + err));
+    .catch((err) => {
+      if (err.stack) {
+        for (const line of err.stack.split("\n")) {
+          writeln("[warning] " + line);
+        }
+      }
+      writeln("[fatal] " + (err.message || err));
+    });
 });
 
 process.stdin.on("end", () => {

@@ -1,3 +1,5 @@
+import { getNavPlaceLabel } from "@samvera/clover-iiif/helpers";
+
 export const GEOREFERENCE_CONTEXT =
   "http://iiif.io/api/extension/georef/1/context.json";
 export const NAV_PLACE_CONTEXT =
@@ -364,16 +366,6 @@ function isValidPosition(position) {
   );
 }
 
-function firstLanguageMapValue(value) {
-  if (typeof value === "string") return value;
-  if (!value || typeof value !== "object") return "";
-
-  const values = Object.values(value).find(
-    (entry) => Array.isArray(entry) && entry.length,
-  );
-  return values?.[0] || "";
-}
-
 function toLanguageMap(value) {
   if (!value) return undefined;
   if (typeof value === "object") return value;
@@ -411,45 +403,11 @@ function placeFromFeature(feature, uiId) {
     id: feature.id || "",
     sourceId: properties.sourceId || "",
     uiId,
-    label: firstLanguageMapValue(properties.label) || "Location",
-    summary: firstLanguageMapValue(properties.summary),
+    label: getNavPlaceLabel(properties.label) || "Location",
+    summary: getNavPlaceLabel(properties.summary),
     properties,
     geometry,
     longitude: isPoint ? coordinates[0] : "",
     latitude: isPoint ? coordinates[1] : "",
   };
-}
-
-export function controlPointsFromGeoreferenceAnnotation(annotation) {
-  const content = parseAnnotationContent(annotation);
-  const features = Array.isArray(content?.body?.features)
-    ? content.body.features
-    : [];
-
-  return features
-    .map((feature, index) => {
-      const resourceCoords = feature?.properties?.resourceCoords || [];
-      const geoCoords = feature?.geometry?.coordinates || [];
-      if (resourceCoords.length < 2 || geoCoords.length < 2) return null;
-
-      const nextResourceCoords = [
-        Number(resourceCoords[0]),
-        Number(resourceCoords[1]),
-      ];
-      const nextGeoCoords = [Number(geoCoords[0]), Number(geoCoords[1])];
-
-      if (
-        nextResourceCoords.some(Number.isNaN) ||
-        nextGeoCoords.some(Number.isNaN)
-      ) {
-        return null;
-      }
-
-      return {
-        id: feature.id || `${annotation.id || "georeference"}-${index}`,
-        resourceCoords: nextResourceCoords,
-        geoCoords: nextGeoCoords,
-      };
-    })
-    .filter(Boolean);
 }

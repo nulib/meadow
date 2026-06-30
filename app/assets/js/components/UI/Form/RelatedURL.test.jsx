@@ -1,5 +1,6 @@
 import React from "react";
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { FormProvider, useForm } from "react-hook-form";
 import UIFormRelatedURL from "./RelatedURL";
 import { relatedUrlSchemeMock } from "../../Work/controlledVocabulary.gql.mock";
 import { renderWithReactHookForm } from "../../../services/testing-helpers";
@@ -92,6 +93,90 @@ describe("Related Url controlled metadata form component", () => {
       const removeButtons = screen.getAllByTestId("button-related-url-remove");
       fireEvent.click(removeButtons[3]);
       expect(screen.getAllByTestId("related-url-form-item")).toHaveLength(3);
+    });
+  });
+
+  /**
+   * Regression test for bug #5825: saving 3+ Related URL entries caused the error banner
+   * "An issue has occured within Related URL."
+   *
+   * Root cause: `useFieldArray` rebuilds the `fields` snapshot from current form values
+   * on every `append()`. A previously-filled row has `item.labelId` populated in the
+   * new snapshot, which switches it from the editable path to the hidden-input path.
+   * The hidden `labelId` input was written as `value={item.label ? item.label.id : ""}`.
+   * Because form-entered rows have only a `labelId` string (no `label` object), the
+   * value collapsed to `""`, erasing the selection and causing required validation to
+   * fail on submit.
+   *
+   * Fix: `value={item.label ? item.label.id : item.labelId}` — falls back to the string.
+   */
+  describe("regression: 3+ entries caused save failure (#5825)", () => {
+    it("saves without an error banner when 3 rows are added and filled sequentially", async () => {
+      const user = userEvent.setup();
+
+      // Use a real form so handleSubmit/validation runs end-to-end.
+      const TestForm = () => {
+        const methods = useForm();
+        return (
+          <FormProvider {...methods}>
+            <form
+              data-testid="test-form"
+              onSubmit={methods.handleSubmit(() => {})}
+            >
+              <UIFormRelatedURL {...props} />
+              <button type="submit" data-testid="submit-btn">
+                Save
+              </button>
+            </form>
+          </FormProvider>
+        );
+      };
+      render(<TestForm />);
+
+      // --- Row 1 ---
+      await user.click(screen.getByTestId("button-add-field-array-row"));
+      // After append, fields snapshot is rebuilt; row 1 is new (labelId=""), so it
+      // renders the editable form path.
+      fireEvent.change(screen.getAllByTestId("related-url-url-input")[0], {
+        target: { value: "http://example1.com" },
+      });
+      fireEvent.change(screen.getAllByTestId("related-url-select")[0], {
+        target: { value: "FINDING_AID" },
+      });
+
+      // --- Row 2 ---
+      // append() rebuilds fields; row 1 now has labelId="FINDING_AID" in the snapshot
+      // → switches to the hidden-input path. Row 2 is new → editable path.
+      await user.click(screen.getByTestId("button-add-field-array-row"));
+      // Only row 2's inputs are visible now (row 1 is in hidden-input path).
+      fireEvent.change(screen.getAllByTestId("related-url-url-input")[0], {
+        target: { value: "http://example2.com" },
+      });
+      fireEvent.change(screen.getAllByTestId("related-url-select")[0], {
+        target: { value: "HATHI_TRUST_DIGITAL_LIBRARY" },
+      });
+
+      // --- Row 3 ---
+      // append() rebuilds again; rows 1 & 2 switch to hidden-input path.
+      // Before the fix, these hidden inputs wrote value="" for form-entered rows,
+      // silently erasing the selections and causing required validation to fail.
+      await user.click(screen.getByTestId("button-add-field-array-row"));
+      // Only row 3's inputs are visible now.
+      fireEvent.change(screen.getAllByTestId("related-url-url-input")[0], {
+        target: { value: "http://example3.com" },
+      });
+      fireEvent.change(screen.getAllByTestId("related-url-select")[0], {
+        target: { value: "RELATED_INFORMATION" },
+      });
+
+      // Submit and confirm no error banner appears.
+      await user.click(screen.getByTestId("submit-btn"));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(/An issue has occured within/),
+        ).not.toBeInTheDocument();
+      });
     });
   });
 });

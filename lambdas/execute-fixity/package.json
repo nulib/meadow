@@ -2,10 +2,14 @@
   "name": "execute-fixity",
   "version": "0.1.0",
   "description": "Receives S3 upload notification and triggers fixity step function execution",
+  "type": "module",
   "main": "index.js",
   "author": "nulib",
   "license": "Apache-2.0",
   "devDependencies": {
     "@aws-sdk/client-sfn": "^3.421.0"
+  },
+  "dependencies": {
+    "source-map-support": "^0.5.21"
   }
 }
