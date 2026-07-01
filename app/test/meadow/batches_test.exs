@@ -205,7 +205,8 @@ defmodule Meadow.BatchesTest do
       Works.list_works()
       |> Enum.each(fn work ->
         assert work.descriptive_metadata.alternate_title |> length() == 2
-        assert work.descriptive_metadata.box_name == ["Michael Jordan", "His Airness"]
+        assert Enum.map(work.descriptive_metadata.box_name, & &1.value) ==
+                 ["Michael Jordan", "His Airness"]
         assert work.descriptive_metadata.box_number == []
 
         assert work.descriptive_metadata.date_created == [
@@ -248,8 +249,10 @@ defmodule Meadow.BatchesTest do
 
       Works.list_works()
       |> Enum.each(fn work ->
-        assert work.descriptive_metadata.cultural_context == ["Some Context", "Some More Context"]
-        assert work.descriptive_metadata.box_name == ["Michael Jordan", "His Airness"]
+        assert Enum.map(work.descriptive_metadata.cultural_context, & &1.value) ==
+                 ["Some Context", "Some More Context"]
+        assert Enum.map(work.descriptive_metadata.box_name, & &1.value) ==
+                 ["Michael Jordan", "His Airness"]
       end)
     end
 

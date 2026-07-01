@@ -110,6 +110,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
       Repo.transaction(fn ->
         with {:ok, change} <- fetch_plan_change(id),
              {:ok, attrs} <- build_attrs_result(request, change),
+             attrs <- mint_value_entry_ids(attrs),
              {:ok, attrs} <- maybe_create_ai_activity(change, attrs),
              {:ok, updated_change} <- Planner.update_plan_change(change, attrs) do
           updated_change = Repo.preload(updated_change, :plan)
@@ -220,6 +221,35 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
       val = Map.get(attrs, key)
       not is_nil(val) and val != %{}
     end)
+  end
+
+  # Mint a stable id for each proposed free-text value at proposal time, so the
+  # same id flows through the plan change, any reviewer edit, and the applied work
+  # item. Per-item provenance then keys on that id end to end, with no value
+  # matching ever. Only `add`/`replace` mint ids (they introduce new AI values);
+  # `delete` references existing values and is left untouched.
+  defp mint_value_entry_ids(attrs) when is_map(attrs) do
+    attrs
+    |> mint_op_ids(:add)
+    |> mint_op_ids(:replace)
+  end
+
+  defp mint_value_entry_ids(attrs), do: attrs
+
+  defp mint_op_ids(attrs, key) do
+    with %{} = op <- Map.get(attrs, key),
+         %{} = dm <- Map.get(op, :descriptive_metadata) || Map.get(op, "descriptive_metadata") do
+      normalized = WorkDescriptiveMetadata.jsonb_value_entries(dm)
+
+      updated_op =
+        if Map.has_key?(op, :descriptive_metadata),
+          do: Map.put(op, :descriptive_metadata, normalized),
+          else: Map.put(op, "descriptive_metadata", normalized)
+
+      Map.put(attrs, key, updated_op)
+    else
+      _ -> attrs
+    end
   end
 
   defp maybe_create_ai_activity(change, attrs) do
@@ -1098,7 +1128,12 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   defp editable_descriptive_schema_fields, do: WorkDescriptiveMetadata.permitted()
   defp editable_descriptive_embed_fields, do: WorkDescriptiveMetadata.__schema__(:embeds)
 
-  defp controlled_fields, do: editable_descriptive_embed_fields() -- nested_coded_fields()
+  defp controlled_fields,
+    do: editable_descriptive_embed_fields() -- nested_coded_fields() -- value_entry_fields()
+
+  # Repeating free-text fields are stored as identified ValueEntry embeds. They are
+  # multivalue plain-text (validated by the catch-all), not controlled-term embeds.
+  defp value_entry_fields, do: WorkDescriptiveMetadata.value_entry_fields()
 
   defp coded_fields do
     editable_descriptive_schema_fields()

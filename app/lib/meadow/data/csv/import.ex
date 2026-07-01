@@ -4,7 +4,7 @@ defmodule Meadow.Data.CSV.Import do
   """
 
   alias Meadow.Data.CSV.Export
-  alias Meadow.Data.Schemas.{Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
+  alias Meadow.Data.Schemas.{ValueEntry, Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
   alias Meadow.Utils.Stream, as: StreamUtil
   alias Meadow.Utils.Truth
   alias NimbleCSV.RFC4180, as: CSV
@@ -122,6 +122,12 @@ defmodule Meadow.Data.CSV.Import do
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: _}}, nil, _), do: []
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :one, related: _}}, nil, _), do: nil
   defp decode_field(_, nil, _), do: nil
+
+  # Repeating free-text fields are ValueEntry embeds, but a CSV cell is just
+  # multivalued text. Decode to plain strings and let the changeset mint each
+  # item's id on save, exactly as it did when these were `{:array, :string}`.
+  defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: ValueEntry}}, value, _field),
+    do: split_multivalued_field(value)
 
   defp decode_field({:embedded, type}, value, field), do: decode_field(type, value, field)
 

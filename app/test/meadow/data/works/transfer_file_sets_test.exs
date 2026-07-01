@@ -307,7 +307,7 @@ defmodule Meadow.Data.Works.TransferFileSetsTest do
       assert new_work.published == false
       assert new_work.visibility.id == "RESTRICTED"
       assert new_work.descriptive_metadata.title == "Sample Work Title"
-      assert new_work.descriptive_metadata.description == ["Work description"]
+      assert Enum.map(new_work.descriptive_metadata.description, & &1.value) == ["Work description"]
       assert new_work.administrative_metadata.project_name == ["Project name"]
       assert new_work.administrative_metadata.library_unit.id == "MUSIC_LIBRARY"
     end

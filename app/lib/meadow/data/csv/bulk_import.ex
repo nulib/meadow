@@ -6,6 +6,7 @@ defmodule Meadow.Data.CSV.BulkImport do
 
   alias Ecto.Adapters.SQL
   alias Meadow.Data.CSV.Import
+  alias Meadow.Data.Schemas.WorkDescriptiveMetadata
   alias Meadow.Utils.Stream, as: StreamUtil
   alias NimbleCSV.RFC4180, as: CSV
 
@@ -78,6 +79,9 @@ defmodule Meadow.Data.CSV.BulkImport do
         |> put_in([:updated_at], timestamp)
         |> update_in([:descriptive_metadata, :id], &(&1 || Ecto.UUID.generate()))
         |> update_in([:administrative_metadata, :id], &(&1 || Ecto.UUID.generate()))
+        # This path writes descriptive_metadata jsonb directly (no changeset), so
+        # repeating free-text fields must be well-formed identified ValueEntry maps.
+        |> update_in([:descriptive_metadata], &WorkDescriptiveMetadata.jsonb_value_entries/1)
       end)
       |> Stream.chunk_every(@chunk_size)
       |> Stream.map(&stream_chunk_of_rows/1)

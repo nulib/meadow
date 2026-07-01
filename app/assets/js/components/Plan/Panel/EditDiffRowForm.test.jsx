@@ -42,6 +42,8 @@ jest.mock("@js/components/Plan/Panel/diff-helpers", () => ({
 
 jest.mock("@js/services/metadata", () => ({
   prepFieldArrayItemsForPost: (values) => values.map((v) => v.metadataItem),
+  prepValueEntryItemsForPost: (values) =>
+    values.map((v) => (v.id ? { id: v.id, value: v.metadataItem } : { value: v.metadataItem })),
   prepEDTFforPost: (values) => values.map((v) => v.metadataItem),
   prepNotes: (v) => v,
   prepRelatedUrl: (v) => v,

@@ -1177,17 +1177,72 @@ defmodule Meadow.AI.Provenance do
     |> Enum.reverse()
   end
 
+  # Per-item attribution, keyed on each item's stable id. An item the AI proposed
+  # that is still present with its original value is `ai_generated`; the same id
+  # present with a changed value is an in-place human edit (the field's edit
+  # origin); an id the AI never proposed carries no AI lineage and is omitted;
+  # an explicitly attested id is `human_attested_after_ai`. Matching is by id and
+  # natural key — never by list position — so reordering never blurs attribution.
   defp ai_item_provenance(target, events) do
     attested = attested_item_ids(events)
+    proposed = target |> proposed_value(events) |> items_by_id()
+    edit_origin = item_edit_origin(target)
 
-    proposed_value(target, events)
-    |> reconcile_items(current_value(target, events), item_edit_origin(target))
-    |> Enum.map(fn entry ->
-      if MapSet.member?(attested, entry.id),
-        do: %{entry | origin: "human_attested_after_ai"},
-        else: entry
+    target
+    |> current_value(events)
+    |> value_items()
+    |> Enum.map(fn {id, item} ->
+      cond do
+        MapSet.member?(attested, id) ->
+          %{id: id, origin: "human_attested_after_ai"}
+
+        Map.has_key?(proposed, id) ->
+          origin =
+            if natural_key(item) == natural_key(Map.get(proposed, id)),
+              do: "ai_generated",
+              else: edit_origin
+
+          %{id: id, origin: origin}
+
+        true ->
+          nil
+      end
     end)
+    |> Enum.reject(&is_nil/1)
   end
+
+  # Ordered `{id, item}` pairs for a (wrapped) multivalued field value, dropping
+  # items with no resolvable identity.
+  defp value_items(%{"value" => list}) when is_list(list), do: value_items(list)
+
+  defp value_items(list) when is_list(list) do
+    list
+    |> Enum.map(&{item_identifier(&1), &1})
+    |> Enum.reject(fn {id, _} -> is_nil(id) end)
+  end
+
+  defp value_items(_), do: []
+
+  defp items_by_id(value), do: value |> value_items() |> Map.new()
+
+  # An item's natural (content) key, independent of its stable id: the term
+  # authority id for controlled entries, the note/url/edtf text, or the raw string
+  # value. Used to decide whether an AI-authored item is unchanged or was edited
+  # in place, and (once, at apply time) to pair an AI proposal with the saved item
+  # so the saved item's stable id can be stamped onto the proposal. Derived-only
+  # fields such as a looked-up controlled-term label are intentionally ignored.
+  defp natural_key(%{"term" => %{"id" => id}}), do: {:term, id}
+  defp natural_key(%{term: %{id: id}}), do: {:term, id}
+  defp natural_key(%{"note" => note}), do: {:note, note}
+  defp natural_key(%{note: note}), do: {:note, note}
+  defp natural_key(%{"url" => url}), do: {:url, url}
+  defp natural_key(%{url: url}), do: {:url, url}
+  defp natural_key(%{"edtf" => edtf}), do: {:edtf, edtf}
+  defp natural_key(%{edtf: edtf}), do: {:edtf, edtf}
+  defp natural_key(%{"value" => value}), do: {:value, value}
+  defp natural_key(%{value: value}), do: {:value, value}
+  defp natural_key(value) when is_binary(value), do: {:value, value}
+  defp natural_key(_), do: nil
 
   # Items explicitly attested as human-authored, by identifier — the per-item
   # counterpart of flipping a whole target to `human_attested_after_ai`. A
@@ -1227,44 +1282,16 @@ defmodule Meadow.AI.Provenance do
     end
   end
 
-  # Reconcile the proposed and current item lists into per-item attribution.
-  # Items present in both (by id) are unchanged AI generations; the leftover
-  # current items are matched positionally to dropped proposed items and treated
-  # as in-place human edits of those AI items, while any current items beyond the
-  # dropped proposed items are human additions and carry no AI lineage.
-  defp reconcile_items(proposed_val, current_val, edit_origin) do
-    proposed = value_item_ids(proposed_val)
-    current = value_item_ids(current_val)
-
-    proposed_set = MapSet.new(proposed)
-    current_set = MapSet.new(current)
-
-    {unchanged, edited_current} =
-      Enum.split_with(current, &MapSet.member?(proposed_set, &1))
-
-    dropped_proposed = Enum.reject(proposed, &MapSet.member?(current_set, &1))
-
-    edited =
-      edited_current
-      |> Enum.zip(dropped_proposed)
-      |> Enum.map(fn {id, _was} -> %{id: id, origin: edit_origin} end)
-
-    Enum.map(unchanged, &%{id: &1, origin: "ai_generated"}) ++ edited
-  end
-
   defp item_edit_origin(%{origin: "ai_modified_human_content"}), do: "ai_modified_human_content"
   defp item_edit_origin(_), do: "ai_assisted_human_modified"
 
-  defp value_item_ids(%{"value" => list}) when is_list(list) do
-    list |> Enum.map(&item_identifier/1) |> Enum.reject(&is_nil/1)
-  end
 
-  defp value_item_ids(list) when is_list(list) do
-    list |> Enum.map(&item_identifier/1) |> Enum.reject(&is_nil/1)
-  end
-
-  defp value_item_ids(_), do: []
-
+  # Prefer the item's own stable embed id (minted on the ValueEntry / controlled /
+  # note / url entry and preserved across edits). This is what makes per-item
+  # attribution independent of list order and string value. Legacy items with no
+  # embed id fall back to their natural key below.
+  defp item_identifier(%{"id" => id}) when is_binary(id) and id != "", do: id
+  defp item_identifier(%{id: id}) when is_binary(id) and id != "", do: id
   defp item_identifier(%{"term" => %{"id" => id}}), do: id
   defp item_identifier(%{term: %{id: id}}), do: id
   defp item_identifier(%{"note" => note}) when is_binary(note), do: note

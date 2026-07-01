@@ -284,11 +284,14 @@ function unwrapProvenanceValue(value) {
 export function provenanceItemId(item) {
   if (item == null) return null;
   if (typeof item === "string") return item;
+  // Prefer the item's own stable embed id (ValueEntry, NoteEntry, RelatedURLEntry),
+  // matching the backend's `item_identifier`. Controlled entries have no embed id
+  // and fall through to their term id.
+  if (item.id) return item.id;
   if (item.term && item.term.id) return item.term.id;
   if (item.note) return item.note;
   if (item.url) return item.url;
   if (item.edtf) return item.edtf;
-  if (item.id) return item.id;
   return null;
 }
 

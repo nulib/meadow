@@ -100,8 +100,12 @@ const buildNormalizedItem = (path, item) => {
     };
   }
 
-  // Text arrays and generic items
-  const str = String(item ?? "");
+  // Text arrays and generic items. Repeating free-text items are `{ id, value }`
+  // objects on both sides of the diff; key and render on the value (the id is
+  // surfaced separately via `provenanceItemId` for the per-item origin badge).
+  const value =
+    item && typeof item === "object" && "value" in item ? item.value : item;
+  const str = String(value ?? "");
   return { key: str, display: str };
 };
 

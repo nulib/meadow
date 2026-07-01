@@ -174,6 +174,40 @@ describe("prepFieldArrayItemsForPost()", () => {
   });
 });
 
+describe("prepValueEntryItemsForPost()", () => {
+  it("preserves an existing item's id so identity survives the edit", () => {
+    expect(
+      metadata.prepValueEntryItemsForPost([
+        { metadataItem: "Edited", id: "abc-123" },
+      ]),
+    ).toEqual([{ id: "abc-123", value: "Edited" }]);
+  });
+
+  it("sends a new item (no id) as just a value for the backend to mint", () => {
+    expect(
+      metadata.prepValueEntryItemsForPost([{ metadataItem: "Brand new" }]),
+    ).toEqual([{ value: "Brand new" }]);
+  });
+
+  it("returns an empty array when no items exist", () => {
+    expect(metadata.prepValueEntryItemsForPost()).toEqual([]);
+  });
+});
+
+describe("convertFieldArrayValToHookFormVal()", () => {
+  it("carries a { id, value } item's id into the form", () => {
+    expect(
+      metadata.convertFieldArrayValToHookFormVal({ id: "abc-123", value: "A" }),
+    ).toEqual({ metadataItem: "A", id: "abc-123" });
+  });
+
+  it("passes a plain string through unchanged (legacy/collection fields)", () => {
+    expect(metadata.convertFieldArrayValToHookFormVal("A")).toEqual({
+      metadataItem: "A",
+    });
+  });
+});
+
 describe("prepNotes()", () => {
   var notesFormValues = [
     {

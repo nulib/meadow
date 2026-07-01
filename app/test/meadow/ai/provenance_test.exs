@@ -334,15 +334,20 @@ defmodule Meadow.AI.ProvenanceTest do
           status: "completed"
         })
 
-      # AI proposes: replace title + description, add three subjects.
+      # AI proposes: replace title + description, add three subjects. The
+      # description item's id is minted at proposal time (as the real planner does)
+      # and preserved through the reviewer's edit, so it stays the same item.
       ai_subjects = ["AI subject 1", "AI subject 2", "AI subject 3"]
+      desc_id = Ecto.UUID.generate()
+      ai_description = [%{id: desc_id, value: "AI description"}]
+      reviewer_description = [%{id: desc_id, value: "Reviewer description"}]
 
       Provenance.record_targets_for_operations(
         activity,
         "Work",
         work.id,
         %{
-          replace: %{descriptive_metadata: %{title: ["AI title"], description: ["AI description"]}},
+          replace: %{descriptive_metadata: %{title: ["AI title"], description: ai_description}},
           add: %{descriptive_metadata: %{subject: ai_subjects}}
         },
         origin: "ai_generated",
@@ -355,10 +360,11 @@ defmodule Meadow.AI.ProvenanceTest do
         work_id: work.id,
         add: %{descriptive_metadata: %{subject: ai_subjects}},
         delete: %{},
-        replace: %{descriptive_metadata: %{title: ["AI title"], description: ["AI description"]}}
+        replace: %{descriptive_metadata: %{title: ["AI title"], description: ai_description}}
       }
 
-      # Reviewer keeps the title, edits the description, adds a fourth subject.
+      # Reviewer keeps the title, edits the description (same id, new value), adds a
+      # fourth subject.
       reviewed_subjects = ai_subjects ++ ["Reviewer subject 4"]
 
       Provenance.record_plan_manual_edit(
@@ -366,7 +372,7 @@ defmodule Meadow.AI.ProvenanceTest do
         %{
           add: %{descriptive_metadata: %{subject: reviewed_subjects}},
           replace: %{
-            descriptive_metadata: %{title: ["AI title"], description: ["Reviewer description"]}
+            descriptive_metadata: %{title: ["AI title"], description: reviewer_description}
           }
         },
         "bmq449"
@@ -378,7 +384,7 @@ defmodule Meadow.AI.ProvenanceTest do
         add: %{descriptive_metadata: %{subject: reviewed_subjects}},
         delete: %{},
         replace: %{
-          descriptive_metadata: %{title: ["AI title"], description: ["Reviewer description"]}
+          descriptive_metadata: %{title: ["AI title"], description: reviewer_description}
         }
       }
 
@@ -412,14 +418,14 @@ defmodule Meadow.AI.ProvenanceTest do
       assert "human_edited" in event_types.(description)
       assert "applied" in event_types.(description)
 
-      assert event.(description, "proposed").value_after == %{"value" => ["AI description"]}
+      assert flat_values(event.(description, "proposed").value_after) == ["AI description"]
 
-      assert event.(description, "human_edited").value_before == %{"value" => ["AI description"]}
-      assert event.(description, "human_edited").value_after == %{"value" => ["Reviewer description"]}
+      assert flat_values(event.(description, "human_edited").value_before) == ["AI description"]
+      assert flat_values(event.(description, "human_edited").value_after) == ["Reviewer description"]
 
       applied = event.(description, "applied")
-      assert applied.value_before == %{"value" => ["Original human description"]}
-      assert applied.value_after == %{"value" => ["Reviewer description"]}
+      assert flat_values(applied.value_before) == ["Original human description"]
+      assert flat_values(applied.value_after) == ["Reviewer description"]
 
       # Subjects: AI proposed three, reviewer added a fourth (field-level).
       subject = target.("descriptive_metadata.subject")
@@ -436,15 +442,16 @@ defmodule Meadow.AI.ProvenanceTest do
       assert Enum.map(subject_summary.item_provenance, & &1.id) == ai_subjects
       assert Enum.all?(subject_summary.item_provenance, &(&1.origin == "ai_generated"))
 
-      # Description: the AI's paragraph was edited in place, so its per-item
-      # entry is keyed by the *current* value and carries the human-edit origin
-      # rather than disappearing once it no longer matches the AI's wording.
+      # Description: the AI's paragraph was rewritten during the plan stage, but the
+      # item's id was minted at proposal and preserved through the edit, so per-item
+      # attribution follows that id exactly — the item is AI-authored and
+      # human-edited, with no string or position matching involved.
       description_summary =
         Provenance.work_summary(work.id)
         |> Enum.find(&(&1.field_path == "descriptive_metadata.description"))
 
       assert description_summary.item_provenance == [
-               %{id: "Reviewer description", origin: "ai_assisted_human_modified"}
+               %{id: desc_id, origin: "ai_assisted_human_modified"}
              ]
     end
   end
@@ -474,69 +481,95 @@ defmodule Meadow.AI.ProvenanceTest do
       }
     end
 
+    # A repeating free-text item now carries a stable embed id, so per-item
+    # attribution keys on that id rather than the value or list position.
+    defp v(id, value), do: %{"id" => id, "value" => value}
+
     test "keeps unchanged AI items as ai_generated" do
-      target = target_with_events("ai_generated", ["A", "B"], ["A", "B"])
+      target = target_with_events("ai_generated", [v("1", "A"), v("2", "B")], [v("1", "A"), v("2", "B")])
 
       assert Provenance.item_provenance(target) == [
-               %{id: "A", origin: "ai_generated"},
-               %{id: "B", origin: "ai_generated"}
+               %{id: "1", origin: "ai_generated"},
+               %{id: "2", origin: "ai_generated"}
              ]
     end
 
-    test "attributes an in-place edit of one item to the human, keyed by its new value" do
-      target = target_with_events("ai_assisted_human_modified", ["A", "B"], ["A", "B edited"])
+    test "attributes an in-place edit of one item to the human, keyed by its stable id" do
+      # Same id, changed value: this is the case the old positional model guessed
+      # at and the stable id now pins exactly.
+      target =
+        target_with_events(
+          "ai_assisted_human_modified",
+          [v("1", "A"), v("2", "B")],
+          [v("1", "A"), v("2", "B edited")]
+        )
 
       assert Provenance.item_provenance(target) == [
-               %{id: "A", origin: "ai_generated"},
-               %{id: "B edited", origin: "ai_assisted_human_modified"}
+               %{id: "1", origin: "ai_generated"},
+               %{id: "2", origin: "ai_assisted_human_modified"}
              ]
     end
 
-    test "omits a human-added item that carries no AI lineage" do
-      target = target_with_events("ai_assisted_human_modified", ["A"], ["A", "Human added"])
+    test "attribution is unaffected by reordering the item list" do
+      target =
+        target_with_events(
+          "ai_generated",
+          [v("1", "A"), v("2", "B")],
+          [v("2", "B"), v("1", "A")]
+        )
 
-      assert Provenance.item_provenance(target) == [%{id: "A", origin: "ai_generated"}]
+      assert Provenance.item_provenance(target) == [
+               %{id: "2", origin: "ai_generated"},
+               %{id: "1", origin: "ai_generated"}
+             ]
+    end
+
+    test "omits a human-added item (new id) that carries no AI lineage" do
+      target =
+        target_with_events("ai_assisted_human_modified", [v("1", "A")], [v("1", "A"), v("9", "Human added")])
+
+      assert Provenance.item_provenance(target) == [%{id: "1", origin: "ai_generated"}]
     end
 
     test "drops an AI item a human removed" do
-      target = target_with_events("ai_assisted_human_modified", ["A", "B"], ["A"])
+      target = target_with_events("ai_assisted_human_modified", [v("1", "A"), v("2", "B")], [v("1", "A")])
 
-      assert Provenance.item_provenance(target) == [%{id: "A", origin: "ai_generated"}]
+      assert Provenance.item_provenance(target) == [%{id: "1", origin: "ai_generated"}]
     end
 
     test "carries the ai_modified_human_content origin onto an edited item" do
-      target = target_with_events("ai_modified_human_content", ["A"], ["A edited"])
+      target = target_with_events("ai_modified_human_content", [v("1", "A")], [v("1", "A edited")])
 
       assert Provenance.item_provenance(target) == [
-               %{id: "A edited", origin: "ai_modified_human_content"}
+               %{id: "1", origin: "ai_modified_human_content"}
              ]
     end
 
-    test "identifies note items by their text so each note is attributed" do
+    test "identifies note items by their stable id" do
       notes = [
-        %{"note" => "First note", "type" => %{"id" => "GENERAL_NOTE"}},
-        %{"note" => "Second note", "type" => %{"id" => "LOCAL_NOTE"}}
+        %{"id" => "n1", "note" => "First note", "type" => %{"id" => "GENERAL_NOTE"}},
+        %{"id" => "n2", "note" => "Second note", "type" => %{"id" => "LOCAL_NOTE"}}
       ]
 
       target = target_with_events("ai_generated", notes, notes)
 
       assert Provenance.item_provenance(target) == [
-               %{id: "First note", origin: "ai_generated"},
-               %{id: "Second note", origin: "ai_generated"}
+               %{id: "n1", origin: "ai_generated"},
+               %{id: "n2", origin: "ai_generated"}
              ]
     end
 
-    test "identifies related_url items by their url" do
+    test "identifies related_url items by their stable id" do
       urls = [
-        %{"url" => "https://example.com/a", "label" => %{"id" => "RELATED_INFO"}},
-        %{"url" => "https://example.com/b", "label" => %{"id" => "RELATED_INFO"}}
+        %{"id" => "u1", "url" => "https://example.com/a", "label" => %{"id" => "RELATED_INFO"}},
+        %{"id" => "u2", "url" => "https://example.com/b", "label" => %{"id" => "RELATED_INFO"}}
       ]
 
       target = target_with_events("ai_generated", urls, urls)
 
       assert Provenance.item_provenance(target) == [
-               %{id: "https://example.com/a", origin: "ai_generated"},
-               %{id: "https://example.com/b", origin: "ai_generated"}
+               %{id: "u1", origin: "ai_generated"},
+               %{id: "u2", origin: "ai_generated"}
              ]
     end
 
@@ -622,6 +655,8 @@ defmodule Meadow.AI.ProvenanceTest do
           descriptive_metadata: %{title: "T", description: ["AI description"]}
         })
 
+      [item] = work.descriptive_metadata.description
+
       {:ok, activity} =
         Provenance.create_activity(%{
           activity_type: "metadata_plan",
@@ -629,6 +664,8 @@ defmodule Meadow.AI.ProvenanceTest do
           status: "completed"
         })
 
+      # The AI proposal shares the applied item's id (as the real mint-at-proposal
+      # flow produces), so provenance and the live item are the same item.
       {:ok, _target} =
         Provenance.record_target(
           activity,
@@ -637,14 +674,35 @@ defmodule Meadow.AI.ProvenanceTest do
             target_id: work.id,
             field_path: "descriptive_metadata.description",
             operation: "replace",
-            proposed_value: ["AI description"],
+            proposed_value: [%{id: item.id, value: "AI description"}],
             origin: "ai_generated",
             status: "applied"
           },
           "applied"
         )
 
-      %{work: work}
+      %{work: work, item: item}
+    end
+
+    test "attributes an in-place form edit per item by its preserved id", %{
+      work: work,
+      item: item
+    } do
+      # Edit the value in place, keeping the item's embedded id — exactly what the
+      # Meadow form does when it round-trips the id. No list order or string
+      # matching is involved: the item is the same item, now with a new value.
+      edited =
+        put_in(work.descriptive_metadata.description, [%{item | value: "Human-edited description"}])
+
+      Provenance.record_work_manual_edit(work, edited, "bmq449")
+
+      summary =
+        Provenance.work_summary(work.id)
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.description"))
+
+      assert summary.item_provenance == [
+               %{id: item.id, origin: "ai_assisted_human_modified"}
+             ]
     end
 
     test "flips an edited AI field to ai_assisted_human_modified", %{work: work} do
@@ -695,7 +753,7 @@ defmodule Meadow.AI.ProvenanceTest do
       deleted = Enum.find(target.events, &(&1.event_type == "deleted"))
 
       assert deleted.actor == "bmq449"
-      assert deleted.value_before == %{"value" => ["AI description"]}
+      assert flat_values(deleted.value_before) == ["AI description"]
       assert is_nil(deleted.value_after)
       assert deleted.premis_event_type == "deletion"
     end
@@ -864,6 +922,8 @@ defmodule Meadow.AI.ProvenanceTest do
       work =
         work_fixture(%{descriptive_metadata: %{description: ["Desc A", "Desc B"]}})
 
+      [item_a, item_b] = work.descriptive_metadata.description
+
       {:ok, activity} =
         Provenance.create_activity(%{
           activity_type: "metadata_direct_apply",
@@ -872,6 +932,8 @@ defmodule Meadow.AI.ProvenanceTest do
           status: "completed"
         })
 
+      # The AI proposal shares the applied items' ids (as the real mint-at-proposal
+      # flow produces), so per-item attribution and attestation key on those ids.
       {:ok, _target} =
         Provenance.record_target(
           activity,
@@ -880,14 +942,17 @@ defmodule Meadow.AI.ProvenanceTest do
             target_id: work.id,
             field_path: "descriptive_metadata.description",
             operation: "replace",
-            proposed_value: ["Desc A", "Desc B"],
+            proposed_value: [
+              %{id: item_a.id, value: "Desc A"},
+              %{id: item_b.id, value: "Desc B"}
+            ],
             origin: "ai_generated",
             status: "applied"
           },
           "applied"
         )
 
-      %{work: work}
+      %{work: work, id_a: item_a.id, id_b: item_b.id}
     end
 
     defp description_summary(work_id) do
@@ -895,14 +960,25 @@ defmodule Meadow.AI.ProvenanceTest do
       |> Enum.find(&(&1.field_path == "descriptive_metadata.description"))
     end
 
-    test "attests one item and leaves siblings as AI generated", %{work: work} do
+    defp flat_values(%{"value" => list}) when is_list(list) do
+      Enum.map(list, fn
+        %{"value" => value} -> value
+        value -> value
+      end)
+    end
+
+    test "attests one item and leaves siblings as AI generated", %{
+      work: work,
+      id_a: id_a,
+      id_b: id_b
+    } do
       assert {:ok, ["descriptive_metadata.description"]} =
                Provenance.record_work_human_attestation(
                  work,
                  work,
                  ["descriptive_metadata.description"],
                  "bmq449",
-                 item_ids: ["Desc A"],
+                 item_ids: [id_a],
                  reason: "Verified against finding aid"
                )
 
@@ -912,48 +988,52 @@ defmodule Meadow.AI.ProvenanceTest do
       assert summary.origin == "ai_generated"
 
       assert summary.item_provenance == [
-               %{id: "Desc A", origin: "human_attested_after_ai"},
-               %{id: "Desc B", origin: "ai_generated"}
+               %{id: id_a, origin: "human_attested_after_ai"},
+               %{id: id_b, origin: "ai_generated"}
              ]
 
       # The field's live value is unchanged by a per-item attestation.
-      assert summary.current_value == %{"value" => ["Desc A", "Desc B"]}
+      assert flat_values(summary.current_value) == ["Desc A", "Desc B"]
     end
 
-    test "records a human_attested event scoped to the item", %{work: work} do
+    test "records a human_attested event scoped to the item", %{work: work, id_a: id_a} do
       assert {:ok, _} =
                Provenance.record_work_human_attestation(
                  work,
                  work,
                  ["descriptive_metadata.description"],
                  "bmq449",
-                 item_ids: ["Desc A"],
+                 item_ids: [id_a],
                  reason: "Verified"
                )
 
       [target] = Provenance.list_activities(work_id: work.id) |> hd() |> Map.fetch!(:targets)
       attested = Enum.find(target.events, &(&1.event_type == "human_attested"))
 
-      assert attested.item_identifier == "Desc A"
+      assert attested.item_identifier == id_a
       assert attested.actor == "bmq449"
       assert attested.notes == "Verified"
-      assert attested.value_before == %{"value" => "Desc A"}
-      assert attested.value_after == %{"value" => "Desc A"}
+      assert attested.value_before["value"] == "Desc A"
+      assert attested.value_after["value"] == "Desc A"
     end
 
-    test "attesting multiple items records one event each", %{work: work} do
+    test "attesting multiple items records one event each", %{
+      work: work,
+      id_a: id_a,
+      id_b: id_b
+    } do
       assert {:ok, _} =
                Provenance.record_work_human_attestation(
                  work,
                  work,
                  ["descriptive_metadata.description"],
                  "bmq449",
-                 item_ids: ["Desc A", "Desc B"]
+                 item_ids: [id_a, id_b]
                )
 
       assert description_summary(work.id).item_provenance == [
-               %{id: "Desc A", origin: "human_attested_after_ai"},
-               %{id: "Desc B", origin: "human_attested_after_ai"}
+               %{id: id_a, origin: "human_attested_after_ai"},
+               %{id: id_b, origin: "human_attested_after_ai"}
              ]
     end
 

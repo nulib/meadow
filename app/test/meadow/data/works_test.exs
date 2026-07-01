@@ -484,6 +484,62 @@ defmodule Meadow.Data.WorksTest do
     end
   end
 
+  describe "stable multivalued item identity" do
+    @valid %{
+      accession_number: "12345",
+      descriptive_metadata: %{title: "Test"},
+      work_type: %{id: "IMAGE", scheme: "work_type"}
+    }
+
+    test "create_work/1 mints a stable id for each free-text and note item" do
+      attrs =
+        Map.put(@valid, :descriptive_metadata, %{
+          description: ["A description"],
+          notes: [%{note: "A note", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}]
+        })
+
+      assert {:ok, %Work{} = work} = Works.create_work(attrs)
+
+      # Free-text entries and notes carry a minted embed id; controlled entries are
+      # identified by their term id instead.
+      assert {:ok, _} = Ecto.UUID.cast(List.first(work.descriptive_metadata.description).id)
+      assert {:ok, _} = Ecto.UUID.cast(List.first(work.descriptive_metadata.notes).id)
+    end
+
+    test "update_work/2 preserves an item's id across an in-place edit and mints for new items" do
+      {:ok, work} =
+        Works.create_work(
+          Map.put(@valid, :descriptive_metadata, %{
+            notes: [%{note: "Original", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}]
+          })
+        )
+
+      original = List.first(work.descriptive_metadata.notes)
+      assert {:ok, _} = Ecto.UUID.cast(original.id)
+
+      # Echo the existing item back with its id (an in-place edit) plus a brand-new item.
+      {:ok, updated} =
+        Works.update_work(work, %{
+          descriptive_metadata: %{
+            notes: [
+              %{id: original.id, note: "Edited", type: %{id: "GENERAL_NOTE", scheme: "note_type"}},
+              %{note: "Added", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}
+            ]
+          }
+        })
+
+      [edited, added] = updated.descriptive_metadata.notes
+
+      # Identity survives the edit; the value changed in place.
+      assert edited.id == original.id
+      assert edited.note == "Edited"
+
+      # The new item got its own fresh id.
+      assert {:ok, _} = Ecto.UUID.cast(added.id)
+      assert added.id != original.id
+    end
+  end
+
   describe "reorder file sets" do
     setup do
       work = work_with_file_sets_fixture(5, %{}, %{role: %{id: "A", scheme: "FILE_SET_ROLE"}})

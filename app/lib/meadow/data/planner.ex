@@ -57,7 +57,7 @@ defmodule Meadow.Data.Planner do
   import Ecto.Query, warn: false
   alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment}
-  alias Meadow.Data.Schemas.{Plan, PlanChange}
+  alias Meadow.Data.Schemas.{Plan, PlanChange, WorkDescriptiveMetadata}
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
   alias Meadow.Repo
@@ -1391,6 +1391,7 @@ defmodule Meadow.Data.Planner do
       |> Enum.filter(fn {key, _} -> key not in excluded_fields end)
       |> Enum.into(%{})
       |> humanize_date_created()
+      |> WorkDescriptiveMetadata.jsonb_value_entries()
 
     mergeable_administrative_metadata =
       new_values
@@ -1422,6 +1423,7 @@ defmodule Meadow.Data.Planner do
   end
 
   defp metadata_section(_map, _key), do: %{}
+
 
   defp humanize_date_created(descriptive_metadata) do
     case Map.fetch(descriptive_metadata, :date_created) do

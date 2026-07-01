@@ -101,12 +101,14 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "NoteEntry"
   object :note_entry do
+    field :id, :id
     field :note, :string
     field :type, :coded_term
   end
 
   @desc "RelatedURLEntry"
   object :related_url_entry do
+    field :id, :id
     field :url, :string
     field :label, :coded_term
   end
@@ -130,12 +132,14 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "Note input"
   input_object :note_entry_input do
+    field :id, :id
     field :note, :string
     field :type, :coded_term_input
   end
 
   @desc "Related URL input"
   input_object :related_url_entry_input do
+    field :id, :id
     field :url, :string
     field :label, :coded_term_input
   end

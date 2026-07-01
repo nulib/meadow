@@ -64,12 +64,16 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadata do
     current_date = Date.utc_today() |> Date.to_iso8601()
     note_text = "#{@ai_note_prefix} (#{Config.ai(:model)}) on #{current_date}"
 
+    # Mint the description item's id up front so the applied work item and the
+    # provenance target share it — no apply-time value matching needed.
+    description_entry = %{id: Ecto.UUID.generate(), value: description}
+
     result =
       Repo.transaction(fn ->
         updated_work =
           case Works.update_work(work, %{
                  descriptive_metadata: %{
-                   description: [description],
+                   description: [description_entry],
                    subject: subject_attrs,
                    notes: [
                      %{
@@ -110,7 +114,7 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadata do
           %{
             replace: %{
               descriptive_metadata: %{
-                description: [description],
+                description: [description_entry],
                 subject: subject_attrs
               }
             }
