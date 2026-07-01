@@ -70,10 +70,13 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
 
       result = Jason.decode!(response)
 
-      assert [%{"note" => note_text, "type" => %{"id" => "LOCAL_NOTE"}}] =
+      assert [%{"id" => note_id, "note" => note_text, "type" => %{"id" => "LOCAL_NOTE"}}] =
                get_in(result, ["add", "descriptive_metadata", "notes"])
 
       assert note_text =~ "Some metadata created with the assistance of AI"
+      # The note carries a primary key, so applying it to the work and later
+      # editing that work doesn't fail on a nil-id embed.
+      assert is_binary(note_id) and note_id != ""
 
       # The disclosure note is persisted with the change (and applied to the
       # work) but is not itself tracked as an AI-generated provenance target.
@@ -581,6 +584,56 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
       }
 
       assert {:error, _error, _frame} = call_tool("update_plan_change", params)
+    end
+
+    test "rejects a controlled-term value on a free-text field", %{plan_change: plan_change} do
+      params = %{
+        "id" => plan_change.id,
+        "add" => %{
+          "descriptive_metadata" => %{
+            "alternate_title" => [%{"term" => %{"id" => "Short Title"}}]
+          }
+        },
+        "status" => "proposed"
+      }
+
+      assert {:error, error, _frame} = call_tool("update_plan_change", params)
+      assert error.message =~ "free-text field"
+      assert error.message =~ "does not take controlled-term"
+    end
+
+    test "rejects delete on a free-text field", %{plan_change: plan_change} do
+      params = %{
+        "id" => plan_change.id,
+        "delete" => %{
+          "descriptive_metadata" => %{"alternate_title" => ["Old Title"]}
+        },
+        "status" => "proposed"
+      }
+
+      assert {:error, error, _frame} = call_tool("update_plan_change", params)
+      assert error.message =~ "cannot use delete"
+    end
+
+    test "accepts a plain-string replace on a free-text field", %{plan_change: plan_change} do
+      params = %{
+        "id" => plan_change.id,
+        "replace" => %{
+          "descriptive_metadata" => %{"alternate_title" => ["Short A", "Short B"]}
+        },
+        "status" => "proposed"
+      }
+
+      assert {:ok, [{:text, response}]} =
+               call_tool("update_plan_change", params) |> parse_response()
+
+      # Stored as id-bearing ValueEntry data (ids minted server-side).
+      values =
+        Jason.decode!(response)
+        |> get_in(["replace", "descriptive_metadata", "alternate_title"])
+        |> Enum.map(& &1["value"])
+
+      assert values == ["Short A", "Short B"]
     end
   end
 end

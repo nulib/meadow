@@ -57,7 +57,8 @@ defmodule Meadow.Data.Planner do
   import Ecto.Query, warn: false
   alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment}
-  alias Meadow.Data.Schemas.{Plan, PlanChange}
+  alias Meadow.Data.ItemIdentity
+  alias Meadow.Data.Schemas.{Plan, PlanChange, WorkDescriptiveMetadata}
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
   alias Meadow.Repo
@@ -701,7 +702,7 @@ defmodule Meadow.Data.Planner do
   def update_plan_change(%PlanChange{} = change, attrs) do
     attrs =
       if Enum.any?([:add, :delete, :replace], &Map.has_key?(attrs, &1)) do
-        Enrichment.enrich_controlled_terms(attrs)
+        attrs |> Enrichment.enrich_controlled_terms() |> normalize_value_entry_operations()
       else
         attrs
       end
@@ -720,6 +721,38 @@ defmodule Meadow.Data.Planner do
           |> Enum.map_join(", ", fn {_field, error} -> error end)
 
         {:error, error_message}
+    end
+  end
+
+  @doc """
+  Mint a stable id for each proposed free-text value in a plan change's `add`/
+  `replace` operations, so the id is assigned once at the plan-change boundary and
+  flows through any reviewer edit and the applied work item. Idempotent (an
+  existing id is preserved) and caller-agnostic — the AI planner, the GraphQL
+  reviewer-edit path, and any future caller all get consistent identity. `delete`
+  operations reference existing values and are left untouched.
+  """
+  def normalize_value_entry_operations(attrs) when is_map(attrs) do
+    attrs
+    |> normalize_value_entry_op(:add)
+    |> normalize_value_entry_op(:replace)
+  end
+
+  def normalize_value_entry_operations(attrs), do: attrs
+
+  defp normalize_value_entry_op(attrs, key) do
+    with %{} = op <- Map.get(attrs, key),
+         %{} = dm <- Map.get(op, :descriptive_metadata) || Map.get(op, "descriptive_metadata") do
+      normalized = WorkDescriptiveMetadata.jsonb_value_entries(dm)
+
+      updated_op =
+        if Map.has_key?(op, :descriptive_metadata),
+          do: Map.put(op, :descriptive_metadata, normalized),
+          else: Map.put(op, "descriptive_metadata", normalized)
+
+      Map.put(attrs, key, updated_op)
+    else
+      _ -> attrs
     end
   end
 
@@ -1066,15 +1099,19 @@ defmodule Meadow.Data.Planner do
     prior_values = prior_values_for_change(change)
 
     Repo.transaction(fn ->
-      case apply_change_to_work(change) do
-        {:ok, _work} ->
-          Provenance.record_apply_for_plan_change(change, change.user, prior_values)
+      # Reconcile identified items against the destination work (whose row stays
+      # locked for the rest of the transaction) before both the work write and
+      # the provenance recording, so the applied jsonb and the recorded apply
+      # events agree on every item id. The stored plan-change row keeps its
+      # proposal-time ids; the provenance events carry the applied truth.
+      with {:ok, reconciled} <- reconcile_change_item_identity(change),
+           {:ok, _work} <- apply_change_to_work(reconciled) do
+        Provenance.record_apply_for_plan_change(reconciled, reconciled.user, prior_values)
 
-          mark_plan_change_completed(change)
-          |> unwrap_or_rollback()
-
-        {:error, reason} ->
-          Repo.rollback(reason)
+        mark_plan_change_completed(change)
+        |> unwrap_or_rollback()
+      else
+        {:error, reason} -> Repo.rollback(reason)
       end
     end)
     |> case do
@@ -1189,6 +1226,131 @@ defmodule Meadow.Data.Planner do
       work ->
         apply_operations_to_work(work, plan_change)
     end
+  end
+
+  # Identified repeating items (free-text ValueEntry values, notes, related
+  # URLs) are reconciled against the destination work at apply time, honoring
+  # the ItemIdentity contract at this write boundary like every other: a value
+  # the work already holds keeps its existing id (and its per-item lineage,
+  # including human attestations), genuinely new content keeps the id minted at
+  # the plan-change boundary (so proposal and applied item share one id from
+  # birth), and malformed or duplicate ids fail the apply. Plan payload ids are
+  # minted upstream rather than echoed from the work, hence reconcile_proposed/4
+  # and reconcile_appended/3 instead of the strict echo-only reconcile/3.
+  @identified_item_keys WorkDescriptiveMetadata.value_entry_fields()
+                        |> Map.new(fn field -> {field, &ItemIdentity.value_key/1} end)
+                        |> Map.merge(%{
+                          notes: &ItemIdentity.note_key/1,
+                          related_url: &ItemIdentity.related_url_key/1
+                        })
+
+  defp reconcile_change_item_identity(%PlanChange{} = change) do
+    with {:ok, add} <- reconcile_operation_items(change.work_id, change.add, :append),
+         {:ok, replace} <- reconcile_operation_items(change.work_id, change.replace, :replace) do
+      {:ok, %{change | add: add, replace: replace}}
+    end
+  end
+
+  defp reconcile_operation_items(work_id, %{} = op, mode) do
+    case Map.get(op, :descriptive_metadata) || Map.get(op, "descriptive_metadata") do
+      %{} = dm -> reconcile_operation_metadata(work_id, op, dm, mode)
+      _ -> {:ok, op}
+    end
+  end
+
+  defp reconcile_operation_items(_work_id, op, _mode), do: {:ok, op}
+
+  defp reconcile_operation_metadata(work_id, op, dm, mode) do
+    with {:ok, reconciled} <- reconcile_identified_fields(work_id, dm, mode) do
+      key =
+        if Map.has_key?(op, :descriptive_metadata),
+          do: :descriptive_metadata,
+          else: "descriptive_metadata"
+
+      {:ok, Map.put(op, key, reconciled)}
+    end
+  end
+
+  defp reconcile_identified_fields(work_id, dm, mode) do
+    case identified_fields_present(dm) do
+      [] -> {:ok, dm}
+      present -> reconcile_present_fields(work_id, dm, present, mode)
+    end
+  end
+
+  defp identified_fields_present(dm) do
+    Enum.flat_map(@identified_item_keys, fn {field, key_fun} ->
+      cond do
+        Map.has_key?(dm, field) -> [{field, field, key_fun}]
+        Map.has_key?(dm, Atom.to_string(field)) -> [{Atom.to_string(field), field, key_fun}]
+        true -> []
+      end
+    end)
+  end
+
+  defp reconcile_present_fields(work_id, dm, present, mode) do
+    current = current_descriptive_metadata!(work_id)
+    owners = identified_id_owners(current)
+
+    Enum.reduce_while(present, {:ok, dm}, fn spec, {:ok, acc} ->
+      case reconcile_field_items(acc, spec, current, owners, mode) do
+        {:ok, reconciled} -> {:cont, {:ok, reconciled}}
+        {:error, _} = error -> {:halt, error}
+      end
+    end)
+  end
+
+  defp reconcile_field_items(dm, {key, field, key_fun}, current, owners, mode) do
+    items = dm |> Map.get(key) |> List.wrap()
+    existing = current |> Map.get(Atom.to_string(field)) |> List.wrap()
+
+    # An id owned by one of the work's *other* identified fields is provably
+    # foreign to this one and must be rejected outright.
+    reject_ids =
+      owners
+      |> Enum.filter(fn {_id, owner} -> owner != field end)
+      |> MapSet.new(fn {id, _owner} -> id end)
+
+    result =
+      case mode do
+        :replace ->
+          ItemIdentity.reconcile_proposed(items, existing, key_fun, reject_ids: reject_ids)
+
+        :append ->
+          ItemIdentity.reconcile_appended(items, existing, reject_ids: reject_ids)
+      end
+
+    case result do
+      {:ok, reconciled} -> {:ok, Map.put(dm, key, reconciled)}
+      {:error, reason} -> {:error, "#{field} #{ItemIdentity.error_message(reason)}"}
+    end
+  end
+
+  defp identified_id_owners(current_metadata) do
+    @identified_item_keys
+    |> Map.keys()
+    |> Enum.flat_map(fn field ->
+      current_metadata
+      |> Map.get(Atom.to_string(field))
+      |> List.wrap()
+      |> Enum.map(&ItemIdentity.item_id/1)
+      |> Enum.reject(&is_nil/1)
+      |> Enum.map(&{&1, field})
+    end)
+    |> Map.new()
+  end
+
+  # Raw, string-keyed descriptive jsonb, locked for the rest of the apply
+  # transaction so identity resolution cannot race another writer (the same
+  # pattern as Batches.current_descriptive_metadata/1).
+  defp current_descriptive_metadata!(work_id) do
+    from(w in "works",
+      where: w.id == type(^work_id, Ecto.UUID),
+      select: w.descriptive_metadata,
+      lock: "FOR UPDATE"
+    )
+    |> Repo.one()
+    |> Kernel.||(%{})
   end
 
   defp prior_values_for_change(%PlanChange{work_id: work_id} = change) do

@@ -4,7 +4,7 @@ defmodule Meadow.Arks do
   """
 
   alias Meadow.{Ark, Config}
-  alias Meadow.Data.Schemas.{ArkCache, ControlledMetadataEntry, Work}
+  alias Meadow.Data.Schemas.{ArkCache, ControlledMetadataEntry, ValueEntry, Work}
   alias Meadow.Data.Works
   alias Meadow.Repo
 
@@ -184,6 +184,7 @@ defmodule Meadow.Arks do
   end
 
   defp scalar_value([%ControlledMetadataEntry{term: %{label: value}} | _]), do: value
+  defp scalar_value([%ValueEntry{value: value} | _]), do: value
   defp scalar_value([value | _]), do: value
   defp scalar_value(%{label: value}), do: value
   defp scalar_value([]), do: nil

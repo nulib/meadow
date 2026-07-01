@@ -4,8 +4,8 @@ defmodule Meadow.Batches do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.{Indexer, Works}
-  alias Meadow.Data.Schemas.{Batch, Work}
+  alias Meadow.Data.{Indexer, ItemIdentity, Works}
+  alias Meadow.Data.Schemas.{Batch, Work, WorkDescriptiveMetadata}
   alias Meadow.Repo
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.HTTP
@@ -13,6 +13,14 @@ defmodule Meadow.Batches do
   require Logger
 
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
+
+  # Descriptive fields whose repeating items carry a stable embed id (free-text
+  # ValueEntry values, notes, related URLs). They are updated per work: replaces
+  # reconcile against that work's field, while appends discard supplied ids and
+  # mint destination-specific ids.
+  @identified_item_fields WorkDescriptiveMetadata.value_entry_fields() ++ [:notes, :related_url]
+
+  @rehydrate_chunk_size 500
 
   @doc """
   Creates a batch.
@@ -341,6 +349,12 @@ defmodule Meadow.Batches do
       |> Map.get(:administrative_metadata, %{})
       |> Enum.into(%{})
 
+    # Identified item fields are handled per work. Replaces must reconcile
+    # echoed ids against that work's current field; appends discard any
+    # client-supplied ids and mint distinct ids for each destination work.
+    {identified_values, mergeable_descriptive_metadata} =
+      Map.split(mergeable_descriptive_metadata, @identified_item_fields)
+
     if map_size(mergeable_descriptive_metadata) + map_size(mergeable_administrative_metadata) > 0 do
       from(w in Work, where: w.id in ^work_ids)
       |> Works.merge_metadata_values(:descriptive_metadata, mergeable_descriptive_metadata, mode)
@@ -353,8 +367,75 @@ defmodule Meadow.Batches do
       |> Repo.update_all([])
     end
 
+    merge_identified_fields(work_ids, identified_values, mode)
+
     work_ids
   end
+
+  # Merge identified fields per work. This intentionally gives up the set-based
+  # update for these fields: a new item is an entity and therefore gets a unique
+  # id per work, while an echoed id is valid only in the work/field that owns it.
+  defp merge_identified_fields(_work_ids, identified, _mode) when map_size(identified) == 0,
+    do: :ok
+
+  defp merge_identified_fields(work_ids, identified, mode) do
+    work_ids
+    |> Enum.chunk_every(@rehydrate_chunk_size)
+    |> Enum.each(fn chunk ->
+      Repo.transaction(fn -> merge_identified_chunk(chunk, identified, mode) end)
+    end)
+  end
+
+  defp merge_identified_chunk(chunk, identified, mode) do
+    chunk
+    |> current_descriptive_metadata()
+    |> Enum.each(fn {id, metadata} ->
+      values = prepare_identified_values(identified, metadata, mode)
+
+      from(w in Work, where: w.id == ^id)
+      |> Works.merge_metadata_values(:descriptive_metadata, values, mode)
+      |> Works.merge_updated_at()
+      |> Repo.update_all([])
+    end)
+  end
+
+  # Raw, string-keyed descriptive-metadata jsonb (no embed loading, so no
+  # controlled-term resolution). The chunk is locked until all of its identified
+  # updates finish, so validation and id minting cannot race another writer.
+  defp current_descriptive_metadata(work_ids) do
+    from(w in "works",
+      where: w.id in type(^work_ids, {:array, Ecto.UUID}),
+      select: {type(w.id, Ecto.UUID), w.descriptive_metadata},
+      lock: "FOR UPDATE"
+    )
+    |> Repo.all()
+  end
+
+  defp prepare_identified_values(identified, _current_metadata, :append) do
+    identified
+    |> Map.new(fn {field, items} -> {field, ItemIdentity.strip_ids(List.wrap(items))} end)
+    |> WorkDescriptiveMetadata.jsonb_value_entries()
+  end
+
+  defp prepare_identified_values(identified, current_metadata, :replace) do
+    identified
+    |> Map.new(fn {field, items} ->
+      current = current_metadata |> Map.get(Atom.to_string(field)) |> List.wrap()
+
+      case ItemIdentity.reconcile(List.wrap(items), current, item_key_fun(field)) do
+        {:ok, reconciled} ->
+          {field, reconciled}
+
+        {:error, reason} ->
+          raise ArgumentError, "#{field} #{ItemIdentity.error_message(reason)}"
+      end
+    end)
+    |> WorkDescriptiveMetadata.jsonb_value_entries()
+  end
+
+  defp item_key_fun(:notes), do: &ItemIdentity.note_key/1
+  defp item_key_fun(:related_url), do: &ItemIdentity.related_url_key/1
+  defp item_key_fun(_field), do: &ItemIdentity.value_key/1
 
   defp humanize_date_created(%{date_created: date_created} = descriptive_metadata) do
     new_dates =

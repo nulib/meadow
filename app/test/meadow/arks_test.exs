@@ -119,4 +119,22 @@ defmodule Meadow.ArksTest do
       assert {:ok, %Ark{status: "unavailable | restricted"}} = Arks.existing_ark(work)
     end
   end
+
+  describe "identified free-text metadata" do
+    test "ark_attributes/2 flattens a ValueEntry publisher to its plain string value" do
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{title: "Test", publisher: ["Test Publisher", "Another"]}
+        })
+
+      assert Arks.ark_attributes(work, [])[:publisher] == "Test Publisher"
+    end
+
+    test "mint_ark/1 succeeds for a work with a publisher value" do
+      work = work_fixture(%{descriptive_metadata: %{title: "Test", publisher: ["Test Publisher"]}})
+
+      assert {:ok, %Work{ark: ark}} = Arks.mint_ark(work)
+      assert is_binary(ark)
+    end
+  end
 end

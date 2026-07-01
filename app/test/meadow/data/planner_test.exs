@@ -1237,6 +1237,133 @@ defmodule Meadow.Data.PlannerTest do
     end
   end
 
+  describe "apply_plan_change/1 item identity" do
+    # The apply boundary honors the ItemIdentity contract like every other
+    # write path: a re-proposed unchanged value keeps the work item's existing
+    # id (and its per-item lineage), genuinely new content keeps the id minted
+    # at the plan-change boundary, and ids provably foreign to the field fail
+    # the apply instead of being written.
+
+    test "replace keeps an unchanged value's existing id and a new value's minted id", %{
+      plan: plan
+    } do
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{title: "T", description: ["Keep me", "Replace me"]}
+        })
+
+      [keep, replaced] = work.descriptive_metadata.description
+
+      # Mint ids at the plan-change boundary, exactly as update_plan_change does.
+      ops =
+        Planner.normalize_value_entry_operations(%{
+          replace: %{descriptive_metadata: %{description: ["Keep me", "Fresh AI text"]}}
+        })
+
+      [%{"id" => _minted_kept}, %{"id" => minted_new}] =
+        ops.replace.descriptive_metadata.description
+
+      {:ok, change} =
+        Planner.create_plan_change(
+          Map.merge(%{plan_id: plan.id, work_id: work.id, status: :approved}, ops)
+        )
+
+      assert {:ok, %PlanChange{status: :completed}} = Planner.apply_plan_change(change)
+
+      [kept_item, new_item] =
+        Repo.get!(Meadow.Data.Schemas.Work, work.id).descriptive_metadata.description
+
+      assert kept_item.value == "Keep me"
+      assert kept_item.id == keep.id
+
+      assert new_item.value == "Fresh AI text"
+      assert new_item.id == minted_new
+      refute new_item.id == replaced.id
+    end
+
+    test "add keeps the minted id for appended items", %{plan: plan} do
+      work = work_fixture(%{descriptive_metadata: %{title: "T", description: ["Existing"]}})
+      [existing] = work.descriptive_metadata.description
+
+      ops =
+        Planner.normalize_value_entry_operations(%{
+          add: %{descriptive_metadata: %{description: ["Appended by AI"]}}
+        })
+
+      [%{"id" => minted}] = ops.add.descriptive_metadata.description
+
+      {:ok, change} =
+        Planner.create_plan_change(
+          Map.merge(%{plan_id: plan.id, work_id: work.id, status: :approved}, ops)
+        )
+
+      assert {:ok, %PlanChange{status: :completed}} = Planner.apply_plan_change(change)
+
+      [existing_item, appended] =
+        Repo.get!(Meadow.Data.Schemas.Work, work.id).descriptive_metadata.description
+
+      assert existing_item.id == existing.id
+      assert appended.value == "Appended by AI"
+      assert appended.id == minted
+    end
+
+    test "rejects an item id owned by another field of the work", %{plan: plan} do
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{title: "T", description: ["Mine"], abstract: ["Abs"]}
+        })
+
+      [abstract_item] = work.descriptive_metadata.abstract
+
+      {:ok, change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          status: :approved,
+          replace: %{
+            descriptive_metadata: %{
+              description: [%{id: abstract_item.id, value: "Hijack"}]
+            }
+          }
+        })
+
+      assert {:ok, %PlanChange{status: :error, error: error}} =
+               Planner.apply_plan_change(change)
+
+      assert error =~ "does not belong to this field"
+
+      # The work is untouched.
+      reloaded = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+      assert [%{value: "Mine"}] = reloaded.descriptive_metadata.description
+      assert [%{value: "Abs"}] = reloaded.descriptive_metadata.abstract
+    end
+
+    test "rejects a duplicate item id within a replace", %{plan: plan} do
+      work = work_fixture(%{descriptive_metadata: %{title: "T", description: ["Mine"]}})
+      dup = Ecto.UUID.generate()
+
+      {:ok, change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          status: :approved,
+          replace: %{
+            descriptive_metadata: %{
+              description: [%{id: dup, value: "One"}, %{id: dup, value: "Two"}]
+            }
+          }
+        })
+
+      assert {:ok, %PlanChange{status: :error, error: error}} =
+               Planner.apply_plan_change(change)
+
+      assert error =~ "more than once"
+
+      assert [%{value: "Mine"}] =
+               Repo.get!(Meadow.Data.Schemas.Work, work.id).descriptive_metadata.description
+    end
+  end
+
   defp plan_change_with_provenance(plan, work) do
     {:ok, activity} =
       Provenance.create_activity(%{

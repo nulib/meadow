@@ -79,3 +79,34 @@ describe("InputMultiple component", () => {
     expect(screen.queryByDisplayValue("bbb")).toBeNull();
   });
 });
+
+describe("Stable item identity", () => {
+  it("preserves an existing item's id through an in-place edit", () => {
+    const { reactHookFormMethods } = renderWithReactHookForm(
+      <UIFormFieldArray {...props} />,
+      {
+        defaultValues: {
+          imaMulti: [{ metadataItem: "Original", id: "stable-item-id" }],
+        },
+        toPassBack: ["getValues"],
+      },
+    );
+
+    // The id rides along as an explicit hidden input, like Note/RelatedURL.
+    expect(screen.getByTestId("input-field-array-id").value).toEqual(
+      "stable-item-id",
+    );
+
+    // Edit the value in place: identity must survive the edit.
+    fireEvent.input(screen.getByTestId("input-field-array"), {
+      target: { value: "Edited" },
+    });
+
+    // Add a brand-new row: it must carry no id (the backend mints one).
+    fireEvent.click(screen.getByTestId("button-add-field-array-row"));
+
+    const [edited, added] = reactHookFormMethods.getValues(name);
+    expect(edited).toEqual({ metadataItem: "Edited", id: "stable-item-id" });
+    expect(added.id).toBeUndefined();
+  });
+});

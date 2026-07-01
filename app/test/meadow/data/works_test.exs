@@ -112,23 +112,25 @@ defmodule Meadow.Data.WorksTest do
 
   describe "query works by terms" do
     setup do
-      work1 = work_fixture(%{
-        descriptive_metadata: %{
-          title: "Work #1",
-          contributor: [%{term: "mock1:result1", role: %{id: "aut", scheme: "marc_relator"}}],
-          subject: [%{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}],
-          genre: [%{term: "mock2:result3"}]
-        }
-      })
+      work1 =
+        work_fixture(%{
+          descriptive_metadata: %{
+            title: "Work #1",
+            contributor: [%{term: "mock1:result1", role: %{id: "aut", scheme: "marc_relator"}}],
+            subject: [%{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}],
+            genre: [%{term: "mock2:result3"}]
+          }
+        })
 
-      work2 = work_fixture(%{
-        descriptive_metadata: %{
-          title: "Work #2",
-          creator: [%{term: "mock1:result1"}],
-          subject: [%{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}],
-          genre: [%{term: "mock2:result3"}]
-        }
-      })
+      work2 =
+        work_fixture(%{
+          descriptive_metadata: %{
+            title: "Work #2",
+            creator: [%{term: "mock1:result1"}],
+            subject: [%{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}],
+            genre: [%{term: "mock2:result3"}]
+          }
+        })
 
       work3 = work_fixture(%{descriptive_metadata: %{title: "Work #3"}})
       {:ok, %{works: [work1, work2, work3]}}
@@ -530,6 +532,247 @@ defmodule Meadow.Data.WorksTest do
 
         assert value.label.label == "Finding Aid"
       end
+    end
+  end
+
+  describe "stable multivalued item identity" do
+    @valid %{
+      accession_number: "12345",
+      descriptive_metadata: %{title: "Test"},
+      work_type: %{id: "IMAGE", scheme: "work_type"}
+    }
+
+    test "create_work/1 mints a stable id for each free-text and note item" do
+      attrs =
+        Map.put(@valid, :descriptive_metadata, %{
+          description: ["A description"],
+          notes: [%{note: "A note", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}]
+        })
+
+      assert {:ok, %Work{} = work} = Works.create_work(attrs)
+
+      # Free-text entries and notes carry a minted embed id; controlled entries are
+      # identified by their term id instead.
+      assert {:ok, _} = Ecto.UUID.cast(List.first(work.descriptive_metadata.description).id)
+      assert {:ok, _} = Ecto.UUID.cast(List.first(work.descriptive_metadata.notes).id)
+    end
+
+    test "update_work/2 preserves an item's id across an in-place edit and mints for new items" do
+      {:ok, work} =
+        Works.create_work(
+          Map.put(@valid, :descriptive_metadata, %{
+            notes: [%{note: "Original", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}]
+          })
+        )
+
+      original = List.first(work.descriptive_metadata.notes)
+      assert {:ok, _} = Ecto.UUID.cast(original.id)
+
+      # Echo the existing item back with its id (an in-place edit) plus a brand-new item.
+      {:ok, updated} =
+        Works.update_work(work, %{
+          descriptive_metadata: %{
+            notes: [
+              %{
+                id: original.id,
+                note: "Edited",
+                type: %{id: "GENERAL_NOTE", scheme: "note_type"}
+              },
+              %{note: "Added", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}
+            ]
+          }
+        })
+
+      [edited, added] = updated.descriptive_metadata.notes
+
+      # Identity survives the edit; the value changed in place.
+      assert edited.id == original.id
+      assert edited.note == "Edited"
+
+      # The new item got its own fresh id.
+      assert {:ok, _} = Ecto.UUID.cast(added.id)
+      assert added.id != original.id
+    end
+
+    test "update_work/2 preserves free-text ids when `{id, value}` entries are echoed back" do
+      {:ok, work} =
+        Works.create_work(
+          Map.put(@valid, :descriptive_metadata, %{description: ["First", "Second"]})
+        )
+
+      original_ids = Enum.map(work.descriptive_metadata.description, & &1.id)
+
+      {:ok, updated} =
+        Works.update_work(work, %{
+          descriptive_metadata: %{
+            description:
+              Enum.map(work.descriptive_metadata.description, &%{id: &1.id, value: &1.value})
+          }
+        })
+
+      assert Enum.map(updated.descriptive_metadata.description, & &1.id) == original_ids
+    end
+
+    test "update_work/2 preserves free-text ids when the same bare strings are re-sent" do
+      # Id-less callers (CSV-derived updates, older clients) re-send plain strings;
+      # an unchanged value must keep its identity or every such save silently
+      # severs per-item provenance.
+      {:ok, work} =
+        Works.create_work(
+          Map.put(@valid, :descriptive_metadata, %{description: ["First", "Second"]})
+        )
+
+      original_ids = Enum.map(work.descriptive_metadata.description, & &1.id)
+
+      {:ok, updated} =
+        Works.update_work(work, %{descriptive_metadata: %{description: ["First", "Second"]}})
+
+      assert Enum.map(updated.descriptive_metadata.description, & &1.id) == original_ids
+    end
+
+    test "update_work/2 with bare strings keeps unchanged values' ids and mints for changed ones" do
+      {:ok, work} =
+        Works.create_work(
+          Map.put(@valid, :descriptive_metadata, %{description: ["Keep me", "Change me"]})
+        )
+
+      [keep_id, change_id] = Enum.map(work.descriptive_metadata.description, & &1.id)
+
+      {:ok, updated} =
+        Works.update_work(work, %{descriptive_metadata: %{description: ["Keep me", "Changed"]}})
+
+      [kept, changed] = updated.descriptive_metadata.description
+
+      # Same value, same identity — even reordered or re-sent without an id.
+      assert kept.id == keep_id
+
+      # A changed value without an echoed id is a new identity, never a positional
+      # guess pairing it to the dropped one.
+      assert changed.value == "Changed"
+      assert {:ok, _} = Ecto.UUID.cast(changed.id)
+      assert changed.id != change_id
+    end
+
+    test "update_work/2 pairs duplicate bare-string values to distinct existing ids" do
+      {:ok, work} =
+        Works.create_work(Map.put(@valid, :descriptive_metadata, %{keywords: ["dup", "dup"]}))
+
+      original_ids = Enum.map(work.descriptive_metadata.keywords, & &1.id)
+      assert [_, _] = Enum.uniq(original_ids)
+
+      {:ok, updated} =
+        Works.update_work(work, %{descriptive_metadata: %{keywords: ["dup", "dup"]}})
+
+      assert Enum.map(updated.descriptive_metadata.keywords, & &1.id) == original_ids
+    end
+
+    test "update_work/2 rejects an item id copied from another work" do
+      {:ok, source} =
+        Works.create_work(
+          Map.put(@valid, :descriptive_metadata, %{title: "Source", description: ["Source value"]})
+        )
+
+      {:ok, destination} =
+        Works.create_work(
+          @valid
+          |> Map.put(:accession_number, "destination")
+          |> Map.put(:descriptive_metadata, %{
+            title: "Destination",
+            description: ["Destination value"]
+          })
+        )
+
+      [source_item] = source.descriptive_metadata.description
+
+      assert {:error, %Ecto.Changeset{valid?: false}} =
+               Works.update_work(destination, %{
+                 descriptive_metadata: %{
+                   description: [%{id: source_item.id, value: "Copied across works"}]
+                 }
+               })
+
+      assert [%{value: "Destination value"}] =
+               Works.get_work!(destination.id).descriptive_metadata.description
+    end
+
+    test "update_work/2 rejects the same item id twice in one field" do
+      {:ok, work} =
+        Works.create_work(Map.put(@valid, :descriptive_metadata, %{description: ["One", "Two"]}))
+
+      [item | _] = work.descriptive_metadata.description
+
+      assert {:error, %Ecto.Changeset{valid?: false}} =
+               Works.update_work(work, %{
+                 descriptive_metadata: %{
+                   description: [
+                     %{id: item.id, value: "First use"},
+                     %{id: item.id, value: "Second use"}
+                   ]
+                 }
+               })
+    end
+
+    test "create_work/1 rejects a client-supplied item id" do
+      supplied_id = Ecto.UUID.generate()
+
+      assert {:error, %Ecto.Changeset{valid?: false}} =
+               Works.create_work(
+                 Map.put(@valid, :descriptive_metadata, %{
+                   description: [%{id: supplied_id, value: "Client-assigned"}]
+                 })
+               )
+    end
+
+    test "update_work/2 preserves note and related URL ids when unchanged items are re-sent id-less" do
+      {:ok, work} =
+        Works.create_work(
+          Map.put(@valid, :descriptive_metadata, %{
+            notes: [%{note: "A note", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}],
+            related_url: [
+              %{
+                url: "https://example.org",
+                label: %{id: "RELATED_INFORMATION", scheme: "related_url"}
+              }
+            ]
+          })
+        )
+
+      [note] = work.descriptive_metadata.notes
+      [url] = work.descriptive_metadata.related_url
+
+      # An id-less caller (CSV-derived update, older client) re-sends the same
+      # items: unchanged content keeps its identity.
+      {:ok, updated} =
+        Works.update_work(work, %{
+          descriptive_metadata: %{
+            notes: [%{note: "A note", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}],
+            related_url: [
+              %{
+                url: "https://example.org",
+                label: %{id: "RELATED_INFORMATION", scheme: "related_url"}
+              }
+            ]
+          }
+        })
+
+      assert [%{id: note_id}] = updated.descriptive_metadata.notes
+      assert [%{id: url_id}] = updated.descriptive_metadata.related_url
+      assert note_id == note.id
+      assert url_id == url.id
+    end
+
+    test "update_work/2 leaves ids untouched when the field is absent from the params" do
+      {:ok, work} =
+        Works.create_work(
+          Map.put(@valid, :descriptive_metadata, %{description: ["First", "Second"]})
+        )
+
+      original_ids = Enum.map(work.descriptive_metadata.description, & &1.id)
+
+      {:ok, updated} =
+        Works.update_work(work, %{descriptive_metadata: %{title: "New title"}})
+
+      assert Enum.map(updated.descriptive_metadata.description, & &1.id) == original_ids
     end
   end
 
