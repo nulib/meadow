@@ -129,6 +129,30 @@ defmodule MeadowWeb.Schema.Mutation.AttestHumanAuthoredMetadataTest do
     assert [%{message: "Could not attest human-authored metadata"}] = result.errors
   end
 
+  test "rolls back a partially-successful attestation so nothing persists" do
+    work = work_with_ai_title()
+
+    {:ok, result} =
+      query_gql(
+        variables: %{
+          "work_id" => work.id,
+          # The first field is valid (AI title) and is attested during the reduce;
+          # the second has no AI provenance and fails the whole call.
+          "field_paths" => ["descriptive_metadata.title", "descriptive_metadata.description"]
+        },
+        context: gql_context(%{role: :editor})
+      )
+
+    assert [%{message: "Could not attest human-authored metadata"}] = result.errors
+
+    # The valid field's attestation was rolled back with the failed one: an
+    # AI-touched value must not be recorded as human-attested unless the whole
+    # operation succeeds. Without the wrapping transaction the title would already
+    # read `human_attested_after_ai` here.
+    title = Provenance.work_summary_map(work.id)["descriptive_metadata.title"]
+    assert title.origin == "ai_generated"
+  end
+
   test "viewers are not authorized" do
     work = work_with_ai_title()
 

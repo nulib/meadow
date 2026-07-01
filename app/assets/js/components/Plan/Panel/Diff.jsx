@@ -211,7 +211,7 @@ const renderGenericValue = (value, itemProvenance = []) => {
         {value.map((v, i) => (
           <li key={i}>
             {typeof v === "object" && v !== null
-              ? v.humanized || v.edtf || JSON.stringify(v, null, 0)
+              ? (v.value ?? v.humanized ?? v.edtf ?? JSON.stringify(v, null, 0))
               : String(v)}
             <ItemOriginBadge origin={originById[provenanceItemId(v)]} />
           </li>

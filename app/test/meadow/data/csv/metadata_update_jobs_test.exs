@@ -3,10 +3,13 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   use Meadow.CSVMetadataUpdateCase
   use Meadow.IndexCase
   use Meadow.GeoNamesCase
-  alias Meadow.Data.{CSV.MetadataUpdateJobs, Works}
-  alias Meadow.Data.Schemas.{CSV.MetadataUpdateJob, Work}
+  alias Meadow.Data.{CSV.Export, CSV.MetadataUpdateJobs, Indexer, Works}
+  alias Meadow.Data.Schemas.{CSV.MetadataUpdateJob, ValueEntry, Work}
   alias Meadow.Repo
   alias Meadow.Search.Document
+  alias NimbleCSV.RFC4180, as: CSV
+
+  import Meadow.Data.CSV.Utils, only: [combine_multivalued_field: 1, split_multivalued_field: 1]
 
   setup %{source_url: source_url} do
     with filename <- Path.basename(source_url) do
@@ -139,6 +142,78 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
           assert result.active == active
         end
       end)
+    end
+  end
+
+  describe "item identity across metadata updates" do
+    @describetag source: "test/fixtures/csv/sheets/valid.csv"
+
+    # Provenance attaches to each item's stable id, so a CSV metadata update
+    # must never remint the id of an item it did not change.
+
+    test "re-applying identical metadata is a no-op for item identity", %{
+      create_result: {:ok, job},
+      works: works,
+      source_url: source_url
+    } do
+      assert {:ok, _job} = MetadataUpdateJobs.apply_job(job)
+
+      work = works |> Enum.at(31) |> Map.get(:id) |> Works.get_work()
+      original = item_ids(work)
+
+      # Same file, second job: every cell re-sends the same id-less values
+      # (free text, notes, related URLs). Each item's content is unchanged, so
+      # each keeps its id by exact-match rehydration.
+      {:ok, second_job} =
+        MetadataUpdateJobs.create_job(%{
+          filename: Path.basename(source_url),
+          source: source_url,
+          user: "validUser"
+        })
+
+      assert {:ok, _job} = MetadataUpdateJobs.apply_job(second_job)
+
+      reapplied = Works.get_work(work.id)
+      assert item_ids(reapplied) == original
+
+      assert ValueEntry.values(reapplied.descriptive_metadata.description) ==
+               ValueEntry.values(work.descriptive_metadata.description)
+    end
+
+    test "an exported, edited, and re-imported value keeps its id", %{
+      create_result: {:ok, job},
+      works: works
+    } do
+      assert {:ok, _job} = MetadataUpdateJobs.apply_job(job)
+
+      work = works |> Enum.at(31) |> Map.get(:id) |> Works.get_work()
+      [first_entry | rest] = work.descriptive_metadata.description
+      Indexer.synchronize_index()
+
+      # Export the work, edit the first description in place (its exported
+      # `id:value` prefix intact), and apply the result as a new update job.
+      edited_value = first_entry.value <> " (edited)"
+
+      content =
+        %{query: %{ids: %{values: [work.id]}}}
+        |> Export.generate_csv()
+        |> replace_cell("description", fn cell ->
+          [_first | others] = split_multivalued_field(cell)
+
+          ["#{first_entry.id}:#{edited_value}" | others]
+          |> combine_multivalued_field()
+        end)
+
+      assert {:ok, edit_job} = create_job_with_content(content, "roundtrip.csv")
+      assert {:ok, _job} = MetadataUpdateJobs.apply_job(edit_job)
+
+      [edited | unchanged] = Works.get_work(work.id).descriptive_metadata.description
+
+      # The edited item kept its identity with its new value; the untouched
+      # items kept theirs exactly.
+      assert edited.id == first_entry.id
+      assert edited.value == edited_value
+      assert Enum.map(unchanged, &{&1.id, &1.value}) == Enum.map(rest, &{&1.id, &1.value})
     end
   end
 
@@ -275,5 +350,45 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                %{errors: %{"accession_number" => ~s'"MISMATCHED_ACCESSION" does not match'}, row: 37}
              ]
     end
+  end
+
+  # The stable ids of every identified item on the work, by kind.
+  defp item_ids(work) do
+    %{
+      description: Enum.map(work.descriptive_metadata.description, & &1.id),
+      keywords: Enum.map(work.descriptive_metadata.keywords, & &1.id),
+      notes: Enum.map(work.descriptive_metadata.notes, & &1.id),
+      related_url: Enum.map(work.descriptive_metadata.related_url, & &1.id)
+    }
+  end
+
+  # Rewrite one column's cell in every data row of an exported CSV (row 0 is
+  # the query row, row 1 the header).
+  defp replace_cell(exported_csv, column, fun) do
+    [query_row, header | data] = CSV.parse_string(exported_csv, skip_headers: false)
+    index = Enum.find_index(header, &(&1 == column))
+
+    data = Enum.map(data, &List.update_at(&1, index, fun))
+
+    [query_row, header | data]
+    |> CSV.dump_to_iodata()
+    |> IO.iodata_to_binary()
+  end
+
+  defp create_job_with_content(content, filename) do
+    key = "csv_metadata/#{filename}"
+
+    ExAws.S3.put_object(@upload_bucket, key, content)
+    |> ExAws.request!()
+
+    on_exit(fn ->
+      ExAws.S3.delete_object(@upload_bucket, key) |> ExAws.request()
+    end)
+
+    MetadataUpdateJobs.create_job(%{
+      filename: filename,
+      source: "s3://#{@upload_bucket}/#{key}",
+      user: "validUser"
+    })
   end
 end

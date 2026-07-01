@@ -38,7 +38,7 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadataTest do
       assert {:reply, _response, _frame} = ApplyWorkMetadata.execute(args, frame)
 
       fresh = Meadow.Data.Works.get_work!(work.id)
-      assert fresh.descriptive_metadata.description == ["A test description."]
+      assert Enum.map(fresh.descriptive_metadata.description, & &1.value) == ["A test description."]
 
       assert [%{note: note_text, type: %{id: "LOCAL_NOTE"}}] = fresh.descriptive_metadata.notes
       assert note_text =~ "Some metadata created with the assistance of AI"

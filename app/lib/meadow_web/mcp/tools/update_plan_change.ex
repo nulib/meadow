@@ -110,6 +110,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
       Repo.transaction(fn ->
         with {:ok, change} <- fetch_plan_change(id),
              {:ok, attrs} <- build_attrs_result(request, change),
+             attrs <- Planner.normalize_value_entry_operations(attrs),
              {:ok, attrs} <- maybe_create_ai_activity(change, attrs),
              {:ok, updated_change} <- Planner.update_plan_change(change, attrs) do
           updated_change = Repo.preload(updated_change, :plan)
@@ -292,7 +293,13 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
           "#{@ai_note_prefix} (#{model_id}) on #{current_date}"
       end
 
-    %{note: note_text, type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}}
+    # Mint the note's id here: this note is injected after value-entry
+    # normalization, so it would otherwise reach the work without a primary key.
+    %{
+      id: Ecto.UUID.generate(),
+      note: note_text,
+      type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
+    }
   end
 
   defp inject_ai_note(attrs, _model, _change) when not is_map(attrs), do: attrs
@@ -464,8 +471,11 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
         :ok
 
       metadata when is_map(metadata) ->
-        with :ok <- validate_metadata_changeset(metadata, operation) do
-          validate_metadata_fields(metadata, operation)
+        # Field-level checks first, so a targeted, actionable message (e.g. a
+        # controlled-term value on a free-text field) wins over the generic
+        # changeset error.
+        with :ok <- validate_metadata_fields(metadata, operation) do
+          validate_metadata_changeset(metadata, operation)
         end
 
       _ ->
@@ -628,10 +638,50 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
       date_field?(field) ->
         validate_date_field_values(value, path)
 
+      value_entry_field?(field) ->
+        validate_value_entry_field(value, path)
+
       true ->
         :ok
     end
   end
+
+  # Repeating free-text fields take plain strings (or `{value: string}`). A
+  # controlled-term (`{term: {id}}`) value is a common agent mistake — reject it
+  # with an actionable message instead of letting a malformed value through.
+  defp validate_value_entry_field(values, path) when is_list(values) do
+    values
+    |> Enum.with_index()
+    |> Enum.reduce_while(:ok, fn {entry, index}, :ok ->
+      case validate_value_entry_item(entry, "#{path}[#{index}]") do
+        :ok -> {:cont, :ok}
+        {:error, _} = error -> {:halt, error}
+      end
+    end)
+  end
+
+  defp validate_value_entry_field(_values, path),
+    do: {:error, "'#{path}' must be an array of free-text string values"}
+
+  defp validate_value_entry_item(value, _path) when is_binary(value), do: :ok
+
+  defp validate_value_entry_item(entry, path) when is_map(entry) do
+    cond do
+      Map.has_key?(entry, :term) or Map.has_key?(entry, "term") ->
+        {:error,
+         "'#{path}' is a free-text field and does not take controlled-term ({term: {id: ...}}) " <>
+           "values; use a plain string with the replace operation, e.g. [\"Some value\"]"}
+
+      is_binary(map_value(entry, :value)) ->
+        :ok
+
+      true ->
+        {:error, "'#{path}' must be a plain string or {value: string}"}
+    end
+  end
+
+  defp validate_value_entry_item(_value, path),
+    do: {:error, "'#{path}' must be a plain string"}
 
   defp validate_plain_string_field(value, path) when is_binary(value) do
     if json_blob_string?(value) do
@@ -1098,7 +1148,16 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   defp editable_descriptive_schema_fields, do: WorkDescriptiveMetadata.permitted()
   defp editable_descriptive_embed_fields, do: WorkDescriptiveMetadata.__schema__(:embeds)
 
-  defp controlled_fields, do: editable_descriptive_embed_fields() -- nested_coded_fields()
+  # `--` is right-associative, so the subtractions MUST be parenthesized: without
+  # them this reads as `embeds -- (nested_coded -- value_entry)`, which leaves every
+  # value_entry field mislabeled as controlled — making `replace` on them invalid,
+  # `delete` valid, and their shape unchecked (term-shaped values slip through).
+  defp controlled_fields,
+    do: (editable_descriptive_embed_fields() -- nested_coded_fields()) -- value_entry_fields()
+
+  # Repeating free-text fields are stored as identified ValueEntry embeds. They are
+  # multivalue plain-text (validated by the catch-all), not controlled-term embeds.
+  defp value_entry_fields, do: WorkDescriptiveMetadata.value_entry_fields()
 
   defp coded_fields do
     editable_descriptive_schema_fields()
@@ -1134,6 +1193,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   defp replace_only_field?(field), do: field in replace_only_fields()
   defp single_value_string_field?(field), do: field in single_value_string_fields()
   defp nested_coded_field?(field), do: field in nested_coded_fields()
+  defp value_entry_field?(field), do: field in value_entry_fields()
   defp date_field?(field), do: field in date_fields()
   defp role_required_field?(field), do: field in role_required_fields()
   defp role_optional_field?(field), do: field in role_optional_fields()

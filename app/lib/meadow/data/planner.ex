@@ -57,7 +57,7 @@ defmodule Meadow.Data.Planner do
   import Ecto.Query, warn: false
   alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment}
-  alias Meadow.Data.Schemas.{Plan, PlanChange}
+  alias Meadow.Data.Schemas.{Plan, PlanChange, WorkDescriptiveMetadata}
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
   alias Meadow.Repo
@@ -692,7 +692,7 @@ defmodule Meadow.Data.Planner do
   def update_plan_change(%PlanChange{} = change, attrs) do
     attrs =
       if Enum.any?([:add, :delete, :replace], &Map.has_key?(attrs, &1)) do
-        Enrichment.enrich_controlled_terms(attrs)
+        attrs |> Enrichment.enrich_controlled_terms() |> normalize_value_entry_operations()
       else
         attrs
       end
@@ -711,6 +711,38 @@ defmodule Meadow.Data.Planner do
           |> Enum.map_join(", ", fn {_field, error} -> error end)
 
         {:error, error_message}
+    end
+  end
+
+  @doc """
+  Mint a stable id for each proposed free-text value in a plan change's `add`/
+  `replace` operations, so the id is assigned once at the plan-change boundary and
+  flows through any reviewer edit and the applied work item. Idempotent (an
+  existing id is preserved) and caller-agnostic — the AI planner, the GraphQL
+  reviewer-edit path, and any future caller all get consistent identity. `delete`
+  operations reference existing values and are left untouched.
+  """
+  def normalize_value_entry_operations(attrs) when is_map(attrs) do
+    attrs
+    |> normalize_value_entry_op(:add)
+    |> normalize_value_entry_op(:replace)
+  end
+
+  def normalize_value_entry_operations(attrs), do: attrs
+
+  defp normalize_value_entry_op(attrs, key) do
+    with %{} = op <- Map.get(attrs, key),
+         %{} = dm <- Map.get(op, :descriptive_metadata) || Map.get(op, "descriptive_metadata") do
+      normalized = WorkDescriptiveMetadata.jsonb_value_entries(dm)
+
+      updated_op =
+        if Map.has_key?(op, :descriptive_metadata),
+          do: Map.put(op, :descriptive_metadata, normalized),
+          else: Map.put(op, "descriptive_metadata", normalized)
+
+      Map.put(attrs, key, updated_op)
+    else
+      _ -> attrs
     end
   end
 
@@ -1422,6 +1454,7 @@ defmodule Meadow.Data.Planner do
   end
 
   defp metadata_section(_map, _key), do: %{}
+
 
   defp humanize_date_created(descriptive_metadata) do
     case Map.fetch(descriptive_metadata, :date_created) do

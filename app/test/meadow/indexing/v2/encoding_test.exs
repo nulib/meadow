@@ -162,7 +162,10 @@ defmodule Meadow.Indexing.V2.EncodingTest do
       Indexer.synchronize_index()
       doc = subject |> Document.encode(2)
       assert doc |> get_in([:title]) == subject.descriptive_metadata.title
-      assert doc |> get_in([:alternate_title]) == subject.descriptive_metadata.alternate_title
+      # Repeating free-text fields are stored as identified ValueEntry embeds but
+      # flattened back to plain strings in the index document.
+      assert doc |> get_in([:alternate_title]) ==
+               Enum.map(subject.descriptive_metadata.alternate_title, & &1.value)
       assert doc |> get_in([:collection, :title]) == subject.collection.title
 
       creators =

@@ -4,73 +4,73 @@ defmodule Meadow.Indexing.V2.Work do
   """
 
   alias Meadow.Data.FileSets
-  alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
+  alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry, ValueEntry}
   alias Meadow.AI.Provenance
   alias Meadow.Search.Config
 
   def encode(work) do
     %{
-      abstract: work.descriptive_metadata.abstract,
+      abstract: values(work.descriptive_metadata.abstract),
       accession_number: work.accession_number,
-      alternate_title: work.descriptive_metadata.alternate_title,
+      alternate_title: values(work.descriptive_metadata.alternate_title),
       api_link: Path.join([api_url(), "works", work.id]),
       api_model: "Work",
       ark: work.ark,
       batch_ids: work.batches |> Enum.map(& &1.id),
       behavior: encode_label(work.behavior),
-      box_name: work.descriptive_metadata.box_name,
-      box_number: work.descriptive_metadata.box_number,
+      box_name: values(work.descriptive_metadata.box_name),
+      box_number: values(work.descriptive_metadata.box_number),
       canonical_link: Path.join([dc_url(), "items", work.id]),
-      caption: work.descriptive_metadata.caption,
-      catalog_key: work.descriptive_metadata.catalog_key,
+      caption: values(work.descriptive_metadata.caption),
+      catalog_key: values(work.descriptive_metadata.catalog_key),
       collection: collection(work.collection),
       contributor: encode_field(work.descriptive_metadata.contributor),
       create_date: work.inserted_at,
       creator: encode_field(work.descriptive_metadata.creator),
       csv_metadata_update_jobs: work.metadata_update_jobs |> Enum.map(& &1.id),
-      cultural_context: work.descriptive_metadata.cultural_context,
+      cultural_context: values(work.descriptive_metadata.cultural_context),
       date_created_edtf: encode_edtf(work.descriptive_metadata.date_created),
       date_created: encode_field(work.descriptive_metadata.date_created),
-      description: work.descriptive_metadata.description,
+      description: values(work.descriptive_metadata.description),
       file_sets: file_sets(work),
-      folder_name: work.descriptive_metadata.folder_name,
-      folder_number: work.descriptive_metadata.folder_number,
+      folder_name: values(work.descriptive_metadata.folder_name),
+      folder_number: values(work.descriptive_metadata.folder_number),
       genre: encode_field(work.descriptive_metadata.genre),
       id: work.id,
       ai_provenance: Provenance.work_summary_map(work.id),
-      identifier: work.descriptive_metadata.identifier,
+      identifier: values(work.descriptive_metadata.identifier),
       iiif_manifest: manifest_id(work),
       indexed_at: NaiveDateTime.utc_now(),
       ingest_sheet: format(work.ingest_sheet),
       ingest_project: format(work.project),
-      keywords: work.descriptive_metadata.keywords,
+      keywords: values(work.descriptive_metadata.keywords),
       language: encode_field(work.descriptive_metadata.language),
-      legacy_identifier: work.descriptive_metadata.legacy_identifier,
+      legacy_identifier: values(work.descriptive_metadata.legacy_identifier),
       library_unit: encode_label(work.administrative_metadata.library_unit),
       license: format(work.descriptive_metadata.license),
       location: encode_field(work.descriptive_metadata.location),
       modified_date: work.updated_at,
       notes: encode_field(work.descriptive_metadata.notes),
       nav_place: encode_nav_place(work.descriptive_metadata.nav_place),
-      physical_description_material: work.descriptive_metadata.physical_description_material,
-      physical_description_size: work.descriptive_metadata.physical_description_size,
+      physical_description_material: values(work.descriptive_metadata.physical_description_material),
+      physical_description_size: values(work.descriptive_metadata.physical_description_size),
       preservation_level: encode_label(work.administrative_metadata.preservation_level),
       project: encode_project(work.administrative_metadata),
-      provenance: work.descriptive_metadata.provenance,
+      provenance: values(work.descriptive_metadata.provenance),
       published: work.published,
-      publisher: work.descriptive_metadata.publisher,
-      related_material: work.descriptive_metadata.related_material,
+      publisher: values(work.descriptive_metadata.publisher),
+      related_material: values(work.descriptive_metadata.related_material),
       related_url: encode_field(work.descriptive_metadata.related_url),
       representative_file_set: representative_file_set(work),
-      rights_holder: work.descriptive_metadata.rights_holder,
+      rights_holder: values(work.descriptive_metadata.rights_holder),
       rights_statement: format(work.descriptive_metadata.rights_statement),
-      scope_and_contents: work.descriptive_metadata.scope_and_contents,
-      series: work.descriptive_metadata.series,
-      source: work.descriptive_metadata.source,
+      scope_and_contents: values(work.descriptive_metadata.scope_and_contents),
+      series: values(work.descriptive_metadata.series),
+      source: values(work.descriptive_metadata.source),
       status: encode_label(work.administrative_metadata.status),
       style_period: encode_field(work.descriptive_metadata.style_period),
       subject: encode_field(work.descriptive_metadata.subject),
-      table_of_contents: work.descriptive_metadata.table_of_contents,
+      table_of_contents: values(work.descriptive_metadata.table_of_contents),
       technique: encode_field(work.descriptive_metadata.technique),
       terms_of_use: work.descriptive_metadata.terms_of_use,
       thumbnail: Path.join([api_url(), "works", work.id, "thumbnail"]),
@@ -101,6 +101,10 @@ defmodule Meadow.Indexing.V2.Work do
     Map.put(map, :embedding_text_length, String.length(value))
     |> Map.put(:embedding_text, truncate(value, 2048))
   end
+
+  # Flatten identified free-text entries back to plain strings so the public index
+  # document is unchanged by the introduction of per-item identity.
+  defp values(list), do: ValueEntry.values(list)
 
   defp concatenate(v) when is_list(v), do: Enum.join(v, "; ")
   defp concatenate(v), do: v

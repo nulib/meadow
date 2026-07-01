@@ -202,6 +202,7 @@ export const GET_WORK = gql`
           }
         }
         notes {
+          id
           note
           type {
             id
@@ -214,6 +215,7 @@ export const GET_WORK = gql`
         provenance
         publisher
         relatedUrl {
+          id
           url
           label {
             id

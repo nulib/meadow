@@ -4,8 +4,8 @@ defmodule Meadow.Batches do
   """
 
   import Ecto.Query, warn: false
-  alias Meadow.Data.{Indexer, Works}
-  alias Meadow.Data.Schemas.{Batch, Work}
+  alias Meadow.Data.{Indexer, ItemIdentity, Works}
+  alias Meadow.Data.Schemas.{Batch, Work, WorkDescriptiveMetadata}
   alias Meadow.Repo
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.HTTP
@@ -13,6 +13,14 @@ defmodule Meadow.Batches do
   require Logger
 
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
+
+  # Descriptive fields whose repeating items carry a stable embed id (free-text
+  # ValueEntry values, notes, related URLs). A batch *replace* of these fields is
+  # rehydrated per work so an unchanged item keeps its id — and with it, its
+  # per-item AI provenance.
+  @identified_item_fields WorkDescriptiveMetadata.value_entry_fields() ++ [:notes, :related_url]
+
+  @rehydrate_chunk_size 500
 
   @doc """
   Creates a batch.
@@ -341,6 +349,12 @@ defmodule Meadow.Batches do
       |> Map.get(:administrative_metadata, %{})
       |> Enum.into(%{})
 
+    # Replacing an identified item field is handled per work (each work's
+    # unchanged items keep their own ids); everything else stays one set-based
+    # update. Appends never touch existing items, so they need no rehydration.
+    {identified_replace, mergeable_descriptive_metadata} =
+      split_identified_replace(mergeable_descriptive_metadata, mode)
+
     if map_size(mergeable_descriptive_metadata) + map_size(mergeable_administrative_metadata) > 0 do
       from(w in Work, where: w.id in ^work_ids)
       |> Works.merge_metadata_values(:descriptive_metadata, mergeable_descriptive_metadata, mode)
@@ -353,8 +367,65 @@ defmodule Meadow.Batches do
       |> Repo.update_all([])
     end
 
+    replace_identified_fields(work_ids, identified_replace)
+
     work_ids
   end
+
+  defp split_identified_replace(descriptive_metadata, :replace),
+    do: Map.split(descriptive_metadata, @identified_item_fields)
+
+  defp split_identified_replace(descriptive_metadata, _mode), do: {%{}, descriptive_metadata}
+
+  # Replace identified item fields, preserving each work's stable item ids: an
+  # incoming item that echoes an id keeps it, and an id-less item whose content
+  # exactly matches one of the work's current items claims that item's id
+  # (`ItemIdentity.rehydrate/3` — the same rule as the changeset and the CSV
+  # metadata update). Works are read one chunk at a time and grouped by their
+  # rehydrated result, so works with no matching items — the common case — still
+  # share a single set-based update.
+  defp replace_identified_fields(_work_ids, identified) when map_size(identified) == 0, do: :ok
+
+  defp replace_identified_fields(work_ids, identified) do
+    work_ids
+    |> Enum.chunk_every(@rehydrate_chunk_size)
+    |> Enum.each(fn chunk ->
+      chunk
+      |> current_descriptive_metadata()
+      |> Enum.group_by(
+        fn {_id, metadata} -> rehydrate_replace_values(identified, metadata) end,
+        fn {id, _metadata} -> id end
+      )
+      |> Enum.each(fn {values, ids} ->
+        from(w in Work, where: w.id in ^ids)
+        |> Works.merge_metadata_values(:descriptive_metadata, values, :replace)
+        |> Works.merge_updated_at()
+        |> Repo.update_all([])
+      end)
+    end)
+  end
+
+  # Raw, string-keyed descriptive-metadata jsonb (no embed loading, so no
+  # controlled-term resolution) — read from Postgres at write time, so the ids
+  # being claimed are current regardless of search-index lag.
+  defp current_descriptive_metadata(work_ids) do
+    from(w in "works",
+      where: w.id in type(^work_ids, {:array, Ecto.UUID}),
+      select: {type(w.id, Ecto.UUID), w.descriptive_metadata}
+    )
+    |> Repo.all()
+  end
+
+  defp rehydrate_replace_values(identified, current_metadata) do
+    Map.new(identified, fn {field, items} ->
+      current = current_metadata |> Map.get(Atom.to_string(field)) |> List.wrap()
+      {field, ItemIdentity.rehydrate(List.wrap(items), current, item_key_fun(field))}
+    end)
+  end
+
+  defp item_key_fun(:notes), do: &ItemIdentity.note_key/1
+  defp item_key_fun(:related_url), do: &ItemIdentity.related_url_key/1
+  defp item_key_fun(_field), do: &ItemIdentity.value_key/1
 
   defp humanize_date_created(%{date_created: date_created} = descriptive_metadata) do
     new_dates =

@@ -4,7 +4,6 @@ defmodule Meadow.AI.Provenance do
   """
 
   import Ecto.Query, warn: false
-  require Logger
 
   alias Meadow.AI.Provenance.Schemas.{Activity, Agent, Event, EventAgent, Source, Target}
   alias Meadow.Config
@@ -521,7 +520,6 @@ defmodule Meadow.AI.Provenance do
           end
 
         case result do
-          :error -> {:error, :record_failed}
           {:error, _reason} = error -> error
           _ -> :ok
         end
@@ -534,21 +532,13 @@ defmodule Meadow.AI.Provenance do
   defp present_item_ids?(item_ids) when is_list(item_ids), do: item_ids != []
   defp present_item_ids?(_), do: false
 
-  # Persist the attestation reclassification and its event atomically (same
-  # transaction-and-rescue contract as `record_manual_edit_for_target/4`): a
-  # failure here must not take down the caller's save.
+  # Reclassify and record the attestation. A DB failure here raises and propagates
+  # so the caller's transaction rolls back the whole save: an AI-touched value must
+  # not persist without its provenance (validation failures such as no-AI-lineage
+  # are returned upstream, not raised, so they don't trigger a rollback).
   defp attest_human_authored_for_target(target, before_value, after_value, actor, reason) do
-    Repo.transaction(fn ->
-      apply_human_attestation!(target, before_value, after_value, actor, reason)
-    end)
-  rescue
-    error ->
-      Logger.warning(
-        "Failed to record human-attestation provenance for target #{target.id} " <>
-          "(#{target.field_path}): #{Exception.message(error)}"
-      )
-
-      :error
+    apply_human_attestation!(target, before_value, after_value, actor, reason)
+    :ok
   end
 
   # Reclassify the live target as human-attested after prior AI provenance and
@@ -598,34 +588,22 @@ defmodule Meadow.AI.Provenance do
     end
   end
 
-  # Append one per-item `human_attested` event per requested id, atomically (same
-  # transaction-and-rescue contract as the whole-field path): provenance is
-  # recorded after the work is already saved, so a failure here must not fail the
-  # user's edit.
+  # Append one per-item `human_attested` event per requested id. A DB failure
+  # raises and propagates so the caller's transaction rolls back the save.
   defp record_item_attestations(target, before_value, after_value, item_ids, actor, reason) do
-    Repo.transaction(fn ->
-      Enum.each(item_ids, fn item_id ->
-        add_event!(target, %{
-          event_type: "human_attested",
-          actor: actor,
-          item_identifier: item_id,
-          value_before: item_by_identifier(before_value, item_id),
-          value_after: item_by_identifier(after_value, item_id),
-          notes: reason,
-          c2pa_action: "c2pa.edited"
-        })
-      end)
+    Enum.each(item_ids, fn item_id ->
+      add_event!(target, %{
+        event_type: "human_attested",
+        actor: actor,
+        item_identifier: item_id,
+        value_before: item_by_identifier(before_value, item_id),
+        value_after: item_by_identifier(after_value, item_id),
+        notes: reason,
+        c2pa_action: "c2pa.edited"
+      })
     end)
 
     :ok
-  rescue
-    error ->
-      Logger.warning(
-        "Failed to record per-item human-attestation provenance for target #{target.id} " <>
-          "(#{target.field_path}): #{Exception.message(error)}"
-      )
-
-      :error
   end
 
   # Find the single item of a (multivalued) field value whose identity matches
@@ -637,21 +615,13 @@ defmodule Meadow.AI.Provenance do
     |> Enum.find(fn item -> item_identifier(item) == id end)
   end
 
-  # Persist the target reclassification and its event atomically so the
-  # append-only log never gains a reclassified target with no event (or vice
-  # versa). Provenance is recorded *after* the work is already saved, so a
-  # failure here must not fail the user's edit: roll back this target and log
-  # rather than letting the resolver crash on a successful save.
+  # Reclassify the target and append its event. A DB failure raises and propagates
+  # so the caller's transaction rolls back the save, keeping the append-only log
+  # consistent with the persisted work: an AI-touched value never persists without
+  # its provenance.
   defp record_manual_edit_for_target(target, before_value, after_value, actor) do
-    Repo.transaction(fn -> apply_manual_edit!(target, before_value, after_value, actor) end)
-  rescue
-    error ->
-      Logger.warning(
-        "Failed to record manual-edit provenance for target #{target.id} " <>
-          "(#{target.field_path}): #{Exception.message(error)}"
-      )
-
-      :error
+    apply_manual_edit!(target, before_value, after_value, actor)
+    :ok
   end
 
   # Human cleared an AI-provenanced field: this is a deletion, recorded the same
@@ -756,10 +726,8 @@ defmodule Meadow.AI.Provenance do
 
     case find_annotation_target(activity_id, annotation_id) do
       %Target{origin: origin} = target when origin in @ai_involved_origins ->
-        case attest_human_authored_for_target(target, content, content, actor, reason) do
-          :error -> {:error, :record_failed}
-          _ -> :ok
-        end
+        attest_human_authored_for_target(target, content, content, actor, reason)
+        :ok
 
       _ ->
         {:error, :no_ai_provenance}
@@ -768,6 +736,161 @@ defmodule Meadow.AI.Provenance do
 
   def record_annotation_human_attestation(_annotation, _actor, _opts),
     do: {:error, :no_ai_provenance}
+
+  @doc """
+  Backfill the stable item ids minted by the ValueEntry migration onto an
+  activity's existing provenance. Provenance recorded before that migration
+  stored multivalued descriptive items with no per-item id (bare strings, or
+  notes/urls without an `id`), while the live work items now each carry one. For
+  every Work target on a migrated descriptive field, this matches each stored
+  item — in the target's `proposed_value` and in every event's
+  `value_before`/`value_after` — to the live work item and stamps that item's
+  `id` onto it, so per-item attribution (`item_provenance/1`) keys on ids from
+  here on instead of by value matching. Items are matched by natural key
+  (unchanged value); a value a human edited before this migration no longer
+  matches, so when exactly one stored item and one live id remain unmatched they
+  are paired as a single in-place edit — this is what carries the id back onto
+  the AI's *proposed* value so it and the edited value share one id. Pairing runs
+  only for `applied` targets, whose items are actually present in the live work;
+  a never-applied proposal never borrows a live id it doesn't own.
+
+  `descriptive_metadata` is the work's raw, string-keyed descriptive-metadata
+  jsonb, passed directly rather than through a loaded `Work` so that no
+  controlled/coded-term resolution (and thus no term cache) is required — which
+  is what makes this safe to call from inside a migration. Idempotent: items that
+  already carry an id are left untouched, and only fields the migration actually
+  rewrote can match, so re-running stamps nothing new.
+  """
+  def finalize_applied_target_ids(%Activity{targets: targets}, descriptive_metadata)
+      when is_list(targets) and is_map(descriptive_metadata) do
+    Enum.each(targets, &stamp_target_item_ids(&1, descriptive_metadata))
+  end
+
+  def finalize_applied_target_ids(_activity, _descriptive_metadata), do: :ok
+
+  defp stamp_target_item_ids(%{target_type: "Work", field_path: field_path} = target, metadata) do
+    case live_items(descriptive_field(metadata, field_path)) do
+      [] ->
+        :ok
+
+      live ->
+        # Only an applied target's items are actually present in the live work, so
+        # only it may pair an edited item to a live id. A never-applied proposal
+        # (or a deleted item) must not borrow a live id it doesn't own.
+        pair? = target.status == "applied"
+        stamp_target_value!(target, live, pair?)
+        Enum.each(target.events || [], &stamp_event_values!(&1, live, pair?))
+    end
+  end
+
+  defp stamp_target_item_ids(_target, _metadata), do: :ok
+
+  defp stamp_target_value!(target, live, pair?) do
+    stamped = stamp_wrapped_items(target.proposed_value, live, pair?)
+
+    if stamped != target.proposed_value do
+      target |> Target.changeset(%{proposed_value: stamped}) |> Repo.update!()
+    end
+  end
+
+  defp stamp_event_values!(event, live, pair?) do
+    before_value = stamp_wrapped_items(event.value_before, live, pair?)
+    after_value = stamp_wrapped_items(event.value_after, live, pair?)
+
+    if before_value != event.value_before or after_value != event.value_after do
+      event
+      |> Event.changeset(%{value_before: before_value, value_after: after_value})
+      |> Repo.update!()
+    end
+  end
+
+  # The migration only rewrote descriptive-metadata fields, so only those field
+  # paths carry newly-minted ids to stamp; anything else is left alone.
+  defp descriptive_field(metadata, field_path) do
+    case String.split(field_path, ".", parts: 2) do
+      ["descriptive_metadata", field] -> Map.get(metadata, field)
+      _ -> nil
+    end
+  end
+
+  # The live work items that carry a top-level id — i.e. exactly the ValueEntry /
+  # note / url items the migration minted ids for. Items with no id (coded/
+  # controlled terms, etc.) are excluded; their identity was already stable.
+  defp live_items(items) when is_list(items),
+    do: Enum.filter(items, &(not is_nil(live_item_id(&1))))
+
+  defp live_items(_), do: []
+
+  defp live_item_id(%{"id" => id}) when is_binary(id) and id != "", do: id
+  defp live_item_id(%{id: id}) when is_binary(id) and id != "", do: id
+  defp live_item_id(_), do: nil
+
+  defp stamp_wrapped_items(%{"value" => list} = wrapped, live, pair?) when is_list(list),
+    do: %{wrapped | "value" => stamp_value_list(list, live, pair?)}
+
+  defp stamp_wrapped_items(other, _live, _pair?), do: other
+
+  # Assign each stored item the id of the live work item it represents, so a
+  # target's whole value history (the AI's `proposed_value`, the applied value,
+  # and the edited value) shares one id per item. Items that already carry an id
+  # are kept (idempotent). The rest are matched to a live item by natural key —
+  # an unchanged value; then, if exactly one stored item and one live id are left
+  # unmatched, they are paired as a single in-place edit. That pairing is what
+  # carries an id back onto the AI's proposal after a human changed the text, so
+  # per-item attribution can still link the proposal to the current value.
+  # Anything more ambiguous (several items changed at once) is left unstamped
+  # rather than risk a wrong attribution.
+  defp stamp_value_list(stored_items, live, pair?) do
+    live_by_key = Map.new(live, &{natural_key(&1), live_item_id(&1)})
+
+    {stamped, claimed} =
+      Enum.map_reduce(stored_items, MapSet.new(), fn item, claimed ->
+        case claim_live_id(item, live_by_key) do
+          nil -> {item, claimed}
+          {stamped_item, id} -> {stamped_item, MapSet.put(claimed, id)}
+        end
+      end)
+
+    if pair?, do: pair_single_edit(stamped, live, claimed), else: stamped
+  end
+
+  # Resolve the live id a stored item already owns: keep an id it already carries,
+  # else claim one by an exact natural-key (unchanged value) match. Returns the
+  # (possibly stamped) item with its id, or nil when the item is still unmatched.
+  defp claim_live_id(item, live_by_key) do
+    case live_item_id(item) do
+      nil -> match_live_id(item, live_by_key)
+      id -> {item, id}
+    end
+  end
+
+  defp match_live_id(item, live_by_key) do
+    case Map.get(live_by_key, natural_key(item)) do
+      nil -> nil
+      id -> {put_item_id(item, id), id}
+    end
+  end
+
+  defp pair_single_edit(stamped, live, claimed) do
+    unclaimed_ids =
+      live |> Enum.map(&live_item_id/1) |> Enum.reject(&MapSet.member?(claimed, &1))
+
+    unmatched =
+      stamped
+      |> Enum.with_index()
+      |> Enum.filter(fn {item, _index} -> is_nil(live_item_id(item)) end)
+
+    case {unmatched, unclaimed_ids} do
+      {[{item, index}], [id]} -> List.replace_at(stamped, index, put_item_id(item, id))
+      _ -> stamped
+    end
+  end
+
+  # Idempotent: a bare string is promoted to the `{id, value}` ValueEntry shape;
+  # a map gains the id; anything else passes through.
+  defp put_item_id(item, id) when is_map(item), do: Map.put(item, "id", id)
+  defp put_item_id(item, id) when is_binary(item), do: %{"id" => id, "value" => item}
+  defp put_item_id(item, _id), do: item
 
   defp applied_ai_targets(work_id) do
     from(t in Target,
@@ -829,7 +952,9 @@ defmodule Meadow.AI.Provenance do
 
   defp finalize_apply_target!(target, origin, operation, prior_value) do
     snapshot =
-      if present_value?(prior_value), do: %{source_value_snapshot: wrap_value(prior_value)}, else: %{}
+      if present_value?(prior_value),
+        do: %{source_value_snapshot: wrap_value(prior_value)},
+        else: %{}
 
     attrs =
       if modification?(origin, operation, prior_value) do
@@ -1177,17 +1302,75 @@ defmodule Meadow.AI.Provenance do
     |> Enum.reverse()
   end
 
+  # Per-item attribution, keyed on each item's stable id. An item the AI proposed
+  # that is still present with its original value is `ai_generated`; the same id
+  # present with a changed value is an in-place human edit (the field's edit
+  # origin); an id the AI never proposed carries no AI lineage and is omitted;
+  # an explicitly attested id is `human_attested_after_ai`. Matching is by id and
+  # natural key — never by list position — so reordering never blurs attribution.
   defp ai_item_provenance(target, events) do
     attested = attested_item_ids(events)
+    proposed = target |> proposed_value(events) |> items_by_id()
+    edit_origin = item_edit_origin(target)
 
-    proposed_value(target, events)
-    |> reconcile_items(current_value(target, events), item_edit_origin(target))
-    |> Enum.map(fn entry ->
-      if MapSet.member?(attested, entry.id),
-        do: %{entry | origin: "human_attested_after_ai"},
-        else: entry
+    target
+    |> current_value(events)
+    |> value_items()
+    |> Enum.map(fn {id, item} ->
+      cond do
+        MapSet.member?(attested, id) ->
+          %{id: id, origin: "human_attested_after_ai"}
+
+        Map.has_key?(proposed, id) ->
+          %{id: id, origin: proposed_item_origin(item, Map.get(proposed, id), edit_origin)}
+
+        true ->
+          nil
+      end
     end)
+    |> Enum.reject(&is_nil/1)
   end
+
+  # An AI-proposed item still present with its original natural key is
+  # `ai_generated`; a changed value carries the field's human edit origin.
+  defp proposed_item_origin(item, proposed_item, edit_origin) do
+    if natural_key(item) == natural_key(proposed_item),
+      do: "ai_generated",
+      else: edit_origin
+  end
+
+  # Ordered `{id, item}` pairs for a (wrapped) multivalued field value, dropping
+  # items with no resolvable identity.
+  defp value_items(%{"value" => list}) when is_list(list), do: value_items(list)
+
+  defp value_items(list) when is_list(list) do
+    list
+    |> Enum.map(&{item_identifier(&1), &1})
+    |> Enum.reject(fn {id, _} -> is_nil(id) end)
+  end
+
+  defp value_items(_), do: []
+
+  defp items_by_id(value), do: value |> value_items() |> Map.new()
+
+  # An item's natural (content) key, independent of its stable id: the term
+  # authority id for controlled entries, the note/url/edtf text, or the raw string
+  # value. Used to decide whether an AI-authored item is unchanged or was edited
+  # in place, and (once, at apply time) to pair an AI proposal with the saved item
+  # so the saved item's stable id can be stamped onto the proposal. Derived-only
+  # fields such as a looked-up controlled-term label are intentionally ignored.
+  defp natural_key(%{"term" => %{"id" => id}}), do: {:term, id}
+  defp natural_key(%{term: %{id: id}}), do: {:term, id}
+  defp natural_key(%{"note" => note}), do: {:note, note}
+  defp natural_key(%{note: note}), do: {:note, note}
+  defp natural_key(%{"url" => url}), do: {:url, url}
+  defp natural_key(%{url: url}), do: {:url, url}
+  defp natural_key(%{"edtf" => edtf}), do: {:edtf, edtf}
+  defp natural_key(%{edtf: edtf}), do: {:edtf, edtf}
+  defp natural_key(%{"value" => value}), do: {:value, value}
+  defp natural_key(%{value: value}), do: {:value, value}
+  defp natural_key(value) when is_binary(value), do: {:value, value}
+  defp natural_key(_), do: nil
 
   # Items explicitly attested as human-authored, by identifier — the per-item
   # counterpart of flipping a whole target to `human_attested_after_ai`. A
@@ -1227,44 +1410,15 @@ defmodule Meadow.AI.Provenance do
     end
   end
 
-  # Reconcile the proposed and current item lists into per-item attribution.
-  # Items present in both (by id) are unchanged AI generations; the leftover
-  # current items are matched positionally to dropped proposed items and treated
-  # as in-place human edits of those AI items, while any current items beyond the
-  # dropped proposed items are human additions and carry no AI lineage.
-  defp reconcile_items(proposed_val, current_val, edit_origin) do
-    proposed = value_item_ids(proposed_val)
-    current = value_item_ids(current_val)
-
-    proposed_set = MapSet.new(proposed)
-    current_set = MapSet.new(current)
-
-    {unchanged, edited_current} =
-      Enum.split_with(current, &MapSet.member?(proposed_set, &1))
-
-    dropped_proposed = Enum.reject(proposed, &MapSet.member?(current_set, &1))
-
-    edited =
-      edited_current
-      |> Enum.zip(dropped_proposed)
-      |> Enum.map(fn {id, _was} -> %{id: id, origin: edit_origin} end)
-
-    Enum.map(unchanged, &%{id: &1, origin: "ai_generated"}) ++ edited
-  end
-
   defp item_edit_origin(%{origin: "ai_modified_human_content"}), do: "ai_modified_human_content"
   defp item_edit_origin(_), do: "ai_assisted_human_modified"
 
-  defp value_item_ids(%{"value" => list}) when is_list(list) do
-    list |> Enum.map(&item_identifier/1) |> Enum.reject(&is_nil/1)
-  end
-
-  defp value_item_ids(list) when is_list(list) do
-    list |> Enum.map(&item_identifier/1) |> Enum.reject(&is_nil/1)
-  end
-
-  defp value_item_ids(_), do: []
-
+  # Prefer the item's own stable embed id (minted on the ValueEntry / controlled /
+  # note / url entry and preserved across edits). This is what makes per-item
+  # attribution independent of list order and string value. Legacy items with no
+  # embed id fall back to their natural key below.
+  defp item_identifier(%{"id" => id}) when is_binary(id) and id != "", do: id
+  defp item_identifier(%{id: id}) when is_binary(id) and id != "", do: id
   defp item_identifier(%{"term" => %{"id" => id}}), do: id
   defp item_identifier(%{term: %{id: id}}), do: id
   defp item_identifier(%{"note" => note}) when is_binary(note), do: note
@@ -1485,7 +1639,10 @@ defmodule Meadow.AI.Provenance do
   defp put_object_identifier(attrs) do
     attrs
     |> Map.put_new(:object_identifier_type, "Meadow")
-    |> Map.put_new(:object_identifier_value, map_value(attrs, :target_id) || map_value(attrs, :item_id))
+    |> Map.put_new(
+      :object_identifier_value,
+      map_value(attrs, :target_id) || map_value(attrs, :item_id)
+    )
   end
 
   defp source_object_category(attrs) do

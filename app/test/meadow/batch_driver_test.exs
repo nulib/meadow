@@ -58,7 +58,7 @@ defmodule Meadow.BatchDriverTest do
     Works.list_works()
     |> Enum.each(fn work ->
       assert work.descriptive_metadata.alternate_title |> length() == 2
-      assert work.descriptive_metadata.alternate_title == ["First", "Second"]
+      assert Enum.map(work.descriptive_metadata.alternate_title, & &1.value) == ["First", "Second"]
     end)
 
     assert logged |> String.contains?("Starting batch")

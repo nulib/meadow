@@ -6,8 +6,12 @@ defmodule Meadow.Data.CSV.BulkImport do
 
   alias Ecto.Adapters.SQL
   alias Meadow.Data.CSV.Import
+  alias Meadow.Data.ItemIdentity
+  alias Meadow.Data.Schemas.WorkDescriptiveMetadata
   alias Meadow.Utils.Stream, as: StreamUtil
   alias NimbleCSV.RFC4180, as: CSV
+
+  import Ecto.Query, only: [from: 2]
 
   @chunk_size 500
 
@@ -19,7 +23,7 @@ defmodule Meadow.Data.CSV.BulkImport do
 
           try do
             stream
-            |> stream_rows()
+            |> stream_rows(repo)
             |> Stream.map(fn chunk ->
               update_chunk(temp_table, job_id, chunk, repo)
             end)
@@ -69,19 +73,91 @@ defmodule Meadow.Data.CSV.BulkImport do
     end
   end
 
-  defp stream_rows(stream) do
-    with timestamp <- NaiveDateTime.utc_now() do
-      stream
-      |> Stream.map(fn entry ->
-        entry
-        |> put_in([:inserted_at], timestamp)
-        |> put_in([:updated_at], timestamp)
-        |> update_in([:descriptive_metadata, :id], &(&1 || Ecto.UUID.generate()))
-        |> update_in([:administrative_metadata, :id], &(&1 || Ecto.UUID.generate()))
-      end)
-      |> Stream.chunk_every(@chunk_size)
-      |> Stream.map(&stream_chunk_of_rows/1)
+  defp stream_rows(stream, repo) do
+    timestamp = NaiveDateTime.utc_now()
+
+    stream
+    |> Stream.chunk_every(@chunk_size)
+    |> Stream.map(fn chunk ->
+      chunk
+      |> rehydrate_item_ids(repo)
+      |> Enum.map(&normalize_row(&1, timestamp))
+      |> stream_chunk_of_rows()
+    end)
+  end
+
+  defp normalize_row(entry, timestamp) do
+    entry
+    |> put_in([:inserted_at], timestamp)
+    |> put_in([:updated_at], timestamp)
+    |> update_in([:descriptive_metadata, :id], &(&1 || Ecto.UUID.generate()))
+    |> update_in([:administrative_metadata, :id], &(&1 || Ecto.UUID.generate()))
+    # This path writes descriptive_metadata jsonb directly (no changeset), so
+    # repeating free-text fields must be well-formed identified ValueEntry maps
+    # (ids not recovered by rehydration above are minted fresh here).
+    |> update_in([:descriptive_metadata], &WorkDescriptiveMetadata.jsonb_value_entries/1)
+  end
+
+  # Recover stable item ids before the direct-jsonb write. Exported cells
+  # round-trip each free-text item's id (`uuid:value`), but hand-authored cells
+  # and notes/related URLs arrive id-less; those keep their identity when their
+  # content exactly matches one of the work's current items
+  # (`ItemIdentity.rehydrate/3` — the same rule the changeset applies). Without
+  # this, every CSV metadata update would remint ids and silently detach
+  # per-item AI provenance from untouched items.
+  defp rehydrate_item_ids(chunk, repo) do
+    existing = existing_metadata(Enum.map(chunk, &Map.get(&1, :id)), repo)
+
+    Enum.map(chunk, fn entry ->
+      update_in(
+        entry,
+        [:descriptive_metadata],
+        &rehydrate_metadata(&1, Map.get(existing, Map.get(entry, :id)))
+      )
+    end)
+  end
+
+  defp existing_metadata(work_ids, repo) do
+    case Enum.filter(work_ids, &valid_uuid?/1) do
+      [] ->
+        %{}
+
+      ids ->
+        from(w in "works",
+          where: w.id in type(^ids, {:array, Ecto.UUID}),
+          select: {type(w.id, Ecto.UUID), w.descriptive_metadata}
+        )
+        |> repo.all()
+        |> Map.new()
     end
+  end
+
+  defp valid_uuid?(id), do: is_binary(id) and match?({:ok, _}, Ecto.UUID.cast(id))
+
+  defp rehydrate_metadata(metadata, existing) when is_map(metadata) and is_map(existing) do
+    metadata
+    |> rehydrate_fields(
+      WorkDescriptiveMetadata.value_entry_fields(),
+      existing,
+      &ItemIdentity.value_key/1
+    )
+    |> rehydrate_fields([:notes], existing, &ItemIdentity.note_key/1)
+    |> rehydrate_fields([:related_url], existing, &ItemIdentity.related_url_key/1)
+  end
+
+  defp rehydrate_metadata(metadata, _existing), do: metadata
+
+  defp rehydrate_fields(metadata, fields, existing, key_fun) do
+    Enum.reduce(fields, metadata, fn field, acc ->
+      case Map.get(acc, field) do
+        [_ | _] = items ->
+          current = existing |> Map.get(Atom.to_string(field)) |> List.wrap()
+          Map.put(acc, field, ItemIdentity.rehydrate(items, current, key_fun))
+
+        _ ->
+          acc
+      end
+    end)
   end
 
   defp stream_chunk_of_rows(chunk) do

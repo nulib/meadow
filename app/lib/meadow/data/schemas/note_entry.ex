@@ -7,7 +7,7 @@ defmodule Meadow.Data.Schemas.NoteEntry do
   use Ecto.Schema
   alias Meadow.Data.Types
 
-  @primary_key false
+  @primary_key {:id, :binary_id, autogenerate: true}
   embedded_schema do
     field :note, :string
     field :type, Types.CodedTerm
@@ -15,7 +15,7 @@ defmodule Meadow.Data.Schemas.NoteEntry do
 
   def changeset(metadata, params) do
     metadata
-    |> cast(params, [:note, :type])
+    |> cast(params, [:id, :note, :type])
     |> validate_required([:note, :type])
   end
 
