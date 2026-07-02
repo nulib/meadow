@@ -384,10 +384,22 @@ defmodule Meadow.Data.Works.TransferFileSets do
 
     with {:ok, :valid} <- validate_filesets_exist(filesets, fileset_ids),
          {:ok, transferred_ids} <-
-           perform_fileset_transfer(filesets, target_work_id, max_rank_in_target_work) do
+           filesets
+           |> order_filesets_by_rank(fileset_ids)
+           |> perform_fileset_transfer(target_work_id, max_rank_in_target_work) do
       Logger.info("Transferred #{Enum.count(transferred_ids)} file sets to work #{target_work_id}")
       {:ok, transferred_ids}
     end
+  end
+
+  defp order_filesets_by_rank(filesets, fileset_ids) do
+    selected_ids = MapSet.new(fileset_ids)
+
+    filesets
+    |> Enum.map(& &1.work_id)
+    |> Enum.uniq()
+    |> Enum.flat_map(&Data.ranked_file_sets_for_work/1)
+    |> Enum.filter(&MapSet.member?(selected_ids, &1.id))
   end
 
   defp validate_filesets_exist(filesets, fileset_ids) do
