@@ -39,7 +39,7 @@ const Plan = ({ works }) => {
   // iterate works and get thumbnails
   const targetThumbnails = works.map((work) => {
     const thumbnail = new URL(work.representativeImage);
-    thumbnail.pathname += "/square/100,/0/default.jpg";
+    thumbnail.pathname += "/square/^100,/0/default.jpg";
     return thumbnail ? (
       <SquircleThumbnail
         key={work.id}

@@ -11,7 +11,7 @@ function CollectionImage({ collection, ...restProps }) {
       <img
         src={
           representativeWork
-            ? `${representativeWork.representativeImage}/square/500,500/0/default.jpg`
+            ? `${representativeWork.representativeImage}/square/^500,500/0/default.jpg`
             : "/images/placeholder.png"
         }
       />

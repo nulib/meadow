@@ -45,7 +45,7 @@ const Collection = ({ collection }) => {
               <Link to={`/work/${representativeWork.id}`} title="View work">
                 <img
                   className="hvr-shrink"
-                  src={`${representativeWork.representativeImage}/square/500,500/0/default.jpg`}
+                  src={`${representativeWork.representativeImage}/square/^500,500/0/default.jpg`}
                 />
               </Link>
             ) : (
