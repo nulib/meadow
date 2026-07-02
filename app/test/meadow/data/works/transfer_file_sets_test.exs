@@ -6,6 +6,7 @@ defmodule Meadow.Data.Works.TransferFileSetsTest do
 
   import ExUnit.CaptureLog
 
+  alias Meadow.Data
   alias Meadow.Data.Schemas.Work
   alias Meadow.Data.Works
   alias Meadow.Data.Works.TransferFileSets
@@ -223,6 +224,89 @@ defmodule Meadow.Data.Works.TransferFileSetsTest do
 
       assert {:error, "Accession number is required when transferring to existing work"} =
                TransferFileSets.transfer_subset(args)
+    end
+
+    test "ignores the order of the fileset_ids argument and preserves the source rank order, appended after the target work's existing filesets" do
+      source_work =
+        work_with_file_sets_fixture(4, %{work_type: %{id: "IMAGE", scheme: "work_type"}}, %{
+          role: %{id: "P", scheme: "FILE_SET_ROLE"}
+        })
+
+      target_work =
+        work_with_file_sets_fixture(2, %{work_type: %{id: "IMAGE", scheme: "work_type"}}, %{
+          role: %{id: "P", scheme: "FILE_SET_ROLE"}
+        })
+
+      target_fileset_ids_before = Enum.map(target_work.file_sets, & &1.id) |> Enum.sort()
+
+      source_ids_in_rank_order =
+        Data.ranked_file_sets_for_work(source_work.id, "P") |> Enum.map(& &1.id)
+
+      # Request the transfer with the fileset_ids deliberately scrambled —
+      # this must have no bearing on the final order.
+      shuffled_ids = Enum.reverse(source_ids_in_rank_order)
+
+      args = %{
+        fileset_ids: shuffled_ids,
+        create_work: false,
+        accession_number: target_work.accession_number
+      }
+
+      assert {:ok, %{transferred_fileset_ids: transferred_ids}} =
+               TransferFileSets.transfer_subset(args)
+
+      assert length(transferred_ids) == 4
+
+      updated_target_file_sets =
+        Data.ranked_file_sets_for_work(target_work.id, "P")
+
+      # The target work's pre-existing filesets keep their original relative
+      # order and rank ahead of the transferred ones.
+      {existing, transferred} =
+        Enum.split_with(updated_target_file_sets, &(&1.id in target_fileset_ids_before))
+
+      assert Enum.map(existing, & &1.id) |> Enum.sort() == target_fileset_ids_before
+
+      # The transferred filesets land in the source work's true rank order,
+      # not the (shuffled) fileset_ids argument order.
+      assert Enum.map(transferred, & &1.id) == source_ids_in_rank_order
+    end
+
+    test "preserves a manually reordered rank when transferring to a newly created work" do
+      source_work =
+        work_with_file_sets_fixture(4, %{work_type: %{id: "IMAGE", scheme: "work_type"}}, %{
+          role: %{id: "P", scheme: "FILE_SET_ROLE"}
+        })
+
+      insertion_order_ids = Enum.map(source_work.file_sets, & &1.id)
+
+      # Simulate a user manually dragging the filesets into a custom order
+      # (e.g. via the reorder UI) before transferring them. This order no
+      # longer matches insertion order.
+      custom_order_ids = Enum.reverse(insertion_order_ids)
+      assert {:ok, _result} = Works.update_file_set_order(source_work.id, "P", custom_order_ids)
+
+      # Request the transfer with yet another (insertion-order) argument —
+      # this must not override the file sets' actual rank.
+      args = %{
+        fileset_ids: insertion_order_ids,
+        create_work: true,
+        work_attributes: %{
+          accession_number: "REORDERED_TRANSFER_WORK",
+          work_type: "IMAGE",
+          descriptive_metadata: %{title: "Reordered Transfer Work"}
+        }
+      }
+
+      assert {:ok, %{transferred_fileset_ids: transferred_ids, created_work_id: work_id}} =
+               TransferFileSets.transfer_subset(args)
+
+      assert length(transferred_ids) == 4
+
+      new_work_ids_in_rank_order =
+        Data.ranked_file_sets_for_work(work_id, "P") |> Enum.map(& &1.id)
+
+      assert new_work_ids_in_rank_order == custom_order_ids
     end
 
     test "fails when filesets do not exist" do
