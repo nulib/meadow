@@ -1,6 +1,7 @@
 defmodule MeadowWeb.Resolvers.Evals do
   @moduledoc "Absinthe resolvers for the evals feature."
 
+  alias Meadow.Data.FileSets
   alias Meadow.Evals
   alias Meadow.Evals.Runner
 
@@ -81,6 +82,25 @@ defmodule MeadowWeb.Resolvers.Evals do
     end
   end
 
+  def eval_set_member_representative_image_url(
+        %{representative_file_set_id: nil},
+        _args,
+        _info
+      ) do
+    {:ok, nil}
+  end
+
+  def eval_set_member_representative_image_url(
+        %{representative_file_set_id: file_set_id},
+        _args,
+        _info
+      ) do
+    case FileSets.get_file_set(file_set_id) do
+      nil -> {:ok, nil}
+      file_set -> {:ok, FileSets.representative_image_url_for(file_set)}
+    end
+  end
+
   # ---------------------------------------------------------------------------
   # Run resolvers
   # ---------------------------------------------------------------------------
@@ -117,6 +137,25 @@ defmodule MeadowWeb.Resolvers.Evals do
     case Evals.cancel_run(id) do
       {:ok, run} -> {:ok, run}
       {:error, reason} -> {:error, inspect(reason)}
+    end
+  end
+
+  @undeletable_run_statuses [:pending, :running]
+
+  def delete_run(_root, %{id: id}, _info) do
+    Evals.get_run!(id) |> delete_guarded_run()
+  rescue
+    Ecto.NoResultsError -> {:error, "Eval run not found"}
+  end
+
+  defp delete_guarded_run(%{status: status}) when status in @undeletable_run_statuses do
+    {:error, "Can't delete eval run with status: #{status}"}
+  end
+
+  defp delete_guarded_run(run) do
+    case Evals.delete_run(run) do
+      {:ok, run} -> {:ok, run}
+      {:error, changeset} -> {:error, format_errors(changeset)}
     end
   end
 

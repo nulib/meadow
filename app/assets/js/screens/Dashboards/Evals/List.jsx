@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import Layout from "@js/screens/Layout";
 import { Breadcrumbs } from "@js/components/UI/UI";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import UIModalDelete from "@js/components/UI/Modal/Delete";
 import StartRunModal from "@js/components/Dashboards/Evals/StartRunModal";
-import { GET_EVAL_RUNS } from "@js/components/Dashboards/Evals/evals.gql";
+import {
+  GET_EVAL_RUNS,
+  DELETE_EVAL_RUN,
+} from "@js/components/Dashboards/Evals/evals.gql";
 
 const STATUS_COLORS = {
   PENDING: "is-warning",
@@ -14,6 +18,8 @@ const STATUS_COLORS = {
   ERRORED: "is-danger",
   CANCELLED: "is-light",
 };
+
+const DELETABLE_STATUSES = ["COMPLETE", "ERRORED", "CANCELLED"];
 
 function enumKey(value) {
   return value?.toString().toUpperCase();
@@ -26,9 +32,16 @@ function enumLabel(value) {
 export default function EvalsListScreen() {
   const history = useHistory();
   const [showModal, setShowModal] = useState(false);
+  const [runToDelete, setRunToDelete] = useState(null);
   const { data, loading } = useQuery(GET_EVAL_RUNS, {
     variables: { limit: 50, offset: 0 },
     pollInterval: 5000,
+  });
+
+  const [deleteRun] = useMutation(DELETE_EVAL_RUN, {
+    refetchQueries: [
+      { query: GET_EVAL_RUNS, variables: { limit: 50, offset: 0 } },
+    ],
   });
 
   const runs = data?.evalRuns || [];
@@ -36,6 +49,11 @@ export default function EvalsListScreen() {
   const handleStarted = (runId) => {
     setShowModal(false);
     history.push(`/dashboards/evals/runs/${runId}`);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (runToDelete) await deleteRun({ variables: { id: runToDelete.id } });
+    setRunToDelete(null);
   };
 
   return (
@@ -165,12 +183,24 @@ export default function EvalsListScreen() {
                             : "—"}
                         </td>
                         <td>
-                          <Link
-                            to={`/dashboards/evals/runs/${run.id}`}
-                            className="button is-small is-light"
-                          >
-                            View
-                          </Link>
+                          <div className="buttons are-small">
+                            <Link
+                              to={`/dashboards/evals/runs/${run.id}`}
+                              className="button is-small is-light"
+                            >
+                              View
+                            </Link>
+                            {DELETABLE_STATUSES.includes(status) && (
+                              <AuthDisplayAuthorized level="EDITOR">
+                                <button
+                                  className="button is-small is-danger is-light"
+                                  onClick={() => setRunToDelete(run)}
+                                >
+                                  Delete
+                                </button>
+                              </AuthDisplayAuthorized>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -188,6 +218,15 @@ export default function EvalsListScreen() {
           onStarted={handleStarted}
         />
       )}
+
+      <UIModalDelete
+        isOpen={!!runToDelete}
+        handleClose={() => setRunToDelete(null)}
+        handleConfirm={handleDeleteConfirm}
+        thingToDeleteLabel={
+          runToDelete?.name || runToDelete?.evalSet?.name || "this eval run"
+        }
+      />
     </Layout>
   );
 }
