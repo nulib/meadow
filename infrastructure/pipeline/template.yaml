@@ -242,7 +242,6 @@ Resources:
       Handler: index.handler
       Runtime: nodejs22.x
       Layers:
-        - !Ref ffmpegLayer
         - !Ref sharpLayer
       MemorySize: 8192
       Timeout: 240
