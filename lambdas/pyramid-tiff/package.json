@@ -8,8 +8,14 @@
   "license": "Apache2",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.987.0",
+    "@aws-sdk/client-secrets-manager": "^3.987.0",
+    "@aws-sdk/lib-storage": "^3.987.0",
+    "@contentauth/c2pa-node": "^0.5.0",
     "concat-stream": "^2.0.0",
     "sharp": "^0.35.2",
     "source-map-support": "^0.5.21"
-  }
+  },
+  "trustedDependencies": [
+    "@contentauth/c2pa-node"
+  ]
 }
