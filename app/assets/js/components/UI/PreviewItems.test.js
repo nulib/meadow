@@ -38,7 +38,7 @@ describe("Batch-edit preview items component", () => {
 
     // Renders correct image
     expect(imageEls[0].getAttribute("src")).toContain(
-      `${batchEditPreviewItems[0].representativeImage.url}/square/256,256/0/default.jpg`,
+      `${batchEditPreviewItems[0].representativeImage.url}/square/^256,256/0/default.jpg`,
     );
     expect(anchorEls[0].querySelector("svg")).toBeNull();
 

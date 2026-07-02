@@ -88,7 +88,7 @@ function WorkFilesetDraggable({
             <div css={content} className="is-flex">
               <figure css={figure}>
                 <img
-                  src={`${iiifServerUrl}${fileSet.id}/square/64,64/0/default.jpg`}
+                  src={`${iiifServerUrl}${fileSet.id}/square/^64,64/0/default.jpg`}
                   placeholder="Fileset Image"
                   data-testid="fileset-image"
                 />
