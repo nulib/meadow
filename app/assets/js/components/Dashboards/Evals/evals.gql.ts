@@ -110,6 +110,7 @@ export const GET_EVAL_RUN = gql`
           workId
           accessionNumber
           groundTruth
+          representativeImageUrl
         }
       }
       promptVersion {
@@ -292,6 +293,14 @@ export const CANCEL_EVAL_RUN = gql`
     cancelEvalRun(id: $id) {
       id
       status
+    }
+  }
+`;
+
+export const DELETE_EVAL_RUN = gql`
+  mutation DeleteEvalRun($id: ID!) {
+    deleteEvalRun(id: $id) {
+      id
     }
   }
 `;

@@ -287,7 +287,7 @@ function WorkTabsPreservationTransferFileSetsModal({
                         {fs.representativeImageUrl && (
                           <figure css={previewFigure}>
                             <img
-                              src={`${fs.representativeImageUrl}/square/60,/0/default.jpg`}
+                              src={`${fs.representativeImageUrl}/square/^60,/0/default.jpg`}
                               alt={
                                 fs.coreMetadata?.originalFilename || "Fileset"
                               }

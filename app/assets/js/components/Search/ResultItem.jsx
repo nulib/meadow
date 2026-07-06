@@ -24,7 +24,7 @@ const SearchResultItem = ({ res }) => {
           {file_sets.length > 0 && (
             <Link to={`/work/${_id}`}>
               <img
-                src={`${representative_file_set.url}/square/500,500/0/default.jpg`}
+                src={`${representative_file_set.url}/square/^500,500/0/default.jpg`}
                 alt="Placeholder image"
               />
             </Link>

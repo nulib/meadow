@@ -29,7 +29,7 @@ export const REACTIVESEARCH_SORT_OPTIONS = [
 ];
 
 export const IIIF_SIZES = {
-  IIIF_SQUARE: "/square/500,500/0/default.jpg",
+  IIIF_SQUARE: "/square/^500,500/0/default.jpg",
   IIIF_FULL: "/full/max/0/default.jpg",
   IIIF_FULL_TIFF: "/full/max/0/default.tif",
 };

@@ -1,94 +1,69 @@
-import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { addContentCredentials } from "./c2pa.js";
+import { bufferFromS3, streamFromS3, uploadToS3 } from "./s3Utils.js";
 import concat from "concat-stream";
 import sharp from "sharp";
 
 const MAX_DIMENSION = 15000;
 const TILE_SIZE = 256;
 
-const createPyramidTiff = (source, dest) => {
-  return new Promise((resolve, reject) => {
-    console.log(`Creating pyramid from ${source}`);
-    streamFromS3(source)
-    .then((inputStream) => {
-      const transformStream = sharp({
-        limitInputPixels: false,
-        sequentialRead: true,
-        unlimited: true
-      })
-      .removeAlpha()
-      .resize({
-        width: MAX_DIMENSION,
-        height: MAX_DIMENSION,
-        fit: "inside",
-        withoutEnlargement: true
-      })
-      .rotate()
-      .tiff({
-        compression: "jpeg",
-        quality: 75,
-        tile: true,
-        tileHeight: TILE_SIZE,
-        tileWidth: TILE_SIZE,
-        pyramid: true
-      })
-      .withMetadata();
+const createPyramidTiff = async (source, dest) => {
+  console.log(`Creating pyramid from ${source}`);
+  const inputStream = await streamFromS3(source);
 
-      const uploadStream = concat((data) => {
-        sharp(data)
-          .metadata()
-          .then((metadata) => {
-            uploadToS3(data, dest, metadata)
-              .then((result) => resolve(result));
-          });
-        console.log(`Saving to ${dest}`);
-      });
+  const transformStream = sharp({
+    limitInputPixels: false,
+    sequentialRead: true,
+    unlimited: true
+  })
+    .removeAlpha()
+    .resize({
+      width: MAX_DIMENSION,
+      height: MAX_DIMENSION,
+      fit: "inside",
+      withoutEnlargement: true
+    })
+    .rotate()
+    .tiff({
+      compression: "jpeg",
+      quality: 75,
+      tile: true,
+      tileHeight: TILE_SIZE,
+      tileWidth: TILE_SIZE,
+      pyramid: true
+    })
+    .withMetadata();
 
-      inputStream.pipe(transformStream).pipe(uploadStream);
-    });
+  // concat-stream is callback-only, so an explicit Promise is required here
+  let data = await new Promise((resolve, reject) => {
+    inputStream.pipe(transformStream).pipe(concat(resolve));
   });
-};
 
-const streamFromS3 = async (location) => {
-  const s3Location = getS3Location(location);
-  const s3Client = new S3Client(s3ClientOpts());
-  const cmd = new GetObjectCommand(s3Location);
-  const { Body } = await s3Client.send(cmd);
-  return Body;
-};
-
-const uploadToS3 = (data, location, { width, height, pages }) => {
-  const s3Location = getS3Location(location);
-  return new Promise((resolve, reject) => {
-    const s3Client = new S3Client(s3ClientOpts());
-    const cmd = new PutObjectCommand({
-      ...s3Location,
-      Body: data,
-      ContentType: "image/tiff",
-      Metadata: {
-        width: width.toString(),
-        height: height.toString(),
-        pages: pages.toString(),
-        tilesize: TILE_SIZE.toString()
+  const actions = [
+    {
+      action: "c2pa.transcoded",
+      softwareAgent: "Meadow (https://github.com/nulib/meadow)",
+      parameters: {
+        outputFormat: "image/tiff",
+        description: [
+          "Alpha channel removed",
+          `Scaled to fit within ${MAX_DIMENSION}×${MAX_DIMENSION}px (without enlargement)`,
+          "Auto-rotated to EXIF orientation 1",
+          `Tiled pyramidal TIFF, tile size ${TILE_SIZE}×${TILE_SIZE}px, JPEG compression quality 75`
+        ].join("; ")
       }
-    });
+    }
+  ];
+  data = await addContentCredentials(data, "edit", actions, { parentLocation: source, mimeType: "image/tiff" });
 
-    s3Client
-      .send(cmd)
-      .then((_data) => resolve(location));
-  });
-};
-
-const getS3Location = (location) => {
-  const uri = new URL(location);
-  const Bucket = uri.host;
-  const Key = uri.pathname.slice(1);
-  return { Bucket, Key };
-};
-
-const s3ClientOpts = () => {
-  const forcePathStyle = process.env.AWS_S3_FORCE_PATH_STYLE === "true";
-  const endpoint = process.env.AWS_S3_ENDPOINT;
-  return { endpoint, forcePathStyle, httpOptions: { timeout: 600000 } };
+  console.log(`Saving to ${dest}`);
+  const { width, height, pages } = await sharp(data).metadata();
+  const metadata = {
+    width: width.toString(),
+    height: height.toString(),
+    pages: pages.toString(),
+    tilesize: TILE_SIZE.toString()
+  };
+  return uploadToS3(data, dest, "image/tiff", metadata);
 };
 
 export { createPyramidTiff };

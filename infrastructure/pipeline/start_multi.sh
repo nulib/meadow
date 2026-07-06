@@ -7,7 +7,7 @@ PIDS=()
 LOGDIR=$(mktemp -d)
 
 for p in $(seq 3015 $((3015 + COUNT - 1))); do
-  sam local start-lambda --warm-containers=LAZY -p $p >"$LOGDIR/$p.log" 2>&1 &
+  sam local start-lambda --warm-containers=LAZY --env-vars local_env.json -p $p >"$LOGDIR/$p.log" 2>&1 &
   PIDS+=($!)
   BACKENDS="$BACKENDS
   server s$p 127.0.0.1:$p";

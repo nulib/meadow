@@ -35,7 +35,7 @@ function WorkFilesetListItem({
     errored: false, // This prevents a potential infinite loop
     src: `${fileSet.representativeImageUrl}/${
       isMedia(fileSet) ? "full" : "square"
-    }/100,/0/default.jpg`,
+    }/^100,/0/default.jpg`,
   });
 
   const figure = css`

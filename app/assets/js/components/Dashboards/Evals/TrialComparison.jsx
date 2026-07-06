@@ -1,7 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
+import CloverImage from "@samvera/clover-iiif/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
+import { IIIF_SIZES } from "@js/services/global-vars";
 
 function SubjectList({ subjects }) {
   if (!subjects || subjects.length === 0) {
@@ -71,6 +73,7 @@ export default function TrialComparison({
   groundTruth,
   agentOutput,
   judgeRationale,
+  imageUrl,
 }) {
   const gt = groundTruth || {};
   const ai = agentOutput || {};
@@ -78,6 +81,31 @@ export default function TrialComparison({
   return (
     <div style={{ padding: "1rem 0" }}>
       <div className="columns">
+        <div className="column">
+          <div
+            className="box"
+            style={{
+              height: "320px",
+              padding: 0,
+              position: "relative",
+              zIndex: 0,
+            }}
+          >
+            {imageUrl ? (
+              <CloverImage
+                src={`${imageUrl}${IIIF_SIZES.IIIF_FULL}`}
+                openSeadragonConfig={{ showNavigator: false }}
+              />
+            ) : (
+              <p
+                className="has-text-grey is-size-7"
+                style={{ padding: "1rem" }}
+              >
+                No image available
+              </p>
+            )}
+          </div>
+        </div>
         <div className="column">
           <div className="box" style={{ height: "100%" }}>
             <p className="heading has-text-grey">Ground Truth</p>
@@ -130,4 +158,5 @@ TrialComparison.propTypes = {
     ),
   }),
   judgeRationale: PropTypes.string,
+  imageUrl: PropTypes.string,
 };

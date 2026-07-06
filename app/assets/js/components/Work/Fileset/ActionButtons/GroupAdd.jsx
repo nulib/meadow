@@ -210,7 +210,7 @@ const WorkFilesetActionButtonsGroupAdd = ({
             >
               <figure>
                 <img
-                  src={`${iiifServerUrl}${candidate.id}/square/32,32/0/default.jpg`}
+                  src={`${iiifServerUrl}${candidate.id}/square/^32,32/0/default.jpg`}
                   placeholder="Fileset Image"
                   data-testid="fileset-image"
                 />

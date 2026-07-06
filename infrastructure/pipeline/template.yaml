@@ -242,7 +242,6 @@ Resources:
       Handler: index.handler
       Runtime: nodejs22.x
       Layers:
-        - !Ref ffmpegLayer
         - !Ref sharpLayer
       MemorySize: 8192
       Timeout: 240
@@ -251,6 +250,7 @@ Resources:
           AWS_S3_ENDPOINT: !Ref S3Endpoint
           AWS_S3_FORCE_PATH_STYLE: !Ref S3PathStyle
           NODE_OPTIONS: "--max-old-space-size=8192"
+          SECRETS_PATH: !Ref ConfigPrefix
           VIPS_DISC_THRESHOLD: "3500m"
       Policies:
         - Version: "2012-10-17"

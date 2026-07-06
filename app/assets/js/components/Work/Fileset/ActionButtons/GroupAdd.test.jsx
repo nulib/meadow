@@ -77,7 +77,7 @@ describe("WorkFilesetActionButtonsGroupAdd component", () => {
     expect(filteredCandidate).toHaveTextContent("Voyager:2572813_FILE_0");
     expect(filteredCandidate.querySelector("img")).toHaveAttribute(
       "src",
-      "http://example.org/iiif/109b9a5c-3c6f-4a98-b98b-12402b871dc7/square/32,32/0/default.jpg",
+      "http://example.org/iiif/109b9a5c-3c6f-4a98-b98b-12402b871dc7/square/^32,32/0/default.jpg",
     );
 
     // click the candidate to add
