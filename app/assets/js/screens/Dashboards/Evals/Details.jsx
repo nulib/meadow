@@ -1,13 +1,16 @@
 import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useHistory } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import Layout from "@js/screens/Layout";
 import { Breadcrumbs } from "@js/components/UI/UI";
+import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
+import UIModalDelete from "@js/components/UI/Modal/Delete";
 import ScoreButtons from "@js/components/Dashboards/Evals/ScoreButtons";
 import TrialComparison from "@js/components/Dashboards/Evals/TrialComparison";
 import {
   GET_EVAL_RUN,
   CANCEL_EVAL_RUN,
+  DELETE_EVAL_RUN,
 } from "@js/components/Dashboards/Evals/evals.gql";
 
 const STATUS_COLORS = {
@@ -18,6 +21,8 @@ const STATUS_COLORS = {
   CANCELLED: "is-light",
   SKIPPED: "is-light",
 };
+
+const DELETABLE_STATUSES = ["COMPLETE", "ERRORED", "CANCELLED"];
 
 function percent(n) {
   if (n == null) return "—";
@@ -38,8 +43,10 @@ function enumLabel(value) {
 
 export default function EvalsDetailsScreen() {
   const { id } = useParams();
+  const history = useHistory();
   const [expandedTrialId, setExpandedTrialId] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const { data, loading } = useQuery(GET_EVAL_RUN, {
     variables: { id },
@@ -49,6 +56,13 @@ export default function EvalsDetailsScreen() {
   const [cancelRun, { loading: cancelling }] = useMutation(CANCEL_EVAL_RUN, {
     refetchQueries: [{ query: GET_EVAL_RUN, variables: { id } }],
   });
+
+  const [deleteRun] = useMutation(DELETE_EVAL_RUN);
+
+  const handleDeleteConfirm = async () => {
+    await deleteRun({ variables: { id } });
+    history.push("/dashboards/evals");
+  };
 
   const run = data?.evalRun;
   const s = run?.summary || {};
@@ -142,6 +156,16 @@ export default function EvalsDetailsScreen() {
                 <button className="button is-light" onClick={handleDownloadCsv}>
                   Download CSV
                 </button>
+                {DELETABLE_STATUSES.includes(runStatus) && (
+                  <AuthDisplayAuthorized level="EDITOR">
+                    <button
+                      className="button is-danger is-outlined"
+                      onClick={() => setShowDeleteModal(true)}
+                    >
+                      Delete Run
+                    </button>
+                  </AuthDisplayAuthorized>
+                )}
               </div>
             </div>
           </div>
@@ -241,6 +265,7 @@ export default function EvalsDetailsScreen() {
               <thead>
                 <tr>
                   <th style={{ width: "1.5rem" }}></th>
+                  <th style={{ width: "5.5rem" }}></th>
                   <th>Work / Accession</th>
                   <th>#</th>
                   <th>Status</th>
@@ -260,10 +285,30 @@ export default function EvalsDetailsScreen() {
                   return (
                     <React.Fragment key={trial.id}>
                       <tr style={{ cursor: "pointer" }} onClick={toggleExpand}>
-                        <td style={{ verticalAlign: "middle" }}>
+                        <td style={{ verticalAlign: "top" }}>
                           <span style={{ fontSize: "0.75rem" }}>
                             {isExpanded ? "▾" : "▸"}
                           </span>
+                        </td>
+                        <td style={{ verticalAlign: "top" }}>
+                          {member.representativeImageUrl ? (
+                            <img
+                              src={`${member.representativeImageUrl}/square/^80,80/0/default.jpg`}
+                              alt=""
+                              style={{ borderRadius: "4px" }}
+                              width={80}
+                              height={80}
+                            />
+                          ) : (
+                            <div
+                              className="has-background-light"
+                              style={{
+                                width: 80,
+                                height: 80,
+                                borderRadius: "4px",
+                              }}
+                            />
+                          )}
                         </td>
                         <td>
                           <div>
@@ -297,7 +342,7 @@ export default function EvalsDetailsScreen() {
                       {isExpanded && (
                         <tr>
                           <td
-                            colSpan={8}
+                            colSpan={9}
                             style={{ background: "#fafafa", borderTop: "none" }}
                           >
                             {trialStatus === "COMPLETE" ? (
@@ -305,6 +350,7 @@ export default function EvalsDetailsScreen() {
                                 groundTruth={member.groundTruth}
                                 agentOutput={trial.agentOutput}
                                 judgeRationale={trial.judgeRationale}
+                                imageUrl={member.representativeImageUrl}
                               />
                             ) : (
                               <p
@@ -325,6 +371,13 @@ export default function EvalsDetailsScreen() {
           </div>
         </div>
       </section>
+
+      <UIModalDelete
+        isOpen={showDeleteModal}
+        handleClose={() => setShowDeleteModal(false)}
+        handleConfirm={handleDeleteConfirm}
+        thingToDeleteLabel={run.name || run.evalSet?.name || "this eval run"}
+      />
     </Layout>
   );
 }

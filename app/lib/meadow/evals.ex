@@ -219,10 +219,29 @@ defmodule Meadow.Evals do
   Works with no description AND fewer than 3 subjects are skipped.
   Returns {:ok, eval_set, skipped_count} or {:error, reason}.
   """
-  def create_eval_set_from_work_ids(work_ids, attrs) when is_list(work_ids) do
+  def create_eval_set_from_work_ids(identifiers, attrs) when is_list(identifiers) do
+    work_ids = resolve_identifiers(identifiers)
     query_json = %{"query" => %{"ids" => %{"values" => work_ids}}}
     transient = %EvalQuery{id: nil, query_json: query_json}
     create_eval_set_from_query(transient, attrs)
+  end
+
+  @doc """
+  Resolve a mixed list of work UUIDs and/or accession numbers to work UUIDs.
+
+  Each identifier is auto-detected: a valid UUID is used as-is, anything else
+  is looked up by accession_number. Identifiers that don't resolve to a work
+  are silently dropped (consistent with how an unknown work UUID already
+  drops out downstream in build_member_attrs/1).
+  """
+  def resolve_identifiers(identifiers) do
+    {uuids, accessions} =
+      Enum.split_with(identifiers, fn id -> match?({:ok, _}, Ecto.UUID.cast(id)) end)
+
+    accession_work_ids =
+      Repo.all(from(w in Work, where: w.accession_number in ^accessions, select: w.id))
+
+    (uuids ++ accession_work_ids) |> Enum.uniq()
   end
 
   def create_eval_set_from_query(%EvalQuery{} = eval_query, attrs) do
@@ -432,6 +451,13 @@ defmodule Meadow.Evals do
     from(t in EvalTrial, where: t.eval_run_id == ^run_id and t.status in [:pending, :running])
     |> Repo.update_all(set: [status: :skipped, updated_at: DateTime.utc_now()])
   end
+
+  @doc """
+  Delete an eval run. Trials and their scores cascade via FK (on_delete: :delete_all).
+  Callers are responsible for guarding against deleting pending/running runs.
+  """
+  def delete_run(%EvalRun{} = run), do: Repo.delete(run)
+  def delete_run(id) when is_binary(id), do: get_run!(id) |> delete_run()
 
   # ---------------------------------------------------------------------------
   # Eval Trials

@@ -135,7 +135,9 @@ export default function StartRunModal({ onClose, onStarted }) {
                 <select value={mode} onChange={(e) => setMode(e.target.value)}>
                   <option value="existing">Use existing set</option>
                   <option value="new">Create new set from query</option>
-                  <option value="ids">Paste work IDs</option>
+                  <option value="ids">
+                    Paste work IDs or accession numbers
+                  </option>
                 </select>
               </div>
             </div>
@@ -202,7 +204,9 @@ export default function StartRunModal({ onClose, onStarted }) {
                   <textarea
                     className={`textarea is-family-monospace is-size-7${tooManyIds ? " is-danger" : ""}`}
                     rows={6}
-                    placeholder={"One work ID per line — up to 20"}
+                    placeholder={
+                      "One work ID or accession number per line — up to 20"
+                    }
                     value={workIdsText}
                     onChange={(e) => setWorkIdsText(e.target.value)}
                   />

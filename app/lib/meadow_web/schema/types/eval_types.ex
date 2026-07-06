@@ -76,6 +76,10 @@ defmodule MeadowWeb.Schema.EvalTypes do
     field(:accession_number, :string)
     field(:representative_file_set_id, :id)
     field(:ground_truth, :json)
+
+    field :representative_image_url, :string do
+      resolve(&Evals.eval_set_member_representative_image_url/3)
+    end
   end
 
   object :eval_set do
@@ -315,6 +319,14 @@ defmodule MeadowWeb.Schema.EvalTypes do
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Evals.cancel_run/3)
+    end
+
+    @desc "Delete an eval run (only when not pending/running)"
+    field :delete_eval_run, :eval_run do
+      arg(:id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Evals.delete_run/3)
     end
 
     @desc "Set manual score for an eval trial"
