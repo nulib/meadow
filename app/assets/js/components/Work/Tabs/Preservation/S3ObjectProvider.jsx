@@ -80,7 +80,12 @@ const S3ObjectProvider = forwardRef(
       setFiles(newFiles);
     }, [data, setFiles]);
 
+    const isInitialMount = useRef(true);
     useEffect(() => {
+      if (isInitialMount.current) {
+        isInitialMount.current = false;
+        return;
+      }
       refetch();
     }, [prefix]);
 
