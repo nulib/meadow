@@ -172,6 +172,130 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
     expect(screen.queryByTestId("transcription-pane")).not.toBeInTheDocument();
   });
 
+  it("shows a saved toast once a generated transcription completes", async () => {
+    const workMocks = [
+      {
+        request: { query: GET_WORK, variables: { id: workId } },
+        result: { data: { work: baseWork } },
+      },
+      {
+        request: { query: GET_WORK, variables: { id: workId } },
+        result: { data: { work: baseWork } },
+      },
+      {
+        request: {
+          query: TRANSCRIBE_FILE_SET,
+          variables: { fileSetId },
+        },
+        result: {
+          data: {
+            transcribeFileSet: { id: fileSetId },
+          },
+        },
+      },
+    ];
+
+    useFileSetAnnotation.mockReturnValue({
+      data: { fileSetAnnotation: null },
+    });
+
+    const { rerender } = render(
+      <MockedProvider mocks={workMocks}>
+        <WorkTabsStructureTranscriptionWorkflow
+          fileSetId={fileSetId}
+          workId={workId}
+          isActive={true}
+          hasTranscriptionCallback={jest.fn()}
+        />
+      </MockedProvider>,
+    );
+
+    const button = await screen.findByRole("button", {
+      name: /generate transcription/i,
+    });
+
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(toastWrapper).toHaveBeenCalledWith(
+        "is-success",
+        "Generating transcription",
+      );
+    });
+
+    // Subscription now reports the generated annotation as completed
+    useFileSetAnnotation.mockReturnValue({
+      data: {
+        fileSetAnnotation: {
+          id: "ann-generated-1",
+          status: "completed",
+          type: "transcription",
+          content: "Generated text",
+        },
+      },
+    });
+
+    rerender(
+      <MockedProvider mocks={workMocks}>
+        <WorkTabsStructureTranscriptionWorkflow
+          fileSetId={fileSetId}
+          workId={workId}
+          isActive={true}
+          hasTranscriptionCallback={jest.fn()}
+        />
+      </MockedProvider>,
+    );
+
+    await waitFor(() => {
+      expect(toastWrapper).toHaveBeenCalledWith(
+        "is-success",
+        "Transcription generated and saved",
+      );
+    });
+  });
+
+  it("does not show a saved toast for a pre-existing completed annotation", async () => {
+    const completedAnnotation = {
+      id: "ann-existing-1",
+      status: "completed",
+      type: "transcription",
+      content: "Hello world",
+      __typename: "Annotation",
+    };
+
+    const workMocks = [
+      {
+        request: { query: GET_WORK, variables: { id: workId } },
+        result: {
+          data: {
+            work: {
+              ...baseWork,
+              fileSets: [
+                {
+                  id: fileSetId,
+                  annotations: [completedAnnotation],
+                  __typename: "FileSet",
+                },
+              ],
+            },
+          },
+        },
+      },
+    ];
+
+    renderWorkflow({
+      mocks: workMocks,
+      hookData: { data: { fileSetAnnotation: completedAnnotation } },
+    });
+
+    await screen.findByTestId("transcription-pane");
+
+    expect(toastWrapper).not.toHaveBeenCalledWith(
+      "is-success",
+      "Transcription generated and saved",
+    );
+  });
+
   it("renders GraphQL errors from TRANSCRIBE_FILE_SET when transcription fails", async () => {
     const details = { model: "is invalid" };
     const workMocks = [
