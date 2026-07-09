@@ -9,6 +9,7 @@ defmodule MeadowWeb.Resolvers.Data do
   alias Meadow.Pipeline
   alias Meadow.Utils.AWS.S3, as: S3Utils
   alias Meadow.Utils.ChangesetErrors
+  require Logger
 
   def works(_, args, _) do
     {:ok, Works.list_works(args)}
@@ -60,7 +61,18 @@ defmodule MeadowWeb.Resolvers.Data do
         # Skip fields the user explicitly attested as human-authored — those go
         # through the attestation path below so they don't also pick up an
         # "AI + human edited" event.
-        Provenance.record_work_manual_edit(work, updated_work, actor, except: attested_paths)
+        case Provenance.record_work_manual_edit(work, updated_work, actor,
+               except: attested_paths
+             ) do
+          :ok ->
+            :ok
+
+          other ->
+            Logger.warning(
+              "Failed to record manual-edit provenance for work #{work.id}: #{inspect(other)}"
+            )
+        end
+
         record_attestations(work, updated_work, attestations, actor)
         {:ok, updated_work}
     end
@@ -68,7 +80,8 @@ defmodule MeadowWeb.Resolvers.Data do
 
   # Record an explicit human attestation for each field the user marked as
   # human-authored. Reasons may differ per field, so record them one field at a
-  # time. Failures are logged inside Provenance and must not fail the save.
+  # time. Attestation is best-effort: failures are logged here but must not
+  # fail the save.
   defp record_attestations(_work, _updated_work, [], _actor), do: :ok
 
   defp record_attestations(work, updated_work, attestations, actor) do
@@ -81,6 +94,16 @@ defmodule MeadowWeb.Resolvers.Data do
         reason: Map.get(attestation, :reason),
         item_ids: Map.get(attestation, :item_ids)
       )
+      |> case do
+        {:ok, _attested} ->
+          :ok
+
+        {:error, reasons} ->
+          Logger.warning(
+            "Failed to record human-authored attestation for work #{work.id} " <>
+              "(#{field_path}): #{inspect(reasons)}"
+          )
+      end
     end)
   end
 

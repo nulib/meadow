@@ -70,6 +70,10 @@ function WorkTabsStructureTranscriptionWorkflow({
   const [transcribeFileSet] = useMutation(TRANSCRIBE_FILE_SET);
   const [useExistingAsContext, setUseExistingAsContext] = useState(false);
   const [hasContent, setHasContent] = useState(false);
+  // True from the moment Generate is clicked until the transcribe mutation
+  // settles, so a double-click can't fire two AI jobs before the annotation's
+  // pending/in_progress status arrives and takes over the gating.
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const workFileSet = work?.fileSets?.find((fs) => fs.id === fileSetId);
   const existingTranscriptionAnnotation = workFileSet?.annotations?.find(
@@ -126,7 +130,7 @@ function WorkTabsStructureTranscriptionWorkflow({
   }, [fileSetAnnotation?.id, fileSetAnnotation?.status]);
 
   const handleStartTranscription = () => {
-    if (!fileSetId) return;
+    if (!fileSetId || isSubmitting || generating) return;
 
     // Send the live editor text (incl. unsaved edits) as context when the
     // reviewer opts in — matches what they see and works even before a first
@@ -136,13 +140,20 @@ function WorkTabsStructureTranscriptionWorkflow({
     const context =
       useExistingAsContext && liveText.trim() ? liveText : undefined;
 
-    toastWrapper("is-success", "Generating transcription");
+    setIsSubmitting(true);
     generationInFlightRef.current = true;
+    toastWrapper("is-success", "Generating transcription");
 
     transcribeFileSet({
       variables: { fileSetId, ...(context ? { context } : {}) },
+      onCompleted: () => {
+        // The refetched annotation status (pending/in_progress) gates the
+        // buttons from here on.
+        setIsSubmitting(false);
+      },
       onError: (error) => {
         generationInFlightRef.current = false;
+        setIsSubmitting(false);
         flashTranscriptionError(error);
       },
       refetchQueries: [
@@ -162,6 +173,7 @@ function WorkTabsStructureTranscriptionWorkflow({
   // there is content to draw on, a checkbox offers to feed it to the model as
   // context for the regeneration.
   const canGenerate = !generating;
+  const generateDisabled = isSubmitting || !canGenerate;
 
   const showEditor = Boolean(annotation) || manualEntry;
 
@@ -191,6 +203,7 @@ function WorkTabsStructureTranscriptionWorkflow({
           <Button
             isPrimary
             isLowercase
+            disabled={generateDisabled}
             onClick={handleStartTranscription}
             style={{ gap: "0.5rem" }}
           >
@@ -221,6 +234,7 @@ function WorkTabsStructureTranscriptionWorkflow({
                 isPrimary
                 isLowercase
                 isSmall
+                disabled={generateDisabled}
                 onClick={handleStartTranscription}
                 style={{ gap: "0.5rem", flexShrink: 0 }}
               >

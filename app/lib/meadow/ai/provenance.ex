@@ -159,9 +159,29 @@ defmodule Meadow.AI.Provenance do
 
     case lookup_agent(normalized) do
       {:ok, agent} -> {:ok, agent}
-      nil -> add_agent(normalized)
+      nil -> insert_agent(normalized)
     end
   end
+
+  # Concurrent callers can race past the lookup above, so insert with
+  # `on_conflict: :nothing` against the unique identifier index (the same
+  # pattern `link_agent_to_event/3` uses) and re-lookup the winning row when
+  # the insert lost the race (signalled by the missing read-after-write id).
+  defp insert_agent(%{identifier_type: type, identifier_value: value} = attrs)
+       when is_binary(type) and is_binary(value) do
+    attrs
+    |> Agent.changeset()
+    |> Repo.insert(
+      on_conflict: :nothing,
+      conflict_target: [:identifier_type, :identifier_value]
+    )
+    |> case do
+      {:ok, %Agent{id: nil}} -> lookup_agent(attrs) || add_agent(attrs)
+      other -> other
+    end
+  end
+
+  defp insert_agent(attrs), do: add_agent(attrs)
 
   def link_agent_to_event(%Event{id: event_id}, %Agent{id: agent_id}, role) do
     %{activity_event_id: event_id, agent_id: agent_id, role: role}
@@ -214,6 +234,27 @@ defmodule Meadow.AI.Provenance do
       {:ok, target} = record_target(activity, attrs, event_type)
       target
     end)
+  end
+
+  @doc """
+  Delete an activity's still-`proposed` targets (their events cascade at the
+  database level). Used when a plan change's proposal is revised before review:
+  the superseded proposal's targets are replaced on the same activity instead
+  of lingering as orphaned `proposed` targets forever. Targets that have
+  progressed past `proposed` (reviewed, applied, deleted, …) are left
+  untouched. Returns the number of targets deleted.
+  """
+  def delete_proposed_targets(%Activity{id: activity_id}),
+    do: delete_proposed_targets(activity_id)
+
+  def delete_proposed_targets(activity_id) do
+    {count, _} =
+      from(t in Target,
+        where: t.activity_id == ^activity_id and t.status == "proposed"
+      )
+      |> Repo.delete_all()
+
+    count
   end
 
   def record_plan_manual_edit(change_before, attrs, actor) do
@@ -865,14 +906,25 @@ defmodule Meadow.AI.Provenance do
     |> Map.new(fn %{field_path: field_path} -> {field_path, field_value(work, field_path)} end)
   end
 
+  # Field paths are either two-segment ("descriptive_metadata.description") or
+  # single-segment top-level work fields ("published", "visibility",
+  # "collection_id" — the uncontrolled field operations the planner supports).
   defp field_value(work, field_path) do
-    with [section, field] <- String.split(field_path, ".", parts: 2),
-         section_atom when not is_nil(section_atom) <- safe_existing_atom(section),
-         field_atom when not is_nil(field_atom) <- safe_existing_atom(field),
-         %{} = section_value <- Map.get(work, section_atom) do
-      Map.get(section_value, field_atom)
-    else
-      _ -> nil
+    case String.split(field_path, ".", parts: 2) do
+      [field] ->
+        case safe_existing_atom(field) do
+          nil -> nil
+          field_atom -> Map.get(work, field_atom)
+        end
+
+      [section, field] ->
+        with section_atom when not is_nil(section_atom) <- safe_existing_atom(section),
+             field_atom when not is_nil(field_atom) <- safe_existing_atom(field),
+             %{} = section_value <- Map.get(work, section_atom) do
+          Map.get(section_value, field_atom)
+        else
+          _ -> nil
+        end
     end
   end
 
@@ -959,7 +1011,7 @@ defmodule Meadow.AI.Provenance do
     work_id
     |> work_summary()
     |> Map.new(fn summary ->
-      {summary.field_path,
+      {summary_map_key(summary),
        %{
          origin: summary.origin,
          operation: summary.operation,
@@ -1036,7 +1088,7 @@ defmodule Meadow.AI.Provenance do
     target_type
     |> target_summary(target_id)
     |> Map.new(fn summary ->
-      {summary.field_path,
+      {summary_map_key(summary),
        %{
          origin: summary.origin,
          operation: summary.operation,
@@ -1064,6 +1116,16 @@ defmodule Meadow.AI.Provenance do
        }}
     end)
   end
+
+  # Work-type entries are keyed by field_path alone — index/frontend consumers
+  # look metadata fields up by field_path. Other target types (e.g. several
+  # FileSetAnnotations that all share the "file_set_annotations.content"
+  # field_path) include the target_id so distinct targets never collapse into
+  # one arbitrary map entry.
+  defp summary_map_key(%{target_type: "Work", field_path: field_path}), do: field_path
+
+  defp summary_map_key(%{field_path: field_path, target_id: target_id}),
+    do: "#{field_path}:#{target_id}"
 
   def operation_targets(operations, target_type, target_id) do
     operations

@@ -6,7 +6,7 @@ defmodule Meadow.Repo.Migrations.AddItemIdentifierToAiActivityEvents do
   # etc.). NULL means the event applies to the whole field, the existing behavior.
   def change do
     alter table(:ai_activity_events) do
-      add(:item_identifier, :string)
+      add(:item_identifier, :text)
     end
 
     create(index(:ai_activity_events, [:item_identifier]))

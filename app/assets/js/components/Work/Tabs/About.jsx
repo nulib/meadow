@@ -95,7 +95,7 @@ const WorkTabsAbout = ({ work }) => {
   // Explicit human-authored attestations selected on AI-provenanced fields,
   // submitted alongside the work update so editing a value and marking it
   // human-authored happen in a single save.
-  const { attestationsInput } = useAttestation();
+  const { attestationsInput, resetAttestations } = useAttestation();
 
   // Is form being edited?
   const [isEditing, setIsEditing] = useIsEditing();
@@ -111,6 +111,9 @@ const WorkTabsAbout = ({ work }) => {
     useMutation(UPDATE_WORK, {
       onCompleted({ updateWork }) {
         setIsEditing(false);
+        // The submitted attestations are now recorded; clear them so the next
+        // save doesn't re-send them and re-record duplicate events.
+        resetAttestations();
         toastWrapper("is-success", "Work metadata successfully updated");
       },
       onError(error) {
@@ -219,7 +222,12 @@ const WorkTabsAbout = ({ work }) => {
               <Button
                 isText
                 data-testid="cancel-button"
-                onClick={() => setIsEditing(false)}
+                onClick={() => {
+                  // Discard any attestations checked during the abandoned
+                  // edit session along with the form edits themselves.
+                  resetAttestations();
+                  setIsEditing(false);
+                }}
               >
                 Cancel
               </Button>

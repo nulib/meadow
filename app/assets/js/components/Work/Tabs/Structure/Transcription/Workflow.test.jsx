@@ -184,6 +184,53 @@ describe("WorkTabsStructureTranscriptionWorkflow", () => {
     ).toBeInTheDocument();
   });
 
+  it("disables Generate while submitting so a double-click fires only one job", async () => {
+    const workMocks = [
+      {
+        request: { query: GET_WORK, variables: { id: workId } },
+        result: { data: { work: baseWork } },
+      },
+      {
+        request: { query: GET_WORK, variables: { id: workId } },
+        result: { data: { work: baseWork } },
+      },
+      {
+        request: {
+          query: TRANSCRIBE_FILE_SET,
+          variables: { fileSetId },
+        },
+        result: {
+          data: { transcribeFileSet: { id: fileSetId } },
+        },
+      },
+    ];
+
+    renderWorkflow({ mocks: workMocks });
+
+    const button = await screen.findByRole("button", {
+      name: /generate transcription/i,
+    });
+    expect(button).not.toBeDisabled();
+
+    fireEvent.click(button);
+    // Immediately after the first click the button is gated...
+    expect(button).toBeDisabled();
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(toastWrapper).toHaveBeenCalledWith(
+        "is-success",
+        "Generating transcription",
+      );
+    });
+
+    // ...so only one job (one "Generating transcription" toast) was started.
+    const starts = toastWrapper.mock.calls.filter(
+      ([, message]) => message === "Generating transcription",
+    );
+    expect(starts).toHaveLength(1);
+  });
+
   it("opens a blank editor when Enter Manually is clicked", async () => {
     const workMocks = [
       {

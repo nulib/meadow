@@ -8,6 +8,11 @@ function WorkTabsStructureTranscriptionPane({
   const textAreaRef = useRef(null);
   const { content, id, status, type } = annotation || {};
 
+  // A generation job starts as "pending" before flipping to "in_progress";
+  // treat both as generating (mirrors Workflow.jsx) so the overlay shows and
+  // editing stays inert for the whole run.
+  const generating = status === "pending" || status === "in_progress";
+
   useEffect(() => {
     if (!textAreaRef.current) return;
     // While a transcription is generating, leave the textarea inert (and the
@@ -15,7 +20,7 @@ function WorkTabsStructureTranscriptionPane({
     // mounts — even with no existing annotation — so a person can author one
     // from scratch. Hydrate any existing content first, then report it as the
     // unedited baseline so the modal's dirty tracking treats it as pristine.
-    if (status === "in_progress") return;
+    if (generating) return;
     if (typeof content === "string") {
       textAreaRef.current.value = content;
     }
@@ -34,7 +39,7 @@ function WorkTabsStructureTranscriptionPane({
         zIndex: 0,
       }}
     >
-      {status === "in_progress" && (
+      {generating && (
         <div
           className="transcription-generating-overlay"
           style={{

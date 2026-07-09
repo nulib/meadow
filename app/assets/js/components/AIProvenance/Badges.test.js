@@ -161,6 +161,29 @@ describe("AIProvenance Badges", () => {
       expect(queryByTestId("provenance-origin-badge")).not.toBeInTheDocument();
     });
 
+    // A plan change that is merely proposed (or approved but not yet applied)
+    // has not touched the field — its live value is still human-authored, so
+    // no AI badge may appear next to it.
+    it("renders nothing for a not-yet-applied (proposed/reviewed) value", () => {
+      const proposed = render(
+        <FieldProvenanceBadge
+          entry={{ origin: "ai_generated", status: "proposed" }}
+        />,
+      );
+      expect(
+        proposed.queryByTestId("provenance-origin-badge"),
+      ).not.toBeInTheDocument();
+
+      const reviewed = render(
+        <FieldProvenanceBadge
+          entry={{ origin: "ai_generated", status: "reviewed" }}
+        />,
+      );
+      expect(
+        reviewed.queryByTestId("provenance-origin-badge"),
+      ).not.toBeInTheDocument();
+    });
+
     it("renders nothing for rejected or failed values", () => {
       const rejected = render(
         <FieldProvenanceBadge

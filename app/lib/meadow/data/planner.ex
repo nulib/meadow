@@ -792,14 +792,19 @@ defmodule Meadow.Data.Planner do
              timestamp = DateTime.utc_now()
              change_ids = proposed_change_ids(plan.id)
 
-             {count, _} =
+             # Recheck status in the UPDATE so a change reviewed concurrently
+             # (between the select above and this update) is skipped rather
+             # than overwritten; only the ids actually updated get review
+             # provenance recorded below.
+             {count, updated_ids} =
                from(c in PlanChange,
-                 where: c.id in ^change_ids,
+                 where: c.id in ^change_ids and c.status == :proposed,
+                 select: c.id,
                  update: [set: [status: :approved, user: ^user, updated_at: ^timestamp]]
                )
                |> Repo.update_all([])
 
-             changes = list_plan_changes_by_ids(change_ids, :approved)
+             changes = list_plan_changes_by_ids(updated_ids, :approved)
 
              Enum.each(changes, &Provenance.record_review_for_plan_change(&1, "approved", user))
 
@@ -839,14 +844,19 @@ defmodule Meadow.Data.Planner do
              timestamp = DateTime.utc_now()
              change_ids = proposed_change_ids(plan.id)
 
-             {count, _} =
+             # Recheck status in the UPDATE so a change reviewed concurrently
+             # (between the select above and this update) is skipped rather
+             # than overwritten; only the ids actually updated get review
+             # provenance recorded below.
+             {count, updated_ids} =
                from(c in PlanChange,
-                 where: c.id in ^change_ids,
+                 where: c.id in ^change_ids and c.status == :proposed,
+                 select: c.id,
                  update: [set: [status: :rejected, notes: ^notes, updated_at: ^timestamp]]
                )
                |> Repo.update_all([])
 
-             changes = list_plan_changes_by_ids(change_ids, :rejected)
+             changes = list_plan_changes_by_ids(updated_ids, :rejected)
 
              Enum.each(
                changes,

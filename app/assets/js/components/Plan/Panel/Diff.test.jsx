@@ -153,6 +153,124 @@ describe("PlanPanelChangesDiff", () => {
     );
   });
 
+  test("newest activity's recorded origin wins over an older revision's", () => {
+    // aiActivities arrives newest-first. After a plan-change revision, the
+    // newest activity re-recorded the field as plain ai_generated; the stale
+    // human-touched origin from the older activity must not override it.
+    mockUseQuery.mockReturnValue({
+      data: {
+        aiActivities: [
+          {
+            id: "a2-newest",
+            targets: [
+              {
+                fieldPath: "descriptive_metadata.description",
+                origin: "ai_generated",
+              },
+            ],
+          },
+          {
+            id: "a1-older",
+            targets: [
+              {
+                fieldPath: "descriptive_metadata.description",
+                origin: "ai_assisted_human_modified",
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    mockToRows
+      .mockReturnValueOnce([
+        {
+          id: "add-description",
+          method: "add",
+          path: "descriptive_metadata.description",
+          label: "Description",
+          value: "Fresh AI description",
+          controlled: false,
+        },
+      ])
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([]);
+
+    render(
+      <PlanPanelChangesDiff
+        proposedChanges={baseProposed}
+        planChangeId="pc-1"
+      />,
+    );
+
+    const preview = screen.getByTestId("provenance-preview");
+    expect(preview).toHaveTextContent("AI generated");
+    expect(preview).not.toHaveTextContent("AI + human edited");
+  });
+
+  test("newest activity's item provenance wins over an older revision's", () => {
+    // The older activity attributed a since-revised value; only the newest
+    // activity's reconciled itemProvenance should badge the proposed items.
+    mockUseQuery.mockReturnValue({
+      data: {
+        aiActivities: [
+          {
+            id: "a2-newest",
+            targets: [
+              {
+                fieldPath: "descriptive_metadata.alternate_title",
+                origin: "ai_generated",
+                itemProvenance: [
+                  { id: "New alt", origin: "ai_generated" },
+                  { id: "Second new alt", origin: "ai_generated" },
+                ],
+              },
+            ],
+          },
+          {
+            id: "a1-older",
+            targets: [
+              {
+                fieldPath: "descriptive_metadata.alternate_title",
+                origin: "ai_generated",
+                itemProvenance: [
+                  { id: "Vanished alt", origin: "ai_generated" },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    mockToRows
+      .mockReturnValueOnce([
+        {
+          id: "add-alt",
+          method: "add",
+          path: "descriptive_metadata.alternate_title",
+          label: "Alternate Title",
+          value: ["New alt", "Second new alt"],
+          controlled: false,
+        },
+      ])
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([]);
+
+    render(
+      <PlanPanelChangesDiff
+        proposedChanges={baseProposed}
+        planChangeId="pc-1"
+      />,
+    );
+
+    // Both current items are badged from the newest attribution (the stale
+    // "Vanished alt" entry matches nothing, and would have left these items
+    // unbadged if the older activity had won).
+    expect(screen.getAllByTestId("provenance-origin-badge")).toHaveLength(2);
+    expect(screen.queryByTestId("provenance-preview")).not.toBeInTheDocument();
+  });
+
   test("renders non-controlled primitive values directly", () => {
     mockToRows
       .mockReturnValueOnce([

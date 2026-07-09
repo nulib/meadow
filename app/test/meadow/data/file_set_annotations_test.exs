@@ -210,6 +210,57 @@ defmodule Meadow.Data.FileSetAnnotationsTest do
       end
     end
 
+    test "transcribe_file_set/2 restores prior content when regeneration fails", %{
+      file_set: file_set
+    } do
+      {:ok, prior} =
+        FileSets.create_annotation(file_set, %{
+          type: "transcription",
+          status: "completed",
+          content: "Human draft"
+        })
+
+      expect(Meadow.Data.TranscriberMock, :transcribe, fn _id, _opts ->
+        {:error, :bedrock_stream_failed}
+      end)
+
+      assert {:ok, %FileSetAnnotation{id: annotation_id, status: "pending"}} =
+               FileSets.transcribe_file_set(file_set.id, [])
+
+      assert annotation_id != prior.id
+
+      assert_async(timeout: 2000, sleep_time: 100) do
+        assert %FileSetAnnotation{
+                 status: "completed",
+                 content: "Human draft",
+                 ai_activity_id: nil
+               } = FileSets.get_annotation!(annotation_id)
+      end
+    end
+
+    test "transcribe_file_set/2 restores prior content when regeneration is blank", %{
+      file_set: file_set
+    } do
+      {:ok, _prior} =
+        FileSets.create_annotation(file_set, %{
+          type: "transcription",
+          status: "completed",
+          content: "Human draft"
+        })
+
+      expect(Meadow.Data.TranscriberMock, :transcribe, fn _id, _opts ->
+        {:ok, %{text: "", languages: ["en"], raw: %{}, streamed_chunks: []}}
+      end)
+
+      assert {:ok, %FileSetAnnotation{id: annotation_id, status: "pending"}} =
+               FileSets.transcribe_file_set(file_set.id, [])
+
+      assert_async(timeout: 2000, sleep_time: 100) do
+        assert %FileSetAnnotation{status: "completed", content: "Human draft"} =
+                 FileSets.get_annotation!(annotation_id)
+      end
+    end
+
     test "transcribe_file_set/2 records provenance when transcription completes" do
       work = work_fixture(%{descriptive_metadata: %{title: "Transcription Work"}})
 

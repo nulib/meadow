@@ -226,28 +226,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
     if has_metadata_changes?(attrs) do
       plan = Repo.preload(change, :plan).plan
 
-      with {:ok, activity} <-
-             Provenance.create_activity(%{
-               activity_type: "metadata_plan",
-               model: Meadow.Config.ai(:model),
-               ai_use_type: "metadata_generation",
-               access_mode: "retrieval_based",
-               reversibility: "reversible",
-               model_type: "generative_ai",
-               prompt_text: plan && plan.prompt,
-               input: %{
-                 plan_id: change.plan_id,
-                 plan_change_id: change.id,
-                 work_id: change.work_id
-               },
-               work_id: change.work_id,
-               plan_id: change.plan_id,
-               plan_change_id: change.id,
-               status: "completed",
-               completed_at: DateTime.utc_now()
-             }) do
-        record_work_source(activity, change.work_id)
-
+      with {:ok, activity} <- activity_for_change(change, plan) do
         Provenance.record_targets_for_operations(
           activity,
           "Work",
@@ -278,6 +257,47 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
     else
       {:ok, attrs}
     end
+  end
+
+  defp activity_for_change(%{ai_activity_id: nil} = change, plan) do
+    with {:ok, activity} <-
+           Provenance.create_activity(%{
+             activity_type: "metadata_plan",
+             model: Meadow.Config.ai(:model),
+             ai_use_type: "metadata_generation",
+             access_mode: "retrieval_based",
+             reversibility: "reversible",
+             model_type: "generative_ai",
+             prompt_text: plan && plan.prompt,
+             input: %{
+               plan_id: change.plan_id,
+               plan_change_id: change.id,
+               work_id: change.work_id
+             },
+             work_id: change.work_id,
+             plan_id: change.plan_id,
+             plan_change_id: change.id,
+             status: "completed",
+             completed_at: DateTime.utc_now()
+           }) do
+      record_work_source(activity, change.work_id)
+      {:ok, activity}
+    end
+  end
+
+  # A pending change can be revised several times before review. Reuse the
+  # revision's existing activity — refreshing its attrs and replacing its
+  # still-proposed targets — so superseded proposals don't linger as orphaned
+  # 'proposed' targets that keep surfacing in provenance summaries. Targets
+  # that already progressed past 'proposed' are left untouched.
+  defp activity_for_change(%{ai_activity_id: activity_id}, plan) do
+    activity = Provenance.get_activity!(activity_id)
+    Provenance.delete_proposed_targets(activity)
+
+    Provenance.complete_activity(activity, %{
+      model: Meadow.Config.ai(:model),
+      prompt_text: plan && plan.prompt
+    })
   end
 
   defp build_ai_note(model) do

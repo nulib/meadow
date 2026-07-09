@@ -171,7 +171,7 @@ defmodule Meadow.Repo.Migrations.CreateAIProvenance do
     end
 
     create(index(:ai_agents, [:agent_type]))
-    create(index(:ai_agents, [:identifier_type, :identifier_value]))
+    create(unique_index(:ai_agents, [:identifier_type, :identifier_value]))
 
     create table(:ai_activity_event_agents, primary_key: false) do
       add(:id, :uuid, primary_key: true, default: fragment("gen_random_uuid()"))

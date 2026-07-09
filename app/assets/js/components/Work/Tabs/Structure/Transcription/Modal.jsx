@@ -23,6 +23,11 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
   const [textArea, setTextArea] = useState();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  // Whether the textarea is backed by a saved annotation. Tracked as state
+  // (not read from the DOM at render time) so that when generation completes
+  // — which re-fires the pane callback with the same node and a clean dirty
+  // flag — the Delete/Download affordances still appear.
+  const [hasSavedAnnotation, setHasSavedAnnotation] = useState(false);
   const initialValueRef = useRef("");
 
   const dispatch = useWorkDispatch();
@@ -50,12 +55,16 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     if (!isActive) {
       setTextArea(null);
       setIsDirty(false);
+      setHasSavedAnnotation(false);
       return;
     }
     const textAreaElement = document.getElementById(
       "file-set-transcription-textarea",
     );
     setTextArea(textAreaElement);
+    setHasSavedAnnotation(
+      Boolean(textAreaElement?.getAttribute("data-annotation-id")),
+    );
   }, [isActive]);
 
   const handleClose = () => {
@@ -152,17 +161,18 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     initialValueRef.current = textAreaElement?.value ?? "";
     setIsDirty(false);
     setTextArea(textAreaElement);
+    // Only a saved annotation can be deleted; a transcription typed from
+    // scratch has no annotation id yet. Deriving this here (in state) means a
+    // completed generation forces the footer to update even when the node and
+    // dirty flag are otherwise unchanged.
+    setHasSavedAnnotation(
+      Boolean(textAreaElement?.getAttribute("data-annotation-id")),
+    );
   };
 
   const handleContentChange = (value) => {
     setIsDirty(value !== initialValueRef.current);
   };
-
-  // Only a saved annotation can be deleted; a transcription typed from scratch
-  // has no annotation id yet.
-  const hasSavedAnnotation = Boolean(
-    textArea?.getAttribute("data-annotation-id"),
-  );
 
   return (
     <div className={classNames(["modal"], { "is-active": isActive })}>

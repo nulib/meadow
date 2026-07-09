@@ -115,8 +115,12 @@ defmodule Meadow.AI.ProvenanceTest do
                }
              ] = Provenance.work_summary(work.id)
 
+      # Non-Work targets are keyed by field_path plus target_id so distinct
+      # annotations sharing a field_path never collapse into one entry.
+      summary_key = "file_set_annotations.content:#{annotation_id}"
+
       assert %{
-               "file_set_annotations.content" => %{
+               ^summary_key => %{
                  target_type: "FileSetAnnotation",
                  target_id: ^annotation_id
                }

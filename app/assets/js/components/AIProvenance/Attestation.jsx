@@ -18,6 +18,7 @@ const AttestationContext = React.createContext({
   attestations: {},
   setAttestation: () => {},
   clearAttestation: () => {},
+  resetAttestations: () => {},
   attestationsInput: () => [],
 });
 
@@ -37,6 +38,13 @@ function AttestationProvider({ children }) {
     });
   }, []);
 
+  // Drop every pending attestation. Called after a successful save (the
+  // attestations were recorded — resubmitting them would record duplicate
+  // events) and when an edit session is cancelled.
+  const resetAttestations = React.useCallback(() => {
+    setAttestations({});
+  }, []);
+
   // Shape the attestation state for the `humanAuthoredAttestations` mutation
   // input. Returns undefined when empty so the variable is simply omitted.
   const attestationsInput = React.useCallback(() => {
@@ -53,9 +61,16 @@ function AttestationProvider({ children }) {
       attestations,
       setAttestation,
       clearAttestation,
+      resetAttestations,
       attestationsInput,
     }),
-    [attestations, setAttestation, clearAttestation, attestationsInput],
+    [
+      attestations,
+      setAttestation,
+      clearAttestation,
+      resetAttestations,
+      attestationsInput,
+    ],
   );
 
   return (
@@ -81,7 +96,17 @@ const ATTESTABLE_ORIGINS = [
   "ai_assisted_human_modified",
   "human_replacement_after_ai_suggestion",
 ];
-const INACTIVE_STATUSES = ["deleted", "rejected", "failed"];
+// Mirrors INACTIVE_FIELD_STATUSES in Badges.jsx: only an applied value is the
+// field's live value, so only an applied value can be attested. A merely
+// proposed/reviewed target hasn't touched the field yet (it's still
+// human-authored), and deleted/rejected/failed values are gone.
+const INACTIVE_STATUSES = [
+  "proposed",
+  "reviewed",
+  "deleted",
+  "rejected",
+  "failed",
+];
 
 export function isAttestable(entry) {
   if (!entry) return false;

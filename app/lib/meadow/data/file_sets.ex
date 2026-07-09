@@ -549,7 +549,8 @@ defmodule Meadow.Data.FileSets do
   """
   def transcribe_file_set(file_set_id, opts \\ []) when is_binary(file_set_id) do
     with {:ok, file_set} <- fetch_file_set_for_transcription(file_set_id),
-         {:ok, annotation} <- create_pending_annotation(file_set, opts) do
+         {:ok, {annotation, prior_opts}} <- create_pending_annotation(file_set, opts) do
+      opts = Keyword.merge(opts, prior_opts)
       Task.start(fn -> process_transcription(annotation, opts) end)
       {:ok, annotation}
     end
@@ -560,7 +561,11 @@ defmodule Meadow.Data.FileSets do
 
     handle_transcription_result(
       annotation,
-      transcriber().transcribe(annotation.file_set_id, opts)
+      transcriber().transcribe(
+        annotation.file_set_id,
+        Keyword.drop(opts, [:prior_content, :prior_ai_activity_id])
+      ),
+      opts
     )
   end
 
@@ -604,73 +609,110 @@ defmodule Meadow.Data.FileSets do
     Application.get_env(:meadow, :transcriber, Transcriber)
   end
 
-  defp handle_transcription_result(annotation, {:ok, %{text: ""}}),
-    do: mark_blank_transcription_error(annotation)
+  defp handle_transcription_result(annotation, {:ok, %{text: ""}}, opts),
+    do: mark_blank_transcription_error(annotation, opts)
 
-  defp handle_transcription_result(annotation, {:ok, %{text: nil}}),
-    do: mark_blank_transcription_error(annotation)
+  defp handle_transcription_result(annotation, {:ok, %{text: nil}}, opts),
+    do: mark_blank_transcription_error(annotation, opts)
 
-  defp handle_transcription_result(annotation, {:ok, %{text: text} = transcription})
+  defp handle_transcription_result(annotation, {:ok, %{text: text} = transcription}, _opts)
        when is_binary(text) do
     result =
       Repo.transaction(fn ->
-        updated_annotation =
-          annotation
-          |> update_annotation(%{
-            status: "completed",
-            content: transcription.text,
-            language: transcription.languages
-          })
-          |> unwrap_or_rollback()
-
-        record_completed_transcription_provenance(updated_annotation, transcription)
+        annotation
+        |> update_annotation(%{
+          status: "completed",
+          content: transcription.text,
+          language: transcription.languages
+        })
         |> unwrap_or_rollback()
-
-        updated_annotation
       end)
 
-    add_transcription_note(annotation)
+    with {:ok, updated_annotation} <- result do
+      # The transcription itself is already saved; recording its audit trail is
+      # best-effort and must not undo the generated content.
+      record_provenance_best_effort(updated_annotation, fn ->
+        record_completed_transcription_provenance(updated_annotation, transcription)
+      end)
+
+      add_transcription_note(annotation)
+    end
+
     result
   end
 
-  defp handle_transcription_result(annotation, {:error, reason}) do
+  defp handle_transcription_result(annotation, {:error, reason}, opts) do
     result =
       Repo.transaction(fn ->
-        updated_annotation =
-          annotation
-          |> update_annotation(%{status: "error"})
-          |> unwrap_or_rollback()
-
-        record_failed_transcription_provenance(updated_annotation, reason)
+        annotation
+        |> update_annotation(failure_recovery_attrs(opts))
         |> unwrap_or_rollback()
-
-        updated_annotation
       end)
+
+    # Record the failure against the new activity (the in-memory annotation still
+    # carries its ai_activity_id even when prior content was restored above).
+    record_provenance_best_effort(annotation, fn ->
+      record_failed_transcription_provenance(annotation, reason)
+    end)
 
     publish_annotation_error(annotation, reason)
     result
   end
 
-  defp mark_blank_transcription_error(annotation) do
+  defp mark_blank_transcription_error(annotation, opts) do
     Logger.warning(
       "Transcription for file set #{annotation.file_set_id} returned blank text; marking annotation as error"
     )
 
     result =
       Repo.transaction(fn ->
-        updated_annotation =
-          annotation
-          |> update_annotation(%{status: "error"})
-          |> unwrap_or_rollback()
-
-        record_failed_transcription_provenance(updated_annotation, :blank_transcription)
+        annotation
+        |> update_annotation(failure_recovery_attrs(opts))
         |> unwrap_or_rollback()
-
-        updated_annotation
       end)
+
+    record_provenance_best_effort(annotation, fn ->
+      record_failed_transcription_provenance(annotation, :blank_transcription)
+    end)
 
     publish_annotation_error(annotation, :blank_transcription)
     result
+  end
+
+  # When a regeneration replaced an existing transcription and then failed, put
+  # the prior content (and its activity) back instead of leaving the annotation
+  # empty in an error state. Without prior content, the error state stands.
+  defp failure_recovery_attrs(opts) do
+    case Keyword.get(opts, :prior_content) do
+      content when is_binary(content) and content != "" ->
+        %{
+          status: "completed",
+          content: content,
+          ai_activity_id: Keyword.get(opts, :prior_ai_activity_id)
+        }
+
+      _ ->
+        %{status: "error"}
+    end
+  end
+
+  # Provenance is an audit trail; failing to write it (including get_activity!
+  # raising) must never take down the transcription task or its saved result.
+  defp record_provenance_best_effort(annotation, recorder) do
+    case Repo.transaction(fn -> recorder.() |> unwrap_or_rollback() end) do
+      {:ok, _} ->
+        :ok
+
+      {:error, reason} ->
+        Logger.warning(
+          "Failed to record transcription provenance for annotation #{annotation.id}: #{inspect(reason)}"
+        )
+    end
+  rescue
+    error ->
+      Logger.warning(
+        "Failed to record transcription provenance for annotation #{annotation.id}: #{inspect(error)}"
+      )
   end
 
   defp add_transcription_note(%{file_set_id: file_set_id, model: model}) do
@@ -731,17 +773,21 @@ defmodule Meadow.Data.FileSets do
     context = Keyword.get(opts, :context)
     actor = Keyword.get(opts, :actor)
 
-    # Only one transcription is allowed per file set, so regenerating replaces any
-    # existing one. Resolve the new origin against the annotation being replaced
-    # *before* it is deleted: seeding the model with human-authored content makes
-    # the result an AI modification of human content, not a fresh generation.
-    existing = Repo.get_by(FileSetAnnotation, file_set_id: file_set.id, type: "transcription")
-    origin = regeneration_origin(context, existing)
-
     Repo.transaction(fn ->
+      # Only one transcription is allowed per file set, so regenerating replaces
+      # any existing one. Resolve the new origin against the annotation being
+      # replaced *before* it is deleted: seeding the model with human-authored
+      # content makes the result an AI modification of human content, not a
+      # fresh generation. Read inside the transaction so concurrent
+      # regenerations operate on current data.
+      existing =
+        Repo.get_by(FileSetAnnotation, file_set_id: file_set.id, type: "transcription")
+
+      origin = regeneration_origin(context, existing)
+
       if existing do
         Provenance.record_annotation_deletion(existing, actor)
-        Repo.delete(existing) |> unwrap_or_rollback()
+        delete_replaced_annotation(existing)
       end
 
       activity =
@@ -767,16 +813,43 @@ defmodule Meadow.Data.FileSets do
       Provenance.add_source(activity, Provenance.file_set_source_attrs(file_set))
       |> unwrap_or_rollback()
 
-      create_annotation(file_set, %{
-        type: "transcription",
-        status: "pending",
-        language: language,
-        model: model,
-        ai_activity_id: activity.id
-      })
-      |> unwrap_or_rollback()
+      annotation =
+        create_annotation(file_set, %{
+          type: "transcription",
+          status: "pending",
+          language: language,
+          model: model,
+          ai_activity_id: activity.id
+        })
+        |> unwrap_or_rollback()
+
+      {annotation, prior_content_opts(existing)}
     end)
   end
+
+  # Concurrent regenerations can race to delete the same annotation; a stale
+  # delete just means another process already removed it, so carry on. Any
+  # other delete failure rolls the transaction back as before.
+  defp delete_replaced_annotation(existing) do
+    case Repo.delete(existing, stale_error_field: :id) do
+      {:ok, _} ->
+        :ok
+
+      {:error, %Ecto.Changeset{errors: errors}} = error ->
+        if match?({_, [stale: true]}, errors[:id]),
+          do: :ok,
+          else: unwrap_or_rollback(error)
+    end
+  end
+
+  # Capture a replaced annotation's content (and its activity) before deletion
+  # so a failed regeneration can restore it instead of losing it for good.
+  defp prior_content_opts(%FileSetAnnotation{content: content, ai_activity_id: activity_id})
+       when is_binary(content) and content != "" do
+    [prior_content: content, prior_ai_activity_id: activity_id]
+  end
+
+  defp prior_content_opts(_existing), do: []
 
   defp record_completed_transcription_provenance(
          %{ai_activity_id: activity_id} = annotation,

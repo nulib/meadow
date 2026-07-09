@@ -36,6 +36,9 @@ defmodule Meadow.AI.Provenance.Schemas.Agent do
     ])
     |> validate_required([:agent_type, :name])
     |> validate_inclusion(:agent_type, @agent_types)
+    |> unique_constraint([:identifier_type, :identifier_value],
+      name: :ai_agents_identifier_type_identifier_value_index
+    )
   end
 
   def agent_types, do: @agent_types

@@ -1,6 +1,12 @@
 // js/components/Work/Tabs/Structure/Transcription/Modal.test.jsx
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import {
@@ -49,6 +55,9 @@ jest.mock("@js/services/helpers", () => ({
 const workflowState = {
   annotationId: "ann-1",
   defaultValue: "Existing transcription",
+  // Set by the mock so tests can re-fire hasTranscriptionCallback the way the
+  // real Pane does when a generation completes.
+  trigger: null,
 };
 
 // Mock Workflow so it renders the textarea the modal is looking for, wiring
@@ -66,6 +75,7 @@ jest.mock("@js/components/Work/Tabs/Structure/Transcription/Workflow", () => {
       const props = workflowState.annotationId
         ? { "data-annotation-id": workflowState.annotationId }
         : {};
+      workflowState.trigger = hasTranscriptionCallback;
       useEffect(() => {
         hasTranscriptionCallback?.();
       }, []);
@@ -251,6 +261,38 @@ describe("WorkTabsStructureTranscriptionModal", () => {
     expect(
       screen.queryByRole("button", { name: /delete transcription/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it("reveals Delete/Download once a generation completes on a from-scratch pane", async () => {
+    // Enter Manually → Generate without typing: the pane starts with no
+    // annotation id, then generation completes — the pane re-fires the
+    // callback with the same textarea node, now carrying the saved
+    // annotation's id, and a pristine (not dirty) value.
+    workflowState.annotationId = null;
+    workflowState.defaultValue = "";
+
+    renderModal();
+
+    await screen.findByRole("button", { name: /save/i });
+    expect(
+      screen.queryByRole("button", { name: /delete transcription/i }),
+    ).not.toBeInTheDocument();
+
+    const textarea = document.getElementById("file-set-transcription-textarea");
+    textarea.setAttribute("data-annotation-id", "ann-generated");
+    textarea.value = "Generated transcription text";
+    act(() => {
+      workflowState.trigger?.();
+    });
+
+    expect(
+      await screen.findByRole("button", { name: /delete transcription/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /download transcription/i }),
+    ).toBeInTheDocument();
+    // The generated value is the pristine baseline, so Save stays disabled.
+    expect(screen.getByRole("button", { name: /^save$/i })).toBeDisabled();
   });
 
   it("shows error toast when mutation fails", async () => {

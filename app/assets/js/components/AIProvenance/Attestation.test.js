@@ -11,11 +11,16 @@ import {
 // Surfaces the current attestation state so tests can assert what would be
 // submitted with the work update.
 function StateProbe() {
-  const { attestationsInput } = useAttestation();
+  const { attestationsInput, resetAttestations } = useAttestation();
   return (
-    <div data-testid="attestations">
-      {JSON.stringify(attestationsInput() ?? [])}
-    </div>
+    <>
+      <div data-testid="attestations">
+        {JSON.stringify(attestationsInput() ?? [])}
+      </div>
+      <button data-testid="reset-attestations" onClick={resetAttestations}>
+        reset
+      </button>
+    </>
   );
 }
 
@@ -56,6 +61,17 @@ describe("isAttestable", () => {
       false,
     );
     expect(isAttestable({ origin: "ai_generated", status: "deleted" })).toBe(
+      false,
+    );
+  });
+
+  it("is false for not-yet-applied (proposed/reviewed) entries", () => {
+    // A merely-proposed AI change hasn't touched the field; the live value is
+    // still human-authored, so there is nothing to attest.
+    expect(isAttestable({ origin: "ai_generated", status: "proposed" })).toBe(
+      false,
+    );
+    expect(isAttestable({ origin: "ai_generated", status: "reviewed" })).toBe(
       false,
     );
   });
@@ -120,5 +136,24 @@ describe("HumanAuthoredFieldControl", () => {
 
     fireEvent.click(getByTestId("human-authored-checkbox"));
     expect(getByTestId("attestations")).toHaveTextContent("[]");
+  });
+
+  // After a save (or a cancelled edit session) the recorded attestations must
+  // be dropped so a later save doesn't re-send them and re-record events.
+  it("resetAttestations clears all pending attestations", () => {
+    const { getByTestId } = render(
+      <Harness entry={aiEntry} originalValue="AI title" />,
+    );
+
+    fireEvent.click(getByTestId("human-authored-checkbox"));
+    fireEvent.click(getByTestId("attestation-confirm"));
+    expect(getByTestId("attestations")).toHaveTextContent(
+      "descriptive_metadata.title",
+    );
+
+    fireEvent.click(getByTestId("reset-attestations"));
+    expect(getByTestId("attestations")).toHaveTextContent("[]");
+    // The per-field checkbox reflects the cleared state.
+    expect(getByTestId("human-authored-checkbox").checked).toBe(false);
   });
 });

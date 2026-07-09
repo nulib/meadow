@@ -31,16 +31,26 @@ const HUMAN_TOUCHED = [
 ];
 
 /**
- * Map field_path -> recorded origin for a plan change's provenance targets,
- * preferring an origin that reflects a human edit when several exist.
+ * Map field_path -> recorded origin for a plan change's provenance targets.
+ * `aiActivities` arrives newest-first, so the first activity to record a
+ * field wins — a stale origin from an earlier revision must not override the
+ * latest attribution. Within that winning activity, an origin that reflects
+ * a human edit is preferred when several targets touch the same field.
  */
 function recordedOriginByPath(activities = []) {
   const map = {};
   activities.forEach((activity) => {
+    const wonByThisActivity = new Set();
     (activity.targets || []).forEach((target) => {
-      const existing = map[target.fieldPath];
-      if (!existing || HUMAN_TOUCHED.includes(target.origin)) {
-        map[target.fieldPath] = target.origin;
+      const path = target.fieldPath;
+      if (!(path in map)) {
+        map[path] = target.origin;
+        wonByThisActivity.add(path);
+      } else if (
+        wonByThisActivity.has(path) &&
+        HUMAN_TOUCHED.includes(target.origin)
+      ) {
+        map[path] = target.origin;
       }
     });
   });
@@ -51,13 +61,17 @@ function recordedOriginByPath(activities = []) {
  * Map field_path -> per-item AI attribution, taken straight from the backend's
  * reconciled `itemProvenance` (the AI's proposal diffed against the current
  * value). Using the server-computed attribution keeps the plan diff and the
- * work About tab in lock-step rather than re-deriving it here.
+ * work About tab in lock-step rather than re-deriving it here. Like
+ * recordedOriginByPath, activities are newest-first, so the first (newest)
+ * activity to record a field keeps its attribution.
  */
 function itemProvenanceByPath(activities = []) {
   const map = {};
   activities.forEach((activity) => {
     (activity.targets || []).forEach((target) => {
-      map[target.fieldPath] = target.itemProvenance || [];
+      if (!(target.fieldPath in map)) {
+        map[target.fieldPath] = target.itemProvenance || [];
+      }
     });
   });
   return map;

@@ -151,18 +151,26 @@ AnnotationOriginBadge.propTypes = {
   annotation: PropTypes.object,
 };
 
-// Statuses whose value is no longer the field's live value, so an inline
-// field badge would be stale (e.g. a "Human replaced AI" tag lingering on a
-// field whose AI content was removed). The full history still surfaces these
-// in the Provenance tab's activity log.
-const INACTIVE_FIELD_STATUSES = ["deleted", "rejected", "failed"];
+// Statuses whose value is NOT the field's current live value, so an inline
+// field badge would be wrong or stale: not-yet-applied proposals ("proposed",
+// "reviewed") would mark a still-human field as AI content, and removed values
+// ("deleted", "rejected", "failed") would leave a lingering tag. Only applied
+// (and legacy-detected) provenance badges the live field; the full history
+// still surfaces everything in the Provenance tab's activity log.
+export const INACTIVE_FIELD_STATUSES = [
+  "proposed",
+  "reviewed",
+  "deleted",
+  "rejected",
+  "failed",
+];
 
 /**
  * Inline badge for a single metadata field, given its provenance summary
  * entry (or undefined). Renders nothing when there is no provenance, or when
- * the recorded value is no longer live (deleted/rejected/failed), so it is
- * safe to drop next to any field. Shared by the Core and Controlled metadata
- * sections of the About tab.
+ * the recorded value is not the live one (proposed/reviewed but not yet
+ * applied, or deleted/rejected/failed), so it is safe to drop next to any
+ * field. Shared by the Core and Controlled metadata sections of the About tab.
  */
 export function FieldProvenanceBadge({ entry }) {
   if (!entry) return null;
