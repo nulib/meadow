@@ -9,16 +9,19 @@ defmodule MeadowWeb.RemoteAccess do
   Returns the funnel URL if a funnel is active, otherwise the local server URL.
   """
   def url(path \\ nil) do
-    case detect_funnel() do
-      {:ok, funnel_url} ->
-        case path do
-          nil -> URI.to_string(funnel_url)
-          _ -> URI.merge(funnel_url, path) |> URI.to_string()
-        end
-        |> String.trim_trailing("/")
+    base_url = base_url()
 
-      {:error, _} ->
-        Path.join(default_url(), path || "")
+    case path do
+      nil -> URI.to_string(base_url)
+      _ -> URI.merge(base_url, path) |> URI.to_string()
+    end
+  end
+
+  defp base_url do
+    case {System.get_env("USE_SAM_LAMBDAS"), detect_funnel()} do
+      {"true", _} -> URI.parse(System.get_env("MEADOW_SAM_HOST_URL", "http://172.17.0.1:4000"))
+      {_, {:ok, funnel_url}} -> funnel_url
+      _ -> URI.parse(default_url())
     end
   end
 

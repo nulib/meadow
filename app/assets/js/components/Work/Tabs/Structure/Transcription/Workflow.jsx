@@ -56,6 +56,8 @@ function WorkTabsStructureTranscriptionWorkflow({
   onContentChange,
 }) {
   const flashedAnnotationErrorIdRef = useRef(null);
+  const flashedAnnotationCompletedIdRef = useRef(null);
+  const generationInFlightRef = useRef(false);
   const [manualEntry, setManualEntry] = useState(false);
   const { data: { fileSetAnnotation } = {} } = useFileSetAnnotation(fileSetId);
   const {
@@ -111,12 +113,25 @@ function WorkTabsStructureTranscriptionWorkflow({
     fileSetAnnotation?.error,
   ]);
 
+  useEffect(() => {
+    if (
+      generationInFlightRef.current &&
+      fileSetAnnotation?.status === "completed" &&
+      flashedAnnotationCompletedIdRef.current !== fileSetAnnotation.id
+    ) {
+      toastWrapper("is-success", "Transcription generated and saved");
+      flashedAnnotationCompletedIdRef.current = fileSetAnnotation.id;
+      generationInFlightRef.current = false;
+    }
+  }, [fileSetAnnotation?.id, fileSetAnnotation?.status]);
+
   const runTranscribeMutation = () => {
     transcribeFileSet({
       variables: {
         fileSetId,
       },
       onError: (error) => {
+        generationInFlightRef.current = false;
         flashTranscriptionError(error);
       },
       refetchQueries: [
@@ -133,6 +148,7 @@ function WorkTabsStructureTranscriptionWorkflow({
     if (!fileSetId) return;
 
     toastWrapper("is-success", "Generating transcription");
+    generationInFlightRef.current = true;
 
     if (failedAnnotationId) {
       try {
@@ -142,6 +158,7 @@ function WorkTabsStructureTranscriptionWorkflow({
           awaitRefetchQueries: true,
         });
       } catch (error) {
+        generationInFlightRef.current = false;
         flashTranscriptionError(error);
         return;
       }
