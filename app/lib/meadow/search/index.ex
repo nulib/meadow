@@ -1,6 +1,6 @@
 defmodule Meadow.Search.Index do
   @moduledoc """
-  Meadow config-aware wrapper for Elastix.Index
+  Meadow config-aware wrapper for OpenSearch index operations
   """
   alias Meadow.Search.{Alias, HTTP}
   alias Meadow.Search.Config, as: SearchConfig
@@ -33,7 +33,7 @@ defmodule Meadow.Search.Index do
 
     with timestamp <- DateTime.utc_now() |> DateTime.to_unix(:millisecond),
          new_index <- [alias, to_string(timestamp)] |> Enum.join("-") do
-      case Elastix.Index.create(SearchConfig.cluster_url(), new_index, settings) do
+      case HTTP.put(new_index, json: settings) do
         {:ok, _response} -> {:ok, {alias, new_index}}
         other -> other
       end
@@ -69,7 +69,7 @@ defmodule Meadow.Search.Index do
       ]
     }
 
-    HTTP.put(["_search", "pipeline", name], pipeline)
+    HTTP.put("_search/pipeline/#{name}", json: pipeline)
     name
   end
 
@@ -108,13 +108,13 @@ defmodule Meadow.Search.Index do
       ]
     }
 
-    HTTP.put(["_ingest", "pipeline", name], pipeline)
+    HTTP.put("_ingest/pipeline/#{name}", json: pipeline)
     name
   end
 
   defp embedding_model_name(model_id) do
-    case HTTP.get(["_plugins", "_ml", "models", model_id]) do
-      {:ok, %{status_code: 200, body: %{"name" => name}}} ->
+    case HTTP.get("_plugins/_ml/models/#{model_id}") do
+      {:ok, %{status: 200, body: %{"name" => name}}} ->
         Regex.replace(~r[^.+/huggingface/], name, "")
 
       _ ->
@@ -126,7 +126,7 @@ defmodule Meadow.Search.Index do
   Delete an index
   """
   def delete(index) do
-    Elastix.Index.delete(SearchConfig.cluster_url(), index)
+    HTTP.delete(index)
   end
 
   @doc """
@@ -134,7 +134,7 @@ defmodule Meadow.Search.Index do
   """
   def list(prefix \\ "") do
     with {:ok, %{body: body}} <-
-           HTTP.get(["_cluster", "state", "metadata?filter_path=metadata.indices"]) do
+           HTTP.get("_cluster/state/metadata?filter_path=metadata.indices") do
       body
       |> get_in(["metadata", "indices"])
       |> Enum.filter(fn {index, _} -> String.starts_with?(index, prefix) end)
@@ -164,7 +164,7 @@ defmodule Meadow.Search.Index do
   end
 
   def refresh(target) do
-    case Elastix.Index.refresh(SearchConfig.cluster_url(), target) do
+    case HTTP.post("#{target}/_refresh") do
       {:ok, _} -> :ok
       other -> other
     end

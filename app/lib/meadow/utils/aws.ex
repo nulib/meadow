@@ -52,10 +52,6 @@ defmodule Meadow.Utils.AWS do
     |> ExAws.request()
   end
 
-  def add_aws_signature(request) do
-    request.headers ++ generate_aws_signature(request)
-  end
-
   def check_object_tags!(bucket, key, required_tags) do
     case ExAws.S3.get_object_tagging(bucket, key) |> ExAws.request() do
       {:ok, %{status_code: 200, body: %{tags: actual_tags}}} ->
@@ -96,6 +92,24 @@ defmodule Meadow.Utils.AWS do
 
   def invalidate_cache(file_set, :streaming, _),
     do: perform_streaming_invalidation("/#{Pairtree.generate!(file_set.id)}/*")
+
+  def aws_sigv4_options(service) do
+    ExAws.Config.new(service)
+    |> aws_sigv4_options(service)
+  end
+
+  def aws_sigv4_options(%{access_key_id: _} = config, service) do
+    config
+    |> Map.take([:access_key_id, :secret_access_key, :region])
+    |> Enum.into([])
+    |> Keyword.put(:service, service)
+    |> Keyword.put(:token, Map.get(config, :security_token))
+  end
+
+  def aws_sigv4_options(_, _) do
+    Logger.warning("AWS credentials not present. Proceeding with unsigned request.")
+    nil
+  end
 
   defp perform_iiif_invalidation(path),
     do: perform_invalidation(path, Config.iiif_cloudfront_distribution_id())
@@ -141,35 +155,6 @@ defmodule Meadow.Utils.AWS do
         Logger.error("Unable to clear cache for #{path}")
         :ok
     end
-  end
-
-  defp generate_aws_signature(request) do
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
-
-    %{host: host} = URI.parse(request.url)
-
-    config = ExAws.Config.new(:es)
-
-    headers =
-      case Map.get(config, :security_token) do
-        nil -> [{"Host", host}]
-        security_token -> [{"Host", host}, {"X-Amz-Security-Token", security_token}]
-      end
-
-    encode_fn = fn c -> (URI.char_unescaped?(c) || URI.char_reserved?(c)) && c != ?* end
-
-    :aws_signature.sign_v4(
-      config.access_key_id,
-      config.secret_access_key,
-      config.region,
-      "es",
-      {{now.year, now.month, now.day}, {now.hour, now.minute, now.second}},
-      request.method |> to_string() |> String.upcase(),
-      request.url |> URI.encode(encode_fn),
-      headers,
-      request.body,
-      []
-    )
   end
 
   defp check_bucket(bucket) do

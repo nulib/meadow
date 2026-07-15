@@ -39,7 +39,7 @@ defmodule Meadow.Search.Slice do
   end
 
   def slice(%{query: query, index: index}, _slice_number) do
-    HTTP.post([index, "_search"], query)
+    HTTP.post("#{index}/_search", json: query)
     |> extract_hits()
   end
 
@@ -47,7 +47,7 @@ defmodule Meadow.Search.Slice do
     query =
       Map.put(query, :pit, %{id: pit_id, keep_alive: "5m"})
 
-    HTTP.post(["_search"], query)
+    HTTP.post("_search", json: query)
     |> extract_hits()
   end
 
@@ -55,7 +55,7 @@ defmodule Meadow.Search.Slice do
   Finish the slice by deleting the point-in-time context.
   """
   def finish(%{pit_id: pit_id}) when is_binary(pit_id) do
-    HTTP.request(:delete, ["_search", "point_in_time"], %{pit_id: [pit_id]})
+    HTTP.request("_search/point_in_time", method: :delete, json: %{pit_id: [pit_id]})
     :ok
   end
 
@@ -76,7 +76,7 @@ defmodule Meadow.Search.Slice do
   end
 
   defp get_count(index, %{"query" => _} = query) do
-    case HTTP.post([index, "_count"], query) do
+    case HTTP.post("#{index}/_count", json: query) do
       {:ok, %{body: %{"count" => count}}} -> {:ok, count}
       {:ok, %{body: body}} -> {:error, body}
       {:error, reason} -> {:error, reason}
@@ -95,7 +95,7 @@ defmodule Meadow.Search.Slice do
   defp paginate_query(other), do: other
 
   defp create_pit(index) do
-    case HTTP.post([index, "_search", "point_in_time?keep_alive=5m"]) do
+    case HTTP.post("#{index}/_search/point_in_time?keep_alive=5m") do
       {:ok, %{body: %{"pit_id" => pit_id}}} -> {:ok, pit_id}
       _ -> :error
     end

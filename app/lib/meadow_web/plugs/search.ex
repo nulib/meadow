@@ -34,11 +34,18 @@ defmodule MeadowWeb.Plugs.Search do
     method =
       case conn.method do
         x when is_atom(x) -> x
-        x when is_binary(x) -> String.to_atom(x)
-        x -> String.to_atom(to_string(x))
+        x when is_binary(x) -> x |> String.downcase() |> String.to_atom()
+        x -> x |> to_string() |> String.downcase() |> String.to_atom()
       end
 
-    case HTTP.request(method, path <> query_string, body, []) do
+    request_opts =
+      if is_binary(body) do
+        [method: method, body: body]
+      else
+        [method: method, json: body]
+      end
+
+    case HTTP.request(path <> query_string, request_opts) do
       {:ok, response} ->
         conn
         |> assign(:updated_req_body, body)
@@ -46,12 +53,12 @@ defmodule MeadowWeb.Plugs.Search do
         |> resp(200, Jason.encode!(response.body))
         |> send_resp()
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.error("#{__MODULE__} error: #{reason}")
+      {:error, exception} ->
+        Logger.error("#{__MODULE__} error: #{Exception.message(exception)}")
 
         conn
         |> put_resp_content_type("application/json")
-        |> resp(500, Jason.encode!(reason))
+        |> resp(500, Jason.encode!(Exception.message(exception)))
         |> send_resp()
 
       other ->

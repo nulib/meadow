@@ -6,6 +6,7 @@ defmodule Meadow.Data.SharedLinks do
   alias Meadow.Config
   alias Meadow.Data.Schemas.Work
   alias Meadow.Search.Config, as: SearchConfig
+  alias Meadow.Search.HTTP
   alias Meadow.Search.Scroll
   alias NimbleCSV.RFC4180, as: CSV
 
@@ -31,21 +32,18 @@ defmodule Meadow.Data.SharedLinks do
     with link <- shared_link(work_id, ttl),
          document <- shared_link_document(link) do
       result =
-        Elastix.Document.index(
-          SearchConfig.cluster_url(),
-          Config.shared_links_index(),
-          @type_name,
-          document.shared_link_id,
-          document
+        HTTP.put(
+          "#{Config.shared_links_index()}/#{@type_name}/#{document.shared_link_id}",
+          json: document
         )
 
-      Elastix.Index.refresh(SearchConfig.cluster_url(), Config.shared_links_index())
+      HTTP.post("#{Config.shared_links_index()}/_refresh")
 
       case result do
-        {:ok, %{status_code: 200}} -> {:ok, link}
-        {:ok, %{status_code: 201}} -> {:ok, link}
+        {:ok, %{status: 200}} -> {:ok, link}
+        {:ok, %{status: 201}} -> {:ok, link}
         {:ok, %{body: body}} -> {:error, body}
-        {:error, %{reason: reason}} -> {:error, reason}
+        {:error, reason} -> {:error, reason}
       end
     end
   end
@@ -80,8 +78,8 @@ defmodule Meadow.Data.SharedLinks do
       :noop ->
         csv_result(docs)
 
-      {:ok, %{status_code: status}} when status in 200..204 ->
-        Elastix.Index.refresh(SearchConfig.cluster_url(), Config.shared_links_index())
+      {:ok, %{status: status}} when status in 200..204 ->
+        HTTP.post("#{Config.shared_links_index()}/_refresh")
         csv_result(docs)
 
       {:ok, %{body: body}} ->
@@ -105,7 +103,9 @@ defmodule Meadow.Data.SharedLinks do
   defp create_shared_link_docs([]), do: :noop
 
   defp create_shared_link_docs(payload) do
-    Elastix.Bulk.post(SearchConfig.cluster_url(), payload, index: Config.shared_links_index())
+    body = payload |> Enum.map_join("\n", &Jason.encode!/1) |> Kernel.<>("\n")
+
+    HTTP.post("#{Config.shared_links_index()}/_bulk", body: body)
   end
 
   @doc """
@@ -117,21 +117,15 @@ defmodule Meadow.Data.SharedLinks do
       :ok
   """
   def revoke(id) do
-    result =
-      Elastix.Document.delete(
-        SearchConfig.cluster_url(),
-        Config.shared_links_index(),
-        @type_name,
-        id
-      )
+    result = HTTP.delete("#{Config.shared_links_index()}/#{@type_name}/#{id}")
 
-    Elastix.Index.refresh(SearchConfig.cluster_url(), Config.shared_links_index())
+    HTTP.post("#{Config.shared_links_index()}/_refresh")
 
     case result do
-      {:ok, %{status_code: 200}} -> :ok
-      {:ok, %{status_code: 404}} -> 0
+      {:ok, %{status: 200}} -> :ok
+      {:ok, %{status: 404}} -> 0
       {:ok, %{body: body}} -> {:error, body}
-      {:error, %{reason: reason}} -> {:error, reason}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -146,19 +140,14 @@ defmodule Meadow.Data.SharedLinks do
   def delete_expired do
     query = %{query: %{range: %{expires: %{lt: "now"}}}}
 
-    result =
-      Elastix.Document.delete_matching(
-        SearchConfig.cluster_url(),
-        Config.shared_links_index(),
-        query
-      )
+    result = HTTP.post("#{Config.shared_links_index()}/_delete_by_query", json: query)
 
-    Elastix.Index.refresh(SearchConfig.cluster_url(), Config.shared_links_index())
+    HTTP.post("#{Config.shared_links_index()}/_refresh")
 
     case result do
-      {:ok, %{status_code: 200, body: %{"deleted" => count}}} -> {:ok, count}
+      {:ok, %{status: 200, body: %{"deleted" => count}}} -> {:ok, count}
       {:ok, %{body: body}} -> {:error, body}
-      {:error, %{reason: reason}} -> {:error, reason}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -171,14 +160,7 @@ defmodule Meadow.Data.SharedLinks do
       1
   """
   def count do
-    case Elastix.Search.count(
-           SearchConfig.cluster_url(),
-           Config.shared_links_index(),
-           [],
-           %{
-             query: %{match_all: %{}}
-           }
-         ) do
+    case HTTP.post("#{Config.shared_links_index()}/_count", json: %{query: %{match_all: %{}}}) do
       {:ok, %{body: %{"error" => %{"type" => "index_not_found_exception"}}}} -> 0
       {:ok, %{body: %{"count" => count}}} -> count
       {:ok, %{body: body}} -> {:error, body}

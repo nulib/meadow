@@ -163,7 +163,7 @@ defmodule Meadow.Search.ClientTest do
     }
 
     with alias <- SearchConfig.alias_for(Collection, 2) do
-      HTTP.post([alias, "_doc"], data)
+      HTTP.post("#{alias}/_doc", json: data)
       Client.refresh(alias)
     end
 

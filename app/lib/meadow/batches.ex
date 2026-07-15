@@ -474,7 +474,7 @@ defmodule Meadow.Batches do
       "Indexing for batch update scroll_id: #{scroll_id}, hits: #{length(current_hits)}, total: #{total}"
     )
 
-    HTTP.post!("/_search/scroll", %{scroll: "1m", scroll_id: scroll_id})
+    HTTP.post!("/_search/scroll", json: %{scroll: "1m", scroll_id: scroll_id})
     |> Map.get(:body)
     |> process_updates(delete, add, replace, batch_id)
   end
@@ -489,7 +489,7 @@ defmodule Meadow.Batches do
     Logger.debug("Starting Elasticsearch scroll for batch update")
     Logger.debug("query #{inspect(query)}")
 
-    HTTP.post!([SearchConfig.alias_for(Work, 2), "_search?scroll=10m"], query)
+    HTTP.post!("#{SearchConfig.alias_for(Work, 2)}/_search?scroll=10m", body: query)
     |> Map.get(:body)
     |> process_updates(delete, add, replace, batch_id)
   end
@@ -511,7 +511,7 @@ defmodule Meadow.Batches do
     |> Enum.map(&Map.get(&1, "_id"))
     |> delete_works()
 
-    HTTP.post!("/_search/scroll", %{scroll: "1m", scroll_id: scroll_id})
+    HTTP.post!("/_search/scroll", json: %{scroll: "1m", scroll_id: scroll_id})
     |> Map.get(:body)
     |> process_deletes(batch_id)
   end
@@ -525,7 +525,7 @@ defmodule Meadow.Batches do
     Logger.debug("Starting Elasticsearch scroll for batch delete")
     Logger.debug("query #{inspect(query)}")
 
-    HTTP.post!([SearchConfig.alias_for(Work, 2), "_search?scroll=10m"], query)
+    HTTP.post!("#{SearchConfig.alias_for(Work, 2)}/_search?scroll=10m", body: query)
     |> Map.get(:body)
     |> process_deletes(batch_id)
   end
