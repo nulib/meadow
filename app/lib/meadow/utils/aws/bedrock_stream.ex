@@ -4,11 +4,13 @@ defmodule Meadow.Utils.AWS.BedrockStream do
   external `ex_aws_bedrock` dependency.
 
   It signs the request using `ExAws.Auth`, opens a streaming connection via
-  `:hackney`, and emits decoded event stream payloads.
+  `Req`/`Finch`, and emits decoded event stream payloads.
   """
 
   alias ExAws.Request.Url
   alias Meadow.Config
+  alias Meadow.HTTP
+  alias Meadow.Utils.AWS
 
   require Logger
 
@@ -21,159 +23,102 @@ defmodule Meadow.Utils.AWS.BedrockStream do
   @prelude_length @uint32_size * 3
   @message_overhead @prelude_length + @checksum_size
 
-  if Code.ensure_loaded?(:hackney) do
-    @doc """
-    Returns a stream of decoded Bedrock response events.
-    """
-    def stream_objects!(%{service: service, data: data} = operation, _opts, config) do
-      encoded_body = Jason.encode!(data)
-      url = Url.build(operation, config)
-      config = Map.put(config, :service_override, :bedrock)
+  @doc """
+  Returns a stream of decoded Bedrock response events.
+  """
+  def stream_objects!(%{data: data} = operation, _opts, config) do
+    encoded_body = Jason.encode!(data)
+    url = Url.build(operation, config)
 
-      headers =
-        case ExAws.Auth.headers(:post, url, service, config, base_headers(), encoded_body) do
-          {:ok, signed_headers} ->
-            signed_headers
+    timeout = stream_timeout()
+
+    Logger.debug("Initiating Bedrock streaming request")
+
+    resp =
+      HTTP.request!(
+        url,
+        method: :post,
+        headers: base_headers(),
+        body: encoded_body,
+        into: :self,
+        receive_timeout: timeout,
+        connect_options: [
+          timeout: @default_connect_timeout,
+          transport_opts: [verify: :verify_peer]
+        ],
+        retry: false,
+        aws_sigv4: AWS.aws_sigv4_options(config, :bedrock)
+      )
+
+    verify_status!(resp)
+    verify_event_stream!(resp)
+
+    stream =
+      Stream.resource(
+        fn -> {resp, :streaming} end,
+        &next_chunk(&1, timeout),
+        &close_stream/1
+      )
+
+    Stream.flat_map(stream, &decode_chunk/1)
+  end
+
+  defp verify_status!(%Req.Response{status: 200}) do
+    Logger.debug("Received status 200 from Bedrock")
+    :ok
+  end
+
+  defp verify_status!(%Req.Response{status: status} = resp) do
+    Req.cancel_async_response(resp)
+    raise ExAws.Error, message: "Bedrock streaming request rejected: #{status}"
+  end
+
+  defp next_chunk({resp, :done}, _timeout), do: {:halt, {resp, :done}}
+
+  defp next_chunk({resp, :streaming} = state, timeout) do
+    ref = resp.body.ref
+
+    receive do
+      {^ref, _} = message ->
+        case Req.parse_message(resp, message) do
+          {:ok, [data: data]} ->
+            {[data], state}
+
+          {:ok, [:done]} ->
+            {:halt, {resp, :done}}
+
+          {:ok, [trailers: _trailers]} ->
+            {[], state}
 
           {:error, reason} ->
-            raise ExAws.Error,
-              message: "Failed to sign Bedrock streaming request: #{inspect(reason)}"
+            raise ExAws.Error, message: "Bedrock streaming error: #{inspect(reason)}"
         end
-
-      timeout = stream_timeout()
-
-      hackney_opts =
-        Application.get_env(:ex_aws, :hackney_opts, [])
-        |> Keyword.merge(
-          async: :once,
-          recv_timeout: timeout,
-          connect_timeout: @default_connect_timeout,
-          ssl_options: [verify: :verify_peer]
-        )
-
-      Logger.debug("Initiating Bedrock streaming request")
-
-      ref =
-        case :hackney.post(url, headers, encoded_body, hackney_opts) do
-          {:ok, ref} ->
-            ref
-
-          {:error, reason} ->
-            raise ExAws.Error,
-              message: "Failed to initiate Bedrock streaming request: #{inspect(reason)}"
-        end
-
-      ref = await_status!(ref, timeout)
-      :ok = :hackney.stream_next(ref)
-      ref = await_headers!(ref, timeout)
-
-      stream =
-        Stream.resource(
-          fn -> {:streaming, ref, timeout} end,
-          &next_chunk/1,
-          &close_stream/1
-        )
-
-      Stream.flat_map(stream, &decode_chunk/1)
+    after
+      timeout ->
+        raise ExAws.Error,
+          message: "Bedrock streaming timed out waiting for data after #{timeout}ms"
     end
+  end
 
-    defp next_chunk({:streaming, ref, timeout}) do
-      :ok = :hackney.stream_next(ref)
+  defp close_stream({_resp, :done}), do: :ok
+  defp close_stream({resp, :streaming}), do: Req.cancel_async_response(resp)
 
-      receive do
-        {:hackney_response, ^ref, :done} ->
-          {:halt, {:closed, ref}}
+  defp verify_event_stream!(resp) do
+    verify_header!(resp, "content-type", @content_type)
+    verify_header!(resp, "transfer-encoding", "chunked")
+  end
 
-        {:hackney_response, ^ref, {:status, status, reason}} ->
-          message = "#{status}: #{inspect(reason)}"
-          raise ExAws.Error, message: "Bedrock streaming failed: #{message}"
+  defp verify_header!(resp, header, expected) do
+    case Req.Response.get_header(resp, header) do
+      [^expected] ->
+        :ok
 
-        {:hackney_response, ^ref, {:error, reason}} ->
-          raise ExAws.Error, message: "Bedrock streaming error: #{inspect(reason)}"
+      [value] ->
+        raise ExAws.Error,
+          message: "Expected #{header} #{inspect(expected)}, received #{inspect(value)}"
 
-        {:hackney_response, ^ref, data} ->
-          {[data], {:streaming, ref, timeout}}
-      after
-        timeout ->
-          raise ExAws.Error,
-            message: "Bedrock streaming timed out waiting for data after #{timeout}ms"
-      end
-    end
-
-    defp next_chunk({:closed, ref}) do
-      {:halt, {:closed, ref}}
-    end
-
-    defp close_stream({:streaming, ref, _timeout}), do: :hackney.stop_async(ref)
-    defp close_stream({:closed, ref}), do: :hackney.stop_async(ref)
-    defp close_stream(_), do: :ok
-
-    defp await_status!(ref, timeout) do
-      Logger.debug("Waiting for Bedrock streaming status")
-
-      receive do
-        {:hackney_response, ^ref, {:status, 200, _reason}} ->
-          Logger.debug("Received status 200 from Bedrock")
-          ref
-
-        {:hackney_response, ^ref, {:status, status, reason}} ->
-          raise ExAws.Error,
-            message: "Bedrock streaming request rejected: #{status}: #{inspect(reason)}"
-
-        {:hackney_response, ^ref, {:error, reason}} ->
-          raise ExAws.Error, message: "Bedrock streaming connection error: #{inspect(reason)}"
-      after
-        timeout ->
-          raise ExAws.Error,
-            message: "Timed out waiting for Bedrock streaming status after #{timeout}ms"
-      end
-    end
-
-    defp await_headers!(ref, timeout) do
-      Logger.debug("Waiting for Bedrock streaming headers")
-
-      receive do
-        {:hackney_response, ^ref, {:headers, headers}} ->
-          Logger.debug("Received headers from Bedrock: #{inspect(headers)}")
-          verify_event_stream!(headers)
-          ref
-
-        {:hackney_response, ^ref, {:error, reason}} ->
-          raise ExAws.Error, message: "Bedrock streaming headers error: #{inspect(reason)}"
-
-        {:hackney_response, ^ref, other} ->
-          Logger.debug("Unexpected message while waiting for headers: #{inspect(other)}")
-          await_headers!(ref, timeout)
-      after
-        timeout ->
-          Logger.error("Timed out waiting for Bedrock streaming headers after #{timeout}ms")
-
-          raise ExAws.Error,
-            message: "Timed out waiting for Bedrock streaming headers after #{timeout}ms"
-      end
-    end
-
-    defp verify_event_stream!(headers) do
-      verify_header!(headers, "Content-Type", @content_type)
-      verify_header!(headers, "Transfer-Encoding", "chunked")
-    end
-
-    defp verify_header!(headers, header, expected) do
-      case List.keyfind(headers, header, 0) do
-        {_, ^expected} ->
-          :ok
-
-        {_, value} ->
-          raise ExAws.Error,
-            message: "Expected #{header} #{inspect(expected)}, received #{inspect(value)}"
-
-        nil ->
-          raise ExAws.Error, message: "Missing #{header} header in Bedrock response"
-      end
-    end
-  else
-    def stream_objects!(_, _, _) do
-      raise "Bedrock response streaming requires hackney; please add {:hackney, \"~> 1.20\"} to Mix dependencies"
+      [] ->
+        raise ExAws.Error, message: "Missing #{header} header in Bedrock response"
     end
   end
 
@@ -187,17 +132,7 @@ defmodule Meadow.Utils.AWS.BedrockStream do
   end
 
   defp user_agent do
-    meadow_version = Application.spec(:meadow, :vsn) |> to_string()
-
-    hackney_agent =
-      if function_exported?(:hackney_request, :default_ua, 0) do
-        :hackney_request.default_ua()
-      else
-        "hackney"
-      end
-
-    [hackney_agent, "meadow/#{meadow_version}", "bedrock-stream/0.1.0"]
-    |> Enum.join(" ")
+    "#{Meadow.HTTP.Base.ua()} bedrock-stream/0.1.0"
   end
 
   defp stream_timeout do

@@ -16,7 +16,7 @@ defmodule Meadow.Search.Scroll do
   end
 
   defp first(index, query) do
-    scroll_result([index, "/_search?scroll=1m"], query)
+    scroll_result("#{index}/_search?scroll=1m", query)
   end
 
   defp next({:ok, %{"_scroll_id" => scroll_id, "hits" => %{"hits" => []}}}) do
@@ -26,22 +26,30 @@ defmodule Meadow.Search.Scroll do
   defp next({:ok, %{"_scroll_id" => scroll_id, "hits" => %{"hits" => hits}}}) do
     {
       hits,
-      scroll_result(["_search", "scroll"], %{scroll: "1m", scroll_id: scroll_id})
+      scroll_result("_search/scroll", %{scroll: "1m", scroll_id: scroll_id})
     }
   end
 
   defp next(_), do: {:halt, nil}
 
   defp finish(scroll_id) when is_binary(scroll_id) do
-    HTTP.delete(["_search", "scroll", scroll_id])
+    HTTP.delete("_search/scroll/#{scroll_id}")
     :ok
   end
 
   defp finish(_), do: :ok
 
+  defp scroll_result(path, query) when is_binary(query) do
+    case HTTP.post(path, body: query) do
+      {:ok, %{body: body, status: 200}} -> {:ok, body}
+      {:ok, %{body: body}} -> {:error, body}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   defp scroll_result(path, query) do
-    case HTTP.post(path, query) do
-      {:ok, %{body: body, status_code: 200}} -> {:ok, body}
+    case HTTP.post(path, json: query) do
+      {:ok, %{body: body, status: 200}} -> {:ok, body}
       {:ok, %{body: body}} -> {:error, body}
       {:error, reason} -> {:error, reason}
     end

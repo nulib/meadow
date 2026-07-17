@@ -1,122 +1,52 @@
 defmodule Meadow.Search.HTTP do
   @moduledoc """
-  Meadow config-aware wrapper for Elastix.HTTP
+  Meadow config-aware Req client for the OpenSearch cluster
   """
-  alias Elastix.HTTP, as: ElastixHTTP
   alias Meadow.Error
   alias Meadow.Search.Config, as: SearchConfig
+  alias Meadow.Utils.AWS
 
-  require Logger
+  use Meadow.HTTP.Base
 
-  use Retry
+  @max_retries 10
 
-  def get(path, headers \\ [], options \\ []),
-    do: request(:get, path, "", headers, options)
+  def preprocess_opts(opts) do
+    opts
+    |> put_new_header("content-type", "application/json")
+    |> Keyword.put_new(:base_url, SearchConfig.cluster_url())
+    |> Keyword.put_new(:retry, :transient)
+    |> Keyword.put_new(:max_retries, @max_retries)
+    |> Keyword.put_new(:retry_delay, &retry_delay/1)
+    |> Keyword.put_new(:aws_sigv4, {AWS, :aws_sigv4_options, [:es]})
+  end
 
-  def get!(path, headers \\ [], options \\ []),
-    do: request!(:get, path, "", headers, options)
+  def attach_steps(request) do
+    Req.Request.append_error_steps(request, meadow_report_error: &report_error/1)
+  end
 
-  def head(path, headers \\ [], options \\ []),
-    do: request(:head, path, "", headers, options)
+  defp report_error({request, exception}) do
+    Error.report(exception, __MODULE__, [], %{
+      method: request.method,
+      url: URI.to_string(request.url)
+    })
 
-  def head!(path, headers \\ [], options \\ []),
-    do: request!(:head, path, "", headers, options)
+    {request, exception}
+  end
 
-  def post(path, body \\ "", headers \\ [], options \\ []),
-    do: request(:post, path, body, headers, options)
+  defp retry_delay(retry_count) do
+    (10 * :math.pow(2, retry_count))
+    |> min(1_000)
+    |> Kernel.*(0.5 + :rand.uniform())
+    |> round()
+  end
 
-  def post!(path, body \\ "", headers \\ [], options \\ []),
-    do: request!(:post, path, body, headers, options)
+  defp put_new_header(opts, name, value) do
+    headers = Keyword.get(opts, :headers, [])
 
-  def put(path, body \\ "", headers \\ [], options \\ []),
-    do: request(:put, path, body, headers, options)
-
-  def put!(path, body \\ "", headers \\ [], options \\ []),
-    do: request!(:put, path, body, headers, options)
-
-  def options(path, headers \\ [], options \\ []),
-    do: request(:options, path, "", headers, options)
-
-  def options!(path, headers \\ [], options \\ []),
-    do: request!(:options, path, "", headers, options)
-
-  def delete(path, headers \\ [], options \\ []),
-    do: request(:delete, path, "", headers, options)
-
-  def delete!(path, headers \\ [], options \\ []),
-    do: request!(:delete, path, "", headers, options)
-
-  def request(method, path, body \\ "", headers \\ [], options \\ [])
-
-  def request(method, path, body, headers, options) when is_map(body),
-    do: request(method, path, Jason.encode!(body), headers, options)
-
-  def request(method, path, body, headers, options) do
-    with cluster <- SearchConfig.cluster_url(),
-         url <- ElastixHTTP.prepare_url(cluster, path) do
-      headers = headers |> Keyword.put_new(:"User-Agent", Meadow.HTTP.Base.ua())
-
-      retry with: exponential_backoff() |> randomize() |> cap(1_000) |> Stream.take(10),
-            atoms: [:retry],
-            rescue_only: [] do
-        case ElastixHTTP.request(method, url, body, headers, options) do
-          {:ok, %{status_code: status} = response} when status in [429, 503, 504] ->
-            {:retry, response}
-
-          {:ok, response} ->
-            {:ok, response}
-
-          {:error, %HTTPoison.Error{reason: :timeout} = error} ->
-            {:retry, error}
-
-          {:error, error} ->
-            {:error, error}
-
-          response ->
-            "Unexpected response from Elastix.HTTP.request/5: #{inspect(response)}, method: #{method}, url: #{url}, body: #{body}"
-            |> Logger.warning()
-
-            {:error, response}
-        end
-      after
-        result ->
-          result |> maybe_report(%{method: method, url: url, body: body})
-      else
-        {:retry, %HTTPoison.Response{} = response} ->
-          response |> maybe_report(%{method: method, url: url, body: body})
-
-        {:retry, reason} ->
-          {:error, reason} |> maybe_report(%{method: method, url: url, body: body})
-
-        error ->
-          error |> maybe_report(%{method: method, url: url, body: body})
-      end
+    if List.keymember?(headers, name, 0) do
+      opts
+    else
+      Keyword.put(opts, :headers, [{name, value} | headers])
     end
   end
-
-  def request!(method, path, body, headers, options) do
-    case request(method, path, body, headers, options) do
-      {:ok, response} ->
-        response
-
-      {:error, error} ->
-        raise error
-    end
-  end
-
-  defp maybe_report(
-         {:error, {:ok, %HTTPoison.Response{body: %{"error" => %{"reason" => reason}}}}} =
-           response,
-         context
-       ) do
-    Error.report(%HTTPoison.Error{reason: reason}, __MODULE__, [], context)
-    response
-  end
-
-  defp maybe_report({:error, reason} = response, context) do
-    Error.report(inspect(reason), __MODULE__, [], context)
-    response
-  end
-
-  defp maybe_report(response, _), do: response
 end

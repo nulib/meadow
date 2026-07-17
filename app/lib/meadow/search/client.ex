@@ -16,12 +16,12 @@ defmodule Meadow.Search.Client do
   end
 
   def delete(target, id) do
-    case HTTP.delete([target, "_doc", id]) do
-      {:ok, %{status_code: 200}} ->
+    case HTTP.delete("#{target}/_doc/#{id}") do
+      {:ok, %{status: 200}} ->
         Logger.info("Deleted document #{id} from #{target}")
         {:ok, id}
 
-      {:ok, %{status_code: 404}} ->
+      {:ok, %{status: 404}} ->
         Logger.warning("Document #{id} not found in #{target}")
         {:ok, id}
 
@@ -37,11 +37,11 @@ defmodule Meadow.Search.Client do
     do: doc(SearchConfig.alias_for(schema, version), id)
 
   def doc(target, id) do
-    case HTTP.get([target, "_doc", id]) do
-      {:ok, %{status_code: 200, body: %{"_source" => doc}}} ->
+    case HTTP.get("#{target}/_doc/#{id}") do
+      {:ok, %{status: 200, body: %{"_source" => doc}}} ->
         {:ok, doc}
 
-      {:ok, %{status_code: 404}} ->
+      {:ok, %{status: 404}} ->
         {:error, :not_found}
 
       {:ok, %{body: %{"error" => %{"reason" => reason}}}} ->
@@ -62,7 +62,7 @@ defmodule Meadow.Search.Client do
     do: target |> to_string() |> delete_by_query(query)
 
   def delete_by_query(target, query) do
-    case HTTP.post([target, "_delete_by_query"], query) do
+    case HTTP.post("#{target}/_delete_by_query", json: query) do
       {:ok, %{body: %{"deleted" => deleted}}} ->
         Logger.info("Deleting #{deleted} documents from #{target}")
         {:ok, deleted}
@@ -128,7 +128,7 @@ defmodule Meadow.Search.Client do
     do: indexed_doc_count(SearchConfig.alias_for(schema, version))
 
   def indexed_doc_count(target, query) do
-    case HTTP.post([target, "_count"], query) do
+    case HTTP.post("#{target}/_count", json: query) do
       {:ok, %{body: %{"count" => count}}} -> {:ok, count}
       {:ok, %{body: %{"error" => %{"reason" => reason}}}} -> {:error, reason}
       {:error, reason} -> {:error, reason}
@@ -136,7 +136,7 @@ defmodule Meadow.Search.Client do
   end
 
   def indexed_doc_count(target) do
-    case HTTP.get([target, "_count"]) do
+    case HTTP.get("#{target}/_count") do
       {:ok, %{body: %{"count" => count}}} -> {:ok, count}
       {:ok, %{body: %{"error" => %{"reason" => reason}}}} -> {:error, reason}
       {:error, reason} -> {:error, reason}
@@ -185,12 +185,12 @@ defmodule Meadow.Search.Client do
       }
     }
 
-    HTTP.post(["_reindex?wait_for_completion=false"], body)
+    HTTP.post("_reindex?wait_for_completion=false", json: body)
     |> await_reindex_result(target)
   end
 
   defp await_reindex_result({:ok, %{body: %{"task" => task}}}, index) do
-    case HTTP.get(["_tasks", task]) do
+    case HTTP.get("_tasks/#{task}") do
       {:ok, %{body: %{"completed" => true, "response" => response} = body}} ->
         log_reindex_status(body, index)
         {:ok, response}
@@ -239,7 +239,7 @@ defmodule Meadow.Search.Client do
   end
 
   def search(target, query) do
-    case HTTP.post([target, "_search"], query) do
+    case HTTP.post("#{target}/_search", json: query) do
       {:ok, %{body: %{"aggregations" => %{"group_by_id" => %{"buckets" => buckets}}}}} ->
         {:ok, buckets}
 
@@ -255,8 +255,6 @@ defmodule Meadow.Search.Client do
   end
 
   def refresh(index) do
-    Application.get_env(:meadow, Meadow.Search.Cluster)
-    |> Keyword.get(:url)
-    |> Elastix.Index.refresh(to_string(index))
+    HTTP.post("#{index}/_refresh")
   end
 end
