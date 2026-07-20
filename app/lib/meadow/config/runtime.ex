@@ -56,11 +56,6 @@ defmodule Meadow.Config.Runtime do
       connection_pool: Meadow.FinchPool,
       geonames_username: get_secret(:meadow, ["geonames", "username"])
 
-    Logger.info("Configuring elastix")
-
-    config :elastix,
-      custom_headers: {Meadow.Utils.AWS, :add_aws_signature, []}
-
     Logger.info("Configuring hackney")
 
     config :hackney,

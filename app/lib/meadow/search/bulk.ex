@@ -56,8 +56,8 @@ defmodule Meadow.Search.Bulk do
     with_log_metadata module: __MODULE__, index: index do
       Logger.info("Uploading #{doc_count} #{Inflex.inflect("document", doc_count)} (#{byte_size(bulk_document)} bytes) to #{index}")
 
-      case HTTP.post("/#{index}/_bulk", bulk_document <> "\n") do
-        {:ok, %{status_code: 413} = response} ->
+      case HTTP.post("/#{index}/_bulk", body: bulk_document <> "\n") do
+        {:ok, %{status: 413} = response} ->
           Logger.warning("Bulk upload too large")
           {:error, response}
 
@@ -74,7 +74,7 @@ defmodule Meadow.Search.Bulk do
           Logger.error("Bulk upload encountered errors: #{inspect(errors)}")
           {:ok, response}
 
-        {:ok, %{status_code: status} = response} ->
+        {:ok, %{status: status} = response} ->
           Logger.info("Bulk upload status: #{status}")
           {:ok, response}
 

@@ -100,7 +100,7 @@ defmodule Meadow.Utils.Lambda do
       Enum.reduce(opts, [], fn
         {:retries, nil}, acc -> acc
         {:retries, retries}, acc -> [retries: [max_attempts: retries]] ++ acc
-        {:timeout, timeout}, acc -> [http_opts: [receive_timeout: timeout]] ++ acc
+        {:timeout, timeout}, acc -> [http_opts: [recv_timeout: timeout]] ++ acc
         {:on_log, _on_log}, acc -> acc
         _, acc -> acc
       end)

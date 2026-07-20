@@ -7,13 +7,15 @@ defmodule Meadow.HTTP.Base do
       def new(opts \\ []) do
         preprocess_opts(opts)
         |> Req.new()
-        |> Req.Request.append_request_steps(
+        |> Req.Request.prepend_request_steps(
           meadow_user_agent: &Meadow.HTTP.Base.attach_user_agent/1
         )
+        |> attach_steps()
       end
 
       def preprocess_opts(opts), do: opts
-      defoverridable preprocess_opts: 1
+      def attach_steps(request), do: request
+      defoverridable preprocess_opts: 1, attach_steps: 1
 
       def get(url, opts \\ []), do: request(url, Keyword.put(opts, :method, :get))
       def get!(url, opts \\ []), do: request!(url, Keyword.put(opts, :method, :get))
@@ -52,7 +54,7 @@ defmodule Meadow.HTTP.Base do
   end
 
   def attach_user_agent(request) do
-    Req.Request.put_header(request, "user-agent", ua())
+    Req.Request.put_new_header(request, "user-agent", ua())
   end
 end
 

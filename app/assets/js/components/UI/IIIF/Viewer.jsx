@@ -39,16 +39,18 @@ const IIIFViewer = ({ fileSets, iiifContent, workTypeId }) => {
    * When the Canvas changed in Clover, update the active media file set in Context.
    */
   const handleCanvasIdCallback = (canvasId) => {
-    if (canvasId) {
-      const canvasIndex = canvasId.split("/").pop();
-      if (fileSets[canvasIndex]?.id === activeMediaFileSet?.id) return;
+    if (!canvasId) return;
 
-      dispatch({
-        type: "updateActiveMediaFileSet",
-        fileSet: fileSets[canvasIndex],
-      });
-    }
-    return;
+    const fileSetId = canvasId.split("?")[0].split("/").pop();
+    const nextFileSet = fileSets.find((fs) => fs.id === fileSetId);
+
+    if (!nextFileSet) return;
+    if (nextFileSet.id === activeMediaFileSet?.id) return;
+
+    dispatch({
+      type: "updateActiveMediaFileSet",
+      fileSet: nextFileSet,
+    });
   };
 
   const customTheme = {

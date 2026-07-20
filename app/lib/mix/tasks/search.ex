@@ -73,7 +73,7 @@ defmodule Mix.Tasks.Meadow.Search.Teardown do
 
   defp get_metadata(filter) do
     case HTTP.get("_cluster/state?filter_path=#{filter}") do
-      {:ok, %{body: body, status_code: 200}} -> body
+      {:ok, %{body: body, status: 200}} -> body
       {:ok, response} -> {:error, response}
       other -> other
     end
@@ -86,6 +86,7 @@ defmodule Mix.Tasks.Meadow.Search.Clear do
   """
   use Mix.Task
   alias Meadow.Search.Config, as: SearchConfig
+  alias Meadow.Search.HTTP
   require Logger
 
   @shortdoc @moduledoc
@@ -93,20 +94,19 @@ defmodule Mix.Tasks.Meadow.Search.Clear do
     System.put_env("MEADOW_PROCESSES", "none")
     Mix.Task.run("app.config")
 
-    with url <- SearchConfig.cluster_url(),
-         shared_links_index <- Application.get_env(:meadow, :shared_links_index) do
+    with shared_links_index <- Application.get_env(:meadow, :shared_links_index) do
       Logger.info("Clearing data from search indexes")
 
       SearchConfig.aliases()
       |> Enum.each(fn alias ->
-        Elastix.Document.delete_matching(url, alias, %{query: %{match_all: %{}}})
+        HTTP.post("#{alias}/_delete_by_query", json: %{query: %{match_all: %{}}})
       end)
 
       Logger.info("Clearing data from shared_links index")
 
-      Elastix.Document.delete_matching(url, shared_links_index, %{
-        query: %{query: %{match_all: %{}}}
-      })
+      HTTP.post("#{shared_links_index}/_delete_by_query",
+        json: %{query: %{query: %{match_all: %{}}}}
+      )
     end
   end
 end

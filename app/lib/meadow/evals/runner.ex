@@ -6,7 +6,6 @@ defmodule Meadow.Evals.Runner do
   import Ecto.Query
   alias Meadow.{Evals, Repo}
   alias Meadow.Evals.{Judge, Schemas.EvalRun, Schemas.EvalTrial}
-  alias MeadowWeb.Router.Helpers, as: Routes
 
   @registry Meadow.HordeRegistry
 
@@ -119,8 +118,6 @@ defmodule Meadow.Evals.Runner do
   defp execute_trial(run, trial, member, prompt_version) do
     trial |> EvalTrial.mark_running() |> Repo.update!()
 
-    mcp_url = Routes.page_url(MeadowWeb.Endpoint, :index, ["api", "mcp", "eval"])
-
     prompt =
       prompt_version.user_prompt_template
       |> render_prompt(%{
@@ -141,7 +138,7 @@ defmodule Meadow.Evals.Runner do
 
     started_at = System.monotonic_time(:millisecond)
 
-    result = MeadowAI.query(prompt, mcp_url: mcp_url, context: context)
+    result = MeadowAI.query(prompt, mcp_path: "api/mcp/eval", context: context)
 
     duration_ms = System.monotonic_time(:millisecond) - started_at
 

@@ -1,7 +1,7 @@
 defmodule Meadow.MixProject do
   use Mix.Project
 
-  @app_version "10.6.0"
+  @app_version "10.6.1"
 
   def project do
     [
@@ -66,7 +66,7 @@ defmodule Meadow.MixProject do
       {:broadway_dashboard, "~> 0.4"},
       {:broadway_sqs, "~> 0.7"},
       {:cachex, "~> 4.0"},
-      {:configparser_ex, "~> 4.0"},
+      {:configparser_ex, "~> 5.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 2.0"},
       {:ecto_enum, "~> 1.4"},
@@ -74,9 +74,8 @@ defmodule Meadow.MixProject do
       {:ecto_ranked, "~> 0.5"},
       {:ecto_sql, "~> 3.13"},
       {:edtf, "~> 2.0"},
-      {:elastix, "~> 0.10"},
       {:ets, "~> 0.9"},
-      {:ex_aws, "~> 2.5"},
+      {:ex_aws, "~> 2.7"},
       {:ex_aws_s3, "~> 2.3"},
       {:ex_aws_lambda, "~> 2.0"},
       {:ex_aws_secretsmanager, "~> 2.0"},
@@ -85,9 +84,8 @@ defmodule Meadow.MixProject do
       {:excoveralls, "~> 0.10", only: :test},
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:gettext, "~> 1.0"},
-      {:hackney, "~> 1.17"},
       {:image, "~> 0.54"},
-      {:honeybadger, "~> 0.7"},
+      {:honeybadger, "~> 0.28"},
       {:horde, "~> 0.10"},
       {:inflex28, "~> 2.1"},
       {:jason, "~> 1.0"},
@@ -106,17 +104,16 @@ defmodule Meadow.MixProject do
       {:phoenix_ecto, "~> 4.1"},
       {:phoenix_view, "~> 2.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:poison, "~> 4.0"},
       {:postgrex, "~> 0.17"},
       {:quantum, "~> 3.0"},
-      {:req, "~> 0.5"},
+      {:req, "~> 0.6"},
       {:retry, "~> 0.19"},
-      {:sigaws, git: "https://github.com/nulib/sigaws.git", branch: "otp-24", override: true},
       {:sitemapper, "~> 0.10"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
-      {:tzdata, "~> 1.1"},
+      {:tzdata, github: "lau/tzdata"},
+      {:uuid, "~> 1.1"},
       {:ueberauth_nusso, "~> 2.3"},
       {:walex, "~> 4.7"},
       {:wait_for_it, "~> 2.1"},

@@ -1,40 +1,33 @@
 defmodule Meadow.Search.Alias do
   @moduledoc """
-  Meadow config-aware wrapper for Elastix.Alias
+  Meadow config-aware wrapper for OpenSearch alias operations
   """
-  alias Elastix.Alias, as: ElastixAlias
   alias Meadow.Error
-  alias Meadow.Search.Config, as: SearchConfig
+  alias Meadow.Search.HTTP
 
   @doc """
   Add an alias to an index
   """
   def add(alias, index) do
-    ElastixAlias.post(
-      SearchConfig.cluster_url(),
-      [add_action(alias, index)]
-    )
+    HTTP.post("_aliases", json: %{actions: [add_action(alias, index)]})
   end
 
   @doc """
   Remove an alias from an index
   """
   def remove(alias, indexes) do
-    ElastixAlias.post(
-      SearchConfig.cluster_url(),
-      Enum.map(indexes, &remove_action(alias, &1))
-    )
+    HTTP.post("_aliases", json: %{actions: Enum.map(indexes, &remove_action(alias, &1))})
   end
 
   @doc """
   List the current index targets for a given alias
   """
   def get_targets(alias) do
-    case ElastixAlias.get(SearchConfig.cluster_url(), alias) do
-      {:ok, %{body: body, status_code: 200}} ->
+    case HTTP.get("_alias/#{alias}") do
+      {:ok, %{body: body, status: 200}} ->
         {:ok, Map.keys(body)}
 
-      {:ok, %{status_code: 404}} ->
+      {:ok, %{status: 404}} ->
         {:ok, []}
 
       {:ok, %{body: %{error: error}}} ->
@@ -59,7 +52,7 @@ defmodule Meadow.Search.Alias do
       | Enum.map(old_targets, &remove_action(alias, &1))
     ]
 
-    ElastixAlias.post(SearchConfig.cluster_url(), actions)
+    HTTP.post("_aliases", json: %{actions: actions})
   end
 
   @doc """
