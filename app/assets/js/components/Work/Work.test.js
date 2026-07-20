@@ -37,10 +37,10 @@ jest.mock("@samvera/clover-iiif/viewer", () => {
   return {
     __esModule: true,
     default: (props) => {
-      // Call the canvasCallback with a string when the component is rendered
-      if (props.canvasCallback) {
-        props.canvasCallback(
-          "https://mat.dev.rdc.library.northwestern.edu:3002/works/a1239c42-6e26-4a95-8cde-0fa4dbf0af6a?as=iiif/canvas/access/0",
+      // Call the canvasIdCallback with a string when the component is rendered
+      if (props.canvasIdCallback) {
+        props.canvasIdCallback(
+          "https://mat.dev.rdc.library.northwestern.edu:3002/file-sets/01E08T3EXBJX3PWDG22NSRE0BS?as=iiif",
         );
       }
       return <div></div>;

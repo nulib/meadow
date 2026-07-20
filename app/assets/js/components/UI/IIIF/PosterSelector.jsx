@@ -59,7 +59,7 @@ function IIIFViewerPosterSelector() {
     return null;
   }
 
-  const label = workState.activeMediaFileSet.coreMetadata.label;
+  const label = workState.activeMediaFileSet?.coreMetadata?.label;
 
   return (
     <div
