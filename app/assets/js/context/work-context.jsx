@@ -40,10 +40,9 @@ function workReducer(state, action) {
       };
     }
     case "updateActiveMediaFileSet": {
-      const workTypeId = action.workTypeId || state.workTypeId;
       return {
         ...state,
-        activeMediaFileSet: { ...action.fileSet },
+        activeMediaFileSet: action.fileSet ? { ...action.fileSet } : null,
       };
     }
     case "updateWorkType": {

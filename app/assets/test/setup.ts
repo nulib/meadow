@@ -231,9 +231,9 @@ mock.module("@js/services/get-api-response-headers", () => ({
 
 mock.module("@samvera/clover-iiif/viewer", () => ({
   __esModule: true,
-  default: (props: { canvasCallback?: (canvasId: string) => void }) => {
-    props.canvasCallback?.(
-      "https://mat.dev.rdc.library.northwestern.edu:3002/works/a1239c42-6e26-4a95-8cde-0fa4dbf0af6a?as=iiif/canvas/access/0",
+  default: (props: { canvasIdCallback?: (canvasId: string) => void }) => {
+    props.canvasIdCallback?.(
+      "https://mat.dev.rdc.library.northwestern.edu:3002/file-sets/45226a50-87ca-443e-bc05-f47884e14505?as=iiif",
     );
     return React.createElement("div");
   },

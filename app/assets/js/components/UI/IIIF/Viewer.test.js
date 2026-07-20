@@ -27,14 +27,16 @@ const initialState = {
 
 const mocks = [dcApiTokenMock];
 
+let mockCanvasFileSetId = mockFileSets[0].id;
+
 jest.mock("@samvera/clover-iiif/viewer", () => {
   return {
     __esModule: true,
     default: (props) => {
-      // Call the canvasCallback with a string when the component is rendered
-      if (props.canvasCallback) {
-        props.canvasCallback(
-          "https://mat.dev.rdc.library.northwestern.edu:3002/works/a1239c42-6e26-4a95-8cde-0fa4dbf0af6a?as=iiif/canvas/access/0",
+      // Call the canvasIdCallback with a string when the component is rendered
+      if (props.canvasIdCallback) {
+        props.canvasIdCallback(
+          `https://mat.dev.rdc.library.northwestern.edu:3002/file-sets/${mockCanvasFileSetId}?as=iiif`,
         );
       }
       return <div></div>;
@@ -71,6 +73,54 @@ describe("IIIFViewer component", () => {
       { mocks },
     );
     expect(await screen.findByTestId("set-poster-image-button"));
+  });
+
+  it("keeps the poster selector button visible when the canvas callback can't resolve a file set", async () => {
+    mockCanvasFileSetId = "does-not-exist"; // no matching mock file set id
+
+    renderWithRouterApollo(
+      <WorkProvider initialState={initialState}>
+        <IIIFViewer
+          fileSet={mockFileSets[0]}
+          fileSets={[...mockFileSets]}
+          iiifContent="ABC123"
+          workTypeId="VIDEO"
+        />
+      </WorkProvider>,
+      { mocks },
+    );
+
+    expect(
+      await screen.findByTestId("set-poster-image-button"),
+    ).toBeInTheDocument();
+
+    mockCanvasFileSetId = mockFileSets[0].id;
+  });
+
+  it("updates the active file set when the canvas callback resolves a matching file set id", async () => {
+    mockCanvasFileSetId = mockFileSets[2].id;
+
+    renderWithRouterApollo(
+      <WorkProvider
+        initialState={{ ...initialState, activeMediaFileSet: mockFileSets[0] }}
+      >
+        <IIIFViewer
+          fileSet={mockFileSets[0]}
+          fileSets={[...mockFileSets]}
+          iiifContent="ABC123"
+          workTypeId="VIDEO"
+        />
+      </WorkProvider>,
+      { mocks },
+    );
+
+    // The poster button's label reflects the *active* file set, so seeing
+    // file set 2's label confirms the callback re-resolved by id.
+    expect(
+      await screen.findByText(mockFileSets[2].coreMetadata.label),
+    ).toBeInTheDocument();
+
+    mockCanvasFileSetId = mockFileSets[0].id;
   });
 
   it("does not render the poster selector button for an Audio work type", async () => {
