@@ -5,5 +5,9 @@ subscription FileSetAnnotation($fileSetId: ID!) {
     language
     status
     content
+    aiProvenance {
+      origin
+      status
+    }
   }
 }

@@ -8,6 +8,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   import Absinthe.Resolution.Helpers, only: [dataloader: 1]
   alias Meadow.Data
   alias Meadow.Data.Works
+  alias MeadowWeb.Resolvers.AIProvenance
   alias MeadowWeb.Resolvers
   alias MeadowWeb.Schema.Middleware
 
@@ -65,6 +66,20 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
       middleware(Middleware.Authenticate)
       middleware(Middleware.Authorize, "Editor")
       resolve(&Resolvers.Data.update_work/3)
+    end
+
+    @desc "Mark one or more AI-provenanced fields' live values as human-authored, preserving AI history"
+    field :attest_human_authored_metadata, :work do
+      arg(:work_id, non_null(:id))
+      arg(:field_paths, non_null(list_of(non_null(:string))))
+      arg(:reason, :string)
+
+      @desc "When given, attest only these item identifiers within the field(s) (multivalued fields); omit to attest whole fields"
+      arg(:item_ids, list_of(non_null(:string)))
+
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Editor")
+      resolve(&Resolvers.Data.attest_human_authored_metadata/3)
     end
 
     @desc "Set the representative FileSet (Access or Auxiliary) for a Work"
@@ -185,6 +200,10 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
     field(:project, :project, resolve: dataloader(Data))
     field(:ingest_sheet, :ingest_sheet, resolve: dataloader(Data))
+
+    field(:ai_provenance_summary, list_of(:ai_provenance_summary_entry),
+      resolve: &AIProvenance.work_summary/3
+    )
   end
 
   @desc "`controlled_fields` represents all controlled descriptive metadata fields on a work."
@@ -301,6 +320,18 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:behavior, :coded_term_input)
     field(:published, :boolean)
     field(:collection_id, :id)
+
+    @desc "Fields to mark as human-authored after prior AI provenance, recorded in the same save"
+    field(:human_authored_attestations, list_of(:human_authored_attestation_input))
+  end
+
+  @desc "An explicit assertion that a field's live value is human-authored despite prior AI provenance"
+  input_object :human_authored_attestation_input do
+    field(:field_path, non_null(:string))
+    field(:reason, :string)
+
+    @desc "When given, attest only these item identifiers within the field (multivalued fields); omit to attest the whole field"
+    field(:item_ids, list_of(non_null(:string)))
   end
 
   @desc "Input fields for works administrative metadata"

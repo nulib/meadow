@@ -3,12 +3,18 @@ import PropTypes from "prop-types";
 import UIFormFieldArray from "@js/components/UI/Form/FieldArray";
 import UIFormFieldArrayDisplay from "@js/components/UI/Form/FieldArrayDisplay";
 import { METADATA_FIELDS, PHYSICAL_METADATA } from "@js/services/metadata";
+import { fieldProvenance } from "@js/components/AIProvenance/Badges";
 
 const { BOX_NAME, BOX_NUMBER, FOLDER_NAME, FOLDER_NUMBER, SERIES } =
   METADATA_FIELDS;
 const itemsToLink = [BOX_NAME, BOX_NUMBER, FOLDER_NAME, FOLDER_NUMBER, SERIES];
 
-const WorkTabsAboutPhysicalMetadata = ({ descriptiveMetadata, isEditing }) => {
+const WorkTabsAboutPhysicalMetadata = ({
+  descriptiveMetadata,
+  isEditing,
+  provenance = {},
+  workId,
+}) => {
   return (
     <div className="columns is-multiline" data-testid="physical-metadata">
       {PHYSICAL_METADATA.map((item) => (
@@ -23,6 +29,8 @@ const WorkTabsAboutPhysicalMetadata = ({ descriptiveMetadata, isEditing }) => {
               )}
               label={item.label}
               metadataItem={item}
+              provenance={fieldProvenance(provenance, item.name)}
+              workId={workId}
             />
           )}
         </div>
@@ -34,6 +42,8 @@ const WorkTabsAboutPhysicalMetadata = ({ descriptiveMetadata, isEditing }) => {
 WorkTabsAboutPhysicalMetadata.propTypes = {
   descriptiveMetadata: PropTypes.object,
   isEditing: PropTypes.bool,
+  provenance: PropTypes.object,
+  workId: PropTypes.string,
 };
 
 export default WorkTabsAboutPhysicalMetadata;

@@ -20,6 +20,7 @@ defmodule Meadow.Data.Schemas.FileSetAnnotation do
     field(:content, :string)
     field(:status, :string)
     field(:error, :string, virtual: true)
+    field(:ai_activity_id, Ecto.UUID)
 
     belongs_to(:file_set, FileSet)
 
@@ -28,7 +29,16 @@ defmodule Meadow.Data.Schemas.FileSetAnnotation do
 
   def changeset(annotation \\ %__MODULE__{}, attrs) do
     annotation
-    |> cast(attrs, [:file_set_id, :type, :language, :model, :s3_location, :content, :status])
+    |> cast(attrs, [
+      :file_set_id,
+      :type,
+      :language,
+      :model,
+      :s3_location,
+      :content,
+      :status,
+      :ai_activity_id
+    ])
     |> validate_required([:file_set_id, :type, :status])
     |> validate_inclusion(:status, @status)
     |> assoc_constraint(:file_set)

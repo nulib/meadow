@@ -60,6 +60,28 @@ describe("WorkTabsStructureTranscriptionPane", () => {
     expect(hasTranscriptionCallback).not.toHaveBeenCalled();
   });
 
+  it("treats a pending annotation as generating (overlay shown, no callback)", () => {
+    // A generation job is created with status "pending" before it flips to
+    // "in_progress"; both must gate editing identically.
+    const hasTranscriptionCallback = jest.fn();
+    const annotation = {
+      id: "ann-4",
+      type: "transcription",
+      status: "pending",
+      content: null,
+    };
+
+    render(
+      <WorkTabsStructureTranscriptionPane
+        annotation={annotation}
+        hasTranscriptionCallback={hasTranscriptionCallback}
+      />,
+    );
+
+    expect(screen.getByText("Generating transcription...")).toBeInTheDocument();
+    expect(hasTranscriptionCallback).not.toHaveBeenCalled();
+  });
+
   it("switches from generating state to showing textarea content and calls callback when content arrives", () => {
     const hasTranscriptionCallback = jest.fn();
 

@@ -38,6 +38,10 @@
   },
   "mappings": {
     "properties": {
+      "ai_provenance": {
+        "type": "object",
+        "enabled": false
+      },
       "indexed_at": {
         "type": "date_nanos"
       }
@@ -70,6 +74,15 @@
             "analyzer": "full_analyzer",
             "search_analyzer": "stopword_analyzer",
             "search_quote_analyzer": "full_analyzer"
+          }
+        }
+      },
+      {
+        "annotation_ai_provenance": {
+          "path_match": "annotations.ai_provenance",
+          "mapping": {
+            "type": "object",
+            "enabled": false
           }
         }
       },

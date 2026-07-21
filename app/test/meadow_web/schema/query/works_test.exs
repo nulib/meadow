@@ -127,4 +127,106 @@ defmodule MeadowWeb.Schema.Query.WorksTest do
              ] = query_data["works"]
     end
   end
+
+  defmodule AIProvenanceSummary do
+    use Meadow.DataCase
+    use MeadowWeb.ConnCase, async: false
+    use Wormwood.GQLCase
+
+    alias Meadow.AI.Provenance
+
+    set_gql(MeadowWeb.Schema, """
+    query($id: ID!) {
+      work(id: $id) {
+        id
+        aiProvenanceSummary {
+          fieldPath
+          origin
+          activityId
+          model
+          sourceCount
+        }
+      }
+    }
+    """)
+
+    test "work query returns field-level AI provenance summary" do
+      work = work_fixture()
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_direct_apply",
+          model: "test-model",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      {:ok, _source} =
+        Provenance.add_source(activity, %{item_id: work.id, item_type: "Work", work_id: work.id})
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: work.id,
+            field_path: "descriptive_metadata.description",
+            operation: "replace",
+            proposed_value: ["Description"],
+            origin: "ai_generated",
+            status: "applied"
+          },
+          "applied"
+        )
+
+      assert {:ok, %{data: query_data}} =
+               query_gql(variables: %{"id" => work.id}, context: gql_context())
+
+      assert [
+               %{
+                 "fieldPath" => "descriptive_metadata.description",
+                 "origin" => "ai_generated",
+                 "model" => "test-model",
+                 "sourceCount" => 1
+               }
+             ] = query_data["work"]["aiProvenanceSummary"]
+    end
+  end
+
+  defmodule AIActivities do
+    use Meadow.DataCase
+    use MeadowWeb.ConnCase, async: false
+    use Wormwood.GQLCase
+
+    alias Meadow.AI.Provenance
+
+    set_gql(MeadowWeb.Schema, """
+    query($workId: ID!) {
+      aiActivities(workId: $workId) {
+        id
+        activityType
+        status
+      }
+    }
+    """)
+
+    test "aiActivities query returns activities filtered by work" do
+      work = work_fixture()
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_direct_apply",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      assert {:ok, %{data: query_data}} =
+               query_gql(variables: %{"workId" => work.id}, context: gql_context())
+
+      assert [%{"id" => id, "activityType" => "metadata_direct_apply", "status" => "completed"}] =
+               query_data["aiActivities"]
+
+      assert id == activity.id
+    end
+  end
 end

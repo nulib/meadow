@@ -10,17 +10,24 @@ import { toastWrapper, downloadBlob } from "@js/services/helpers";
 import { useMutation, useQuery } from "@apollo/client/react";
 import {
   UPDATE_FILE_SET_ANNOTATION,
-  DELETE_FILE_SET_ANNOTATION,
   UPSERT_FILE_SET_ANNOTATION,
+  DELETE_FILE_SET_ANNOTATION,
 } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
 import { GET_WORK } from "@js/components/Work/work.gql";
 import { IconDownload } from "@js/components/Icon";
 import WorkTabsStructureTranscriptionWorkflow from "@js/components/Work/Tabs/Structure/Transcription/Workflow";
 
+const TRANSCRIPTION_TYPE = "transcription";
+
 function WorkTabsStructureTranscriptionModal({ isActive }) {
   const [textArea, setTextArea] = useState();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  // Whether the textarea is backed by a saved annotation. Tracked as state
+  // (not read from the DOM at render time) so that when generation completes
+  // — which re-fires the pane callback with the same node and a clean dirty
+  // flag — the Delete/Download affordances still appear.
+  const [hasSavedAnnotation, setHasSavedAnnotation] = useState(false);
   const initialValueRef = useRef("");
 
   const dispatch = useWorkDispatch();
@@ -48,12 +55,16 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     if (!isActive) {
       setTextArea(null);
       setIsDirty(false);
+      setHasSavedAnnotation(false);
       return;
     }
     const textAreaElement = document.getElementById(
       "file-set-transcription-textarea",
     );
     setTextArea(textAreaElement);
+    setHasSavedAnnotation(
+      Boolean(textAreaElement?.getAttribute("data-annotation-id")),
+    );
   }, [isActive]);
 
   const handleClose = () => {
@@ -72,10 +83,15 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
       handleClose();
       toastWrapper("is-success", "Transcription successfully saved");
     };
+
     const onError = (error) => {
       toastWrapper("is-danger", "Error saving transcription: " + error.message);
     };
 
+    // An existing annotation is edited in place (preserving its AI provenance,
+    // which is what flips an AI transcription to "AI + human edited"). A
+    // transcription typed from scratch has no annotation id yet, so upsert one
+    // by type — it is recorded as human-authored.
     if (annotationId) {
       updateFileSetAnnotation({
         variables: { annotationId, content: annotationContent },
@@ -86,9 +102,10 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
       upsertFileSetAnnotation({
         variables: {
           fileSetId,
-          type: "transcription",
+          type: TRANSCRIPTION_TYPE,
           content: annotationContent,
         },
+        refetchQueries: [{ query: GET_WORK, variables: { id: workId } }],
         onCompleted,
         onError,
       });
@@ -144,13 +161,18 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     initialValueRef.current = textAreaElement?.value ?? "";
     setIsDirty(false);
     setTextArea(textAreaElement);
+    // Only a saved annotation can be deleted; a transcription typed from
+    // scratch has no annotation id yet. Deriving this here (in state) means a
+    // completed generation forces the footer to update even when the node and
+    // dirty flag are otherwise unchanged.
+    setHasSavedAnnotation(
+      Boolean(textAreaElement?.getAttribute("data-annotation-id")),
+    );
   };
 
   const handleContentChange = (value) => {
     setIsDirty(value !== initialValueRef.current);
   };
-
-  const hasAnnotationId = Boolean(textArea?.getAttribute("data-annotation-id"));
 
   return (
     <div className={classNames(["modal"], { "is-active": isActive })}>
@@ -208,13 +230,13 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
         </section>
 
         <footer className="modal-card-foot buttons is-justify-content-space-between">
-          {!confirmDelete && (hasAnnotationId || isDirty) && (
+          {!confirmDelete && (hasSavedAnnotation || isDirty) && (
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <Button onClick={handleDownloadTranscription}>
                 <IconDownload />
                 <span>Download Transcription</span>
               </Button>
-              {hasAnnotationId && (
+              {hasSavedAnnotation && (
                 <Button isDanger onClick={handleDeleteTranscription}>
                   Delete Transcription
                 </Button>
