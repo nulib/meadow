@@ -12,6 +12,7 @@ defmodule Meadow.Data.FileSets do
   alias Meadow.Config
   alias Meadow.Data.{Transcriber, Works}
   alias Meadow.Data.Schemas.{FileSet, FileSetAnnotation}
+  alias Meadow.Notification
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Repo
   alias Meadow.Utils.Pairtree
@@ -631,10 +632,7 @@ defmodule Meadow.Data.FileSets do
     with {:ok, updated_annotation} <- result do
       # The transcription itself is already saved; recording its audit trail is
       # best-effort and must not undo the generated content.
-      record_provenance_best_effort(updated_annotation, fn ->
-        record_completed_transcription_provenance(updated_annotation, transcription)
-      end)
-
+      record_completed_transcription_provenance_best_effort(updated_annotation, transcription)
       add_transcription_note(annotation)
     end
 
@@ -696,6 +694,15 @@ defmodule Meadow.Data.FileSets do
     end
   end
 
+  defp record_completed_transcription_provenance_best_effort(annotation, transcription) do
+    case record_provenance_best_effort(annotation, fn ->
+           record_completed_transcription_provenance(annotation, transcription)
+         end) do
+      :ok -> publish_annotation_provenance_update(annotation)
+      {:error, _reason} -> :ok
+    end
+  end
+
   # Provenance is an audit trail; failing to write it (including get_activity!
   # raising) must never take down the transcription task or its saved result.
   defp record_provenance_best_effort(annotation, recorder) do
@@ -707,12 +714,32 @@ defmodule Meadow.Data.FileSets do
         Logger.warning(
           "Failed to record transcription provenance for annotation #{annotation.id}: #{inspect(reason)}"
         )
+
+        {:error, reason}
     end
   rescue
     error ->
       Logger.warning(
         "Failed to record transcription provenance for annotation #{annotation.id}: #{inspect(error)}"
       )
+
+      {:error, error}
+  end
+
+  # The completion status update is published before provenance is recorded.
+  # Publish the completed annotation again after successful provenance recording
+  # so live subscribers can resolve its new origin immediately.
+  defp publish_annotation_provenance_update(%FileSetAnnotation{} = annotation) do
+    case Repo.get(FileSet, annotation.file_set_id) do
+      %FileSet{work_id: work_id} ->
+        Notification.publish(annotation, file_set_annotation: annotation.file_set_id)
+
+        if not is_nil(work_id),
+          do: Notification.publish(annotation, work_file_set_annotation: work_id)
+
+      _ ->
+        :ok
+    end
   end
 
   defp add_transcription_note(%{file_set_id: file_set_id, model: model}) do
