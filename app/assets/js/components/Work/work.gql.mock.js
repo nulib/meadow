@@ -163,6 +163,7 @@ export const mockWork = {
       accessionNumber: "Donohue_001_04",
       id: "01E08T3EXBJX3PWDG22NSRE0BS",
       role: { id: "A", label: "Access" },
+      groupWith: null,
       coreMetadata: {
         description: "Letter, page 2, If these papers, verso, blank",
         location: "s3://bucket/foo/bar",
@@ -182,6 +183,7 @@ export const mockWork = {
       accessionNumber: "Donohue_001_01",
       id: "01E08T3EW3TQ9T0AXCR6X9QDJW",
       role: { id: "A", label: "Access" },
+      groupWith: null,
       coreMetadata: {
         description: "Letter, page 1, Dear Sir, recto",
         location: "s3://bucket/foo/bar",
@@ -202,6 +204,7 @@ export const mockWork = {
       accessionNumber: "Donohue_001_03",
       id: "01E08T3EWRPXMWW0B1NHZ56AW6",
       role: { id: "A", label: "Access" },
+      groupWith: null,
       coreMetadata: {
         description: "Letter, page 2, If these papers, recto",
         originalFilename: "coffee.jpg",
@@ -219,6 +222,7 @@ export const mockWork = {
       accessionNumber: "Donohue_001_02",
       id: "01E08T3EWFJB35RY3RVR65AXMK",
       role: { id: "A", label: "Access" },
+      groupWith: null,
       coreMetadata: {
         description: "Letter, page 1, Dear Sir, verso, blank",
         originalFilename: "coffee.jpg",
@@ -361,6 +365,7 @@ export const mockWork2 = {
         id: "A",
         label: "Access",
       },
+      groupWith: null,
       updatedAt: "2020-07-18T09:01:01",
     },
     {
@@ -381,6 +386,7 @@ export const mockWork2 = {
         id: "A",
         label: "Access",
       },
+      groupWith: null,
     },
     {
       accessionNumber: "Donohue_002_02b",
@@ -400,6 +406,7 @@ export const mockWork2 = {
         id: "A",
         label: "Access",
       },
+      groupWith: null,
     },
   ],
   id: MOCK_WORK_ID,

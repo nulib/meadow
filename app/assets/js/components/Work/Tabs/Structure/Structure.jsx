@@ -138,7 +138,7 @@ const WorkTabsStructure = ({ work }) => {
   const handleGroupWithUpdate = (groupWithFileSets) => {
     groupWithFileSets.forEach((fs) => {
       groupWithFileSet({
-        variables: { id: fs.id, groupWith: fs.group_with },
+        variables: { id: fs.id, groupWith: fs.groupWith },
       });
     });
   };
@@ -211,11 +211,11 @@ const WorkTabsStructure = ({ work }) => {
     const { idMap, groupedMap } = fileSets.reduce(
       (acc, fileSet) => {
         acc.idMap.set(fileSet.id, fileSet);
-        if (fileSet.group_with) {
-          if (!acc.groupedMap.has(fileSet.group_with)) {
-            acc.groupedMap.set(fileSet.group_with, []);
+        if (fileSet.groupWith) {
+          if (!acc.groupedMap.has(fileSet.groupWith)) {
+            acc.groupedMap.set(fileSet.groupWith, []);
           }
-          acc.groupedMap.get(fileSet.group_with).push(fileSet);
+          acc.groupedMap.get(fileSet.groupWith).push(fileSet);
         }
         return acc;
       },
@@ -223,7 +223,7 @@ const WorkTabsStructure = ({ work }) => {
     );
 
     return fileSets.reduce((orderedList, fileSet) => {
-      if (!fileSet.group_with || !idMap.has(fileSet.group_with)) {
+      if (!fileSet.groupWith || !idMap.has(fileSet.groupWith)) {
         orderedList.push(fileSet);
         if (groupedMap.has(fileSet.id)) {
           orderedList.push(...groupedMap.get(fileSet.id));
