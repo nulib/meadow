@@ -50,7 +50,7 @@ export function MediaButtons({ fileSet }) {
 
   return (
     <div className="buttons is-grouped is-right">
-      {!fileSet.group_with && isAuthorized() && (
+      {!fileSet.groupWith && isAuthorized() && (
         <Button
           data-testid="edit-structure-button"
           onClick={() =>
@@ -84,7 +84,7 @@ export function ImageButtons({ iiifServerUrl, fileSet }) {
 
   return (
     <div className="buttons is-grouped is-right">
-      {!fileSet.group_with &&
+      {!fileSet.groupWith &&
         fileSet.representativeImageUrl &&
         isAuthorized() && (
           <a
