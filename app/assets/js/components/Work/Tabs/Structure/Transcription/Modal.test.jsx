@@ -58,6 +58,10 @@ const workflowState = {
   // Set by the mock so tests can re-fire hasTranscriptionCallback the way the
   // real Pane does when a generation completes.
   trigger: null,
+  // Captured by the mock so tests can drive the attestation control's
+  // save-before-attest hook the way the real Workflow does.
+  onBeforeAttest: null,
+  hasUnsavedChanges: null,
 };
 
 // Mock Workflow so it renders the textarea the modal is looking for, wiring
@@ -71,11 +75,15 @@ jest.mock("@js/components/Work/Tabs/Structure/Transcription/Workflow", () => {
     default: function MockWorkflow({
       hasTranscriptionCallback,
       onContentChange,
+      hasUnsavedChanges,
+      onBeforeAttest,
     }) {
       const props = workflowState.annotationId
         ? { "data-annotation-id": workflowState.annotationId }
         : {};
       workflowState.trigger = hasTranscriptionCallback;
+      workflowState.onBeforeAttest = onBeforeAttest;
+      workflowState.hasUnsavedChanges = hasUnsavedChanges;
       useEffect(() => {
         hasTranscriptionCallback?.();
       }, []);
@@ -245,6 +253,55 @@ describe("WorkTabsStructureTranscriptionModal", () => {
     });
 
     expect(mockDispatch).toHaveBeenCalledWith({
+      type: "toggleTranscriptionModal",
+      fileSetId: null,
+    });
+  });
+
+  it("saves unsaved edits without closing the modal when attestation asks it to", async () => {
+    const mutationMocks = [
+      {
+        request: {
+          query: UPDATE_FILE_SET_ANNOTATION,
+          variables: {
+            annotationId: "ann-1",
+            content: "Edited before attesting",
+          },
+        },
+        result: {
+          data: {
+            updateFileSetAnnotation: {
+              id: "ann-1",
+              content: "Edited before attesting",
+            },
+          },
+        },
+      },
+    ];
+
+    renderModal({ mocks: mutationMocks });
+
+    const saveButton = await screen.findByRole("button", { name: /save/i });
+
+    const textarea = document.getElementById("file-set-transcription-textarea");
+    fireEvent.change(textarea, {
+      target: { value: "Edited before attesting" },
+    });
+    await waitFor(() => expect(saveButton).not.toBeDisabled());
+    expect(workflowState.hasUnsavedChanges).toBe(true);
+
+    // Drive the hook the attestation control awaits before recording the
+    // attestation.
+    await act(async () => {
+      await workflowState.onBeforeAttest();
+    });
+
+    // The edits are saved and the dirty baseline resets, but the modal stays
+    // open and shows no save toast (the attestation flow owns messaging).
+    await waitFor(() => expect(saveButton).toBeDisabled());
+    expect(workflowState.hasUnsavedChanges).toBe(false);
+    expect(toastWrapper).not.toHaveBeenCalled();
+    expect(mockDispatch).not.toHaveBeenCalledWith({
       type: "toggleTranscriptionModal",
       fileSetId: null,
     });
