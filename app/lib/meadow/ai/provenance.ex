@@ -220,6 +220,7 @@ defmodule Meadow.AI.Provenance do
     event_type = Keyword.get(opts, :event_type, "proposed")
     actor = Keyword.get(opts, :actor)
     target_attrs = Keyword.get(opts, :target_attrs, %{})
+    prior_values = Keyword.get(opts, :prior_values, %{})
 
     operations
     |> operation_targets(target_type, target_id)
@@ -230,10 +231,30 @@ defmodule Meadow.AI.Provenance do
         |> Map.put(:origin, origin)
         |> Map.put(:status, status)
         |> Map.put(:actor, actor)
+        |> classify_proposed_modification(Map.get(prior_values, attrs.field_path))
 
       {:ok, target} = record_target(activity, attrs, event_type)
       target
     end)
+  end
+
+  # Proposal-time counterpart of finalize_apply_target!/4: an AI replace or
+  # delete over existing content modifies human content rather than generating
+  # fresh content, so classify it that way as soon as the target is recorded.
+  # Without this, a plan that never reaches apply (rejected, abandoned) leaves
+  # the human's existing value attributed to the AI. Callers opt in by passing
+  # `prior_values` (see prior_values_for_operations/2); the apply step re-runs
+  # the same rule and is a no-op for targets already classified here.
+  defp classify_proposed_modification(attrs, prior_value) do
+    if modification?(attrs.origin, attrs.operation, prior_value) do
+      Map.merge(attrs, %{
+        origin: "ai_modified_human_content",
+        source_value_snapshot: prior_value,
+        digital_source_type_uri: @enhanced_source_type
+      })
+    else
+      attrs
+    end
   end
 
   @doc """
@@ -302,22 +323,35 @@ defmodule Meadow.AI.Provenance do
     existing = find_target(activity.id, before_target)
     after_target = matching_operation_target(after_targets, before_target)
 
-    if existing do
-      event_type = if is_nil(after_target), do: "human_replaced", else: "human_edited"
+    cond do
+      is_nil(existing) ->
+        :ok
 
-      origin =
-        if is_nil(after_target),
-          do: "human_replacement_after_ai_suggestion",
-          else: "ai_assisted_human_modified"
+      # Row deleted from a not-yet-applied proposal: the human is rejecting the
+      # AI suggestion, not replacing content. Keep origin (authorship) intact
+      # and record the review outcome, matching review_target!/5's reject path.
+      # If the field is later re-added to the same plan change,
+      # record_manual_addition!/3 no-ops on this target and apply flips it to
+      # "applied", so the record self-heals.
+      is_nil(after_target) ->
+        update_target_status_origin!(existing, existing.origin, "rejected")
 
-      update_target_status_origin!(existing, origin, "reviewed")
+        add_event!(existing, %{
+          event_type: "rejected",
+          actor: actor,
+          value_before: before_target.proposed_value,
+          value_after: nil
+        })
 
-      add_event!(existing, %{
-        event_type: event_type,
-        actor: actor,
-        value_before: before_target.proposed_value,
-        value_after: after_target && after_target.proposed_value
-      })
+      true ->
+        update_target_status_origin!(existing, "ai_assisted_human_modified", "reviewed")
+
+        add_event!(existing, %{
+          event_type: "human_edited",
+          actor: actor,
+          value_before: before_target.proposed_value,
+          value_after: after_target.proposed_value
+        })
     end
   end
 
@@ -445,6 +479,80 @@ defmodule Meadow.AI.Provenance do
         preload: [events: [agent_links: :agent]]
       )
     )
+  end
+
+  @doc """
+  Re-point AI provenance after file sets are transferred to another work.
+  Activities whose `file_set_id` is among the transferred file sets get
+  `work_id` set to the destination (work-level activities with a nil
+  `file_set_id` are never touched); source citations for those file sets get
+  their resolvable pointer fields (`work_id`, `collection_id`,
+  `collection_title`, `access_link`) refreshed so citations stay resolvable
+  after the emptied source work is deleted; and a `transferred` event is
+  appended to each affected target so the move is recorded rather than
+  silently rewritten. File-set identity fields on sources (`item_id`, content
+  hashes, `source_snapshot`) describe the file set itself and are left alone.
+
+  Intended to be called inside the same transaction as the file set moves.
+  Idempotent: activities already pointing at the destination work are skipped.
+  """
+  def transfer_file_set_provenance(file_set_ids, to_work_id, opts \\ [])
+
+  def transfer_file_set_provenance([], _to_work_id, _opts),
+    do: {:ok, %{activities: 0, sources: 0, events: 0}}
+
+  def transfer_file_set_provenance(file_set_ids, to_work_id, opts) do
+    actor = Keyword.get(opts, :actor)
+    to_work = Repo.get!(Work, to_work_id) |> Repo.preload(:collection)
+
+    affected =
+      Repo.all(
+        from(a in Activity,
+          where: a.file_set_id in ^file_set_ids,
+          where: is_nil(a.work_id) or a.work_id != ^to_work_id,
+          select: %{id: a.id, old_work_id: a.work_id}
+        )
+      )
+
+    {activity_count, _} =
+      from(a in Activity, where: a.id in ^Enum.map(affected, & &1.id))
+      |> Repo.update_all(set: [work_id: to_work_id, updated_at: DateTime.utc_now()])
+
+    {source_count, _} =
+      from(s in Source, where: s.file_set_id in ^file_set_ids)
+      |> Repo.update_all(
+        set: [
+          work_id: to_work_id,
+          collection_id: to_work.collection_id,
+          collection_title: to_work.collection && to_work.collection.title,
+          access_link: work_access_link(to_work_id),
+          updated_at: DateTime.utc_now()
+        ]
+      )
+
+    event_count = record_transfer_events(affected, to_work_id, actor)
+
+    {:ok, %{activities: activity_count, sources: source_count, events: event_count}}
+  end
+
+  # `value_before`/`value_after` stay nil on transfer events: `current_value/2`
+  # treats the latest non-proposed event with a non-nil `value_after` as the
+  # field's live value, so a payload here would clobber the target's content.
+  defp record_transfer_events(affected, to_work_id, actor) do
+    affected
+    |> Enum.flat_map(fn %{id: activity_id, old_work_id: old_work_id} ->
+      activity_id
+      |> targets_for_activity()
+      |> Enum.map(fn target ->
+        add_event!(target, %{
+          event_type: "transferred",
+          actor: actor,
+          notes: "File set transferred from work #{old_work_id} to work #{to_work_id}",
+          outcome_detail: "from_work_id=#{old_work_id} to_work_id=#{to_work_id}"
+        })
+      end)
+    end)
+    |> length()
   end
 
   # Origins that carry AI history, so a later human edit of the field should be
@@ -900,8 +1008,16 @@ defmodule Meadow.AI.Provenance do
   keyed by field_path. Captured before the work is mutated so the apply step can
   tell whether the AI overwrote pre-existing content.
   """
-  def prior_values_for_change(work, plan_change) do
-    plan_operation_map(plan_change)
+  def prior_values_for_change(work, plan_change),
+    do: prior_values_for_operations(work, plan_operation_map(plan_change))
+
+  @doc """
+  Same as prior_values_for_change/2 but for a bare operations map
+  (`%{add: ..., delete: ..., replace: ...}`), for callers recording proposal
+  targets before a plan change exists.
+  """
+  def prior_values_for_operations(work, operations) do
+    operations
     |> operation_targets("Work", work.id)
     |> Map.new(fn %{field_path: field_path} -> {field_path, field_value(work, field_path)} end)
   end
@@ -1222,22 +1338,38 @@ defmodule Meadow.AI.Provenance do
   applies to, but in-place edits (the common case) are attributed correctly.
   Shared by the work About tab (`item_provenance` on the provenance summary) and
   the plan diff, so both stages show identical per-item attribution.
+
+  A `delete` target's proposed_value is existing content the AI wants removed,
+  not content the AI authored, so it contributes no item attribution.
   """
   def item_provenance(%Target{} = target),
     do: ai_item_provenance(target, target.events || [])
+
+  # Targets whose proposal never touched the work: not yet applied (proposed,
+  # reviewed) or never will be (rejected, failed). Their items must not badge
+  # the field's live value, mirroring the frontend's INACTIVE_FIELD_STATUSES
+  # rule for field-level badges.
+  @unapplied_target_statuses ~w(proposed reviewed rejected failed)
 
   # A single field's value can be touched by several targets (e.g. one activity
   # replaces a note and a later one adds another), so per-item attribution is the
   # union of every target's items. Targets are merged oldest-first and deduped by
   # id, so when two targets touch the same item the most recent attribution wins.
+  # Only targets that were actually applied contribute: a rejected or still-
+  # pending proposal (e.g. a delete of a human-entered term) must not mark the
+  # field's live items as AI content.
   defp merge_item_provenance(targets) do
     targets
+    |> Enum.reject(&(&1.status in @unapplied_target_statuses))
     |> Enum.sort_by(&summary_sort_key/1)
     |> Enum.flat_map(&ai_item_provenance(&1, &1.events || []))
     |> Enum.reverse()
     |> Enum.uniq_by(& &1.id)
     |> Enum.reverse()
   end
+
+  # The AI proposed *removing* these items; it did not author them.
+  defp ai_item_provenance(%{operation: "delete"}, _events), do: []
 
   defp ai_item_provenance(target, events) do
     attested = attested_item_ids(events)
@@ -1596,6 +1728,7 @@ defmodule Meadow.AI.Provenance do
   defp premis_event_type("applied"), do: "metadata update"
   defp premis_event_type("deleted"), do: "deletion"
   defp premis_event_type("failed"), do: "metadata update"
+  defp premis_event_type("transferred"), do: "transfer"
   defp premis_event_type(value), do: value
 
   defp event_outcome("rejected"), do: "failure"
