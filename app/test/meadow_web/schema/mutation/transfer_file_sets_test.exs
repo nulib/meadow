@@ -23,6 +23,29 @@ defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest do
       assert returned_id == work2.id
     end
 
+    test "moves AI provenance along with the file sets", %{work1: work1, work2: work2} do
+      alias Meadow.AI.Provenance
+
+      file_set = hd(work1.file_sets)
+
+      {:ok, _activity} =
+        Provenance.create_activity(%{
+          activity_type: "transcription",
+          work_id: work1.id,
+          file_set_id: file_set.id
+        })
+
+      result =
+        query_gql(
+          variables: %{"fromWorkId" => work1.id, "toWorkId" => work2.id},
+          context: gql_context()
+        )
+
+      assert {:ok, %{data: %{"transferFileSets" => %{"id" => _}}}} = result
+      assert [_] = Provenance.list_activities(work_id: work2.id)
+      assert [] == Provenance.list_activities(work_id: work1.id)
+    end
+
     test "returns error for non-existent from work", %{work2: work2} do
       fake_id = Ecto.UUID.generate()
 
@@ -149,6 +172,37 @@ defmodule MeadowWeb.Schema.Mutation.TransferFileSetsTest.Subset do
 
       assert length(transferred_ids) == 2
       assert work_id != nil
+    end
+
+    test "moves AI provenance along with the file sets", %{
+      work1: work1,
+      work2: work2,
+      fileset_ids: fileset_ids
+    } do
+      alias Meadow.AI.Provenance
+
+      {:ok, _activity} =
+        Provenance.create_activity(%{
+          activity_type: "transcription",
+          work_id: work1.id,
+          file_set_id: hd(fileset_ids)
+        })
+
+      result =
+        query_gql(
+          variables: %{
+            "filesetIds" => fileset_ids,
+            "createWork" => false,
+            "accessionNumber" => work2.accession_number
+          },
+          context: gql_context()
+        )
+
+      assert {:ok, %{data: %{"transfer_file_sets_subset" => %{"transferredFilesetIds" => _}}}} =
+               result
+
+      assert [_] = Provenance.list_activities(work_id: work2.id)
+      assert [] == Provenance.list_activities(work_id: work1.id)
     end
 
     test "returns error for empty fileset_ids" do

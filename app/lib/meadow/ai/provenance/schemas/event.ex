@@ -16,6 +16,7 @@ defmodule Meadow.AI.Provenance.Schemas.Event do
     applied
     deleted
     failed
+    transferred
   )
 
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}

@@ -447,6 +447,80 @@ defmodule Meadow.AI.Provenance do
     )
   end
 
+  @doc """
+  Re-point AI provenance after file sets are transferred to another work.
+  Activities whose `file_set_id` is among the transferred file sets get
+  `work_id` set to the destination (work-level activities with a nil
+  `file_set_id` are never touched); source citations for those file sets get
+  their resolvable pointer fields (`work_id`, `collection_id`,
+  `collection_title`, `access_link`) refreshed so citations stay resolvable
+  after the emptied source work is deleted; and a `transferred` event is
+  appended to each affected target so the move is recorded rather than
+  silently rewritten. File-set identity fields on sources (`item_id`, content
+  hashes, `source_snapshot`) describe the file set itself and are left alone.
+
+  Intended to be called inside the same transaction as the file set moves.
+  Idempotent: activities already pointing at the destination work are skipped.
+  """
+  def transfer_file_set_provenance(file_set_ids, to_work_id, opts \\ [])
+
+  def transfer_file_set_provenance([], _to_work_id, _opts),
+    do: {:ok, %{activities: 0, sources: 0, events: 0}}
+
+  def transfer_file_set_provenance(file_set_ids, to_work_id, opts) do
+    actor = Keyword.get(opts, :actor)
+    to_work = Repo.get!(Work, to_work_id) |> Repo.preload(:collection)
+
+    affected =
+      Repo.all(
+        from(a in Activity,
+          where: a.file_set_id in ^file_set_ids,
+          where: is_nil(a.work_id) or a.work_id != ^to_work_id,
+          select: %{id: a.id, old_work_id: a.work_id}
+        )
+      )
+
+    {activity_count, _} =
+      from(a in Activity, where: a.id in ^Enum.map(affected, & &1.id))
+      |> Repo.update_all(set: [work_id: to_work_id, updated_at: DateTime.utc_now()])
+
+    {source_count, _} =
+      from(s in Source, where: s.file_set_id in ^file_set_ids)
+      |> Repo.update_all(
+        set: [
+          work_id: to_work_id,
+          collection_id: to_work.collection_id,
+          collection_title: to_work.collection && to_work.collection.title,
+          access_link: work_access_link(to_work_id),
+          updated_at: DateTime.utc_now()
+        ]
+      )
+
+    event_count = record_transfer_events(affected, to_work_id, actor)
+
+    {:ok, %{activities: activity_count, sources: source_count, events: event_count}}
+  end
+
+  # `value_before`/`value_after` stay nil on transfer events: `current_value/2`
+  # treats the latest non-proposed event with a non-nil `value_after` as the
+  # field's live value, so a payload here would clobber the target's content.
+  defp record_transfer_events(affected, to_work_id, actor) do
+    affected
+    |> Enum.flat_map(fn %{id: activity_id, old_work_id: old_work_id} ->
+      activity_id
+      |> targets_for_activity()
+      |> Enum.map(fn target ->
+        add_event!(target, %{
+          event_type: "transferred",
+          actor: actor,
+          notes: "File set transferred from work #{old_work_id} to work #{to_work_id}",
+          outcome_detail: "from_work_id=#{old_work_id} to_work_id=#{to_work_id}"
+        })
+      end)
+    end)
+    |> length()
+  end
+
   # Origins that carry AI history, so a later human edit of the field should be
   # recorded as human mediation rather than silently keeping the AI label.
   @ai_involved_origins ~w(
@@ -1596,6 +1670,7 @@ defmodule Meadow.AI.Provenance do
   defp premis_event_type("applied"), do: "metadata update"
   defp premis_event_type("deleted"), do: "deletion"
   defp premis_event_type("failed"), do: "metadata update"
+  defp premis_event_type("transferred"), do: "transfer"
   defp premis_event_type(value), do: value
 
   defp event_outcome("rejected"), do: "failure"

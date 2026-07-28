@@ -1212,4 +1212,180 @@ defmodule Meadow.AI.ProvenanceTest do
              ] = Provenance.work_summary(work.id)
     end
   end
+
+  describe "transfer_file_set_provenance/3" do
+    alias Meadow.AI.Provenance.Schemas.{Activity, Source}
+    alias Meadow.Repo
+
+    setup do
+      source_collection = collection_fixture(%{title: "Source Collection"})
+      destination_collection = collection_fixture(%{title: "Destination Collection"})
+
+      source_work = work_with_file_sets_fixture(2, %{collection_id: source_collection.id})
+      destination_work = work_fixture(%{collection_id: destination_collection.id})
+
+      [file_set, other_file_set] = source_work.file_sets
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "transcription",
+          ai_use_type: "transcription",
+          model: "test-model",
+          work_id: source_work.id,
+          file_set_id: file_set.id,
+          status: "completed"
+        })
+
+      {:ok, _source} = Provenance.add_source(activity, Provenance.file_set_source_attrs(file_set))
+
+      annotation_id = Ecto.UUID.generate()
+
+      {:ok, target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "FileSetAnnotation",
+            target_id: annotation_id,
+            field_path: "file_set_annotations.content",
+            operation: "add",
+            proposed_value: "Generated transcript",
+            origin: "ai_generated",
+            status: "applied"
+          },
+          "applied"
+        )
+
+      {:ok,
+       source_work: source_work,
+       destination_work: destination_work,
+       destination_collection: destination_collection,
+       file_set: file_set,
+       other_file_set: other_file_set,
+       activity: activity,
+       target: target,
+       annotation_id: annotation_id}
+    end
+
+    test "re-points activity and refreshes source citation fields", %{
+      source_work: source_work,
+      destination_work: destination_work,
+      destination_collection: destination_collection,
+      file_set: file_set,
+      activity: activity
+    } do
+      assert {:ok, %{activities: 1, sources: 1, events: 1}} =
+               Provenance.transfer_file_set_provenance([file_set.id], destination_work.id)
+
+      activity = Repo.get!(Activity, activity.id)
+      assert activity.work_id == destination_work.id
+
+      assert [source] = Repo.all(from(s in Source, where: s.file_set_id == ^file_set.id))
+      assert source.work_id == destination_work.id
+      assert source.collection_id == destination_collection.id
+      assert source.collection_title == "Destination Collection"
+      assert source.access_link =~ destination_work.id
+      refute source.access_link =~ source_work.id
+
+      # File set identity fields are snapshots of the file set itself, untouched
+      assert source.item_id == file_set.id
+      assert source.source_snapshot == %{"accession_number" => file_set.accession_number}
+    end
+
+    test "appends a transferred audit event with old and new work ids", %{
+      source_work: source_work,
+      destination_work: destination_work,
+      file_set: file_set,
+      target: target
+    } do
+      {:ok, _} = Provenance.transfer_file_set_provenance([file_set.id], destination_work.id)
+
+      target = Repo.preload(target, :events, force: true)
+      assert transfer_event = Enum.find(target.events, &(&1.event_type == "transferred"))
+
+      assert transfer_event.premis_event_type == "transfer"
+      assert transfer_event.outcome == "success"
+      assert transfer_event.notes =~ source_work.id
+      assert transfer_event.notes =~ destination_work.id
+      assert transfer_event.outcome_detail ==
+               "from_work_id=#{source_work.id} to_work_id=#{destination_work.id}"
+
+      assert is_nil(transfer_event.value_before)
+      assert is_nil(transfer_event.value_after)
+    end
+
+    test "work summaries follow the file set without losing the current value", %{
+      source_work: source_work,
+      destination_work: destination_work,
+      file_set: file_set,
+      annotation_id: annotation_id
+    } do
+      {:ok, _} = Provenance.transfer_file_set_provenance([file_set.id], destination_work.id)
+
+      assert Provenance.work_summary(source_work.id) == []
+
+      assert [
+               %{
+                 target_type: "FileSetAnnotation",
+                 target_id: ^annotation_id,
+                 current_value: %{"value" => "Generated transcript"},
+                 latest_event_type: "transferred"
+               }
+             ] = Provenance.work_summary(destination_work.id)
+
+      assert [_] = Provenance.list_activities(work_id: destination_work.id)
+      assert [] == Provenance.list_activities(work_id: source_work.id)
+    end
+
+    test "leaves work-level activities and other file sets' provenance untouched", %{
+      source_work: source_work,
+      destination_work: destination_work,
+      file_set: file_set,
+      other_file_set: other_file_set
+    } do
+      {:ok, work_level_activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          work_id: source_work.id
+        })
+
+      {:ok, other_activity} =
+        Provenance.create_activity(%{
+          activity_type: "transcription",
+          work_id: source_work.id,
+          file_set_id: other_file_set.id
+        })
+
+      {:ok, _} =
+        Provenance.add_source(other_activity, Provenance.file_set_source_attrs(other_file_set))
+
+      assert {:ok, %{activities: 1, sources: 1, events: 1}} =
+               Provenance.transfer_file_set_provenance([file_set.id], destination_work.id)
+
+      assert Repo.get!(Activity, work_level_activity.id).work_id == source_work.id
+      assert Repo.get!(Activity, other_activity.id).work_id == source_work.id
+
+      assert [other_source] =
+               Repo.all(from(s in Source, where: s.file_set_id == ^other_file_set.id))
+
+      assert other_source.work_id == source_work.id
+    end
+
+    test "is idempotent and a no-op for empty input", %{
+      destination_work: destination_work,
+      file_set: file_set,
+      target: target
+    } do
+      assert {:ok, %{activities: 0, sources: 0, events: 0}} =
+               Provenance.transfer_file_set_provenance([], destination_work.id)
+
+      {:ok, %{activities: 1}} =
+        Provenance.transfer_file_set_provenance([file_set.id], destination_work.id)
+
+      assert {:ok, %{activities: 0, events: 0}} =
+               Provenance.transfer_file_set_provenance([file_set.id], destination_work.id)
+
+      target = Repo.preload(target, :events, force: true)
+      assert Enum.count(target.events, &(&1.event_type == "transferred")) == 1
+    end
+  end
 end
