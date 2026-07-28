@@ -453,6 +453,155 @@ defmodule Meadow.AI.ProvenanceTest do
     end
   end
 
+  describe "plan-change row rejection" do
+    test "records a rejection when a proposed row is removed, keeping origin" do
+      work = work_fixture()
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          ai_use_type: "metadata_generation",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      proposed_location = [%{term: %{id: "loc1", label: "Illinois--Evanston"}}]
+
+      Provenance.record_targets_for_operations(
+        activity,
+        "Work",
+        work.id,
+        %{
+          add: %{
+            descriptive_metadata: %{
+              location: proposed_location,
+              subject: ["AI subject"]
+            }
+          }
+        },
+        origin: "ai_generated",
+        status: "proposed",
+        event_type: "proposed"
+      )
+
+      location_before =
+        Provenance.get_activity!(activity.id).targets
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.location"))
+
+      change_before = %{
+        ai_activity_id: activity.id,
+        work_id: work.id,
+        add: %{
+          descriptive_metadata: %{
+            location: proposed_location,
+            subject: ["AI subject"]
+          }
+        },
+        delete: %{},
+        replace: %{}
+      }
+
+      # Reviewer deletes the location row and edits the subject.
+      Provenance.record_plan_manual_edit(
+        change_before,
+        %{add: %{descriptive_metadata: %{subject: ["Reviewer subject"]}}},
+        "bmq449"
+      )
+
+      targets = Provenance.get_activity!(activity.id).targets
+      location = Enum.find(targets, &(&1.field_path == "descriptive_metadata.location"))
+      subject = Enum.find(targets, &(&1.field_path == "descriptive_metadata.subject"))
+
+      # Removing a never-applied proposal is a rejection of the AI suggestion,
+      # not a replacement: origin (authorship) stays intact.
+      assert location.origin == "ai_generated"
+      assert location.status == "rejected"
+      assert location.human_oversight_level == location_before.human_oversight_level
+
+      rejected = Enum.find(location.events, &(&1.event_type == "rejected"))
+      assert rejected.actor == "bmq449"
+      assert rejected.value_before == location_before.proposed_value
+      assert is_nil(rejected.value_after)
+      assert rejected.premis_event_type == "validation"
+      assert rejected.outcome == "failure"
+      assert is_nil(rejected.c2pa_action)
+
+      # Editing a surviving row still records an AI-assisted human edit.
+      assert subject.origin == "ai_assisted_human_modified"
+      assert subject.status == "reviewed"
+
+      human_edited = Enum.find(subject.events, &(&1.event_type == "human_edited"))
+      assert human_edited.actor == "bmq449"
+      assert human_edited.value_after == %{"value" => ["Reviewer subject"]}
+    end
+  end
+
+  describe "rejected plan over existing human content" do
+    test "keeps human content attributed to humans" do
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{
+            title: "Test title",
+            description: ["Human description"]
+          }
+        })
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          ai_use_type: "metadata_generation",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      # The AI proposes swapping the human value for its own: delete + add on
+      # the same field, as the planner agent records via update_plan_change.
+      operations = %{
+        delete: %{descriptive_metadata: %{description: ["Human description"]}},
+        add: %{descriptive_metadata: %{description: ["AI description"]}}
+      }
+
+      Provenance.record_targets_for_operations(
+        activity,
+        "Work",
+        work.id,
+        operations,
+        origin: "ai_generated",
+        status: "proposed",
+        event_type: "proposed",
+        prior_values: Provenance.prior_values_for_operations(work, operations)
+      )
+
+      targets = Provenance.get_activity!(activity.id).targets
+      delete_target = Enum.find(targets, &(&1.operation == "delete"))
+      add_target = Enum.find(targets, &(&1.operation == "add"))
+
+      # A delete over existing content modifies human content; the AI did not
+      # author the value it proposes to remove.
+      assert delete_target.origin == "ai_modified_human_content"
+      assert delete_target.source_value_snapshot == %{"value" => ["Human description"]}
+      assert delete_target.digital_source_type_uri == Provenance.enhanced_source_type()
+      assert add_target.origin == "ai_generated"
+
+      # The delete target's items are content being removed, never AI items.
+      assert Provenance.item_provenance(delete_target) == []
+
+      change = %{ai_activity_id: activity.id, work_id: work.id}
+      Provenance.record_review_for_plan_change(change, "rejected", "bmq449", "Not needed")
+
+      summary =
+        work.id
+        |> Provenance.work_summary()
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.description"))
+
+      assert summary.status == "rejected"
+
+      # Never-applied targets contribute no per-item attribution, so the
+      # human-entered value keeps no AI badge on the About tab.
+      assert summary.item_provenance == []
+    end
+  end
+
   describe "item_provenance reconciliation" do
     alias Meadow.AI.Provenance.Schemas.{Event, Target}
 

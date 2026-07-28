@@ -103,21 +103,26 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadata do
         Provenance.add_source(activity, Provenance.work_source_attrs(work))
         |> unwrap_or_rollback()
 
+        operations = %{
+          replace: %{
+            descriptive_metadata: %{
+              description: [description],
+              subject: subject_attrs
+            }
+          }
+        }
+
         Provenance.record_targets_for_operations(
           activity,
           "Work",
           work_id,
-          %{
-            replace: %{
-              descriptive_metadata: %{
-                description: [description],
-                subject: subject_attrs
-              }
-            }
-          },
+          operations,
           origin: "ai_generated",
           status: "applied",
           event_type: "applied",
+          # `work` is the pre-update snapshot, so replacing existing content is
+          # recorded as modifying human content, not attributing it to the AI.
+          prior_values: Provenance.prior_values_for_operations(work, operations),
           target_attrs: %{
             premis_object_category: "intellectual_entity",
             object_identifier_type: "Meadow Work",

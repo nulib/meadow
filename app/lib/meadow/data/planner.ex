@@ -375,23 +375,32 @@ defmodule Meadow.Data.Planner do
   defp check_approvable(%Plan{}), do: {:error, "Only proposed plans can be approved"}
 
   @doc """
-  Rejects a plan.
+  Rejects a plan, cascading the rejection to its proposed and approved
+  changes and recording review provenance for each.
 
   ## Examples
 
-      iex> reject_plan(plan, "Changes not needed")
+      iex> reject_plan(plan, "Changes not needed", "user@example.com")
       {:ok, %Plan{status: :rejected, notes: "Changes not needed"}}
   """
-  def reject_plan(%Plan{} = plan, notes \\ nil) do
-    case plan
-         |> Plan.reject(notes)
-         |> Repo.update() do
-      {:ok, updated_plan} = result ->
-        broadcast_plan_update(updated_plan)
-        result
+  def reject_plan(%Plan{} = plan, notes \\ nil, user \\ nil) do
+    with {:ok, {updated_plan, changes}} <-
+           Repo.transaction(fn -> reject_plan_and_changes(plan, notes, user) end) do
+      Enum.each(changes, &broadcast_plan_change_update(&1, "updated"))
+      broadcast_plan_update(updated_plan)
+      {:ok, updated_plan}
+    end
+  end
 
-      error ->
-        error
+  # :proposed covers rejecting at the approval step; :approved covers
+  # rejecting at the apply step (changes were already bulk-approved).
+  defp reject_plan_and_changes(plan, notes, user) do
+    {changes, _count} =
+      reject_changes_with_statuses(plan.id, [:proposed, :approved], notes, user)
+
+    case plan |> Plan.reject(notes, user) |> Repo.update() do
+      {:ok, updated_plan} -> {updated_plan, changes}
+      {:error, changeset} -> Repo.rollback(changeset)
     end
   end
 
@@ -841,34 +850,43 @@ defmodule Meadow.Data.Planner do
   def reject_proposed_plan_changes(%Plan{} = plan, notes \\ nil, user \\ nil) do
     with {:ok, {changes, count}} <-
            Repo.transaction(fn ->
-             timestamp = DateTime.utc_now()
-             change_ids = proposed_change_ids(plan.id)
-
-             # Recheck status in the UPDATE so a change reviewed concurrently
-             # (between the select above and this update) is skipped rather
-             # than overwritten; only the ids actually updated get review
-             # provenance recorded below.
-             {count, updated_ids} =
-               from(c in PlanChange,
-                 where: c.id in ^change_ids and c.status == :proposed,
-                 select: c.id,
-                 update: [set: [status: :rejected, notes: ^notes, updated_at: ^timestamp]]
-               )
-               |> Repo.update_all([])
-
-             changes = list_plan_changes_by_ids(updated_ids, :rejected)
-
-             Enum.each(
-               changes,
-               &Provenance.record_review_for_plan_change(&1, "rejected", user, notes)
-             )
-
-             {changes, count}
+             reject_changes_with_statuses(plan.id, [:proposed], notes, user)
            end) do
       Enum.each(changes, &broadcast_plan_change_update(&1, "updated"))
 
       {:ok, maybe_reload_plan(plan), count}
     end
+  end
+
+  # Must be called inside a Repo.transaction. Returns {changes, count}.
+  defp reject_changes_with_statuses(plan_id, statuses, notes, user) do
+    timestamp = DateTime.utc_now()
+
+    change_ids =
+      from(c in PlanChange,
+        where: c.plan_id == ^plan_id and c.status in ^statuses,
+        where: ^change_fragment(:not_empty),
+        select: c.id
+      )
+      |> Repo.all()
+
+    # Recheck status in the UPDATE so a change reviewed concurrently
+    # (between the select above and this update) is skipped rather
+    # than overwritten; only the ids actually updated get review
+    # provenance recorded below.
+    {count, updated_ids} =
+      from(c in PlanChange,
+        where: c.id in ^change_ids and c.status in ^statuses,
+        select: c.id,
+        update: [set: [status: :rejected, notes: ^notes, user: ^user, updated_at: ^timestamp]]
+      )
+      |> Repo.update_all([])
+
+    changes = list_plan_changes_by_ids(updated_ids, :rejected)
+
+    Enum.each(changes, &Provenance.record_review_for_plan_change(&1, "rejected", user, notes))
+
+    {changes, count}
   end
 
   @doc """

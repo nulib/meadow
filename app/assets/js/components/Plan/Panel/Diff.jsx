@@ -63,14 +63,24 @@ function recordedOriginByPath(activities = []) {
  * value). Using the server-computed attribution keeps the plan diff and the
  * work About tab in lock-step rather than re-deriving it here. Like
  * recordedOriginByPath, activities are newest-first, so the first (newest)
- * activity to record a field keeps its attribution.
+ * activity to record a field keeps its attribution. Within that activity a
+ * field can have several targets (e.g. a swap recorded as delete + add on the
+ * same field), so their attributions are unioned, deduped by item id.
  */
 function itemProvenanceByPath(activities = []) {
   const map = {};
   activities.forEach((activity) => {
+    const wonByThisActivity = new Set();
     (activity.targets || []).forEach((target) => {
-      if (!(target.fieldPath in map)) {
-        map[target.fieldPath] = target.itemProvenance || [];
+      const path = target.fieldPath;
+      if (!(path in map)) {
+        map[path] = [...(target.itemProvenance || [])];
+        wonByThisActivity.add(path);
+      } else if (wonByThisActivity.has(path)) {
+        const seen = new Set(map[path].map((entry) => entry.id));
+        (target.itemProvenance || []).forEach((entry) => {
+          if (!seen.has(entry.id)) map[path].push(entry);
+        });
       }
     });
   });
@@ -287,9 +297,10 @@ const PlanPanelChangesDiff = ({
   planChangeId,
   currentWork,
 }) => {
-  // Editing/deleting a row records a manual edit on the backend (the target's
-  // origin becomes ai_assisted_human_modified / human_replacement_after_ai_suggestion),
-  // so refetch the provenance to keep the preview badges in sync.
+  // Editing a row records a manual edit on the backend (the target's origin
+  // becomes ai_assisted_human_modified); deleting a row records a rejection
+  // (status rejected, origin unchanged). Refetch the provenance to keep the
+  // preview badges in sync.
   const [updatePlanChange] = useMutation(UPDATE_PLAN_CHANGE, {
     awaitRefetchQueries: true,
     refetchQueries: planChangeId

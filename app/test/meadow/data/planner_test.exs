@@ -321,7 +321,7 @@ defmodule Meadow.Data.PlannerTest do
     end
   end
 
-  describe "reject_plan/2" do
+  describe "reject_plan/3" do
     test "transitions plan to rejected status", %{plan: plan} do
       assert {:ok, %Plan{} = rejected_plan} = Planner.reject_plan(plan)
       assert rejected_plan.status == :rejected
@@ -331,6 +331,93 @@ defmodule Meadow.Data.PlannerTest do
       assert {:ok, %Plan{} = rejected_plan} = Planner.reject_plan(plan, "Not appropriate")
       assert rejected_plan.status == :rejected
       assert rejected_plan.notes == "Not appropriate"
+    end
+
+    test "cascades rejection to proposed changes with provenance", %{plan: plan, work: work} do
+      {activity, change} = plan_change_with_provenance(plan, work)
+
+      assert {:ok, %Plan{} = rejected_plan} =
+               Planner.reject_plan(plan, "Not needed", "curator@example.com")
+
+      assert rejected_plan.status == :rejected
+      assert rejected_plan.notes == "Not needed"
+      assert rejected_plan.user == "curator@example.com"
+
+      change = Planner.get_plan_change!(change.id)
+      assert change.status == :rejected
+      assert change.notes == "Not needed"
+      assert change.user == "curator@example.com"
+
+      [target] = Provenance.get_activity!(activity.id).targets
+      assert target.status == "rejected"
+      assert target.origin == "ai_generated"
+
+      rejected_event = Enum.find(target.events, &(&1.event_type == "rejected"))
+      assert rejected_event.actor == "curator@example.com"
+      assert rejected_event.premis_event_type == "validation"
+      assert rejected_event.outcome == "failure"
+    end
+
+    test "cascades rejection to approved changes at the apply step", %{plan: plan, work: work} do
+      {activity, change} = plan_change_with_provenance(plan, work)
+
+      assert {:ok, plan, 1} =
+               Planner.approve_proposed_plan_changes(plan, "curator@example.com")
+
+      assert {:ok, plan} = Planner.approve_plan(plan, "curator@example.com")
+      assert Planner.get_plan_change!(change.id).status == :approved
+
+      assert {:ok, %Plan{status: :rejected}} =
+               Planner.reject_plan(plan, "Changed my mind", "curator@example.com")
+
+      assert Planner.get_plan_change!(change.id).status == :rejected
+
+      [target] = Provenance.get_activity!(activity.id).targets
+      assert target.status == "rejected"
+
+      event_types = Enum.map(target.events, & &1.event_type)
+      assert "approved" in event_types
+      assert "rejected" in event_types
+    end
+
+    test "leaves terminal changes untouched", %{plan: plan, work: work} do
+      {:ok, completed_change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work.id,
+          add: %{descriptive_metadata: %{title: "Applied title"}},
+          status: :completed
+        })
+
+      {:ok, proposed_change} =
+        Planner.create_plan_change(%{
+          plan_id: plan.id,
+          work_id: work_fixture().id,
+          add: %{descriptive_metadata: %{title: "Proposed title"}},
+          status: :proposed
+        })
+
+      assert {:ok, %Plan{status: :rejected}} = Planner.reject_plan(plan)
+
+      assert Planner.get_plan_change!(completed_change.id).status == :completed
+      assert Planner.get_plan_change!(proposed_change.id).status == :rejected
+    end
+  end
+
+  describe "reject_proposed_plan_changes/3" do
+    test "rejects all proposed changes and records the user", %{plan: plan, work: work} do
+      {activity, change} = plan_change_with_provenance(plan, work)
+
+      assert {:ok, _plan, 1} =
+               Planner.reject_proposed_plan_changes(plan, "No thanks", "curator@example.com")
+
+      change = Planner.get_plan_change!(change.id)
+      assert change.status == :rejected
+      assert change.notes == "No thanks"
+      assert change.user == "curator@example.com"
+
+      [target] = Provenance.get_activity!(activity.id).targets
+      assert target.status == "rejected"
     end
   end
 
@@ -599,7 +686,7 @@ defmodule Meadow.Data.PlannerTest do
       assert error_message == ~s'"#{invalid_plan_id}" is invalid'
     end
 
-    test "records human replacement provenance when reviewer replaces AI proposal", %{
+    test "records rejection provenance when reviewer removes AI proposal", %{
       plan: plan,
       work: work
     } do
@@ -641,7 +728,12 @@ defmodule Meadow.Data.PlannerTest do
                })
 
       summary = Provenance.work_summary(work.id)
-      assert Enum.any?(summary, &(&1.origin == "human_replacement_after_ai_suggestion"))
+
+      description_entry =
+        Enum.find(summary, &(&1.field_path == "descriptive_metadata.description"))
+
+      assert description_entry.origin == "ai_generated"
+      assert description_entry.status == "rejected"
       assert Enum.any?(summary, &(&1.origin == "human_generated"))
     end
   end
@@ -1143,5 +1235,36 @@ defmodule Meadow.Data.PlannerTest do
       # Verify all changes were completed
       assert Planner.list_plan_changes(plan.id, status: :completed) |> length() == 2
     end
+  end
+
+  defp plan_change_with_provenance(plan, work) do
+    {:ok, activity} =
+      Provenance.create_activity(%{
+        activity_type: "metadata_plan",
+        work_id: work.id,
+        plan_id: plan.id,
+        status: "completed"
+      })
+
+    Provenance.record_targets_for_operations(
+      activity,
+      "Work",
+      work.id,
+      %{add: %{descriptive_metadata: %{description: ["AI proposal"]}}},
+      origin: "ai_generated",
+      status: "proposed",
+      event_type: "proposed"
+    )
+
+    {:ok, change} =
+      Planner.create_plan_change(%{
+        plan_id: plan.id,
+        work_id: work.id,
+        add: %{descriptive_metadata: %{description: ["AI proposal"]}},
+        status: :proposed,
+        ai_activity_id: activity.id
+      })
+
+    {activity, change}
   end
 end
