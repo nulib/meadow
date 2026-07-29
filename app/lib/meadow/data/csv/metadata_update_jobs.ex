@@ -120,39 +120,53 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
       |> Multi.run("import", fn repo, _ ->
         BulkImport.import_stream(stream, job.id, repo)
       end)
+      |> Multi.run("provenance", fn repo, %{"import" => before_works} ->
+        BulkImport.record_ai_provenance(before_works, job.user, repo)
+      end)
       |> Multi.update(job.id, MetadataUpdateJob.changeset(job, %{status: "complete"}))
 
     case with_locked_job(job, multi) do
       {:ok, result} ->
         {:ok, result |> Map.get(job.id)}
 
-      {:error, id, changeset, _} ->
+      {:error, id, %Changeset{} = changeset, _} ->
         update_job(job, %{status: "error"})
 
         {:error, id,
          ChangesetErrors.humanize_errors(changeset,
            flatten: [:administrative_metadata, :descriptive_metadata]
          )}
+
+      {:error, id, error, _} ->
+        update_job(job, %{status: "error"})
+        {:error, id, error}
     end
   end
 
   def apply_job(%MetadataUpdateJob{status: status}),
     do: {:error, "Update Job cannot be applied: status is #{status}."}
 
-  defp get_and_lock_job(%{id: job_id}) do
+  defp get_and_lock_job(%{id: job_id}, repo \\ Repo) do
     from(j in MetadataUpdateJob, where: j.id == ^job_id, lock: "FOR UPDATE NOWAIT")
-    |> Repo.one()
+    |> repo.one()
   end
 
-  defp with_locked_job(job, func_or_multi) do
+  # The job lock and the work share one flat transaction: nested
+  # `Repo.transaction` calls join the outer transaction rather than creating
+  # savepoints, so wrapping the multi in a second transaction adds no isolation
+  # and hides the multi's `{:error, step, value, changes}` result from callers.
+  defp with_locked_job(job, %Multi{} = multi) do
+    Multi.new()
+    |> Multi.run("lock_job", fn repo, _ -> {:ok, get_and_lock_job(job, repo)} end)
+    |> Multi.append(multi)
+    |> Repo.transaction(timeout: :infinity)
+  end
+
+  defp with_locked_job(job, func) when is_function(func, 0) do
     Repo.transaction(
       fn ->
         get_and_lock_job(job)
-
-        case Repo.transaction(func_or_multi, timeout: :infinity) do
-          {:ok, result} -> result
-          {:error, error} -> raise error
-        end
+        func.()
       end,
       timeout: :infinity
     )

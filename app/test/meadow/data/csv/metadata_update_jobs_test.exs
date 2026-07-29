@@ -3,10 +3,15 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   use Meadow.CSVMetadataUpdateCase
   use Meadow.IndexCase
   use Meadow.GeoNamesCase
-  alias Meadow.Data.{CSV.MetadataUpdateJobs, Works}
+  alias Ecto.Multi
+  alias Meadow.AI.Provenance
+  alias Meadow.AI.Provenance.Schemas.Target, as: ProvenanceTarget
+  alias Meadow.Data.CSV.{BulkImport, Import, MetadataUpdateJobs}
   alias Meadow.Data.Schemas.{CSV.MetadataUpdateJob, Work}
+  alias Meadow.Data.Works
   alias Meadow.Repo
   alias Meadow.Search.Document
+  alias Meadow.Utils.Stream, as: StreamUtil
 
   setup %{source_url: source_url} do
     with filename <- Path.basename(source_url) do
@@ -139,6 +144,173 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
           assert result.active == active
         end
       end)
+    end
+  end
+
+  describe "AI provenance" do
+    @describetag source: "test/fixtures/csv/sheets/valid.csv"
+
+    # Title the first CSV data row writes to the first fixture work
+    @csv_title "Est qui ut quibusdam iure laudantium praesentium harum cumque repellendus!"
+
+    defp seed_ai_target(work, field_path, proposed_value) do
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: work.id,
+            field_path: field_path,
+            operation: "replace",
+            proposed_value: proposed_value,
+            origin: "ai_generated",
+            status: "applied"
+          },
+          "applied"
+        )
+
+      :ok
+    end
+
+    test "records human mediation when the CSV changes an AI-provenanced field",
+         %{create_result: {:ok, job}, works: works} do
+      work = Enum.at(works, 0)
+      seed_ai_target(work, "descriptive_metadata.title", "Test title")
+
+      assert {:ok, %{status: "complete"}} = MetadataUpdateJobs.apply_job(job)
+
+      entry =
+        Provenance.work_summary(work.id)
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.title"))
+
+      assert entry.origin == "ai_assisted_human_modified"
+      assert entry.latest_event_type == "human_edited"
+
+      [target] = Provenance.list_activities(work_id: work.id) |> hd() |> Map.fetch!(:targets)
+      event = Enum.find(target.events, &(&1.event_type == "human_edited"))
+
+      assert event.actor == "validUser"
+      assert event.value_before == %{"value" => "Test title"}
+      assert event.value_after == %{"value" => @csv_title}
+    end
+
+    test "records a deletion when the CSV clears an AI-provenanced field",
+         %{create_result: {:ok, job}, works: works} do
+      {:ok, work} =
+        works
+        |> Enum.at(0)
+        |> Works.update_work(%{descriptive_metadata: %{description: ["AI description"]}})
+
+      seed_ai_target(work, "descriptive_metadata.description", ["AI description"])
+
+      assert {:ok, %{status: "complete"}} = MetadataUpdateJobs.apply_job(job)
+
+      assert %{
+               "descriptive_metadata.description" => %{
+                 origin: "human_replacement_after_ai_suggestion",
+                 status: "deleted",
+                 latest_event_type: "deleted"
+               }
+             } = Provenance.target_summary_map("Work", work.id)
+    end
+
+    test "leaves fields without AI provenance untouched",
+         %{create_result: {:ok, job}, works: works} do
+      work = Enum.at(works, 0)
+      seed_ai_target(work, "descriptive_metadata.title", "Test title")
+
+      assert {:ok, %{status: "complete"}} = MetadataUpdateJobs.apply_job(job)
+
+      # The CSV also changes published, visibility, contributor, etc. on this
+      # work, but only the AI-provenanced title may have a target.
+      assert Provenance.target_summary_map("Work", work.id) |> Map.keys() ==
+               ["descriptive_metadata.title"]
+    end
+
+    test "records nothing when no work has AI provenance", %{create_result: {:ok, job}} do
+      assert {:ok, %{status: "complete"}} = MetadataUpdateJobs.apply_job(job)
+      assert Repo.aggregate(ProvenanceTarget, :count) == 0
+    end
+
+    test "snapshots only works with applied AI provenance",
+         %{create_result: {:ok, job}, works: works} do
+      work = Enum.at(works, 0)
+      seed_ai_target(work, "descriptive_metadata.title", "Test title")
+
+      stream =
+        StreamUtil.stream_from(job.source)
+        |> Import.read_csv()
+        |> Import.stream()
+
+      # import_stream must run inside the caller's transaction.
+      {:ok, {:ok, before_works}} =
+        Repo.transaction(fn -> BulkImport.import_stream(stream, job.id) end)
+
+      assert [before_work] = before_works
+      assert before_work.id == work.id
+      assert before_work.descriptive_metadata.title == "Test title"
+    end
+
+    test "rolls back work updates when a later transaction step fails",
+         %{create_result: {:ok, job}, works: works} do
+      work = Enum.at(works, 0)
+      original_title = work.descriptive_metadata.title
+
+      stream =
+        StreamUtil.stream_from(job.source)
+        |> Import.read_csv()
+        |> Import.stream()
+
+      multi =
+        Multi.new()
+        |> Multi.run("import", fn repo, _ ->
+          BulkImport.import_stream(stream, job.id, repo)
+        end)
+        |> Multi.run("provenance", fn _repo, _ -> {:error, :provenance_failed} end)
+
+      assert {:error, "provenance", :provenance_failed, _} = Repo.transaction(multi)
+      assert Repo.get!(Work, work.id).descriptive_metadata.title == original_title
+    end
+
+    test "record_ai_provenance converts recording failures into an error tuple",
+         %{works: works} do
+      work = Enum.at(works, 0)
+      seed_ai_target(work, "descriptive_metadata.title", "Test title")
+
+      # A tuple can't be JSON-encoded, so recording the human_edited event's
+      # value_before raises inside the strict provenance path.
+      bad_before = %{
+        work
+        | descriptive_metadata: %{work.descriptive_metadata | title: {:not, :encodable}}
+      }
+
+      assert {:error, %Protocol.UndefinedError{}} =
+               BulkImport.record_ai_provenance([bad_before], "validUser")
+    end
+
+    test "does not record events when the CSV value matches the AI value",
+         %{create_result: {:ok, job}, works: works} do
+      {:ok, work} =
+        works
+        |> Enum.at(0)
+        |> Works.update_work(%{descriptive_metadata: %{title: @csv_title}})
+
+      seed_ai_target(work, "descriptive_metadata.title", @csv_title)
+
+      assert {:ok, %{status: "complete"}} = MetadataUpdateJobs.apply_job(job)
+
+      assert %{"descriptive_metadata.title" => %{origin: "ai_generated"}} =
+               Provenance.target_summary_map("Work", work.id)
+
+      [target] = Provenance.list_activities(work_id: work.id) |> hd() |> Map.fetch!(:targets)
+      refute Enum.any?(target.events, &(&1.event_type == "human_edited"))
     end
   end
 
