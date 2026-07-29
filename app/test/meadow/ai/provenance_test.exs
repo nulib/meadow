@@ -884,6 +884,35 @@ defmodule Meadow.AI.ProvenanceTest do
       assert %{"descriptive_metadata.description" => %{origin: "ai_generated"}} =
                Provenance.target_summary_map("Work", work.id)
     end
+
+    test "record_work_manual_edit!/4 records the same transitions as the lax variant",
+         %{work: work} do
+      edited = put_in(work.descriptive_metadata.description, ["Human-edited description"])
+
+      assert :ok = Provenance.record_work_manual_edit!(work, edited, "bmq449")
+
+      entry =
+        Provenance.work_summary(work.id)
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.description"))
+
+      assert entry.origin == "ai_assisted_human_modified"
+      assert entry.latest_event_type == "human_edited"
+      assert entry.human_oversight_level == "human_modified"
+    end
+
+    test "record_work_manual_edit!/4 raises where the lax variant rescues and logs",
+         %{work: work} do
+      # A tuple can't be JSON-encoded, so recording the event's value_after
+      # fails. The lax variant swallows the failure; the strict variant raises
+      # so a caller's enclosing transaction rolls back.
+      edited = put_in(work.descriptive_metadata.description, {:not, :encodable})
+
+      assert :ok = Provenance.record_work_manual_edit(work, edited, "bmq449")
+
+      assert_raise Protocol.UndefinedError, fn ->
+        Provenance.record_work_manual_edit!(work, edited, "bmq449")
+      end
+    end
   end
 
   describe "explicit human attestation" do
@@ -1535,6 +1564,55 @@ defmodule Meadow.AI.ProvenanceTest do
 
       target = Repo.preload(target, :events, force: true)
       assert Enum.count(target.events, &(&1.event_type == "transferred")) == 1
+    end
+  end
+
+  describe "work_ids_with_applied_ai_targets/2" do
+    defp seed_lookup_target(work, origin, status) do
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: work.id,
+            field_path: "descriptive_metadata.description",
+            operation: "replace",
+            proposed_value: ["value"],
+            origin: origin,
+            status: status
+          },
+          "proposed"
+        )
+
+      :ok
+    end
+
+    test "returns only works with applied, AI-involved targets" do
+      ai_work = work_fixture()
+      proposed_work = work_fixture()
+      rejected_work = work_fixture()
+      human_work = work_fixture()
+      untouched_work = work_fixture()
+
+      seed_lookup_target(ai_work, "ai_generated", "applied")
+      seed_lookup_target(proposed_work, "ai_generated", "proposed")
+      seed_lookup_target(rejected_work, "ai_generated", "rejected")
+      seed_lookup_target(human_work, "human_generated", "applied")
+
+      ids = [ai_work.id, proposed_work.id, rejected_work.id, human_work.id, untouched_work.id]
+
+      assert Provenance.work_ids_with_applied_ai_targets(ids) == [ai_work.id]
+    end
+
+    test "returns an empty list for empty input" do
+      assert Provenance.work_ids_with_applied_ai_targets([]) == []
     end
   end
 end

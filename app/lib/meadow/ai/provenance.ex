@@ -576,8 +576,34 @@ defmodule Meadow.AI.Provenance do
   being recorded through the explicit human-attestation path instead, so they
   don't also pick up a spurious `human_edited`/`ai_assisted_human_modified`
   event.
+
+  Recording failures are rescued and logged, never raised: this runs after the
+  work is already saved, so a provenance failure must not fail the caller's
+  save. Callers that instead want provenance atomic with their own transaction
+  should use `record_work_manual_edit!/4`.
   """
   def record_work_manual_edit(work_before, work_after, actor, opts \\ []) do
+    each_changed_ai_field(work_before, work_after, opts, fn target, before_value, after_value ->
+      record_manual_edit_for_target(target, before_value, after_value, actor)
+    end)
+  end
+
+  @doc """
+  Strict variant of `record_work_manual_edit/4` for callers recording
+  provenance inside their own transaction (e.g. the CSV bulk import's
+  `Ecto.Multi`). Records the same transitions, but failures raise instead of
+  being rescued and logged, so the caller's transaction rolls back rather than
+  committing a work update with silently missing provenance. Opens no
+  transaction of its own: nested `Repo.transaction` calls join the caller's
+  transaction without a savepoint, so atomicity must come from the caller.
+  """
+  def record_work_manual_edit!(work_before, work_after, actor, opts \\ []) do
+    each_changed_ai_field(work_before, work_after, opts, fn target, before_value, after_value ->
+      apply_manual_edit!(target, before_value, after_value, actor)
+    end)
+  end
+
+  defp each_changed_ai_field(work_before, work_after, opts, fun) do
     except = Keyword.get(opts, :except, [])
 
     work_before.id
@@ -588,7 +614,7 @@ defmodule Meadow.AI.Provenance do
       after_value = field_value(work_after, target.field_path)
 
       if before_value != after_value do
-        record_manual_edit_for_target(target, before_value, after_value, actor)
+        fun.(target, before_value, after_value)
       end
     end)
 
@@ -917,6 +943,29 @@ defmodule Meadow.AI.Provenance do
 
   def record_annotation_human_attestation(_annotation, _actor, _opts),
     do: {:error, :no_ai_provenance}
+
+  @doc """
+  Filter a list of work ids down to those that currently have at least one
+  applied, AI-involved provenance target. A cheap candidate filter for batch
+  callers (e.g. CSV metadata updates) that need to know which works are worth
+  snapshotting before an edit — it may over-select a work whose newest applied
+  target per field is no longer AI-involved, but `record_work_manual_edit/4`
+  re-checks precisely per work and no-ops in that case.
+  """
+  def work_ids_with_applied_ai_targets(work_ids, repo \\ Repo)
+  def work_ids_with_applied_ai_targets([], _repo), do: []
+
+  def work_ids_with_applied_ai_targets(work_ids, repo) do
+    from(t in Target,
+      where: t.target_type == "Work",
+      where: t.target_id in ^Enum.map(work_ids, &to_string/1),
+      where: t.status == "applied",
+      where: t.origin in @ai_involved_origins,
+      select: t.target_id,
+      distinct: true
+    )
+    |> repo.all()
+  end
 
   defp applied_ai_targets(work_id) do
     from(t in Target,
