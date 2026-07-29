@@ -328,7 +328,7 @@ defmodule Meadow.Config.Runtime do
         get_secret(
           :meadow,
           ["meadow_ai", "model"],
-          "us.anthropic.claude-sonnet-4-6"
+          "us.anthropic.claude-opus-5"
         )
 
     if System.get_env("USE_SAM_LAMBDAS") do
@@ -393,7 +393,7 @@ defmodule Meadow.Config.Runtime do
         get_secret(
           :meadow,
           ["meadow_ai", "model"],
-          "us.anthropic.claude-sonnet-4-6"
+          "us.anthropic.claude-opus-5"
         )
 
     Logger.info("Configuring ueberauth for NU SSO")
