@@ -5,6 +5,7 @@ import WorkTabsAdministrative from "@js/components/Work/Tabs/Administrative/Admi
 import WorkTabsPreservation from "@js/components/Work/Tabs/Preservation/Preservation";
 import WorkTabsAutoEdit from "@js/components/Work/Tabs/AutoEdit";
 import WorkTabsGeoreference from "@js/components/Work/Tabs/Georeference/Georeference";
+import WorkTabsProvenance from "@js/components/Work/Tabs/Provenance/Provenance";
 import { IIIFProvider } from "@js/components/IIIF/IIIFProvider";
 import { CodeListProvider } from "@js/context/code-list-context";
 import AuthDisplayAuthorized from "@js/components/Auth/DisplayAuthorized";
@@ -81,6 +82,19 @@ const WorkTabs = ({ work }) => {
                   </a>
                 </li>
               </AuthDisplayAuthorized>
+              <AuthDisplayAuthorized>
+                <li
+                  className={`${activeTab === "tab-provenance" && "is-active"}`}
+                >
+                  <a
+                    id="tab-provenance"
+                    data-testid="tab-provenance"
+                    onClick={handleTabClick}
+                  >
+                    AI Provenance
+                  </a>
+                </li>
+              </AuthDisplayAuthorized>
             </div>
             <AuthDisplayAuthorized>
               <li className={`${activeTab === "tab-auto-edit" && "is-active"}`}>
@@ -139,6 +153,14 @@ const WorkTabs = ({ work }) => {
               }`}
             >
               <WorkTabsPreservation work={work} />
+            </div>
+          </AuthDisplayAuthorized>
+          <AuthDisplayAuthorized>
+            <div
+              data-testid="tab-provenance-content"
+              className={`${activeTab !== "tab-provenance" ? "is-hidden" : ""}`}
+            >
+              <WorkTabsProvenance work={work} />
             </div>
           </AuthDisplayAuthorized>
           <AuthDisplayAuthorized>

@@ -4,11 +4,13 @@ defmodule Meadow.Indexing.V2.FileSet do
   """
 
   alias Meadow.Data.FileSets
+  alias Meadow.AI.Provenance
   alias Meadow.Utils.ExtractedMetadata
 
   def encode(file_set) do
     %{
       accession_number: file_set.accession_number,
+      ai_provenance: Provenance.target_summary_map("FileSet", file_set.id),
       alt_text: file_set.core_metadata.alt_text,
       annotations: encode_annotations(file_set),
       api_link: Path.join([api_url(), "file-sets", file_set.id]),
@@ -82,7 +84,8 @@ defmodule Meadow.Indexing.V2.FileSet do
         type: annotation.type,
         language: annotation.language,
         model: annotation.model,
-        content: annotation.content
+        content: annotation.content,
+        ai_provenance: Provenance.target_summary_map("FileSetAnnotation", annotation.id)
       }
     end)
     |> case do

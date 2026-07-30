@@ -5,6 +5,7 @@ defmodule Meadow.Indexing.V2.Work do
 
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
+  alias Meadow.AI.Provenance
   alias Meadow.Search.Config
 
   def encode(work) do
@@ -36,6 +37,7 @@ defmodule Meadow.Indexing.V2.Work do
       folder_number: work.descriptive_metadata.folder_number,
       genre: encode_field(work.descriptive_metadata.genre),
       id: work.id,
+      ai_provenance: Provenance.work_summary_map(work.id),
       identifier: work.descriptive_metadata.identifier,
       iiif_manifest: manifest_id(work),
       indexed_at: NaiveDateTime.utc_now(),

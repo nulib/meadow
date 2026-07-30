@@ -21,7 +21,7 @@ function WorkFilesetListItem({
   workImageFilesetId,
   groupedFileSets,
 }) {
-  const { id, coreMetadata, group_with, accessionNumber } = fileSet;
+  const { id, coreMetadata, groupWith, accessionNumber } = fileSet;
   const { hasRepresentativeImage, isImage, isMedia, isPDF, isZip } =
     useFileSet();
   const workContextState = useWorkState();
@@ -96,7 +96,7 @@ function WorkFilesetListItem({
       className={`box is-relative`}
       data-testid="fileset-item"
       style={{
-        zIndex: group_with ? 0 : 1,
+        zIndex: groupWith ? 0 : 1,
       }}
     >
       <div css={flex}>
@@ -185,7 +185,7 @@ function WorkFilesetListItem({
         <div className="has-text-right is-clearfix">
           {!isEditing && (
             <>
-              {showWorkImageToggle() && !fileSet.group_with && (
+              {showWorkImageToggle() && !fileSet.groupWith && (
                 <AuthDisplayAuthorized>
                   <div className="field">
                     <input

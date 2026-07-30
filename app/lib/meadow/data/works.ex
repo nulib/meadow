@@ -647,4 +647,43 @@ defmodule Meadow.Data.Works do
       {:error, _} -> false
     end
   end
+
+  def works_by_term(term_id, field_name \\ nil) do
+    base_condition = dynamic([_, t], t.term == ^term_id)
+
+    condition =
+      if field_name do
+        dynamic([_, t], ^base_condition and t.field_name == ^to_string(field_name))
+      else
+        base_condition
+      end
+
+    from(w in Work,
+      join: t in "work_terms",
+      on: w.id == t.work_id,
+      where: ^condition
+    )
+  end
+
+  @doc """
+  Fetches all works that include a Metadata term, optionally limiting
+  the results to terms appearing in a specific field.
+  """
+  def get_works_by_term(term_id, field_name \\ nil) do
+    works_by_term(term_id, field_name)
+    |> distinct(true)
+    |> select([w], w)
+    |> Repo.all()
+    |> add_representative_image()
+  end
+
+  @doc """
+  Fetches all works that include a Metadata term, returning a list of maps
+  containing the work ID and the field name in which the term appears.
+  """
+  def get_term_placements(term_id) do
+    works_by_term(term_id)
+    |> select([w, t], %{work_id: w.id, field_name: t.field_name})
+    |> Repo.all()
+  end
 end

@@ -466,11 +466,26 @@ describe("diff-helpers", () => {
       );
       expect(result.kind).toBe("list");
       expect(result.current).toEqual([
-        { key: "Existing line", display: "Existing line", status: "unchanged" },
+        {
+          key: "Existing line",
+          display: "Existing line",
+          itemId: "Existing line",
+          status: "unchanged",
+        },
       ]);
       expect(result.resulting).toEqual([
-        { key: "Existing line", display: "Existing line", status: "unchanged" },
-        { key: "New line", display: "New line", status: "added" },
+        {
+          key: "Existing line",
+          display: "Existing line",
+          itemId: "Existing line",
+          status: "unchanged",
+        },
+        {
+          key: "New line",
+          display: "New line",
+          itemId: "New line",
+          status: "added",
+        },
       ]);
     });
 
@@ -480,7 +495,12 @@ describe("diff-helpers", () => {
         ["Existing line"],
       );
       expect(result.resulting).toEqual([
-        { key: "Existing line", display: "Existing line", status: "unchanged" },
+        {
+          key: "Existing line",
+          display: "Existing line",
+          itemId: "Existing line",
+          status: "unchanged",
+        },
       ]);
     });
 
@@ -491,11 +511,26 @@ describe("diff-helpers", () => {
       );
       expect(result.kind).toBe("list");
       expect(result.current).toEqual([
-        { key: "Keep me", display: "Keep me", status: "unchanged" },
-        { key: "Remove me", display: "Remove me", status: "removed" },
+        {
+          key: "Keep me",
+          display: "Keep me",
+          itemId: "Keep me",
+          status: "unchanged",
+        },
+        {
+          key: "Remove me",
+          display: "Remove me",
+          itemId: "Remove me",
+          status: "removed",
+        },
       ]);
       expect(result.resulting).toEqual([
-        { key: "Keep me", display: "Keep me", status: "unchanged" },
+        {
+          key: "Keep me",
+          display: "Keep me",
+          itemId: "Keep me",
+          status: "unchanged",
+        },
       ]);
     });
 
@@ -507,13 +542,28 @@ describe("diff-helpers", () => {
       expect(result.kind).toBe("list");
       // current: Keep B unchanged, Old C removed
       expect(result.current).toEqual([
-        { key: "Keep B", display: "Keep B", status: "unchanged" },
-        { key: "Old C", display: "Old C", status: "removed" },
+        {
+          key: "Keep B",
+          display: "Keep B",
+          itemId: "Keep B",
+          status: "unchanged",
+        },
+        {
+          key: "Old C",
+          display: "Old C",
+          itemId: "Old C",
+          status: "removed",
+        },
       ]);
       // resulting: New A added, Keep B unchanged
       expect(result.resulting).toEqual([
-        { key: "New A", display: "New A", status: "added" },
-        { key: "Keep B", display: "Keep B", status: "unchanged" },
+        { key: "New A", display: "New A", itemId: "New A", status: "added" },
+        {
+          key: "Keep B",
+          display: "Keep B",
+          itemId: "Keep B",
+          status: "unchanged",
+        },
       ]);
     });
 
@@ -531,8 +581,20 @@ describe("diff-helpers", () => {
       );
       expect(result.kind).toBe("list");
       expect(result.resulting).toEqual([
-        { key: "s1", display: "Maps", id: "s1", status: "unchanged" },
-        { key: "s2", display: "Photographs", id: "s2", status: "added" },
+        {
+          key: "s1",
+          display: "Maps",
+          id: "s1",
+          itemId: "s1",
+          status: "unchanged",
+        },
+        {
+          key: "s2",
+          display: "Photographs",
+          id: "s2",
+          itemId: "s2",
+          status: "added",
+        },
       ]);
     });
 
@@ -583,11 +645,11 @@ describe("diff-helpers", () => {
       );
       expect(result.kind).toBe("list");
       expect(result.current).toEqual([
-        { key: "1896", display: "1896", status: "unchanged" },
+        { key: "1896", display: "1896", itemId: "1896", status: "unchanged" },
       ]);
       expect(result.resulting).toEqual([
-        { key: "1896", display: "1896", status: "unchanged" },
-        { key: "1897", display: "1897", status: "added" },
+        { key: "1896", display: "1896", itemId: "1896", status: "unchanged" },
+        { key: "1897", display: "1897", itemId: "1897", status: "added" },
       ]);
     });
 
@@ -600,8 +662,8 @@ describe("diff-helpers", () => {
       expect(result.kind).toBe("list");
       expect(result.current).toEqual([]);
       expect(result.resulting).toEqual([
-        { key: "Line 1", display: "Line 1", status: "added" },
-        { key: "Line 2", display: "Line 2", status: "added" },
+        { key: "Line 1", display: "Line 1", itemId: "Line 1", status: "added" },
+        { key: "Line 2", display: "Line 2", itemId: "Line 2", status: "added" },
       ]);
     });
   });

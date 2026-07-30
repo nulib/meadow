@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@nulib/design-system";
 import WorkTabsStructureTranscriptionPane from "@js/components/Work/Tabs/Structure/Transcription/Pane";
-import {
-  DELETE_FILE_SET_ANNOTATION,
-  TRANSCRIBE_FILE_SET,
-} from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
+import { TRANSCRIBE_FILE_SET } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useFileSetAnnotation } from "@js/hooks/useFileSetAnnotation";
 import { toastWrapper } from "@js/services/helpers";
+import { AnnotationOriginBadge } from "@js/components/AIProvenance/Badges";
+import AnnotationAttestationControl from "@js/components/AIProvenance/AnnotationAttestationControl";
 
 import { GET_WORK } from "@js/components/Work/work.gql";
 
@@ -54,6 +53,8 @@ function WorkTabsStructureTranscriptionWorkflow({
   workId,
   hasTranscriptionCallback,
   onContentChange,
+  hasUnsavedChanges,
+  onBeforeAttest,
 }) {
   const flashedAnnotationErrorIdRef = useRef(null);
   const flashedAnnotationCompletedIdRef = useRef(null);
@@ -69,7 +70,12 @@ function WorkTabsStructureTranscriptionWorkflow({
   });
 
   const [transcribeFileSet] = useMutation(TRANSCRIBE_FILE_SET);
-  const [deleteFileSetAnnotation] = useMutation(DELETE_FILE_SET_ANNOTATION);
+  const [useExistingAsContext, setUseExistingAsContext] = useState(false);
+  const [hasContent, setHasContent] = useState(false);
+  // True from the moment Generate is clicked until the transcribe mutation
+  // settles, so a double-click can't fire two AI jobs before the annotation's
+  // pending/in_progress status arrives and takes over the gating.
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const workFileSet = work?.fileSets?.find((fs) => fs.id === fileSetId);
   const existingTranscriptionAnnotation = workFileSet?.annotations?.find(
@@ -80,12 +86,12 @@ function WorkTabsStructureTranscriptionWorkflow({
       ? fileSetAnnotation
       : existingTranscriptionAnnotation;
 
-  const failedAnnotationId =
-    (fileSetAnnotation?.status === "error" && fileSetAnnotation?.id) ||
-    (existingTranscriptionAnnotation?.status === "error" &&
-      existingTranscriptionAnnotation?.id) ||
-    null;
-  const annotationFailed = Boolean(failedAnnotationId);
+  // Hide the Generate button while a transcription is being produced so it
+  // can't be triggered twice; the backend replaces any existing one, so there
+  // is no failed-annotation cleanup to do here anymore.
+  const generating = [fileSetAnnotation?.status, annotation?.status].some(
+    (status) => status === "pending" || status === "in_progress",
+  );
 
   useEffect(() => {
     if (isActive) {
@@ -125,13 +131,31 @@ function WorkTabsStructureTranscriptionWorkflow({
     }
   }, [fileSetAnnotation?.id, fileSetAnnotation?.status]);
 
-  const runTranscribeMutation = () => {
+  const handleStartTranscription = () => {
+    if (!fileSetId || isSubmitting || generating) return;
+
+    // Send the live editor text (incl. unsaved edits) as context when the
+    // reviewer opts in — matches what they see and works even before a first
+    // save. The backend replaces any existing transcription.
+    const liveText =
+      document.getElementById("file-set-transcription-textarea")?.value || "";
+    const context =
+      useExistingAsContext && liveText.trim() ? liveText : undefined;
+
+    setIsSubmitting(true);
+    generationInFlightRef.current = true;
+    toastWrapper("is-success", "Generating transcription");
+
     transcribeFileSet({
-      variables: {
-        fileSetId,
+      variables: { fileSetId, ...(context ? { context } : {}) },
+      onCompleted: () => {
+        // The refetched annotation status (pending/in_progress) gates the
+        // buttons from here on.
+        setIsSubmitting(false);
       },
       onError: (error) => {
         generationInFlightRef.current = false;
+        setIsSubmitting(false);
         flashTranscriptionError(error);
       },
       refetchQueries: [
@@ -144,30 +168,16 @@ function WorkTabsStructureTranscriptionWorkflow({
     });
   };
 
-  const handleStartTranscription = async () => {
-    if (!fileSetId) return;
-
-    toastWrapper("is-success", "Generating transcription");
-    generationInFlightRef.current = true;
-
-    if (failedAnnotationId) {
-      try {
-        await deleteFileSetAnnotation({
-          variables: { annotationId: failedAnnotationId },
-          refetchQueries: [{ query: GET_WORK, variables: { id: workId } }],
-          awaitRefetchQueries: true,
-        });
-      } catch (error) {
-        generationInFlightRef.current = false;
-        flashTranscriptionError(error);
-        return;
-      }
-    }
-
-    runTranscribeMutation();
-  };
-
   if (workLoading) return null;
+
+  // The Generate button stays available so an existing — human or AI —
+  // transcription can be regenerated, except while one is being produced. When
+  // there is content to draw on, a checkbox offers to feed it to the model as
+  // context for the regeneration.
+  const canGenerate = !generating;
+  const generateDisabled = isSubmitting || !canGenerate;
+
+  const showEditor = Boolean(annotation) || manualEntry;
 
   return (
     <div
@@ -177,50 +187,95 @@ function WorkTabsStructureTranscriptionWorkflow({
         flexGrow: 1,
         flexShrink: 1,
         display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        flexDirection: "column",
+        minHeight: 0,
       }}
     >
-      {!annotation || annotationFailed ? (
-        manualEntry ? (
-          <WorkTabsStructureTranscriptionPane
-            annotation={{
-              content: "",
-              id: null,
-              status: "completed",
-              type: "transcription",
-            }}
-            hasTranscriptionCallback={hasTranscriptionCallback}
-            onContentChange={onContentChange}
-          />
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "0.75rem",
-            }}
+      {!showEditor ? (
+        <div
+          style={{
+            display: "flex",
+            flexGrow: 1,
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.75rem",
+          }}
+        >
+          <Button
+            isPrimary
+            isLowercase
+            disabled={generateDisabled}
+            onClick={handleStartTranscription}
+            style={{ gap: "0.5rem" }}
           >
-            <Button
-              isPrimary
-              isLowercase
-              onClick={handleStartTranscription}
-              style={{ gap: "0.5rem" }}
-            >
-              Generate Transcription
-            </Button>
-            <Button isLowercase onClick={() => setManualEntry(true)}>
-              Enter Manually
-            </Button>
-          </div>
-        )
+            Generate Transcription
+          </Button>
+          <Button isLowercase onClick={() => setManualEntry(true)}>
+            Enter Manually
+          </Button>
+        </div>
       ) : (
-        <WorkTabsStructureTranscriptionPane
-          annotation={annotation}
-          hasTranscriptionCallback={hasTranscriptionCallback}
-          onContentChange={onContentChange}
-        />
+        <>
+          {/* flexShrink 0 on the control rows: the pane below asks for 100% of
+              the column, and without it these rows get squashed to their
+              min-height and their content overflows onto the row below. */}
+          <div
+            className="is-flex is-align-items-center is-flex-wrap-wrap mb-2"
+            style={{ gap: "0.5rem", minHeight: "2rem", flexShrink: 0 }}
+          >
+            <AnnotationOriginBadge annotation={annotation} />
+            <AnnotationAttestationControl
+              annotation={annotation}
+              workId={workId}
+              hasUnsavedChanges={hasUnsavedChanges}
+              onBeforeAttest={onBeforeAttest}
+            />
+          </div>
+          {canGenerate && (
+            <div
+              className="is-flex is-align-items-center is-flex-wrap-wrap mb-2"
+              style={{ gap: "0.5rem 0.75rem", flexShrink: 0 }}
+            >
+              <Button
+                isPrimary
+                isLowercase
+                isSmall
+                disabled={generateDisabled}
+                onClick={handleStartTranscription}
+                style={{ gap: "0.5rem", flexShrink: 0 }}
+              >
+                Generate Transcription
+              </Button>
+              {hasContent && (
+                <label className="checkbox is-size-7" style={{ flexShrink: 1 }}>
+                  <input
+                    type="checkbox"
+                    className="mr-1"
+                    checked={useExistingAsContext}
+                    onChange={(e) => setUseExistingAsContext(e.target.checked)}
+                  />
+                  Use existing transcription as context
+                </label>
+              )}
+            </div>
+          )}
+          <WorkTabsStructureTranscriptionPane
+            annotation={
+              annotation || {
+                content: "",
+                id: null,
+                status: "completed",
+                type: "transcription",
+              }
+            }
+            hasTranscriptionCallback={hasTranscriptionCallback}
+            onContentChange={(value) => {
+              setHasContent(Boolean(value && value.trim()));
+              onContentChange?.(value);
+            }}
+          />
+        </>
       )}
     </div>
   );

@@ -5,6 +5,7 @@ defmodule Meadow.Data.Works.TransferFileSets do
 
   import Ecto.Query, warn: false
   alias Ecto.Multi
+  alias Meadow.AI.Provenance
   alias Meadow.Data
   alias Meadow.Data.IndexBatcher
   alias Meadow.Data.Schemas.FileSet
@@ -130,6 +131,13 @@ defmodule Meadow.Data.Works.TransferFileSets do
       |> Multi.run(:transfer_filesets, fn _repo, %{create_target_work: target_work_id} ->
         transfer_fileset_subset(fileset_ids, target_work_id)
       end)
+      |> Multi.run(:transfer_provenance, fn _repo,
+                                            %{
+                                              create_target_work: target_work_id,
+                                              transfer_filesets: transferred_ids
+                                            } ->
+        Provenance.transfer_file_set_provenance(transferred_ids, target_work_id)
+      end)
       |> maybe_add_delete_empty_works_step(delete_empty_works)
 
     case Repo.transaction(multi, timeout: :infinity) do
@@ -176,6 +184,13 @@ defmodule Meadow.Data.Works.TransferFileSets do
       end)
       |> Multi.run(:transfer_filesets, fn _repo, %{get_target_work: target_work_id} ->
         transfer_fileset_subset(fileset_ids, target_work_id)
+      end)
+      |> Multi.run(:transfer_provenance, fn _repo,
+                                            %{
+                                              get_target_work: target_work_id,
+                                              transfer_filesets: transferred_ids
+                                            } ->
+        Provenance.transfer_file_set_provenance(transferred_ids, target_work_id)
       end)
       |> maybe_add_delete_empty_works_step(delete_empty_works)
 
@@ -227,6 +242,9 @@ defmodule Meadow.Data.Works.TransferFileSets do
       end)
       |> Multi.run(:transfer_file_sets, fn _repo, _changes ->
         transfer_file_sets(from_work_id, to_work_id)
+      end)
+      |> Multi.run(:transfer_provenance, fn _repo, %{transfer_file_sets: transferred_ids} ->
+        Provenance.transfer_file_set_provenance(transferred_ids, to_work_id)
       end)
       |> Multi.run(:delete_empty_work, fn _repo, _changes -> delete_empty_work(from_work_id) end)
       |> Multi.run(:refetch_to_work, fn _repo, _changes -> fetch_work(to_work_id) end)
@@ -547,6 +565,7 @@ defmodule Meadow.Data.Works.TransferFileSets do
       :create_target_work,
       :get_target_work,
       :transfer_filesets,
+      :transfer_provenance,
       :get_source_work_ids,
       :delete_empty_works
     ]
@@ -591,17 +610,17 @@ defmodule Meadow.Data.Works.TransferFileSets do
         changeset = FileSet.changeset(file_set, %{work_id: to_work_id, rank: new_rank})
 
         case Repo.update(changeset) do
-          {:ok, _} -> {:ok, :transferred}
+          {:ok, updated} -> {:ok, updated.id}
           {:error, _} -> {:error, :transfer_failed}
         end
       end)
 
-    if Enum.all?(updates, fn {:ok, _} -> true end) do
+    if Enum.all?(updates, &match?({:ok, _}, &1)) do
       Logger.info(
         "Transferred #{Enum.count(updates)} file sets from #{from_work_id} to #{to_work_id}"
       )
 
-      {:ok, :transferred}
+      {:ok, Enum.map(updates, fn {:ok, id} -> id end)}
     else
       {:error, :transfer_failed}
     end
@@ -634,6 +653,7 @@ defmodule Meadow.Data.Works.TransferFileSets do
       :to_work -> "Fetching 'to' work"
       :check_work_types -> "Checking work types"
       :transfer_file_sets -> "Transferring file sets"
+      :transfer_provenance -> "Updating AI provenance"
       :delete_empty_work -> "Deleting empty work"
       :refetch_to_work -> "Refetching work"
       _ -> "Unknown operation"

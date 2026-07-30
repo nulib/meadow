@@ -1,10 +1,17 @@
 // js/components/Work/Tabs/Structure/Transcription/Modal.test.jsx
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 import { IIIFContext } from "@js/components/IIIF/IIIFProvider";
 import {
   UPDATE_FILE_SET_ANNOTATION,
+  UPSERT_FILE_SET_ANNOTATION,
   DELETE_FILE_SET_ANNOTATION,
 } from "./transcription.gql";
 import { GET_WORK } from "@js/components/Work/work.gql";
@@ -43,9 +50,23 @@ jest.mock("@js/services/helpers", () => ({
   downloadBlob: jest.fn(),
 }));
 
-// Mock Workflow so it renders the textarea the modal is looking for,
-// wiring hasTranscriptionCallback and onContentChange the same way the real
-// Workflow/Pane pair does so dirty-state tracking works in tests.
+// Lets individual tests drive whether the mock Workflow renders an existing
+// (saved) annotation or a from-scratch textarea with no annotation id.
+const workflowState = {
+  annotationId: "ann-1",
+  defaultValue: "Existing transcription",
+  // Set by the mock so tests can re-fire hasTranscriptionCallback the way the
+  // real Pane does when a generation completes.
+  trigger: null,
+  // Captured by the mock so tests can drive the attestation control's
+  // save-before-attest hook the way the real Workflow does.
+  onBeforeAttest: null,
+  hasUnsavedChanges: null,
+};
+
+// Mock Workflow so it renders the textarea the modal is looking for, wiring
+// hasTranscriptionCallback and onContentChange the same way the real
+// Workflow/Pane pair does so the modal's dirty-state tracking works in tests.
 jest.mock("@js/components/Work/Tabs/Structure/Transcription/Workflow", () => {
   const React = require("react");
   const { useEffect } = React;
@@ -54,19 +75,27 @@ jest.mock("@js/components/Work/Tabs/Structure/Transcription/Workflow", () => {
     default: function MockWorkflow({
       hasTranscriptionCallback,
       onContentChange,
+      hasUnsavedChanges,
+      onBeforeAttest,
     }) {
+      const props = workflowState.annotationId
+        ? { "data-annotation-id": workflowState.annotationId }
+        : {};
+      workflowState.trigger = hasTranscriptionCallback;
+      workflowState.onBeforeAttest = onBeforeAttest;
+      workflowState.hasUnsavedChanges = hasUnsavedChanges;
       useEffect(() => {
         hasTranscriptionCallback?.();
       }, []);
       return (
         <textarea
           id="file-set-transcription-textarea"
-          data-annotation-id="ann-1"
           data-annotation-type="transcription"
-          defaultValue="Existing transcription"
+          defaultValue={workflowState.defaultValue}
           onChange={
             onContentChange ? (e) => onContentChange(e.target.value) : undefined
           }
+          {...props}
         />
       );
     },
@@ -84,6 +113,9 @@ describe("WorkTabsStructureTranscriptionModal", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    workflowState.annotationId = "ann-1";
+    workflowState.defaultValue = "Existing transcription";
 
     mockDispatch = jest.fn();
     useWorkDispatch.mockReturnValue(mockDispatch);
@@ -172,6 +204,152 @@ describe("WorkTabsStructureTranscriptionModal", () => {
       type: "toggleTranscriptionModal",
       fileSetId: null,
     });
+  });
+
+  it("upserts a new annotation when saving a transcription typed from scratch", async () => {
+    workflowState.annotationId = null;
+    workflowState.defaultValue = "";
+
+    const mutationMocks = [
+      {
+        request: {
+          query: UPSERT_FILE_SET_ANNOTATION,
+          variables: {
+            fileSetId: "fs-123",
+            type: "transcription",
+            content: "Brand new transcription",
+          },
+        },
+        result: {
+          data: {
+            upsertFileSetAnnotation: {
+              id: "ann-new",
+              content: "Brand new transcription",
+            },
+          },
+        },
+      },
+    ];
+
+    renderModal({ mocks: mutationMocks });
+
+    const saveButton = await screen.findByRole("button", { name: /save/i });
+
+    // Type the transcription from scratch; Save stays disabled until there is
+    // an edit, then the empty annotation id routes the save through upsert.
+    const textarea = document.getElementById("file-set-transcription-textarea");
+    fireEvent.change(textarea, {
+      target: { value: "Brand new transcription" },
+    });
+    await waitFor(() => expect(saveButton).not.toBeDisabled());
+
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(toastWrapper).toHaveBeenCalledWith(
+        "is-success",
+        "Transcription successfully saved",
+      );
+    });
+
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "toggleTranscriptionModal",
+      fileSetId: null,
+    });
+  });
+
+  it("saves unsaved edits without closing the modal when attestation asks it to", async () => {
+    const mutationMocks = [
+      {
+        request: {
+          query: UPDATE_FILE_SET_ANNOTATION,
+          variables: {
+            annotationId: "ann-1",
+            content: "Edited before attesting",
+          },
+        },
+        result: {
+          data: {
+            updateFileSetAnnotation: {
+              id: "ann-1",
+              content: "Edited before attesting",
+            },
+          },
+        },
+      },
+    ];
+
+    renderModal({ mocks: mutationMocks });
+
+    const saveButton = await screen.findByRole("button", { name: /save/i });
+
+    const textarea = document.getElementById("file-set-transcription-textarea");
+    fireEvent.change(textarea, {
+      target: { value: "Edited before attesting" },
+    });
+    await waitFor(() => expect(saveButton).not.toBeDisabled());
+    expect(workflowState.hasUnsavedChanges).toBe(true);
+
+    // Drive the hook the attestation control awaits before recording the
+    // attestation.
+    await act(async () => {
+      await workflowState.onBeforeAttest();
+    });
+
+    // The edits are saved and the dirty baseline resets, but the modal stays
+    // open and shows no save toast (the attestation flow owns messaging).
+    await waitFor(() => expect(saveButton).toBeDisabled());
+    expect(workflowState.hasUnsavedChanges).toBe(false);
+    expect(toastWrapper).not.toHaveBeenCalled();
+    expect(mockDispatch).not.toHaveBeenCalledWith({
+      type: "toggleTranscriptionModal",
+      fileSetId: null,
+    });
+  });
+
+  it("does not offer Delete for an unsaved, from-scratch transcription", async () => {
+    workflowState.annotationId = null;
+    workflowState.defaultValue = "";
+
+    renderModal();
+
+    await screen.findByRole("button", { name: /save/i });
+
+    expect(
+      screen.queryByRole("button", { name: /delete transcription/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("reveals Delete/Download once a generation completes on a from-scratch pane", async () => {
+    // Enter Manually → Generate without typing: the pane starts with no
+    // annotation id, then generation completes — the pane re-fires the
+    // callback with the same textarea node, now carrying the saved
+    // annotation's id, and a pristine (not dirty) value.
+    workflowState.annotationId = null;
+    workflowState.defaultValue = "";
+
+    renderModal();
+
+    await screen.findByRole("button", { name: /save/i });
+    expect(
+      screen.queryByRole("button", { name: /delete transcription/i }),
+    ).not.toBeInTheDocument();
+
+    const textarea = document.getElementById("file-set-transcription-textarea");
+    textarea.setAttribute("data-annotation-id", "ann-generated");
+    textarea.value = "Generated transcription text";
+    act(() => {
+      workflowState.trigger?.();
+    });
+
+    expect(
+      await screen.findByRole("button", { name: /delete transcription/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /download transcription/i }),
+    ).toBeInTheDocument();
+    // The generated value is the pristine baseline, so Save stays disabled.
+    expect(screen.getByRole("button", { name: /^save$/i })).toBeDisabled();
   });
 
   it("shows error toast when mutation fails", async () => {

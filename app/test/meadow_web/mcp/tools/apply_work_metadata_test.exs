@@ -1,6 +1,7 @@
 defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadataTest do
   use MeadowWeb.MCPCase
 
+  alias Meadow.AI.Provenance
   alias MeadowWeb.MCP.Tools.ApplyWorkMetadata
 
   describe "eval context guard" do
@@ -38,6 +39,20 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadataTest do
 
       fresh = Meadow.Data.Works.get_work!(work.id)
       assert fresh.descriptive_metadata.description == ["A test description."]
+
+      assert [%{note: note_text, type: %{id: "LOCAL_NOTE"}}] = fresh.descriptive_metadata.notes
+      assert note_text =~ "Some metadata created with the assistance of AI"
+
+      assert [
+               %{
+                 field_path: "descriptive_metadata.description",
+                 origin: "ai_generated"
+               },
+               %{
+                 field_path: "descriptive_metadata.subject",
+                 origin: "ai_generated"
+               }
+             ] = Provenance.work_summary(work.id)
     end
   end
 end

@@ -67,6 +67,10 @@
       "all_ids": {
         "type": "keyword"
       },
+      "ai_provenance": {
+        "type": "object",
+        "enabled": false
+      },
       "create_date": {
         "type": "date_nanos"
       },

@@ -3,19 +3,30 @@ import React, { useEffect, useRef } from "react";
 function WorkTabsStructureTranscriptionPane({
   annotation,
   hasTranscriptionCallback,
-  onContentChange,
+  onContentChange = () => {},
 }) {
   const textAreaRef = useRef(null);
-  const { content, id, status, type } = annotation;
+  const { content, id, status, type } = annotation || {};
+
+  // A generation job starts as "pending" before flipping to "in_progress";
+  // treat both as generating (mirrors Workflow.jsx) so the overlay shows and
+  // editing stays inert for the whole run.
+  const generating = status === "pending" || status === "in_progress";
 
   useEffect(() => {
     if (!textAreaRef.current) return;
+    // While a transcription is generating, leave the textarea inert (and the
+    // modal's Save disabled). Otherwise surface it to the modal as soon as it
+    // mounts — even with no existing annotation — so a person can author one
+    // from scratch. Hydrate any existing content first, then report it as the
+    // unedited baseline so the modal's dirty tracking treats it as pristine.
+    if (generating) return;
     if (typeof content === "string") {
       textAreaRef.current.value = content;
-      hasTranscriptionCallback(true);
-      return;
     }
-  }, [content]);
+    hasTranscriptionCallback(true);
+    onContentChange(textAreaRef.current.value);
+  }, [content, status]);
 
   return (
     <div
@@ -28,7 +39,7 @@ function WorkTabsStructureTranscriptionPane({
         zIndex: 0,
       }}
     >
-      {status === "in_progress" && (
+      {generating && (
         <div
           className="transcription-generating-overlay"
           style={{
@@ -53,10 +64,8 @@ function WorkTabsStructureTranscriptionPane({
         data-annotation-status={status}
         data-annotation-type={type}
         id="file-set-transcription-textarea"
-        onChange={
-          onContentChange ? (e) => onContentChange(e.target.value) : undefined
-        }
         ref={textAreaRef}
+        onChange={(e) => onContentChange(e.target.value)}
         style={{
           height: "100%",
           whiteSpace: "pre-wrap",

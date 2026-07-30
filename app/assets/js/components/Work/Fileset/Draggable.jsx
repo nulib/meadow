@@ -102,7 +102,7 @@ function WorkFilesetDraggable({
                 </p>
               </div>
               <div css={actions}>
-                {fileSet.group_with ? (
+                {fileSet.groupWith ? (
                   <WorkFilesetActionButtonsGroupRemove
                     fileSetId={fileSet.id}
                     handleUpdateFileSet={handleUpdateFileSet}

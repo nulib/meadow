@@ -10,17 +10,24 @@ import { toastWrapper, downloadBlob } from "@js/services/helpers";
 import { useMutation, useQuery } from "@apollo/client/react";
 import {
   UPDATE_FILE_SET_ANNOTATION,
-  DELETE_FILE_SET_ANNOTATION,
   UPSERT_FILE_SET_ANNOTATION,
+  DELETE_FILE_SET_ANNOTATION,
 } from "@js/components/Work/Tabs/Structure/Transcription/transcription.gql";
 import { GET_WORK } from "@js/components/Work/work.gql";
 import { IconDownload } from "@js/components/Icon";
 import WorkTabsStructureTranscriptionWorkflow from "@js/components/Work/Tabs/Structure/Transcription/Workflow";
 
+const TRANSCRIPTION_TYPE = "transcription";
+
 function WorkTabsStructureTranscriptionModal({ isActive }) {
   const [textArea, setTextArea] = useState();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  // Whether the textarea is backed by a saved annotation. Tracked as state
+  // (not read from the DOM at render time) so that when generation completes
+  // — which re-fires the pane callback with the same node and a clean dirty
+  // flag — the Delete/Download affordances still appear.
+  const [hasSavedAnnotation, setHasSavedAnnotation] = useState(false);
   const initialValueRef = useRef("");
 
   const dispatch = useWorkDispatch();
@@ -48,12 +55,16 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     if (!isActive) {
       setTextArea(null);
       setIsDirty(false);
+      setHasSavedAnnotation(false);
       return;
     }
     const textAreaElement = document.getElementById(
       "file-set-transcription-textarea",
     );
     setTextArea(textAreaElement);
+    setHasSavedAnnotation(
+      Boolean(textAreaElement?.getAttribute("data-annotation-id")),
+    );
   }, [isActive]);
 
   const handleClose = () => {
@@ -64,35 +75,53 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     });
   };
 
-  const handleSaveTranscription = () => {
+  // An existing annotation is edited in place (preserving its AI provenance,
+  // which is what flips an AI transcription to "AI + human edited"). A
+  // transcription typed from scratch has no annotation id yet, so upsert one
+  // by type — it is recorded as human-authored.
+  const persistTranscription = () => {
     const annotationContent = textArea?.value || "";
     const annotationId = textArea?.getAttribute("data-annotation-id");
 
-    const onCompleted = () => {
-      handleClose();
-      toastWrapper("is-success", "Transcription successfully saved");
-    };
-    const onError = (error) => {
-      toastWrapper("is-danger", "Error saving transcription: " + error.message);
-    };
-
     if (annotationId) {
-      updateFileSetAnnotation({
+      return updateFileSetAnnotation({
         variables: { annotationId, content: annotationContent },
-        onCompleted,
-        onError,
-      });
-    } else {
-      upsertFileSetAnnotation({
-        variables: {
-          fileSetId,
-          type: "transcription",
-          content: annotationContent,
-        },
-        onCompleted,
-        onError,
       });
     }
+    return upsertFileSetAnnotation({
+      variables: {
+        fileSetId,
+        type: TRANSCRIPTION_TYPE,
+        content: annotationContent,
+      },
+      refetchQueries: [{ query: GET_WORK, variables: { id: workId } }],
+    });
+  };
+
+  const handleSaveTranscription = () => {
+    persistTranscription()
+      .then(() => {
+        handleClose();
+        toastWrapper("is-success", "Transcription successfully saved");
+      })
+      .catch((error) => {
+        toastWrapper(
+          "is-danger",
+          "Error saving transcription: " + error.message,
+        );
+      });
+  };
+
+  // Called by the attestation control before it records "human attested" so an
+  // edit-then-attest never loses the edits: the live textarea content is saved
+  // first, and the modal's dirty baseline resets so closing afterwards without
+  // touching Save doesn't discard anything. Errors propagate to the caller,
+  // which aborts the attestation.
+  const handleSaveBeforeAttest = async () => {
+    if (!isDirty) return;
+    await persistTranscription();
+    initialValueRef.current = textArea?.value ?? "";
+    setIsDirty(false);
   };
 
   const handleDeleteTranscription = () => {
@@ -144,13 +173,18 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     initialValueRef.current = textAreaElement?.value ?? "";
     setIsDirty(false);
     setTextArea(textAreaElement);
+    // Only a saved annotation can be deleted; a transcription typed from
+    // scratch has no annotation id yet. Deriving this here (in state) means a
+    // completed generation forces the footer to update even when the node and
+    // dirty flag are otherwise unchanged.
+    setHasSavedAnnotation(
+      Boolean(textAreaElement?.getAttribute("data-annotation-id")),
+    );
   };
 
   const handleContentChange = (value) => {
     setIsDirty(value !== initialValueRef.current);
   };
-
-  const hasAnnotationId = Boolean(textArea?.getAttribute("data-annotation-id"));
 
   return (
     <div className={classNames(["modal"], { "is-active": isActive })}>
@@ -203,18 +237,20 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
               hasTranscriptionCallback={handleHasTranscriptionCallback}
               isActive={isActive}
               onContentChange={handleContentChange}
+              hasUnsavedChanges={isDirty}
+              onBeforeAttest={handleSaveBeforeAttest}
             />
           </div>
         </section>
 
         <footer className="modal-card-foot buttons is-justify-content-space-between">
-          {!confirmDelete && (hasAnnotationId || isDirty) && (
+          {!confirmDelete && (hasSavedAnnotation || isDirty) && (
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <Button onClick={handleDownloadTranscription}>
                 <IconDownload />
                 <span>Download Transcription</span>
               </Button>
-              {hasAnnotationId && (
+              {hasSavedAnnotation && (
                 <Button isDanger onClick={handleDeleteTranscription}>
                   Delete Transcription
                 </Button>
