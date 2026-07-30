@@ -226,6 +226,15 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
     if has_metadata_changes?(attrs) do
       plan = Repo.preload(change, :plan).plan
 
+      # Current work values for the touched fields, so a replace/delete over
+      # existing content is recorded as modifying human content rather than
+      # attributing that content to the AI.
+      prior_values =
+        case Repo.get(Work, change.work_id) do
+          nil -> %{}
+          work -> Provenance.prior_values_for_operations(work, attrs)
+        end
+
       with {:ok, activity} <- activity_for_change(change, plan) do
         Provenance.record_targets_for_operations(
           activity,
@@ -235,6 +244,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
           origin: "ai_generated",
           status: "proposed",
           event_type: "proposed",
+          prior_values: prior_values,
           target_attrs: %{
             premis_object_category: "intellectual_entity",
             object_identifier_type: "Meadow Work",

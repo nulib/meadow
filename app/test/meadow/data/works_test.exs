@@ -110,6 +110,55 @@ defmodule Meadow.Data.WorksTest do
     end
   end
 
+  describe "query works by terms" do
+    setup do
+      work1 = work_fixture(%{
+        descriptive_metadata: %{
+          title: "Work #1",
+          contributor: [%{term: "mock1:result1", role: %{id: "aut", scheme: "marc_relator"}}],
+          subject: [%{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}],
+          genre: [%{term: "mock2:result3"}]
+        }
+      })
+
+      work2 = work_fixture(%{
+        descriptive_metadata: %{
+          title: "Work #2",
+          creator: [%{term: "mock1:result1"}],
+          subject: [%{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}}],
+          genre: [%{term: "mock2:result3"}]
+        }
+      })
+
+      work3 = work_fixture(%{descriptive_metadata: %{title: "Work #3"}})
+      {:ok, %{works: [work1, work2, work3]}}
+    end
+
+    test "get_works_by_term/1 returns works with matching term" do
+      results = Works.get_works_by_term("mock1:result1")
+      assert length(results) == 2
+      assert Enum.find(results, &(&1.descriptive_metadata.title == "Work #1"))
+      assert Enum.find(results, &(&1.descriptive_metadata.title == "Work #2"))
+      refute Enum.find(results, &(&1.descriptive_metadata.title == "Work #3"))
+    end
+
+    test "get_works_by_term/2 returns works with matching term and field" do
+      results = Works.get_works_by_term("mock1:result1", "contributor")
+      assert length(results) == 1
+      assert Enum.find(results, &(&1.descriptive_metadata.title == "Work #1"))
+      refute Enum.find(results, &(&1.descriptive_metadata.title == "Work #2"))
+      refute Enum.find(results, &(&1.descriptive_metadata.title == "Work #3"))
+    end
+
+    test "get_term_placements/1 returns work ids and field names for matching term" do
+      results = Works.get_term_placements("mock1:result1")
+      assert length(results) == 2
+      assert Enum.find(results, &(&1.work_id == List.first(results).work_id))
+      assert Enum.find(results, &(&1.field_name == "contributor"))
+      assert Enum.find(results, &(&1.field_name == "creator"))
+    end
+  end
+
   describe "representative images for image type works" do
     setup do
       work =

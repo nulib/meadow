@@ -95,12 +95,12 @@ defmodule Meadow.Data.Schemas.Plan do
 
   ## Example
 
-      iex> plan |> Plan.reject("Changes not needed") |> Repo.update()
-      {:ok, %Plan{status: :rejected, notes: "Changes not needed"}}
+      iex> plan |> Plan.reject("Changes not needed", "user@example.com") |> Repo.update()
+      {:ok, %Plan{status: :rejected, notes: "Changes not needed", user: "user@example.com"}}
   """
-  def reject(plan, notes \\ nil) do
+  def reject(plan, notes \\ nil, user \\ nil) do
     plan
-    |> cast(%{status: :rejected, notes: notes}, [:status, :notes])
+    |> cast(%{status: :rejected, notes: notes, user: user}, [:status, :notes, :user])
     |> validate_inclusion(:status, @statuses)
   end
 

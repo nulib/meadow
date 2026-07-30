@@ -271,6 +271,58 @@ describe("PlanPanelChangesDiff", () => {
     expect(screen.queryByTestId("provenance-preview")).not.toBeInTheDocument();
   });
 
+  test("unions item provenance across same-field targets (delete + add swap)", () => {
+    // A swap proposal records two targets on one field: a delete of the
+    // existing human value (which carries no item attribution) and an add of
+    // the AI value. The add row's items must still badge even when the delete
+    // target is listed first for the field.
+    mockUseQuery.mockReturnValue({
+      data: {
+        aiActivities: [
+          {
+            id: "a1",
+            targets: [
+              {
+                fieldPath: "descriptive_metadata.alternate_title",
+                origin: "ai_modified_human_content",
+                itemProvenance: [],
+              },
+              {
+                fieldPath: "descriptive_metadata.alternate_title",
+                origin: "ai_generated",
+                itemProvenance: [{ id: "AI alt", origin: "ai_generated" }],
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    mockToRows
+      .mockReturnValueOnce([
+        {
+          id: "add-alt",
+          method: "add",
+          path: "descriptive_metadata.alternate_title",
+          label: "Alternate Title",
+          value: ["AI alt"],
+          controlled: false,
+        },
+      ])
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([]);
+
+    render(
+      <PlanPanelChangesDiff
+        proposedChanges={baseProposed}
+        planChangeId="pc-1"
+      />,
+    );
+
+    expect(screen.getAllByTestId("provenance-origin-badge")).toHaveLength(1);
+    expect(screen.queryByTestId("provenance-preview")).not.toBeInTheDocument();
+  });
+
   test("renders non-controlled primitive values directly", () => {
     mockToRows
       .mockReturnValueOnce([

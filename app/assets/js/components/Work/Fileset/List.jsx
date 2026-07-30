@@ -25,8 +25,8 @@ function WorkFilesetList({
   const isWebVttModalActive = webVttModal?.isOpen;
 
   const uniqueGroupWithValues = fileSets.access
-    .filter((fs) => fs.group_with !== null)
-    .map((fs) => fs.group_with)
+    .filter((fs) => fs.groupWith !== null)
+    .map((fs) => fs.groupWith)
     .filter((value, index, self) => self.indexOf(value) === index);
 
   if (isReordering) {
@@ -36,16 +36,16 @@ function WorkFilesetList({
           <div ref={provided.innerRef} {...provided.droppableProps}>
             <div data-testid="fileset-draggable-list" className="mb-5">
               {fileSets.access
-                .filter((fileSet) => !fileSet.group_with)
+                .filter((fileSet) => !fileSet.groupWith)
                 .map((fileSet, index) => {
                   const groupedFileSets = fileSets.access.filter(
-                    (entry) => entry.group_with === fileSet.id,
+                    (entry) => entry.groupWith === fileSet.id,
                   );
 
                   const candidateFileSets = fileSets.access.filter((fs) => {
                     return (
                       fs.id !== fileSet.id &&
-                      fs.group_with === null &&
+                      fs.groupWith === null &&
                       !uniqueGroupWithValues.includes(fs.id)
                     );
                   });
@@ -75,11 +75,11 @@ function WorkFilesetList({
       <div data-testid="fileset-list" className="mb-5">
         <SubHead>Access files</SubHead>
         {fileSets.access
-          .filter((fileSet) => !fileSet.group_with)
+          .filter((fileSet) => !fileSet.groupWith)
           .map((fileSet) => {
-            // get all filesets that have a group_with value matching fileSet.id
+            // get all filesets that have a groupWith value matching fileSet.id
             const groupedFileSets = fileSets.access.filter(
-              (entry) => entry.group_with === fileSet.id,
+              (entry) => entry.groupWith === fileSet.id,
             );
 
             return (

@@ -53,6 +53,8 @@ function WorkTabsStructureTranscriptionWorkflow({
   workId,
   hasTranscriptionCallback,
   onContentChange,
+  hasUnsavedChanges,
+  onBeforeAttest,
 }) {
   const flashedAnnotationErrorIdRef = useRef(null);
   const flashedAnnotationCompletedIdRef = useRef(null);
@@ -215,20 +217,25 @@ function WorkTabsStructureTranscriptionWorkflow({
         </div>
       ) : (
         <>
+          {/* flexShrink 0 on the control rows: the pane below asks for 100% of
+              the column, and without it these rows get squashed to their
+              min-height and their content overflows onto the row below. */}
           <div
             className="is-flex is-align-items-center is-flex-wrap-wrap mb-2"
-            style={{ gap: "0.5rem", minHeight: "2rem" }}
+            style={{ gap: "0.5rem", minHeight: "2rem", flexShrink: 0 }}
           >
             <AnnotationOriginBadge annotation={annotation} />
             <AnnotationAttestationControl
               annotation={annotation}
               workId={workId}
+              hasUnsavedChanges={hasUnsavedChanges}
+              onBeforeAttest={onBeforeAttest}
             />
           </div>
           {canGenerate && (
             <div
               className="is-flex is-align-items-center is-flex-wrap-wrap mb-2"
-              style={{ gap: "0.5rem 0.75rem" }}
+              style={{ gap: "0.5rem 0.75rem", flexShrink: 0 }}
             >
               <Button
                 isPrimary

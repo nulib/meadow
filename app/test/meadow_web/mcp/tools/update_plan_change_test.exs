@@ -42,10 +42,12 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
       assert get_in(result, ["replace", "descriptive_metadata", "title"]) == "Updated Title"
       assert is_binary(result["ai_activity_id"])
 
+      # The work already has a human-entered title, so the AI's replacement is
+      # classified as modifying human content at proposal time.
       assert [
                %{
                  field_path: "descriptive_metadata.title",
-                 origin: "ai_generated"
+                 origin: "ai_modified_human_content"
                }
              ] = Provenance.work_summary(plan_change.work_id)
     end

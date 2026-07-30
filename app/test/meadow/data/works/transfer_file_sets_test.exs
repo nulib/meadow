@@ -651,6 +651,170 @@ defmodule Meadow.Data.Works.TransferFileSetsTest do
     end
   end
 
+  describe "AI provenance" do
+    alias Meadow.AI.Provenance
+    alias Meadow.AI.Provenance.Schemas.{Activity, Source}
+
+    test "transfer/2 re-points provenance to the destination work before deleting the source" do
+      from_work = work_with_file_sets_fixture(2)
+      to_work = work_with_file_sets_fixture(1)
+      file_set = hd(from_work.file_sets)
+      %{activity: activity, target: target} = attach_transcription_provenance(file_set)
+
+      assert {:ok, %Work{}} = TransferFileSets.transfer(from_work.id, to_work.id)
+      refute Works.get_work(from_work.id)
+
+      assert Repo.get!(Activity, activity.id).work_id == to_work.id
+
+      source = Repo.get_by!(Source, file_set_id: file_set.id)
+      assert source.work_id == to_work.id
+      assert source.access_link =~ to_work.id
+
+      events = Repo.preload(target, :events, force: true).events
+      assert Enum.any?(events, &(&1.event_type == "transferred"))
+    end
+
+    test "transfer_subset/1 re-points provenance to a newly created work" do
+      source_work = work_with_file_sets_fixture(2)
+      file_set = hd(source_work.file_sets)
+      %{activity: activity} = attach_transcription_provenance(file_set)
+
+      args = %{
+        fileset_ids: [file_set.id],
+        create_work: true,
+        work_attributes: %{accession_number: "PROVENANCE_NEW_WORK", work_type: "IMAGE"}
+      }
+
+      assert {:ok, %{created_work_id: created_work_id}} = TransferFileSets.transfer_subset(args)
+
+      assert Repo.get!(Activity, activity.id).work_id == created_work_id
+      assert Repo.get_by!(Source, file_set_id: file_set.id).work_id == created_work_id
+      assert [_] = Provenance.list_activities(work_id: created_work_id)
+    end
+
+    test "transfer_subset/1 refreshes source citation fields for the destination collection" do
+      source_collection = collection_fixture(%{title: "Source Collection"})
+      destination_collection = collection_fixture(%{title: "Destination Collection"})
+
+      source_work = work_with_file_sets_fixture(2, %{collection_id: source_collection.id})
+      target_work = work_with_file_sets_fixture(1, %{collection_id: destination_collection.id})
+      file_set = hd(source_work.file_sets)
+      attach_transcription_provenance(file_set)
+
+      args = %{
+        fileset_ids: [file_set.id],
+        create_work: false,
+        accession_number: target_work.accession_number
+      }
+
+      assert {:ok, _} = TransferFileSets.transfer_subset(args)
+
+      source = Repo.get_by!(Source, file_set_id: file_set.id)
+      assert source.work_id == target_work.id
+      assert source.collection_id == destination_collection.id
+      assert source.collection_title == "Destination Collection"
+      assert source.access_link =~ target_work.id
+    end
+
+    test "transfer_subset/1 leaves no provenance pointing at deleted source works" do
+      source_work = work_with_file_sets_fixture(2)
+      target_work = work_with_file_sets_fixture(1)
+      fileset_ids = Enum.map(source_work.file_sets, & &1.id)
+      Enum.each(source_work.file_sets, &attach_transcription_provenance/1)
+
+      args = %{
+        fileset_ids: fileset_ids,
+        create_work: false,
+        accession_number: target_work.accession_number
+      }
+
+      assert {:ok, _} = TransferFileSets.transfer_subset(args)
+      refute Works.get_work(source_work.id)
+
+      assert [] == Provenance.list_activities(work_id: source_work.id)
+      assert length(Provenance.list_activities(work_id: target_work.id)) == 2
+      assert [] == Repo.all(from(s in Source, where: s.work_id == ^source_work.id))
+    end
+
+    test "transfer_subset/1 leaves provenance of file sets that stay behind untouched" do
+      source_work = work_with_file_sets_fixture(2)
+      target_work = work_with_file_sets_fixture(1)
+      [moved, staying] = source_work.file_sets
+
+      attach_transcription_provenance(moved)
+
+      %{activity: staying_activity, target: staying_target} =
+        attach_transcription_provenance(staying)
+
+      args = %{
+        fileset_ids: [moved.id],
+        create_work: false,
+        accession_number: target_work.accession_number
+      }
+
+      assert {:ok, _} = TransferFileSets.transfer_subset(args)
+
+      assert Repo.get!(Activity, staying_activity.id).work_id == source_work.id
+      assert Repo.get_by!(Source, file_set_id: staying.id).work_id == source_work.id
+
+      events = Repo.preload(staying_target, :events, force: true).events
+      refute Enum.any?(events, &(&1.event_type == "transferred"))
+    end
+
+    test "failed transfers leave provenance unchanged" do
+      source_work = work_with_file_sets_fixture(1)
+      file_set = hd(source_work.file_sets)
+      %{activity: activity, target: target} = attach_transcription_provenance(file_set)
+
+      args = %{
+        fileset_ids: [file_set.id],
+        create_work: false,
+        accession_number: "NONEXISTENT_WORK"
+      }
+
+      assert {:error, _} = TransferFileSets.transfer_subset(args)
+
+      assert Repo.get!(Activity, activity.id).work_id == source_work.id
+      assert Repo.get_by!(Source, file_set_id: file_set.id).work_id == source_work.id
+
+      events = Repo.preload(target, :events, force: true).events
+      refute Enum.any?(events, &(&1.event_type == "transferred"))
+    end
+  end
+
+  defp attach_transcription_provenance(file_set) do
+    alias Meadow.AI.Provenance
+
+    {:ok, activity} =
+      Provenance.create_activity(%{
+        activity_type: "transcription",
+        ai_use_type: "transcription",
+        model: "test-model",
+        work_id: file_set.work_id,
+        file_set_id: file_set.id,
+        status: "completed"
+      })
+
+    {:ok, _source} = Provenance.add_source(activity, Provenance.file_set_source_attrs(file_set))
+
+    {:ok, target} =
+      Provenance.record_target(
+        activity,
+        %{
+          target_type: "FileSetAnnotation",
+          target_id: Ecto.UUID.generate(),
+          field_path: "file_set_annotations.content",
+          operation: "add",
+          proposed_value: "Generated transcript",
+          origin: "ai_generated",
+          status: "applied"
+        },
+        "applied"
+      )
+
+    %{activity: activity, target: target}
+  end
+
   defp assert_rank_ordering_valid(to_work_id) do
     Enum.each(["A", "P", "S", "X"], fn role ->
       file_sets = Works.with_file_sets(to_work_id, role).file_sets |> Enum.sort_by(& &1.rank)

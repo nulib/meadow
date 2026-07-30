@@ -22,7 +22,7 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
         result =
           case status do
             :approved -> Planner.approve_plan(plan, user.username)
-            :rejected -> Planner.reject_plan(plan, Map.get(args, :notes))
+            :rejected -> Planner.reject_plan(plan, Map.get(args, :notes), user.username)
             _ -> {:error, "Invalid status transition"}
           end
 

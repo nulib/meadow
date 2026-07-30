@@ -75,41 +75,53 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
     });
   };
 
-  const handleSaveTranscription = () => {
+  // An existing annotation is edited in place (preserving its AI provenance,
+  // which is what flips an AI transcription to "AI + human edited"). A
+  // transcription typed from scratch has no annotation id yet, so upsert one
+  // by type — it is recorded as human-authored.
+  const persistTranscription = () => {
     const annotationContent = textArea?.value || "";
     const annotationId = textArea?.getAttribute("data-annotation-id");
 
-    const onCompleted = () => {
-      handleClose();
-      toastWrapper("is-success", "Transcription successfully saved");
-    };
-
-    const onError = (error) => {
-      toastWrapper("is-danger", "Error saving transcription: " + error.message);
-    };
-
-    // An existing annotation is edited in place (preserving its AI provenance,
-    // which is what flips an AI transcription to "AI + human edited"). A
-    // transcription typed from scratch has no annotation id yet, so upsert one
-    // by type — it is recorded as human-authored.
     if (annotationId) {
-      updateFileSetAnnotation({
+      return updateFileSetAnnotation({
         variables: { annotationId, content: annotationContent },
-        onCompleted,
-        onError,
-      });
-    } else {
-      upsertFileSetAnnotation({
-        variables: {
-          fileSetId,
-          type: TRANSCRIPTION_TYPE,
-          content: annotationContent,
-        },
-        refetchQueries: [{ query: GET_WORK, variables: { id: workId } }],
-        onCompleted,
-        onError,
       });
     }
+    return upsertFileSetAnnotation({
+      variables: {
+        fileSetId,
+        type: TRANSCRIPTION_TYPE,
+        content: annotationContent,
+      },
+      refetchQueries: [{ query: GET_WORK, variables: { id: workId } }],
+    });
+  };
+
+  const handleSaveTranscription = () => {
+    persistTranscription()
+      .then(() => {
+        handleClose();
+        toastWrapper("is-success", "Transcription successfully saved");
+      })
+      .catch((error) => {
+        toastWrapper(
+          "is-danger",
+          "Error saving transcription: " + error.message,
+        );
+      });
+  };
+
+  // Called by the attestation control before it records "human attested" so an
+  // edit-then-attest never loses the edits: the live textarea content is saved
+  // first, and the modal's dirty baseline resets so closing afterwards without
+  // touching Save doesn't discard anything. Errors propagate to the caller,
+  // which aborts the attestation.
+  const handleSaveBeforeAttest = async () => {
+    if (!isDirty) return;
+    await persistTranscription();
+    initialValueRef.current = textArea?.value ?? "";
+    setIsDirty(false);
   };
 
   const handleDeleteTranscription = () => {
@@ -225,6 +237,8 @@ function WorkTabsStructureTranscriptionModal({ isActive }) {
               hasTranscriptionCallback={handleHasTranscriptionCallback}
               isActive={isActive}
               onContentChange={handleContentChange}
+              hasUnsavedChanges={isDirty}
+              onBeforeAttest={handleSaveBeforeAttest}
             />
           </div>
         </section>

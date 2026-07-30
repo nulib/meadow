@@ -22,18 +22,18 @@ function FilesetsDragAndDrop({
 
   const indexArray = state.fileSets.map((fs) => ({
     id: fs.id,
-    group_with: fs.group_with,
-    droppableId: fs.group_with ? fs.group_with : "access",
+    groupWith: fs.groupWith,
+    droppableId: fs.groupWith ? fs.groupWith : "access",
   }));
 
   function handleSaveClick() {
     // Update order of all filesets
     handleSaveReorder(state.fileSets.map((fs) => fs.id));
 
-    // Update group_with values for applicable filesets
+    // Update groupWith values for applicable filesets
     const updateGroupWith = state.fileSets.filter((fs) =>
       fileSets.find(
-        (fs2) => fs2.id === fs.id && fs2.group_with !== fs.group_with,
+        (fs2) => fs2.id === fs.id && fs2.groupWith !== fs.groupWith,
       ),
     );
 
@@ -85,7 +85,7 @@ function FilesetsDragAndDrop({
   function handleUpdateFileSet(id, groupWith) {
     const updatedFileSets = state.fileSets.map((fs) => {
       if (fs.id === id) {
-        return { ...fs, group_with: groupWith };
+        return { ...fs, groupWith: groupWith };
       }
       return fs;
     });
