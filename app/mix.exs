@@ -106,7 +106,7 @@ defmodule Meadow.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:postgrex, "~> 0.17"},
       {:quantum, "~> 3.0"},
-      {:req, "~> 0.6"},
+      {:req, "~> 0.6.0"},
       {:retry, "~> 0.19"},
       {:sitemapper, "~> 0.10"},
       {:sweet_xml, "~> 0.6"},
