@@ -15,6 +15,7 @@ defmodule Meadow.Utils.Sitemap do
   """
   def generate do
     config = config()
+
     Repo.transaction(
       fn ->
         stream()
@@ -38,7 +39,7 @@ defmodule Meadow.Utils.Sitemap do
     Sitemapper.persist([{filename, content}], config)
   end
 
-  defp log_persist(filename, bytes, %{store: Sitemapper.S3Store} = config) do
+  defp log_persist(filename, bytes, %{store: Meadow.Utils.Sitemap.S3Store} = config) do
     with bucket <- config |> get_in([:store_config, :bucket]) do
       Logger.info("Uploading #{bytes} bytes to s3://#{bucket}/#{filename}")
     end

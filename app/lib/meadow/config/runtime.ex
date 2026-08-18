@@ -16,7 +16,8 @@ defmodule Meadow.Config.Runtime do
 
     initialize_prefix()
     clear_cache!()
-    [:hackney, :ex_aws] |> Enum.each(&Application.ensure_all_started/1)
+    # :ex_aws is started for BroadwaySQS only; Meadow uses :aws_credentials + aws-elixir.
+    [:hackney, :ex_aws, :aws_credentials] |> Enum.each(&Application.ensure_all_started/1)
 
     dc_base =
       get_secret(
@@ -64,6 +65,7 @@ defmodule Meadow.Config.Runtime do
     Logger.info("Configuring honeybadger")
 
     config :honeybadger,
+      http_adapter: {Honeybadger.HTTPAdapter.Req, [finch: Meadow.FinchPool]},
       api_key: get_secret(:meadow, ["honeybadger", "api_key"], "DO_NOT_REPORT"),
       environment_name:
         get_secret(:meadow, ["honeybadger", "environment"], to_string(environment())),
@@ -284,7 +286,7 @@ defmodule Meadow.Config.Runtime do
       shared_links_index: index_prefix("shared_links"),
       sitemaps: [
         gzip: true,
-        store: Sitemapper.S3Store,
+        store: Meadow.Utils.Sitemap.S3Store,
         store_config: [
           bucket: get_secret(:meadow, ["buckets", "sitemap"]),
           path: "/"
@@ -330,10 +332,11 @@ defmodule Meadow.Config.Runtime do
         )
 
     if System.get_env("USE_SAM_LAMBDAS") do
-      config :ex_aws, :lambda,
-        scheme: "http",
-        host: "localhost",
-        port: 3005
+      config :meadow, :aws,
+        services:
+          Application.get_env(:meadow, :aws, [])
+          |> Keyword.get(:services, %{})
+          |> Map.put(:lambda, proto: "http", endpoint: "localhost", port: 3005)
 
       config :meadow, :lambda,
         digester: {:lambda, "digester"},
@@ -439,6 +442,7 @@ defmodule Meadow.Config.Runtime do
 
     Meadow.Config.Pipeline.configure!()
 
+    # BroadwaySQS only. See the note in config/config.exs.
     config :ex_aws,
       req_opts: [
         finch: Meadow.FinchPool

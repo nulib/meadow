@@ -7,6 +7,7 @@ defmodule Meadow.Ingest.WorkCreator do
   import Ecto.Query, warn: false
 
   alias Meadow.Config
+  alias Meadow.AWS.S3
   alias Meadow.Data.{ActionStates, FileSets, Works}
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Ingest.{Progress, Rows}
@@ -115,8 +116,8 @@ defmodule Meadow.Ingest.WorkCreator do
     end
   end
 
-  defp ingest_work({work_row, file_set_rows}, ingest_sheet), do:
-    ingest_work({work_row, file_set_rows}, Repo.preload(ingest_sheet, :project))
+  defp ingest_work({work_row, file_set_rows}, ingest_sheet),
+    do: ingest_work({work_row, file_set_rows}, Repo.preload(ingest_sheet, :project))
 
   defp create_new_work({work_row, file_set_rows}, %{project: %{folder: folder}} = ingest_sheet) do
     accession_number = work_row |> Row.field_value(:work_accession_number)
@@ -247,7 +248,12 @@ defmodule Meadow.Ingest.WorkCreator do
           })
         end)
 
-        create_errors(List.first(file_set_rows), "CreateFileSet", errors_to_strings(changeset.errors))
+        create_errors(
+          List.first(file_set_rows),
+          "CreateFileSet",
+          errors_to_strings(changeset.errors)
+        )
+
         nil
     end
   end
@@ -286,12 +292,11 @@ defmodule Meadow.Ingest.WorkCreator do
   defp fetch_vtt_structure(s3_location) do
     %URI{host: bucket, path: "/" <> key} = URI.parse(s3_location)
 
-    case ExAws.S3.get_object(bucket, key)
-         |> ExAws.request() do
+    case S3.get_object(bucket, key) do
       {:ok, vtt} ->
-        %{type: "webvtt", value: vtt.body}
+        %{type: "webvtt", value: vtt}
 
-      {:error, {:http_error, 404, _}} ->
+      {:error, :not_found} ->
         Logger.error(".vtt file not found at #{s3_location}")
         %{type: nil, value: nil}
 

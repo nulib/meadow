@@ -3,6 +3,7 @@ defmodule Meadow.Utils.AWS.S3 do
   S3 utility functions
   """
 
+  alias Meadow.AWS.S3
   alias Meadow.Config
 
   require Logger
@@ -26,18 +27,14 @@ defmodule Meadow.Utils.AWS.S3 do
       |> Keyword.put_new(:max_keys, 500)
 
     bucket = Config.ingest_bucket()
-
-    %{body: %{contents: contents, common_prefixes: common_prefixes}} =
-      bucket
-      |> ExAws.S3.list_objects_v2(opts)
-      |> ExAws.request!()
+    listing = S3.list_objects!(bucket, opts)
 
     %{
       objects:
-        contents
+        listing.objects
         |> Enum.filter(&(!String.ends_with?(&1.key, "/")))
         |> Enum.map(&get_object_metadata(bucket, &1)),
-      folders: Enum.map(common_prefixes, fn %{prefix: folder} -> String.trim(folder, "/") end)
+      folders: Enum.map(listing.prefixes, &String.trim(&1, "/"))
     }
   end
 
@@ -50,26 +47,9 @@ defmodule Meadow.Utils.AWS.S3 do
   end
 
   defp fetch_mime_type(bucket, key) do
-    bucket
-    |> do_fetch_mime_type(key)
-    |> case do
-      nil -> "application/octet-stream"
-      mime_type -> mime_type
+    case S3.head_object(bucket, key) do
+      {:ok, %{content_type: content_type}} when is_binary(content_type) -> content_type
+      _ -> "application/octet-stream"
     end
-  end
-
-  defp do_fetch_mime_type(bucket, key) do
-    case ExAws.S3.head_object(bucket, key) |> ExAws.request() do
-      {:ok, %{headers: headers}} -> extract_content_type(headers)
-      _ -> nil
-    end
-  end
-
-  defp extract_content_type(headers) do
-    Enum.find_value(headers, fn
-      {"content-type", value} -> value
-      {"Content-Type", value} -> value
-      _ -> false
-    end)
   end
 end

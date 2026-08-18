@@ -9,6 +9,7 @@ defmodule Meadow.Data.FileSets do
   alias Ecto.Multi
 
   alias Meadow.AI.Provenance
+  alias Meadow.AWS.S3
   alias Meadow.Config
   alias Meadow.Data.{Transcriber, Works}
   alias Meadow.Data.Schemas.{FileSet, FileSetAnnotation}
@@ -504,8 +505,8 @@ defmodule Meadow.Data.FileSets do
 
   """
   def copy_annotation_content(%FileSetAnnotation{} = annotation, source_bucket, source_key) do
-    case ExAws.S3.get_object(source_bucket, source_key) |> ExAws.request() do
-      {:ok, %{body: body}} -> write_annotation_content(annotation, body)
+    case S3.get_object(source_bucket, source_key) do
+      {:ok, body} -> write_annotation_content(annotation, body)
       {:error, reason} -> {:error, reason}
     end
   end

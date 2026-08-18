@@ -1,11 +1,10 @@
 defmodule Meadow.Utils.AWS.MultipartCopy do
   @moduledoc """
-  Perform a multipart S3-to-S3 copy using ExAws
+  Perform a multipart S3-to-S3 copy
   """
 
+  alias Meadow.AWS.S3
   alias Meadow.Config
-
-  import SweetXml, only: [sigil_x: 2]
 
   require Logger
 
@@ -27,16 +26,8 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   def copy_object(dest_bucket, dest_object, src_bucket, src_object, opts \\ []) do
     Logger.debug("Copying s3://#{src_bucket}/#{src_object} to s3://#{dest_bucket}/#{dest_object}")
 
-    case ExAws.S3.head_object(src_bucket, src_object) |> ExAws.request() do
-      {:ok, %{status_code: 200, headers: headers}} ->
-        content_length =
-          headers
-          |> Enum.into(%{})
-          |> Map.get("content-length")
-          |> Integer.parse()
-          |> Tuple.to_list()
-          |> List.first()
-
+    case S3.head_object(src_bucket, src_object) do
+      {:ok, %{content_length: content_length}} ->
         %__MODULE__{
           dest_bucket: dest_bucket,
           dest_object: dest_object,
@@ -51,7 +42,7 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
         other
     end
 
-    case ExAws.S3.head_object(dest_bucket, dest_object) |> ExAws.request() do
+    case S3.head_object(dest_bucket, dest_object) do
       {:ok, anything} ->
         {:ok, anything}
 
@@ -61,7 +52,8 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
     end
   end
 
-  defp copy_s3_object(%__MODULE__{content_length: length} = op) when length > @threshold do
+  defp copy_s3_object(%__MODULE__{content_length: length} = op)
+       when is_integer(length) and length > @threshold do
     Logger.info("File size #{length} > #{@threshold}; using MultipartUpload")
 
     op
@@ -73,24 +65,13 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
   defp copy_s3_object(%__MODULE__{content_length: length} = op) do
     Logger.info("File size #{length} <= #{@threshold}; using CopyObject")
 
-    ExAws.S3.put_object_copy(
-      op.dest_bucket,
-      op.dest_object,
-      op.src_bucket,
-      op.src_object,
-      op.opts
-    )
-    |> ExAws.request()
+    S3.copy_object(op.dest_bucket, op.dest_object, op.src_bucket, op.src_object, op.opts)
   end
 
   defp initiate_upload(%__MODULE__{} = op) do
-    case ExAws.S3.initiate_multipart_upload(op.dest_bucket, op.dest_object, op.opts)
-         |> ExAws.request() do
-      {:ok, %{body: %{upload_id: upload_id}, status_code: 200}} ->
-        {:ok, op |> Map.put(:upload_id, upload_id)}
-
-      other ->
-        other
+    case S3.create_multipart_upload(op.dest_bucket, op.dest_object, op.opts) do
+      {:ok, upload_id} -> {:ok, op |> Map.put(:upload_id, upload_id)}
+      other -> other
     end
   end
 
@@ -110,10 +91,10 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
     case parts |> Enum.map(fn {status, _} -> status end) |> Enum.uniq() do
       [:ok] ->
         {parts
-          |> Enum.with_index(1)
-          |> Enum.map(fn
-            {{:ok, {:ok, etag}}, part_number} -> {part_number, etag}
-          end), op}
+         |> Enum.with_index(1)
+         |> Enum.map(fn
+           {{:ok, {:ok, etag}}, part_number} -> {part_number, etag}
+         end), op}
 
       _ ->
         {:error, op}
@@ -124,22 +105,17 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
 
   defp complete_upload({:error, %__MODULE__{} = op}) do
     Logger.error("Error encountered. Aborting multipart upload.")
-
-    ExAws.S3.abort_multipart_upload(op.dest_bucket, op.dest_object, op.upload_id)
-    |> ExAws.request()
+    S3.abort_multipart_upload(op.dest_bucket, op.dest_object, op.upload_id)
   end
 
   defp complete_upload({:error, other}) do
     Logger.error("Error encountered. #{inspect(other)}")
-    {:error, parse_error(other)}
+    {:error, other}
   end
 
   defp complete_upload({parts, %__MODULE__{} = op}) do
     Logger.info("Completing multipart upload.")
-
-    ExAws.S3.complete_multipart_upload(op.dest_bucket, op.dest_object, op.upload_id, parts)
-    |> Map.put(:parser, &parse_complete_result/1)
-    |> ExAws.request()
+    S3.complete_multipart_upload(op.dest_bucket, op.dest_object, op.upload_id, parts)
   end
 
   defp upload_chunk(%__MODULE__{} = op, chunk) do
@@ -148,79 +124,17 @@ defmodule Meadow.Utils.AWS.MultipartCopy do
     with chunk_size <- extract_chunk_size(op),
          first_byte <- (chunk - 1) * chunk_size,
          last_byte <- min(op.content_length, first_byte + chunk_size) - 1 do
-      result =
-        %ExAws.Operation.S3{
-          body: "",
-          bucket: op.dest_bucket,
-          headers: %{
-            "x-amz-copy-source-range" => "bytes=#{first_byte}-#{last_byte}",
-            "x-amz-copy-source" => ["", op.src_bucket, op.src_object] |> Enum.join("/")
-          },
-          http_method: :put,
-          parser: &parse_copy_part_result/1,
-          path: op.dest_object,
-          params: %{
-            "partNumber" => chunk,
-            "uploadId" => op.upload_id
-          },
-          service: :s3,
-          stream_builder: nil
-        }
-        |> ExAws.request(http_opts: [recv_timeout: Config.multipart_upload_timeout()])
-
-      case result do
-        {:ok, %{status_code: 200, body: %{e_tag: etag}}} -> {:ok, String.replace(etag, ~s'"', "")}
-        other -> {:error, other}
-      end
+      S3.upload_part_copy(
+        op.dest_bucket,
+        op.dest_object,
+        op.upload_id,
+        chunk,
+        {op.src_bucket, op.src_object},
+        "bytes=#{first_byte}-#{last_byte}",
+        receive_timeout: Config.multipart_upload_timeout()
+      )
     end
   end
-
-  defp parse_complete_result({:ok, %{body: xml} = resp}) do
-    parsed_body =
-      SweetXml.xpath(xml, ~x"//CompleteMultipartUploadResult",
-        bucket: ~x"./Bucket/text()"s,
-        key: ~x"./Key/text()"s,
-        location: ~x"./Location/text()"s,
-        e_tag: ~x"./ETag/text()"s
-      )
-
-    {:ok, %{resp | body: parsed_body}}
-  end
-
-  defp parse_complete_result({:error, error}) do
-    Logger.warning("Error in multipart copy: #{inspect(error)}")
-    {:error, error}
-  end
-
-  defp parse_complete_result(response) do
-    Logger.warning("Unknown response in multipart copy: #{inspect(response)}")
-    {:unknown, response}
-  end
-
-  defp parse_copy_part_result({:ok, %{body: xml} = resp}) do
-    parsed_body =
-      SweetXml.xpath(xml, ~x"//CopyPartResult",
-        e_tag: ~x"./ETag/text()"s,
-        last_modified: ~x"./LastModified/text()"s
-      )
-
-    {:ok, %{resp | body: parsed_body}}
-  end
-
-  defp parse_error({:http_error, _, %{body: xml} = resp}) do
-    parsed_body =
-      SweetXml.xpath(xml, ~x"//Error",
-        code: ~x"./Code/text()"s,
-        message: ~x"./Message/text()"s,
-        bucket: ~x"./BucketName/text()"s,
-        request_id: ~x"./RequestId/text()"s,
-        host_id: ~x"./HostId/text()"s
-      )
-
-    %{resp | body: parsed_body}
-  end
-
-  defp parse_error(error), do: error
 
   defp extract_chunk_size(%__MODULE__{} = op), do: Keyword.get(op.opts, :chunk_size, @chunk_size)
 end

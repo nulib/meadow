@@ -11,7 +11,7 @@
 #     test "object uploaded to ingest bucket gets checksum tagged" do
 #       assert_async(timeout: 10_000, sleep_time: 500) do
 #         with %{body: %{tags: tags}} <-
-#                ExAws.S3.get_object_tagging(@ingest_bucket, @test_object) |> ExAws.request!() do
+#                Meadow.AWS.S3.get_object_tagging(@ingest_bucket, @test_object) do
 #           assert tags |> length() >= 2
 #           assert Enum.find(tags, &(&1.key == "computed-md5")) |> Map.get(:value) == @md5
 
@@ -26,7 +26,7 @@
 #     test "object uploaded to uploads bucket gets checksum tagged" do
 #       assert_async(timeout: 10_000, sleep_time: 500) do
 #         with %{body: %{tags: tags}} <-
-#                ExAws.S3.get_object_tagging(@upload_bucket, @test_object) |> ExAws.request!() do
+#                Meadow.AWS.S3.get_object_tagging(@upload_bucket, @test_object) do
 #           assert tags |> length() >= 2
 #           assert Enum.find(tags, &(&1.key == "computed-md5")) |> Map.get(:value) == @md5
 

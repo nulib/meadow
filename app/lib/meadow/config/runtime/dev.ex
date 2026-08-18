@@ -83,7 +83,7 @@ defmodule Meadow.Config.Runtime.Dev do
     config :meadow, :ai,
       metrics_log: [
         group: get_secret(:meadow, ["logging", "log_group"]),
-        region: ExAws.Config.new(:s3)[:region],
+        region: Meadow.AWS.client(:s3).region,
         stream:
           Path.join([
             prefix(),

@@ -3,71 +3,63 @@ defmodule CloudwatchLogs do
   Provides functionality for the AWS Cloudwatch Logs API
   """
 
-  alias ExAws.Operation.JSON, as: Operation
+  alias Meadow.AWS.Response
 
   @doc """
-  Create a JSON request to create a log stream via the Cloudwatch Logs HTTP API
+  Create a log stream
   """
   def create_log_stream(log_group_name, log_stream_name) do
-    request(:post, "CreateLogStream", %{
+    request(:create_log_stream, %{
       "logGroupName" => log_group_name,
       "logStreamName" => log_stream_name
     })
   end
 
   @doc """
-  Create a JSON request to delete a log stream via the Cloudwatch Logs HTTP API
+  Delete a log stream
   """
   def delete_log_stream(log_group_name, log_stream_name) do
-    request(:post, "DeleteLogStream", %{
+    request(:delete_log_stream, %{
       "logGroupName" => log_group_name,
       "logStreamName" => log_stream_name
     })
   end
 
   @doc """
-  Create a JSON request to describe log streams via the Cloudwatch Logs HTTP API
+  Describe the log streams in a log group
   """
   def describe_log_streams(log_group_name, options \\ []) do
-    data =
-      Map.merge(
-        %{
-          "logGroupName" => log_group_name
-        },
-        camelize_options(options)
-      )
-
-    request(:post, "DescribeLogStreams", data)
+    request(
+      :describe_log_streams,
+      Map.merge(%{"logGroupName" => log_group_name}, camelize_options(options))
+    )
   end
 
   @doc """
-  Create a JSON request to get log events via the Cloudwatch Logs HTTP API
+  Get the events in a log stream
   """
   def get_log_events(log_group_name, log_stream_name, options \\ []) do
-    data =
+    request(
+      :get_log_events,
       Map.merge(
-        %{
-          "logGroupName" => log_group_name,
-          "logStreamName" => log_stream_name
-        },
+        %{"logGroupName" => log_group_name, "logStreamName" => log_stream_name},
         camelize_options(options)
       )
-
-    request(:post, "GetLogEvents", data)
+    )
   end
 
   @doc """
-  Create a JSON request to list log groups via the Cloudwatch Logs HTTP API
+  List the log groups
   """
   def list_log_groups(options \\ []) do
-    request(:post, "DescribeLogGroups", camelize_options(options))
+    request(:describe_log_groups, camelize_options(options))
   end
 
   @doc """
-  Create a JSON request to put log events via the Cloudwatch Logs HTTP API
+  Write events to a log stream
   """
   def put_log_events(log_group_name, log_stream_name, log_events) do
-    request(:post, "PutLogEvents", %{
+    request(:put_log_events, %{
       "logGroupName" => log_group_name,
       "logStreamName" => log_stream_name,
       "logEvents" => log_events
@@ -76,22 +68,13 @@ defmodule CloudwatchLogs do
 
   defp camelize_options(options) do
     options
-    |> Enum.map(fn {key, value} ->
-      {Inflex.camelize(key, :lower), value}
-    end)
+    |> Enum.map(fn {key, value} -> {Inflex.camelize(key, :lower), value} end)
     |> Enum.into(%{})
   end
 
-  defp request(http_method, action, data) do
-    Operation.new(:mediaconvert, %{
-      data: data,
-      headers: [
-        {"x-amz-target", "Logs_20140328.#{action}"},
-        {"content-type", "application/x-amz-json-1.1"}
-      ],
-      http_method: http_method,
-      path: "/",
-      service: :logs
-    })
+  defp request(action, data) do
+    Meadow.AWS.client(:logs)
+    |> then(&apply(AWS.CloudWatchLogs, action, [&1, data]))
+    |> Response.unwrap()
   end
 end

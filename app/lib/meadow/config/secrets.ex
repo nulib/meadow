@@ -83,9 +83,11 @@ defmodule Meadow.Config.Secrets do
   defp retrieve_config(path) do
     Logger.debug("Retrieving AWS Secrets from #{path}")
 
-    case ExAws.SecretsManager.get_secret_value(path) |> ExAws.request() do
-      {:ok, %{"SecretString" => secret_string}} -> Jason.decode!(secret_string)
-      {:error, _} -> nil
+    Meadow.AWS.client(:secretsmanager)
+    |> AWS.SecretsManager.get_secret_value(%{"SecretId" => path})
+    |> case do
+      {:ok, %{"SecretString" => secret_string}, _response} -> Jason.decode!(secret_string)
+      _ -> nil
     end
   end
 

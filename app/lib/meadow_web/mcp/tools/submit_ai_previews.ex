@@ -14,6 +14,7 @@ defmodule MeadowWeb.MCP.Tools.SubmitAIPreviews do
 
   alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
+  alias Meadow.AWS.S3
   alias Meadow.Ingest.Sheets
   require Logger
 
@@ -75,14 +76,17 @@ defmodule MeadowWeb.MCP.Tools.SubmitAIPreviews do
         Map.put(preview, :thumbnail, base64)
 
       {:error, reason} ->
-        Logger.warning("SubmitAIPreviews: could not fetch thumbnail for #{filename}: #{inspect(reason)}")
+        Logger.warning(
+          "SubmitAIPreviews: could not fetch thumbnail for #{filename}: #{inspect(reason)}"
+        )
+
         preview
     end
   end
 
   defp fetch_thumbnail(bucket, key) do
-    case ExAws.S3.get_object(bucket, key) |> ExAws.request() do
-      {:ok, %{body: body}} -> encode_thumbnail(body)
+    case S3.get_object(bucket, key) do
+      {:ok, body} -> encode_thumbnail(body)
       {:error, reason} -> {:error, reason}
     end
   end

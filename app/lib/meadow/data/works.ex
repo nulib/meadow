@@ -6,6 +6,7 @@ defmodule Meadow.Data.Works do
   import Ecto.Query, warn: false
   alias Ecto.Multi
   alias Meadow.Config
+  alias Meadow.AWS.S3
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Repo
@@ -638,14 +639,10 @@ defmodule Meadow.Data.Works do
   end
 
   defp verify_file_set(file_set) do
-    case ExAws.S3.head_object(
-           Config.preservation_bucket(),
-           URI.parse(file_set.core_metadata.location).path
-         )
-         |> ExAws.request() do
-      {:ok, _} -> true
-      {:error, _} -> false
-    end
+    S3.object_exists?(
+      Config.preservation_bucket(),
+      URI.parse(file_set.core_metadata.location).path
+    )
   end
 
   def works_by_term(term_id, field_name \\ nil) do

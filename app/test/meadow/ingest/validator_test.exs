@@ -229,7 +229,8 @@ defmodule Meadow.Ingest.ValidatorTest do
     end
 
     @tag sheet: "ingest_sheet_unsafe_filename.csv"
-    test "fails when a filename contains characters that are not safe for S3 object keys", context do
+    test "fails when a filename contains characters that are not safe for S3 object keys",
+         context do
       assert(Validator.result(context.sheet.id) == "fail")
       ingest_sheet = Validator.validate(context.sheet.id)
       assert(ingest_sheet.status == "row_fail")
@@ -287,8 +288,7 @@ defmodule Meadow.Ingest.ValidatorTest do
         frequency: 250
       )
 
-      ExAws.S3.delete_object_tagging(@ingest_bucket, "#{project.folder}/coffee.tif")
-      |> ExAws.request!()
+      S3.delete_object_tagging!(@ingest_bucket, "#{project.folder}/coffee.tif")
 
       :ok
     end

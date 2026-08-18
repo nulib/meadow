@@ -172,31 +172,25 @@ defmodule Meadow.Config do
 
   @doc "Gather configuration variables as environment for spawned process"
   def aws_environment do
-    with config <- ExAws.Config.new(:s3),
+    with client <- Meadow.AWS.client(:s3),
          working_dir <- Application.get_env(:meadow, :pyramid_tiff_working_dir) do
       []
-      |> build_environment(Map.get(config, :access_key_id), "AWS_ACCESS_KEY_ID")
-      |> build_environment(Map.get(config, :secret_access_key), "AWS_SECRET_ACCESS_KEY")
-      |> build_environment(Map.get(config, :region), "AWS_REGION")
-      |> build_environment(extract_endpoint(config), "AWS_ENDPOINT_URL_S3")
+      |> build_environment(client.access_key_id, "AWS_ACCESS_KEY_ID")
+      |> build_environment(client.secret_access_key, "AWS_SECRET_ACCESS_KEY")
+      |> build_environment(client.session_token, "AWS_SESSION_TOKEN")
+      |> build_environment(client.region, "AWS_REGION")
+      |> build_environment(extract_endpoint(client), "AWS_ENDPOINT_URL_S3")
       |> build_environment("true", "AWS_S3_FORCE_PATH_STYLE")
       |> build_environment(working_dir, "TMPDIR")
     end
   end
 
-  defp extract_endpoint(config) do
-    case Map.get(config, :host) do
-      nil ->
-        nil
+  # Only set an explicit endpoint when one is configured; otherwise let the AWS SDKs in
+  # the spawned process resolve the real endpoint themselves.
+  defp extract_endpoint(%{endpoint: nil}), do: nil
 
-      val ->
-        Map.get(config, :scheme, "https://")
-        |> URI.parse()
-        |> Map.put(:host, val)
-        |> Map.put(:port, Map.get(config, :port))
-        |> URI.to_string()
-    end
-  end
+  defp extract_endpoint(client),
+    do: Meadow.AWS.endpoint_url(client, client.endpoint)
 
   defp build_environment(accumulator, value, variable_name) do
     case value do

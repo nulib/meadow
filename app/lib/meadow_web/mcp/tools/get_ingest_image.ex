@@ -11,6 +11,7 @@ defmodule MeadowWeb.MCP.Tools.GetIngestImage do
 
   alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
+  alias Meadow.AWS.S3
   require Logger
 
   @max_dimension 1024
@@ -32,10 +33,10 @@ defmodule MeadowWeb.MCP.Tools.GetIngestImage do
 
       {:error, :unsupported_format} ->
         Logger.warning("GetIngestImage: unsupported format for #{filename}")
+
         {:reply,
          Response.tool()
-         |> Response.text("Image format not supported for preview (#{Path.extname(key)})"),
-         frame}
+         |> Response.text("Image format not supported for preview (#{Path.extname(key)})"), frame}
 
       {:error, reason} ->
         Logger.error("GetIngestImage: failed to fetch #{filename}: #{inspect(reason)}")
@@ -44,8 +45,8 @@ defmodule MeadowWeb.MCP.Tools.GetIngestImage do
   end
 
   defp fetch_and_encode(bucket, key) do
-    case ExAws.S3.get_object(bucket, key) |> ExAws.request() do
-      {:ok, %{body: body}} ->
+    case S3.get_object(bucket, key) do
+      {:ok, body} ->
         resize_and_encode(body)
 
       {:error, reason} ->

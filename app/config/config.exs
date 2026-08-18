@@ -55,6 +55,10 @@ config :meadow,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, json_library: Jason, serve_endpoints: true
 
+# ExAws is no longer a direct Meadow dependency. It survives in the dependency tree
+# only because BroadwaySQS requires it to receive pipeline messages, and it still needs
+# to be told which HTTP client to use. Everything Meadow itself does goes through
+# `Meadow.AWS` (aws-elixir + aws_credentials). Remove this when BroadwaySQS is replaced.
 config :ex_aws,
   http_client: ExAws.Request.Req
 

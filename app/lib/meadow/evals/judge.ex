@@ -89,15 +89,7 @@ defmodule Meadow.Evals.Judge do
   end
 
   defp invoke_bedrock(model_id, prompt, image) do
-    operation = %ExAws.Operation.JSON{
-      data: build_request_body(prompt, image),
-      headers: [{"Content-Type", "application/json"}],
-      http_method: :post,
-      path: "/model/#{model_id}/converse",
-      service: :"bedrock-runtime"
-    }
-
-    case ExAws.request(operation, service_override: :bedrock) do
+    case Meadow.AWS.Bedrock.converse(model_id, build_request_body(prompt, image)) do
       {:ok, %{"output" => %{"message" => %{"content" => content}}}} when is_list(content) ->
         extract_tool_input(content)
 

@@ -1,6 +1,7 @@
 defmodule MeadowWeb.ExportController do
   use MeadowWeb, :controller
   alias Meadow.Data.CSV.Export
+  alias Meadow.AWS.S3
   alias Meadow.Ingest.Sheets
   alias Meadow.Roles
   import Plug.Conn
@@ -36,14 +37,7 @@ defmodule MeadowWeb.ExportController do
       %URI{host: bucket, path: "/" <> key} = URI.parse(sheet.filename)
 
       # Generate presigned URL valid for 5 minutes
-      {:ok, presigned_url} =
-        ExAws.S3.presigned_url(
-          ExAws.Config.new(:s3),
-          :get,
-          bucket,
-          key,
-          expires_in: 300
-        )
+      {:ok, presigned_url} = S3.presigned_url(:get, bucket, key, expires_in: 300)
 
       # Redirect to the presigned S3 URL
       conn

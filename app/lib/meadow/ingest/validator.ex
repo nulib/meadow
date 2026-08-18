@@ -4,6 +4,7 @@ defmodule Meadow.Ingest.Validator do
   """
 
   alias Meadow.Config
+  alias Meadow.AWS.S3
   alias Meadow.Data.{CodedTerms, FileSets, Works}
   alias Meadow.Ingest.{Rows, Sheets}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
@@ -71,8 +72,7 @@ defmodule Meadow.Ingest.Validator do
     "/" <> filename = URI.parse(sheet.filename).path
 
     case Config.upload_bucket()
-         |> ExAws.S3.get_object(filename)
-         |> ExAws.request() do
+         |> S3.get_object(filename) do
       {:error, _} ->
         case attempt do
           @max_attempts ->
@@ -83,8 +83,8 @@ defmodule Meadow.Ingest.Validator do
             load_file(sheet, i + 1)
         end
 
-      {:ok, obj} ->
-        load_rows(sheet, obj.body)
+      {:ok, body} ->
+        load_rows(sheet, body)
     end
   end
 
@@ -173,10 +173,8 @@ defmodule Meadow.Ingest.Validator do
 
     existing_files =
       Config.ingest_bucket()
-      |> ExAws.S3.list_objects(prefix: sheet.project.folder)
-      |> ExAws.stream!()
-      |> Enum.to_list()
-      |> Enum.map(fn file -> Map.get(file, :key) end)
+      |> S3.stream_objects(prefix: sheet.project.folder)
+      |> Enum.map(& &1.key)
       |> MapSet.new()
 
     duplicate_accession_numbers =
@@ -264,12 +262,11 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp check_tags(path) do
-    case ExAws.S3.get_object_tagging(Config.ingest_bucket(), path) |> ExAws.request() do
-      {:ok, %{status_code: 200, body: %{tags: actual_tags}}} ->
-        existing = Enum.map(actual_tags, &Map.get(&1, :key))
-        Config.required_checksum_tags() -- existing == []
+    case S3.has_tags?(Config.ingest_bucket(), path, Config.required_checksum_tags()) do
+      result when is_boolean(result) ->
+        result
 
-      {:error, {:http_error, 404, _}} ->
+      {:error, :not_found} ->
         false
 
       other ->
@@ -286,8 +283,7 @@ defmodule Meadow.Ingest.Validator do
       fn name ->
         result =
           Config.ingest_bucket()
-          |> ExAws.S3.get_object("#{project_folder}/#{name}")
-          |> ExAws.request()
+          |> S3.get_object("#{project_folder}/#{name}")
 
         {name, result}
       end,
@@ -326,8 +322,7 @@ defmodule Meadow.Ingest.Validator do
 
           :error ->
             Config.ingest_bucket()
-            |> ExAws.S3.get_object("#{context.project_folder}/#{value}")
-            |> ExAws.request()
+            |> S3.get_object("#{context.project_folder}/#{value}")
         end
 
       validate_structure_value(s3_result, value, work_type)
@@ -462,12 +457,12 @@ defmodule Meadow.Ingest.Validator do
       else: {:error, field_name, "cannot have leading or trailing spaces"}
   end
 
-  defp validate_structure_value({:ok, %{body: content}}, value, work_type) do
+  defp validate_structure_value({:ok, content}, value, work_type) do
     extension = Path.extname(value) |> String.downcase()
     validate_structure_extension(extension, work_type, content, value)
   end
 
-  defp validate_structure_value({:error, {:http_error, 404, _}}, value, _work_type) do
+  defp validate_structure_value({:error, :not_found}, value, _work_type) do
     {:error, "structure", "Structure file #{value} not found in the ingest bucket"}
   end
 
