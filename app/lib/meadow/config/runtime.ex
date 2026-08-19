@@ -441,7 +441,7 @@ defmodule Meadow.Config.Runtime do
 
     config :ex_aws,
       req_opts: [
-        finch: Meadow.FinchPool
+        finch: [name: Meadow.FinchPool]
       ]
 
     :ok

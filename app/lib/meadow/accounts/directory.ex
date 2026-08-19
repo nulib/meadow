@@ -17,7 +17,7 @@ defmodule Meadow.Accounts.Directory do
       "res/:value_type/bas/:value",
       base_url: base_url(),
       path_params: %{value_type: to_string(value_type), value: value},
-      headers: %{apikey: api_key}, decode_json: [keys: :atoms]
+      headers: %{apikey: api_key}, decoders: [json: &Jason.decode(&1, keys: :atoms)]
     )
     |> case do
       {:ok, %Req.Response{status: 200, body: body}} ->
