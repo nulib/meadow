@@ -58,12 +58,10 @@ defmodule Meadow.Data do
 
   """
   def ranked_file_sets_for_work(work_id, role_id) do
-    map = %{"id" => role_id}
-
     Repo.all(
       from f in FileSet,
         where: f.work_id == ^work_id,
-        where: fragment("role @> ?::jsonb", ^map),
+        where: f.role == ^role_id,
         order_by: :rank
     )
   end

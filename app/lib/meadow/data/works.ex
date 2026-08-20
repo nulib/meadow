@@ -70,10 +70,10 @@ defmodule Meadow.Data.Works do
         from(p in query, order_by: [{^order, :id}])
 
       {:visibility, visibility}, query ->
-        from(w in query, where: fragment("visibility -> 'id' = ?", ^visibility))
+        from(w in query, where: w.visibility == ^visibility)
 
       {:work_type, work_type}, query ->
-        from(w in query, where: fragment("work_type -> 'id' = ?", ^work_type))
+        from(w in query, where: w.work_type == ^work_type)
     end)
   end
 
@@ -149,12 +149,10 @@ defmodule Meadow.Data.Works do
   end
 
   def get_access_files(work_id) do
-    map = %{"id" => "A"}
-
     Repo.all(
       from(f in FileSet,
         where: f.work_id == ^work_id,
-        where: fragment("role @> ?::jsonb", ^map),
+        where: f.role == "A",
         order_by: :rank,
         limit: 1
       )
@@ -179,8 +177,6 @@ defmodule Meadow.Data.Works do
 
   """
   def with_file_sets(id, role) do
-    map = %{"id" => role}
-
     Work
     |> Repo.get!(id)
     |> Repo.preload([
@@ -188,7 +184,7 @@ defmodule Meadow.Data.Works do
       :project,
       file_sets:
         from(f in FileSet,
-          where: fragment("role @> ?::jsonb", ^map),
+          where: f.role == ^role,
           order_by: [asc: :role, asc: :rank]
         )
     ])
@@ -569,13 +565,11 @@ defmodule Meadow.Data.Works do
   defp ensure_file_set_list_complete({:error, msg}, _, _, _), do: {:error, msg}
 
   defp ensure_file_set_list_complete(:ok, work_id, role_id, file_set_ids) do
-    map = %{"id" => role_id}
-
     work =
       from(w in Work,
         join: f in assoc(w, :file_sets),
         where: w.id == ^work_id,
-        where: fragment("role @> ?::jsonb", ^map),
+        where: f.role == ^role_id,
         preload: [file_sets: f]
       )
       |> Repo.one()

@@ -20,7 +20,7 @@ defmodule Meadow.Data.Schemas.FileSet do
   schema "file_sets" do
     field(:accession_number)
     field(:extracted_metadata, :map)
-    field(:role, Types.CodedTerm)
+    field(:role, Types.CodedTerm, scheme: "file_set_role")
     field(:rank, :integer)
     field(:position, :any, virtual: true)
     field(:derivatives, :map)

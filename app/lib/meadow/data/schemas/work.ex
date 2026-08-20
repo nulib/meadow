@@ -29,12 +29,13 @@ defmodule Meadow.Data.Schemas.Work do
     field(:published, :boolean, default: false)
 
     field(:visibility, Types.CodedTerm,
+      scheme: "visibility",
       default: %{id: "RESTRICTED", scheme: "visibility", label: "Private"}
     )
 
-    field(:work_type, Types.CodedTerm)
+    field(:work_type, Types.CodedTerm, scheme: "work_type")
 
-    field(:behavior, Types.CodedTerm)
+    field(:behavior, Types.CodedTerm, scheme: "behavior")
 
     field(:ark, :string)
 
