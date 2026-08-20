@@ -4,6 +4,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   """
   use Absinthe.Schema.Notation
+  alias Meadow.Data.Schemas.NavPlaceEntry
 
   import Absinthe.Resolution.Helpers, only: [dataloader: 1]
   alias Meadow.Data
@@ -228,56 +229,113 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:technique, list_of(:controlled_metadata_entry))
   end
 
+  @desc "One value of a repeating free-text metadata field, with its stable id"
+  object :metadata_value do
+    field(:id, non_null(:id))
+    field(:value, non_null(:string))
+  end
+
+  @desc "Input for one value of a repeating free-text field. Echo `id` to keep an existing value's identity; omit it for new values (unchanged values are matched by text)."
+  input_object :metadata_value_input do
+    field(:id, :id)
+    field(:value, non_null(:string))
+  end
+
   @desc "`uncontrolled_descriptive_fields` represents all uncontrolled descriptive metadata fields."
   object :uncontrolled_descriptive_fields do
-    field(:abstract, list_of(:string))
-    field(:alternate_title, list_of(:string))
-    field(:box_name, list_of(:string))
-    field(:box_number, list_of(:string))
-    field(:caption, list_of(:string))
-    field(:catalog_key, list_of(:string))
-    field(:cultural_context, list_of(:string))
-    field(:description, list_of(:string))
-    field(:folder_name, list_of(:string))
-    field(:folder_number, list_of(:string))
-    field(:identifier, list_of(:string))
-    field(:keywords, list_of(:string))
-    field(:legacy_identifier, list_of(:string))
+    field(:abstract, list_of(:metadata_value))
+    field(:alternate_title, list_of(:metadata_value))
+    field(:box_name, list_of(:metadata_value))
+    field(:box_number, list_of(:metadata_value))
+    field(:caption, list_of(:metadata_value))
+    field(:catalog_key, list_of(:metadata_value))
+    field(:cultural_context, list_of(:metadata_value))
+    field(:description, list_of(:metadata_value))
+    field(:folder_name, list_of(:metadata_value))
+    field(:folder_number, list_of(:metadata_value))
+    field(:identifier, list_of(:metadata_value))
+    field(:keywords, list_of(:metadata_value))
+    field(:legacy_identifier, list_of(:metadata_value))
     field(:terms_of_use, :string)
-    field(:physical_description_material, list_of(:string))
-    field(:physical_description_size, list_of(:string))
-    field(:provenance, list_of(:string))
+    field(:physical_description_material, list_of(:metadata_value))
+    field(:physical_description_size, list_of(:metadata_value))
+    field(:provenance, list_of(:metadata_value))
 
-    field(:publisher, list_of(:string)) do
+    field(:publisher, list_of(:metadata_value)) do
       deprecate("Publisher field is deprecated")
     end
 
-    field(:related_material, list_of(:string))
-    field(:rights_holder, list_of(:string))
-    field(:scope_and_contents, list_of(:string))
-    field(:series, list_of(:string))
-    field(:source, list_of(:string))
-    field(:table_of_contents, list_of(:string))
+    field(:related_material, list_of(:metadata_value))
+    field(:rights_holder, list_of(:metadata_value))
+    field(:scope_and_contents, list_of(:metadata_value))
+    field(:series, list_of(:metadata_value))
+    field(:source, list_of(:metadata_value))
+    field(:table_of_contents, list_of(:metadata_value))
+    field(:title, :string)
+  end
+
+  @desc "Input for uncontrolled descriptive metadata fields"
+  input_object :uncontrolled_descriptive_fields_input do
+    field(:abstract, list_of(:metadata_value_input))
+    field(:alternate_title, list_of(:metadata_value_input))
+    field(:box_name, list_of(:metadata_value_input))
+    field(:box_number, list_of(:metadata_value_input))
+    field(:caption, list_of(:metadata_value_input))
+    field(:catalog_key, list_of(:metadata_value_input))
+    field(:cultural_context, list_of(:metadata_value_input))
+    field(:description, list_of(:metadata_value_input))
+    field(:folder_name, list_of(:metadata_value_input))
+    field(:folder_number, list_of(:metadata_value_input))
+    field(:identifier, list_of(:metadata_value_input))
+    field(:keywords, list_of(:metadata_value_input))
+    field(:legacy_identifier, list_of(:metadata_value_input))
+    field(:terms_of_use, :string)
+    field(:physical_description_material, list_of(:metadata_value_input))
+    field(:physical_description_size, list_of(:metadata_value_input))
+    field(:provenance, list_of(:metadata_value_input))
+    field(:publisher, list_of(:metadata_value_input))
+    field(:related_material, list_of(:metadata_value_input))
+    field(:rights_holder, list_of(:metadata_value_input))
+    field(:scope_and_contents, list_of(:metadata_value_input))
+    field(:series, list_of(:metadata_value_input))
+    field(:source, list_of(:metadata_value_input))
+    field(:table_of_contents, list_of(:metadata_value_input))
     field(:title, :string)
   end
 
   @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object."
   object :work_descriptive_metadata do
-    field(:citation, list_of(:string))
+    field(:citation, list_of(:metadata_value))
     field(:date_created, list_of(:edtf_date_entry))
     field(:license, :coded_term)
-    field(:nav_place, :json)
+
+    field(:nav_place, :json) do
+      resolve(fn metadata, _, _ ->
+        {:ok, metadata |> Map.get(:nav_place) |> List.wrap() |> Enum.map(&NavPlaceEntry.to_map/1)}
+      end)
+    end
+
     field(:rights_statement, :coded_term)
     import_fields(:uncontrolled_descriptive_fields)
     import_fields(:controlled_fields)
   end
 
   object :uncontrolled_administrative_fields do
-    field(:project_name, list_of(:string))
-    field(:project_desc, list_of(:string))
-    field(:project_proposer, list_of(:string))
-    field(:project_manager, list_of(:string))
-    field(:project_task_number, list_of(:string))
+    field(:project_name, list_of(:metadata_value))
+    field(:project_desc, list_of(:metadata_value))
+    field(:project_proposer, list_of(:metadata_value))
+    field(:project_manager, list_of(:metadata_value))
+    field(:project_task_number, list_of(:metadata_value))
+    field(:project_cycle, :string)
+  end
+
+  @desc "Input for uncontrolled administrative metadata fields"
+  input_object :uncontrolled_administrative_fields_input do
+    field(:project_name, list_of(:metadata_value_input))
+    field(:project_desc, list_of(:metadata_value_input))
+    field(:project_proposer, list_of(:metadata_value_input))
+    field(:project_manager, list_of(:metadata_value_input))
+    field(:project_task_number, list_of(:metadata_value_input))
     field(:project_cycle, :string)
   end
 
@@ -340,7 +398,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:preservation_level, :coded_term_input)
     field(:status, :coded_term_input)
 
-    import_fields(:uncontrolled_administrative_fields)
+    import_fields(:uncontrolled_administrative_fields_input)
   end
 
   @desc "Input fields for works descriptive metadata"
@@ -351,8 +409,9 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:notes, list_of(:note_entry_input))
     field(:rights_statement, :coded_term_input)
     field(:related_url, list_of(:related_url_entry_input))
+    field(:citation, list_of(:metadata_value_input))
     import_fields(:controlled_fields_input)
-    import_fields(:uncontrolled_descriptive_fields)
+    import_fields(:uncontrolled_descriptive_fields_input)
   end
 
   @desc "`controlled_fields_input` controlled fields that can be updated on a work object"

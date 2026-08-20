@@ -72,6 +72,8 @@ defmodule Meadow.Data do
     Dataloader.Ecto.new(Repo, query: &query/2)
   end
 
+  def query(Meadow.Data.Schemas.Work, _), do: Meadow.Data.Works.with_metadata()
+
   def query(queryable, _) do
     queryable
   end

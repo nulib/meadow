@@ -1,6 +1,7 @@
 defmodule Meadow.Data.Schemas.Work do
   @moduledoc """
-  A repository data object. Embeds one Metadata map and many FileSets.
+  A repository data object. Has one descriptive and one administrative
+  metadata row (with their repeating child rows) and many FileSets.
   """
 
   use Ecto.Schema
@@ -41,8 +42,8 @@ defmodule Meadow.Data.Schemas.Work do
 
     timestamps()
 
-    embeds_one(:descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update)
-    embeds_one(:administrative_metadata, WorkAdministrativeMetadata, on_replace: :update)
+    has_one(:descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update)
+    has_one(:administrative_metadata, WorkAdministrativeMetadata, on_replace: :update)
 
     has_many(:file_sets, FileSet)
 
@@ -95,12 +96,13 @@ defmodule Meadow.Data.Schemas.Work do
   def changeset(work, attrs) do
     with {required_params, optional_params} <- changeset_params() do
       work
+      |> preload_metadata()
       |> cast(attrs, required_params ++ optional_params)
       |> validate_trimmed(:accession_number)
-      |> prepare_embed(:administrative_metadata)
-      |> prepare_embed(:descriptive_metadata)
-      |> cast_embed(:administrative_metadata)
-      |> cast_embed(:descriptive_metadata)
+      |> prepare_assoc(:administrative_metadata)
+      |> prepare_assoc(:descriptive_metadata)
+      |> cast_assoc(:administrative_metadata)
+      |> cast_assoc(:descriptive_metadata)
       |> cast_assoc(:file_sets)
       |> assoc_constraint(:collection)
       |> assoc_constraint(:representative_file_set)
@@ -125,13 +127,60 @@ defmodule Meadow.Data.Schemas.Work do
     ]
 
     work
+    |> preload_metadata()
     |> cast(attrs, allowed_params)
-    |> prepare_embed(:administrative_metadata)
-    |> prepare_embed(:descriptive_metadata)
-    |> cast_embed(:administrative_metadata)
-    |> cast_embed(:descriptive_metadata)
+    |> prepare_assoc(:administrative_metadata)
+    |> prepare_assoc(:descriptive_metadata)
+    |> cast_assoc(:administrative_metadata)
+    |> cast_assoc(:descriptive_metadata)
     |> assoc_constraint(:collection)
     |> assoc_constraint(:representative_file_set)
+  end
+
+  @doc """
+  Nested preload list for the metadata rows and all their repeating child rows.
+  Every read that touches `descriptive_metadata`/`administrative_metadata` must
+  preload this (or go through `Meadow.Data.Works`, which does).
+  """
+  def metadata_preloads do
+    [
+      descriptive_metadata: WorkDescriptiveMetadata.preloads(),
+      administrative_metadata: WorkAdministrativeMetadata.preloads()
+    ]
+  end
+
+  @doc """
+  Preload the metadata associations of a persisted work. Associations that are
+  already loaded are skipped by `Repo.preload`, so this is cheap to call on a
+  fully loaded work and only fills in what is missing (for example the child
+  lists that were not part of an insert).
+  """
+  def preload_metadata(%__MODULE__{__meta__: %{state: :loaded}} = work) do
+    case missing_metadata_preloads(work) do
+      [] -> work
+      preloads -> Meadow.Repo.preload(work, preloads)
+    end
+  end
+
+  def preload_metadata(work), do: work
+
+  # Only the associations that are actually `NotLoaded`; anything else (loaded
+  # lists, or values a caller deliberately substituted) is left untouched
+  defp missing_metadata_preloads(work) do
+    Enum.flat_map(metadata_preloads(), fn {assoc, children} ->
+      case Map.get(work, assoc) do
+        %Ecto.Association.NotLoaded{} -> [{assoc, children}]
+        %{} = metadata -> missing_children(assoc, metadata, children)
+        _ -> []
+      end
+    end)
+  end
+
+  defp missing_children(assoc, metadata, children) do
+    case Enum.filter(children, &match?(%Ecto.Association.NotLoaded{}, Map.get(metadata, &1))) do
+      [] -> []
+      missing -> [{assoc, missing}]
+    end
   end
 
   def required_index_preloads do
@@ -143,6 +192,6 @@ defmodule Meadow.Data.Schemas.Work do
       :batches,
       :metadata_update_jobs,
       :representative_file_set
-    ]
+    ] ++ metadata_preloads()
   end
 end

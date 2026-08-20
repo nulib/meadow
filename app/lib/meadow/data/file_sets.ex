@@ -78,7 +78,7 @@ defmodule Meadow.Data.FileSets do
   """
   def get_file_set_with_work_and_sheet!(id) do
     FileSet
-    |> preload(work: [:ingest_sheet])
+    |> preload(^[work: [:ingest_sheet] ++ Meadow.Data.Schemas.Work.metadata_preloads()])
     |> Repo.get!(id)
   end
 
@@ -744,7 +744,8 @@ defmodule Meadow.Data.FileSets do
   end
 
   defp add_transcription_note(%{file_set_id: file_set_id, model: model}) do
-    case Repo.get(FileSet, file_set_id) |> Repo.preload(:work) do
+    case Repo.get(FileSet, file_set_id)
+         |> Repo.preload(work: Meadow.Data.Schemas.Work.metadata_preloads()) do
       %FileSet{work: work, core_metadata: %{label: label}} when not is_nil(work) ->
         today = Date.utc_today() |> Date.to_iso8601()
 
@@ -780,7 +781,8 @@ defmodule Meadow.Data.FileSets do
   end
 
   defp fetch_file_set_for_transcription(file_set_id) do
-    case Repo.get(FileSet, file_set_id) |> Repo.preload(work: []) do
+    case Repo.get(FileSet, file_set_id)
+         |> Repo.preload(work: Meadow.Data.Schemas.Work.metadata_preloads()) do
       nil ->
         {:error, {:file_set_not_found, file_set_id}}
 
