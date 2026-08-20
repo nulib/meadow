@@ -148,6 +148,8 @@ defmodule Meadow.Arks do
   end
 
   def ark_attributes(work, attrs) do
+    work = Meadow.Data.Schemas.Work.preload_metadata(work)
+
     Keyword.merge(
       [
         ark: work.ark,
@@ -184,6 +186,7 @@ defmodule Meadow.Arks do
   end
 
   defp scalar_value([%ControlledMetadataEntry{term: %{label: value}} | _]), do: value
+  defp scalar_value([%Meadow.Data.Schemas.MetadataValue{value: value} | _]), do: value
   defp scalar_value([value | _]), do: value
   defp scalar_value(%{label: value}), do: value
   defp scalar_value([]), do: nil

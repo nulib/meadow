@@ -1,52 +1,33 @@
 defmodule Meadow.Data.Types.EDTFDate do
   @moduledoc """
-  Ecto.Type for converting between edtf string and humanized date
+  Helpers for EDTF date values. Dates are stored as
+  `Meadow.Data.Schemas.DateCreatedEntry` rows; this module keeps the parsing
+  and humanizing helpers used by CSV import and batch updates.
   """
-
-  use Ecto.Type
-
-  def embed_as(:json), do: :dump
-
-  def type, do: :map
-
-  def cast(edtf), do: humanize(edtf)
-
-  def load(edtf), do: humanize(edtf)
-
-  def dump(nil), do: nil
-
-  def dump(%{edtf: edtf, humanized: humanized}),
-    do: {:ok, %{edtf: edtf, humanized: humanized}}
-
-  def dump(_), do: :error
 
   def from_string(value), do: %{edtf: value}
 
-  defp humanize(nil), do: {:ok, nil}
+  @doc "Humanize an EDTF string or `{edtf}` map into `{:ok, %{edtf, humanized}}`"
+  def humanize(nil), do: {:ok, nil}
+  def humanize(%{edtf: ""}), do: {:error, message: "cannot be blank"}
 
-  defp humanize(%{edtf: ""}),
-    do: {:error, message: "cannot be blank"}
-
-  defp humanize(%{edtf: edtf, humanized: humanized}),
+  def humanize(%{edtf: edtf, humanized: humanized}),
     do: {:ok, %{edtf: edtf, humanized: humanized}}
 
-  defp humanize(%{"edtf" => edtf, "humanized" => humanized}),
+  def humanize(%{"edtf" => edtf, "humanized" => humanized}),
     do: {:ok, %{edtf: edtf, humanized: humanized}}
 
-  defp humanize(%{"edtf" => edtf}), do: humanize(edtf)
+  def humanize(%{"edtf" => edtf}), do: humanize(edtf)
+  def humanize(%{edtf: edtf}), do: humanize(edtf)
+  def humanize(""), do: {:error, message: "cannot be blank"}
 
-  defp humanize(%{edtf: edtf}), do: humanize(edtf)
-
-  defp humanize(""), do: {:error, message: "cannot be blank"}
-
-  defp humanize(edtf) when is_binary(edtf) do
+  def humanize(edtf) when is_binary(edtf) do
     case EDTF.humanize(edtf, validate: false) do
       {:error, _} -> :error
       result -> {:ok, %{edtf: edtf, humanized: result}}
     end
   end
 
-  defp humanize(%{}), do: {:ok, nil}
-
-  defp humanize(_), do: {:error, message: "Invalid edtf type"}
+  def humanize(%{}), do: {:ok, nil}
+  def humanize(_), do: {:error, message: "Invalid edtf type"}
 end

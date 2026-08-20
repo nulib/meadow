@@ -263,8 +263,9 @@ export type CodedTermInput = {
   scheme?: CodeListScheme | null | undefined;
 };
 
-/** Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs */
+/** Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs. Echo `id` to keep an existing entry's identity. */
 export type ControlledMetadataEntryInput = {
+  id?: string | number | null | undefined;
   role?: CodedTermInput | null | undefined;
   term: string | number;
 };
@@ -272,6 +273,7 @@ export type ControlledMetadataEntryInput = {
 /** EDTF date input */
 export type EdtfDateInput = {
   edtf?: string | null | undefined;
+  id?: string | number | null | undefined;
 };
 
 export type EvalManualScore = "BAD" | "GOOD" | "UNSCORED";
@@ -352,8 +354,15 @@ export type IngestSheetStatus =
   /** Passes validation */
   | "VALID";
 
+/** Input for one value of a repeating free-text field. Echo `id` to keep an existing value's identity; omit it for new values (unchanged values are matched by text). */
+export type MetadataValueInput = {
+  id?: string | number | null | undefined;
+  value: string;
+};
+
 /** Note input */
 export type NoteEntryInput = {
+  id?: string | number | null | undefined;
   note?: string | null | undefined;
   type?: CodedTermInput | null | undefined;
 };
@@ -375,6 +384,7 @@ export type PlanStatus =
 
 /** Related URL input */
 export type RelatedUrlEntryInput = {
+  id?: string | number | null | undefined;
   label?: CodedTermInput | null | undefined;
   url?: string | null | undefined;
 };
@@ -417,11 +427,20 @@ export type WorkAdministrativeMetadataInput = {
   libraryUnit?: CodedTermInput | null | undefined;
   preservationLevel?: CodedTermInput | null | undefined;
   projectCycle?: string | null | undefined;
-  projectDesc?: Array<string | null | undefined> | null | undefined;
-  projectManager?: Array<string | null | undefined> | null | undefined;
-  projectName?: Array<string | null | undefined> | null | undefined;
-  projectProposer?: Array<string | null | undefined> | null | undefined;
-  projectTaskNumber?: Array<string | null | undefined> | null | undefined;
+  projectDesc?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  projectManager?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
+  projectName?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  projectProposer?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
+  projectTaskNumber?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
   status?: CodedTermInput | null | undefined;
 };
 
@@ -449,12 +468,16 @@ export type WorkAttributesInput = {
 
 /** Input fields for works descriptive metadata */
 export type WorkDescriptiveMetadataInput = {
-  abstract?: Array<string | null | undefined> | null | undefined;
-  alternateTitle?: Array<string | null | undefined> | null | undefined;
-  boxName?: Array<string | null | undefined> | null | undefined;
-  boxNumber?: Array<string | null | undefined> | null | undefined;
-  caption?: Array<string | null | undefined> | null | undefined;
-  catalogKey?: Array<string | null | undefined> | null | undefined;
+  abstract?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  alternateTitle?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
+  boxName?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  boxNumber?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  caption?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  catalogKey?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  citation?: Array<MetadataValueInput | null | undefined> | null | undefined;
   contributor?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
@@ -463,22 +486,31 @@ export type WorkDescriptiveMetadataInput = {
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
     | undefined;
-  culturalContext?: Array<string | null | undefined> | null | undefined;
+  culturalContext?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
   dateCreated?: Array<EdtfDateInput | null | undefined> | null | undefined;
-  description?: Array<string | null | undefined> | null | undefined;
-  folderName?: Array<string | null | undefined> | null | undefined;
-  folderNumber?: Array<string | null | undefined> | null | undefined;
+  description?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  folderName?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  folderNumber?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
   genre?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
     | undefined;
-  identifier?: Array<string | null | undefined> | null | undefined;
-  keywords?: Array<string | null | undefined> | null | undefined;
+  identifier?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  keywords?: Array<MetadataValueInput | null | undefined> | null | undefined;
   language?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
     | undefined;
-  legacyIdentifier?: Array<string | null | undefined> | null | undefined;
+  legacyIdentifier?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
   license?: CodedTermInput | null | undefined;
   location?:
     | Array<ControlledMetadataEntryInput | null | undefined>
@@ -487,21 +519,34 @@ export type WorkDescriptiveMetadataInput = {
   navPlace?: unknown;
   notes?: Array<NoteEntryInput | null | undefined> | null | undefined;
   physicalDescriptionMaterial?:
-    | Array<string | null | undefined>
+    | Array<MetadataValueInput | null | undefined>
     | null
     | undefined;
-  physicalDescriptionSize?: Array<string | null | undefined> | null | undefined;
-  provenance?: Array<string | null | undefined> | null | undefined;
-  relatedMaterial?: Array<string | null | undefined> | null | undefined;
+  physicalDescriptionSize?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
+  provenance?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  publisher?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  relatedMaterial?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
   relatedUrl?:
     | Array<RelatedUrlEntryInput | null | undefined>
     | null
     | undefined;
-  rightsHolder?: Array<string | null | undefined> | null | undefined;
+  rightsHolder?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
   rightsStatement?: CodedTermInput | null | undefined;
-  scopeAndContents?: Array<string | null | undefined> | null | undefined;
-  series?: Array<string | null | undefined> | null | undefined;
-  source?: Array<string | null | undefined> | null | undefined;
+  scopeAndContents?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
+  series?: Array<MetadataValueInput | null | undefined> | null | undefined;
+  source?: Array<MetadataValueInput | null | undefined> | null | undefined;
   stylePeriod?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
@@ -510,7 +555,10 @@ export type WorkDescriptiveMetadataInput = {
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
     | undefined;
-  tableOfContents?: Array<string | null | undefined> | null | undefined;
+  tableOfContents?:
+    | Array<MetadataValueInput | null | undefined>
+    | null
+    | undefined;
   technique?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
@@ -849,6 +897,7 @@ export type GetEvalRunQuery = {
         workId: string;
         accessionNumber: string | null;
         groundTruth: unknown;
+        representativeImageUrl: string | null;
       } | null> | null;
     } | null;
     promptVersion: {
@@ -1009,6 +1058,12 @@ export type CancelEvalRunMutationVariables = Exact<{
 export type CancelEvalRunMutation = {
   cancelEvalRun: { id: string; status: EvalRunStatus | null } | null;
 };
+
+export type DeleteEvalRunMutationVariables = Exact<{
+  id: string | number;
+}>;
+
+export type DeleteEvalRunMutation = { deleteEvalRun: { id: string } | null };
 
 export type ScoreEvalTrialMutationVariables = Exact<{
   id: string | number;
@@ -1490,7 +1545,7 @@ export type IngestSheetWorksQuery = {
     updatedAt: unknown;
     descriptiveMetadata: {
       title: string | null;
-      description: Array<string | null> | null;
+      description: Array<{ id: string; value: string } | null> | null;
     } | null;
     fileSets: Array<{
       id: string;
@@ -2160,43 +2215,27 @@ export type WorkQueryQuery = {
     behavior: { id: string | null; label: string | null } | null;
     administrativeMetadata: {
       projectCycle: string | null;
-      projectDesc: Array<string | null> | null;
-      projectManager: Array<string | null> | null;
-      projectName: Array<string | null> | null;
-      projectProposer: Array<string | null> | null;
-      projectTaskNumber: Array<string | null> | null;
       libraryUnit: { id: string | null; label: string | null } | null;
       preservationLevel: { id: string | null; label: string | null } | null;
+      projectDesc: Array<{ id: string; value: string } | null> | null;
+      projectManager: Array<{ id: string; value: string } | null> | null;
+      projectName: Array<{ id: string; value: string } | null> | null;
+      projectProposer: Array<{ id: string; value: string } | null> | null;
+      projectTaskNumber: Array<{ id: string; value: string } | null> | null;
       status: { id: string | null; label: string | null } | null;
     } | null;
     collection: { id: string | null; title: string | null } | null;
     descriptiveMetadata: {
-      abstract: Array<string | null> | null;
-      alternateTitle: Array<string | null> | null;
-      boxName: Array<string | null> | null;
-      boxNumber: Array<string | null> | null;
-      caption: Array<string | null> | null;
-      catalogKey: Array<string | null> | null;
-      culturalContext: Array<string | null> | null;
-      description: Array<string | null> | null;
-      folderName: Array<string | null> | null;
-      folderNumber: Array<string | null> | null;
-      identifier: Array<string | null> | null;
-      keywords: Array<string | null> | null;
-      legacyIdentifier: Array<string | null> | null;
-      physicalDescriptionMaterial: Array<string | null> | null;
-      physicalDescriptionSize: Array<string | null> | null;
-      provenance: Array<string | null> | null;
-      publisher: Array<string | null> | null;
-      relatedMaterial: Array<string | null> | null;
-      rightsHolder: Array<string | null> | null;
-      scopeAndContents: Array<string | null> | null;
-      series: Array<string | null> | null;
-      source: Array<string | null> | null;
-      tableOfContents: Array<string | null> | null;
       termsOfUse: string | null;
       title: string | null;
+      abstract: Array<{ id: string; value: string } | null> | null;
+      alternateTitle: Array<{ id: string; value: string } | null> | null;
+      boxName: Array<{ id: string; value: string } | null> | null;
+      boxNumber: Array<{ id: string; value: string } | null> | null;
+      caption: Array<{ id: string; value: string } | null> | null;
+      catalogKey: Array<{ id: string; value: string } | null> | null;
       contributor: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
         role: {
           id: string | null;
@@ -2205,23 +2244,36 @@ export type WorkQueryQuery = {
         } | null;
       } | null> | null;
       creator: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
+      culturalContext: Array<{ id: string; value: string } | null> | null;
       dateCreated: Array<{
+        id: string | null;
         edtf: string | null;
         humanized: string | null;
       } | null> | null;
+      description: Array<{ id: string; value: string } | null> | null;
+      folderName: Array<{ id: string; value: string } | null> | null;
+      folderNumber: Array<{ id: string; value: string } | null> | null;
       genre: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
+      identifier: Array<{ id: string; value: string } | null> | null;
+      keywords: Array<{ id: string; value: string } | null> | null;
       language: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
+      legacyIdentifier: Array<{ id: string; value: string } | null> | null;
       license: { id: string | null; label: string | null } | null;
       location: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
       notes: Array<{
+        id: string | null;
         note: string | null;
         type: {
           id: string | null;
@@ -2229,7 +2281,18 @@ export type WorkQueryQuery = {
           scheme: CodeListScheme | null;
         } | null;
       } | null> | null;
+      physicalDescriptionMaterial: Array<{
+        id: string;
+        value: string;
+      } | null> | null;
+      physicalDescriptionSize: Array<{
+        id: string;
+        value: string;
+      } | null> | null;
+      provenance: Array<{ id: string; value: string } | null> | null;
+      publisher: Array<{ id: string; value: string } | null> | null;
       relatedUrl: Array<{
+        id: string | null;
         url: string | null;
         label: {
           id: string | null;
@@ -2237,11 +2300,18 @@ export type WorkQueryQuery = {
           scheme: CodeListScheme | null;
         } | null;
       } | null> | null;
+      relatedMaterial: Array<{ id: string; value: string } | null> | null;
+      rightsHolder: Array<{ id: string; value: string } | null> | null;
       rightsStatement: { id: string | null; label: string | null } | null;
+      scopeAndContents: Array<{ id: string; value: string } | null> | null;
+      series: Array<{ id: string; value: string } | null> | null;
+      source: Array<{ id: string; value: string } | null> | null;
       stylePeriod: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
       subject: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
         role: {
           id: string | null;
@@ -2249,7 +2319,9 @@ export type WorkQueryQuery = {
           scheme: CodeListScheme | null;
         } | null;
       } | null> | null;
+      tableOfContents: Array<{ id: string; value: string } | null> | null;
       technique: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
     } | null;
@@ -2317,7 +2389,7 @@ export type WorksQueryQuery = {
     updatedAt: unknown;
     descriptiveMetadata: {
       title: string | null;
-      description: Array<string | null> | null;
+      description: Array<{ id: string; value: string } | null> | null;
     } | null;
     fileSets: Array<{
       id: string;
@@ -2444,11 +2516,10 @@ export type UpdateWorkMutation = {
     } | null;
     collection: { title: string | null; id: string | null } | null;
     descriptiveMetadata: {
-      culturalContext: Array<string | null> | null;
-      description: Array<string | null> | null;
       title: string | null;
       termsOfUse: string | null;
       contributor: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
         role: {
           id: string | null;
@@ -2457,27 +2528,36 @@ export type UpdateWorkMutation = {
         } | null;
       } | null> | null;
       creator: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
+      culturalContext: Array<{ id: string; value: string } | null> | null;
+      description: Array<{ id: string; value: string } | null> | null;
       dateCreated: Array<{
+        id: string | null;
         edtf: string | null;
         humanized: string | null;
       } | null> | null;
       genre: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
       language: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
       license: { id: string | null; label: string | null } | null;
       location: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
       rightsStatement: { id: string | null; label: string | null } | null;
       stylePeriod: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
       subject: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
         role: {
           id: string | null;
@@ -2486,6 +2566,7 @@ export type UpdateWorkMutation = {
         } | null;
       } | null> | null;
       technique: Array<{
+        id: string | null;
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
     } | null;
@@ -4100,6 +4181,13 @@ export const GetEvalRunDocument = {
                               kind: "Field",
                               name: { kind: "Name", value: "groundTruth" },
                             },
+                            {
+                              kind: "Field",
+                              name: {
+                                kind: "Name",
+                                value: "representativeImageUrl",
+                              },
+                            },
                           ],
                         },
                       },
@@ -5016,6 +5104,54 @@ export const CancelEvalRunDocument = {
 } as unknown as DocumentNode<
   CancelEvalRunMutation,
   CancelEvalRunMutationVariables
+>;
+export const DeleteEvalRunDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteEvalRun" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteEvalRun" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteEvalRunMutation,
+  DeleteEvalRunMutationVariables
 >;
 export const ScoreEvalTrialDocument = {
   kind: "Document",
@@ -7040,6 +7176,19 @@ export const IngestSheetWorksDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "description" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                     ],
                   },
@@ -10584,22 +10733,87 @@ export const WorkQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "projectDesc" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "projectManager" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "projectName" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "projectProposer" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "projectTaskNumber" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -10641,26 +10855,104 @@ export const WorkQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "abstract" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "alternateTitle" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "boxName" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "boxNumber" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "caption" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "catalogKey" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -10668,6 +10960,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "term" },
@@ -10717,6 +11013,10 @@ export const WorkQueryDocument = {
                           selections: [
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "term" },
                               selectionSet: {
                                 kind: "SelectionSet",
@@ -10738,6 +11038,19 @@ export const WorkQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "culturalContext" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -10745,6 +11058,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "edtf" },
@@ -10759,14 +11076,53 @@ export const WorkQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "description" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "folderName" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "folderNumber" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -10774,6 +11130,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "term" },
@@ -10797,10 +11157,36 @@ export const WorkQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "identifier" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "keywords" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -10808,6 +11194,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "term" },
@@ -10831,6 +11221,19 @@ export const WorkQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "legacyIdentifier" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -10857,6 +11260,10 @@ export const WorkQueryDocument = {
                           selections: [
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "term" },
                               selectionSet: {
                                 kind: "SelectionSet",
@@ -10881,6 +11288,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "note" },
@@ -10915,6 +11326,19 @@ export const WorkQueryDocument = {
                           kind: "Name",
                           value: "physicalDescriptionMaterial",
                         },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -10922,14 +11346,53 @@ export const WorkQueryDocument = {
                           kind: "Name",
                           value: "physicalDescriptionSize",
                         },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "provenance" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "publisher" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -10937,6 +11400,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "url" },
@@ -10968,10 +11435,36 @@ export const WorkQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "relatedMaterial" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "rightsHolder" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -10993,14 +11486,53 @@ export const WorkQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "scopeAndContents" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "series" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "source" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -11008,6 +11540,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "term" },
@@ -11034,6 +11570,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "term" },
@@ -11078,6 +11618,19 @@ export const WorkQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "tableOfContents" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -11085,6 +11638,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "term" },
@@ -11399,6 +11956,19 @@ export const WorksQueryDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "description" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                     ],
                   },
@@ -12158,6 +12728,10 @@ export const UpdateWorkDocument = {
                           selections: [
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "term" },
                               selectionSet: {
                                 kind: "SelectionSet",
@@ -12205,6 +12779,10 @@ export const UpdateWorkDocument = {
                           selections: [
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "term" },
                               selectionSet: {
                                 kind: "SelectionSet",
@@ -12226,10 +12804,36 @@ export const UpdateWorkDocument = {
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "culturalContext" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
                         name: { kind: "Name", value: "description" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "value" },
+                            },
+                          ],
+                        },
                       },
                       {
                         kind: "Field",
@@ -12237,6 +12841,10 @@ export const UpdateWorkDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "edtf" },
@@ -12254,6 +12862,10 @@ export const UpdateWorkDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "term" },
@@ -12280,6 +12892,10 @@ export const UpdateWorkDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "term" },
@@ -12325,6 +12941,10 @@ export const UpdateWorkDocument = {
                           selections: [
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "term" },
                               selectionSet: {
                                 kind: "SelectionSet",
@@ -12368,6 +12988,10 @@ export const UpdateWorkDocument = {
                           selections: [
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "term" },
                               selectionSet: {
                                 kind: "SelectionSet",
@@ -12392,6 +13016,10 @@ export const UpdateWorkDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "term" },
@@ -12439,6 +13067,10 @@ export const UpdateWorkDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "term" },

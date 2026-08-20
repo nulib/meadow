@@ -7,7 +7,7 @@ import {
   convertFieldArrayValToHookFormVal,
   prepControlledTermInput,
   prepEDTFforPost,
-  prepFieldArrayItemsForPost,
+  prepMetadataValuesForPost,
   prepNotes,
   prepRelatedUrl,
 } from "@js/services/metadata";
@@ -64,14 +64,15 @@ function prepFormData(work) {
   }
 
   return {
-    alternateTitle: descriptiveMetadata.alternateTitle.map((value) => ({
-      metadataItem: value,
-    })),
-    description: descriptiveMetadata.description.map((value) => ({
-      metadataItem: value,
-    })),
+    alternateTitle: descriptiveMetadata.alternateTitle.map((value) =>
+      convertFieldArrayValToHookFormVal(value),
+    ),
+    description: descriptiveMetadata.description.map((value) =>
+      convertFieldArrayValToHookFormVal(value),
+    ),
     dateCreated: descriptiveMetadata.dateCreated.map((value) => ({
       metadataItem: value.edtf,
+      metadataId: value.id,
     })),
     notes: descriptiveMetadata.notes,
     relatedUrl: descriptiveMetadata.relatedUrl,
@@ -135,11 +136,11 @@ const WorkTabsAbout = ({ work }) => {
 
     let workUpdateInput = {
       descriptiveMetadata: {
-        alternateTitle: prepFieldArrayItemsForPost(
+        alternateTitle: prepMetadataValuesForPost(
           currentFormValues.alternateTitle,
         ),
         dateCreated: prepEDTFforPost(currentFormValues.dateCreated),
-        description: prepFieldArrayItemsForPost(currentFormValues.description),
+        description: prepMetadataValuesForPost(currentFormValues.description),
         license: data.license
           ? {
               id: data.license,
@@ -168,7 +169,7 @@ const WorkTabsAbout = ({ work }) => {
     ]) {
       for (let term of group) {
         workUpdateInput.descriptiveMetadata[term.name] =
-          prepFieldArrayItemsForPost(currentFormValues[term.name]);
+          prepMetadataValuesForPost(currentFormValues[term.name]);
       }
     }
 

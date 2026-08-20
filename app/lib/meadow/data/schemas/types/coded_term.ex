@@ -17,14 +17,22 @@ defmodule Meadow.Data.Types.CodedTerm do
 
   @impl true
   def init(opts) do
-    case Keyword.get(opts, :scheme) do
-      nil -> %{scheme: nil}
-      scheme -> %{scheme: scheme |> to_string() |> String.downcase()}
+    case {Keyword.get(opts, :scheme), Keyword.get(opts, :schemes)} do
+      {nil, nil} ->
+        %{scheme: nil, schemes: nil}
+
+      {nil, schemes} when is_list(schemes) ->
+        %{scheme: nil, schemes: Enum.map(schemes, &normalize_scheme/1)}
+
+      {scheme, _} ->
+        %{scheme: normalize_scheme(scheme), schemes: nil}
     end
   end
 
+  defp normalize_scheme(scheme), do: scheme |> to_string() |> String.downcase()
+
   @impl true
-  def type(%{scheme: nil}), do: :map
+  def type(%{scheme: nil, schemes: nil}), do: :map
   def type(_params), do: :string
 
   @impl true
@@ -39,19 +47,22 @@ defmodule Meadow.Data.Types.CodedTerm do
   def load(id, _loader, %{scheme: scheme}) when is_binary(id) and is_binary(scheme),
     do: retrieve_term(%{id: id, scheme: scheme}, %{scheme: scheme})
 
+  def load(id, _loader, %{schemes: schemes} = params) when is_binary(id) and is_list(schemes),
+    do: retrieve_term(%{id: id}, params)
+
   def load(term, _loader, params), do: retrieve_term(term, params)
 
   @impl true
   def dump(nil, _dumper, _params), do: {:ok, nil}
 
-  def dump(term, _dumper, %{scheme: nil}) do
+  def dump(term, _dumper, %{scheme: nil, schemes: nil}) do
     case id_and_scheme(term) do
       {id, scheme} when is_binary(id) and is_binary(scheme) -> {:ok, %{id: id, scheme: scheme}}
       _ -> :error
     end
   end
 
-  def dump(term, _dumper, %{scheme: _scheme}) do
+  def dump(term, _dumper, _params) do
     case id_and_scheme(term) do
       {id, _} when is_binary(id) -> {:ok, id}
       _ -> :error
@@ -68,6 +79,11 @@ defmodule Meadow.Data.Types.CodedTerm do
   def scheme_for({:parameterized, {__MODULE__, %{scheme: scheme}}}), do: scheme
   def scheme_for({:parameterized, __MODULE__, %{scheme: scheme}}), do: scheme
   def scheme_for(_), do: nil
+
+  @doc "The list of schemes a field declared with `schemes:` accepts, or nil"
+  def schemes_for({:parameterized, {__MODULE__, %{schemes: schemes}}}), do: schemes
+  def schemes_for({:parameterized, __MODULE__, %{schemes: schemes}}), do: schemes
+  def schemes_for(_), do: nil
 
   def from_string(value), do: %{id: value}
 
@@ -88,6 +104,26 @@ defmodule Meadow.Data.Types.CodedTerm do
     do: retrieve_term(%{id: id, scheme: scheme}, params)
 
   defp retrieve_term(%{"id" => id}, params), do: retrieve_term(%{id: id}, params)
+
+  defp retrieve_term(%{id: id, scheme: scheme}, %{schemes: schemes}) when is_list(schemes) do
+    cond do
+      is_nil(scheme) ->
+        lookup_any(id, schemes)
+
+      normalize_scheme(scheme) in schemes ->
+        lookup(id, normalize_scheme(scheme))
+
+      true ->
+        {:error,
+         message: "has scheme #{scheme} but field requires one of #{Enum.join(schemes, ", ")}"}
+    end
+  end
+
+  defp retrieve_term(%{id: id}, %{schemes: schemes}) when is_list(schemes),
+    do: lookup_any(id, schemes)
+
+  defp retrieve_term(id, %{schemes: schemes}) when is_binary(id) and is_list(schemes),
+    do: lookup_any(id, schemes)
 
   defp retrieve_term(%{id: id, scheme: scheme}, %{scheme: field_scheme})
        when is_binary(field_scheme) do
@@ -113,7 +149,8 @@ defmodule Meadow.Data.Types.CodedTerm do
   defp lookup(id, scheme) do
     case CodedTerms.get_coded_term(id, scheme) do
       nil ->
-        {:error, message: "is an invalid coded term for scheme #{String.upcase(to_string(scheme))}"}
+        {:error,
+         message: "is an invalid coded term for scheme #{String.upcase(to_string(scheme))}"}
 
       {{:ok, _}, %{id: id, scheme: scheme, label: label}} ->
         {:ok, %{id: id, scheme: scheme, label: label}}
@@ -121,5 +158,20 @@ defmodule Meadow.Data.Types.CodedTerm do
       other ->
         {:error, other}
     end
+  end
+
+  # Try each scheme in turn; the first hit wins
+  defp lookup_any("", _schemes), do: {:error, message: "cannot have a blank id"}
+
+  defp lookup_any(id, schemes) do
+    Enum.find_value(schemes, fn scheme ->
+      case lookup(id, scheme) do
+        {:ok, term} -> {:ok, term}
+        _ -> nil
+      end
+    end) ||
+      {:error,
+       message:
+         "is an invalid coded term for schemes #{Enum.map_join(schemes, ", ", &String.upcase/1)}"}
   end
 end

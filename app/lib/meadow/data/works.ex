@@ -8,10 +8,9 @@ defmodule Meadow.Data.Works do
   alias Meadow.Config
   alias Meadow.AWS.S3
   alias Meadow.Data.FileSets
-  alias Meadow.Data.Schemas.{FileSet, Work}
+  alias Meadow.Data.Schemas.{ControlledMetadataEntry, FileSet, Work, WorkDescriptiveMetadata}
+  alias Meadow.Data.Works.MetadataWriter
   alias Meadow.Repo
-
-  use Meadow.Data.Works.BatchFunctions
 
   require Logger
 
@@ -26,10 +25,21 @@ defmodule Meadow.Data.Works do
   """
   def list_works do
     Work
+    |> with_metadata()
     |> preload([:ingest_sheet, :project])
     |> Repo.all()
     |> add_representative_image()
   end
+
+  @doc """
+  Adds the descriptive/administrative metadata preloads to a Work query
+  """
+  def with_metadata(queryable \\ Work), do: preload(queryable, ^Work.metadata_preloads())
+
+  @doc """
+  Preloads the descriptive/administrative metadata on a work (or list of works)
+  """
+  def preload_metadata(work_or_works), do: Repo.preload(work_or_works, Work.metadata_preloads())
 
   @doc """
   Returns a list of works matching the given `criteria`.
@@ -42,6 +52,7 @@ defmodule Meadow.Data.Works do
   def list_works(criteria) do
     criteria
     |> work_query()
+    |> with_metadata()
     |> preload([:ingest_sheet, :project])
     |> Repo.all()
     |> add_representative_image()
@@ -80,10 +91,9 @@ defmodule Meadow.Data.Works do
   defp filter_with(filters, query) do
     Enum.reduce(filters, query, fn
       {:matching, term}, query ->
-        map = %{"title" => term}
-
         from(q in query,
-          where: fragment("descriptive_metadata @> ?::jsonb", ^map)
+          join: d in assoc(q, :descriptive_metadata),
+          where: d.title == ^term
         )
     end)
   end
@@ -104,6 +114,7 @@ defmodule Meadow.Data.Works do
   """
   def get_work!(id) do
     Work
+    |> with_metadata()
     |> preload([:ingest_sheet, :project])
     |> Repo.get!(id)
     |> add_representative_image()
@@ -111,6 +122,7 @@ defmodule Meadow.Data.Works do
 
   def get_work(id) do
     Work
+    |> with_metadata()
     |> preload([:ingest_sheet, :project])
     |> Repo.get(id)
     |> add_representative_image()
@@ -128,6 +140,7 @@ defmodule Meadow.Data.Works do
   """
   def get_work_by_accession_number!(accession_number) do
     Work
+    |> with_metadata()
     |> preload([:ingest_sheet, :project])
     |> Repo.get_by!(accession_number: accession_number)
     |> add_representative_image()
@@ -164,6 +177,7 @@ defmodule Meadow.Data.Works do
   """
   def with_file_sets(id) do
     Work
+    |> with_metadata()
     |> Repo.get!(id)
     |> Repo.preload([
       :ingest_sheet,
@@ -178,6 +192,7 @@ defmodule Meadow.Data.Works do
   """
   def with_file_sets(id, role) do
     Work
+    |> with_metadata()
     |> Repo.get!(id)
     |> Repo.preload([
       :ingest_sheet,
@@ -198,6 +213,7 @@ defmodule Meadow.Data.Works do
   """
   def with_sheet(id) do
     Work
+    |> with_metadata()
     |> preload(:ingest_sheet)
     |> Repo.get!(id)
     |> add_representative_image()
@@ -339,6 +355,7 @@ defmodule Meadow.Data.Works do
   """
   def get_works_by_collection(collection_id) do
     from(w in Work, where: w.collection_id == ^collection_id)
+    |> with_metadata()
     |> Repo.all()
     |> add_representative_image()
   end
@@ -358,11 +375,11 @@ defmodule Meadow.Data.Works do
 
   """
   def get_works_by_title(title) do
-    map = %{"title" => title}
-
-    from(Work,
-      where: fragment("descriptive_metadata @> ?::jsonb", ^map)
+    from(w in Work,
+      join: d in assoc(w, :descriptive_metadata),
+      where: d.title == ^title
     )
+    |> with_metadata()
     |> Repo.all()
     |> add_representative_image()
   end
@@ -535,6 +552,17 @@ defmodule Meadow.Data.Works do
       })
 
   @doc """
+  Plain string values of a repeating descriptive field (flat public shape)
+  """
+  def descriptive_values(%Work{descriptive_metadata: %WorkDescriptiveMetadata{} = md}, field),
+    do: WorkDescriptiveMetadata.values(md, field)
+
+  def descriptive_values(_, _), do: []
+
+  defdelegate merge_metadata(work_ids, values, mode), to: MetadataWriter, as: :merge
+  defdelegate replace_controlled_values(work_ids, field, remove, add), to: MetadataWriter
+
+  @doc """
   Set :updated_at
   """
   def merge_updated_at(query) do
@@ -640,17 +668,17 @@ defmodule Meadow.Data.Works do
   end
 
   def works_by_term(term_id, field_name \\ nil) do
-    base_condition = dynamic([_, t], t.term == ^term_id)
+    base_condition = dynamic([_, t], type(t.term, :string) == ^term_id)
 
     condition =
       if field_name do
-        dynamic([_, t], ^base_condition and t.field_name == ^to_string(field_name))
+        dynamic([_, t], ^base_condition and t.field == ^to_string(field_name))
       else
         base_condition
       end
 
     from(w in Work,
-      join: t in "work_terms",
+      join: t in ControlledMetadataEntry,
       on: w.id == t.work_id,
       where: ^condition
     )
@@ -664,6 +692,7 @@ defmodule Meadow.Data.Works do
     works_by_term(term_id, field_name)
     |> distinct(true)
     |> select([w], w)
+    |> with_metadata()
     |> Repo.all()
     |> add_representative_image()
   end
@@ -674,7 +703,7 @@ defmodule Meadow.Data.Works do
   """
   def get_term_placements(term_id) do
     works_by_term(term_id)
-    |> select([w, t], %{work_id: w.id, field_name: t.field_name})
+    |> select([w, t], %{work_id: w.id, field_name: t.field})
     |> Repo.all()
   end
 end

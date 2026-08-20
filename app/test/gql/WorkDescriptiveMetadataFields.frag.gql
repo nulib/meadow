@@ -5,7 +5,10 @@ fragment WorkDescriptiveMetadataFields on Work {
       edtf
       humanized
     }
-    description
+    description {
+      id
+      value
+    }
     contributor {
       term {
         id
@@ -23,7 +26,10 @@ fragment WorkDescriptiveMetadataFields on Work {
         label
       }
     }
-    culturalContext
+    culturalContext {
+      id
+      value
+    }
     genre {
       term {
         id

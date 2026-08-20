@@ -3,7 +3,15 @@ defmodule Meadow.Data.Schemas.FileSet do
   FileSets are used to describe objects stored in Amazon S3
   """
   use Ecto.Schema
-  alias Meadow.Data.Schemas.{ActionState, FileSetAnnotation, FileSetCoreMetadata, FileSetStructuralMetadata, Work}
+
+  alias Meadow.Data.Schemas.{
+    ActionState,
+    FileSetAnnotation,
+    FileSetCoreMetadata,
+    FileSetStructuralMetadata,
+    Work
+  }
+
   alias Meadow.Data.Types
 
   import Ecto.Changeset
@@ -72,11 +80,12 @@ defmodule Meadow.Data.Schemas.FileSet do
         |> unsafe_validate_unique([:accession_number], Meadow.Repo)
         |> unique_constraint(:accession_number)
 
-      changeset = case params do
-        %{"rank" => _} -> changeset |> cast(params, [:rank])
-        %{rank: _} -> changeset |> cast(params, [:rank])
-        _ -> changeset |> set_rank(scope: [:work_id, :role])
-      end
+      changeset =
+        case params do
+          %{"rank" => _} -> changeset |> cast(params, [:rank])
+          %{rank: _} -> changeset |> cast(params, [:rank])
+          _ -> changeset |> set_rank(scope: [:work_id, :role])
+        end
 
       changeset
       |> validate_group_with()
@@ -99,7 +108,8 @@ defmodule Meadow.Data.Schemas.FileSet do
     end
   end
 
-  def required_index_preloads, do: [work: :collection]
+  def required_index_preloads,
+    do: [work: [:collection] ++ Meadow.Data.Schemas.Work.metadata_preloads()]
 
   defp rename_core_metadata(%{metadata: _, core_metadata: _} = params) do
     Logger.warning("Parameter map has both :metadata and :core_metadata. Ignoring :metadata.")
