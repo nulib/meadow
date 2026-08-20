@@ -41,8 +41,8 @@ defmodule Meadow.Pipeline.Actions.TranscodeCompleteTest do
       assert ActionStates.ok?(file_set.id, TranscodeComplete)
 
       assert FileSets.get_file_set(file_set.id)
-             |> Map.get(:derivatives)
-             |> Map.get("playlist") == "s3://#{@streaming_bucket}/event-test/small.m3u8"
+             |> FileSets.derivative("playlist") ==
+               "s3://#{@streaming_bucket}/event-test/small.m3u8"
     end
   end
 end

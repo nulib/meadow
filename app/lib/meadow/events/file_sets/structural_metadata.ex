@@ -1,6 +1,8 @@
 defmodule Meadow.Events.FileSets.StructuralMetadata do
   @moduledoc """
-  Handles events related to structural metadata for file sets.
+  Handles events related to structural metadata for file sets: whenever a
+  `file_set_structural_metadata` row is written with WebVTT content, the VTT
+  file is published to the pyramid bucket.
   """
 
   alias Meadow.Config
@@ -12,22 +14,15 @@ defmodule Meadow.Events.FileSets.StructuralMetadata do
 
   require Logger
 
-  on_event(:file_sets, %{}, [{__MODULE__, :write_structural_metadata}], & &1)
+  on_event(:file_set_structural_metadata, %{}, [{__MODULE__, :write_structural_metadata}], & &1)
 
-  def write_structural_metadata(event) do
-    case event do
-      %{new_record: file_set, changes: %{structural_metadata: _}} ->
-        file_set |> do_write_structural_metadata()
+  def write_structural_metadata(%{type: type, new_record: record})
+      when type in [:insert, :update],
+      do: do_write_structural_metadata(record)
 
-      _ ->
-        :noop
-    end
-  end
+  def write_structural_metadata(_event), do: :noop
 
-  defp do_write_structural_metadata(%{
-         id: id,
-         structural_metadata: %{"type" => "webvtt", "value" => vtt}
-       })
+  defp do_write_structural_metadata(%{file_set_id: id, type: "webvtt", value: vtt})
        when is_binary(vtt) do
     Logger.info("Writing structural metadata for #{id}")
 

@@ -50,8 +50,7 @@ defmodule Meadow.Pipeline.Actions.CreateDerivativeCopyTest do
       dest_key = FileSets.derivative_key(file_set)
 
       assert FileSets.get_file_set(file_set_id)
-             |> Map.get(:derivatives)
-             |> Map.get("copy") == "s3://#{@pyramid_bucket}/#{dest_key}"
+             |> FileSets.derivative("copy") == "s3://#{@pyramid_bucket}/#{dest_key}"
 
       assert(object_exists?(@pyramid_bucket, dest_key))
 

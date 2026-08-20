@@ -20,13 +20,16 @@ defmodule Meadow.Data.Schemas.MultiValued do
     * `:with` - arity-3 changeset function `(struct, params, position)` (required)
     * `:key` - natural key function applied to entry params and existing rows (required)
     * `:normalize` - function turning one incoming item into entry params (default: maps pass through)
+    * `:expand` - function turning the whole incoming value (e.g. a `%{kind => value}` map)
+      into a list of items before normalization (default: lists pass through)
   """
   def cast_entries(%Ecto.Changeset{} = changeset, field, opts) do
     with_fun = Keyword.fetch!(opts, :with)
     key_fun = Keyword.fetch!(opts, :key)
     normalize = Keyword.get(opts, :normalize, &identity_params/1)
+    expand = Keyword.get(opts, :expand, &identity_params/1)
 
-    case fetch_param(changeset.params, field) do
+    case fetch_param(changeset.params, field) |> expand_param(expand) do
       :error ->
         changeset
 
@@ -92,6 +95,10 @@ defmodule Meadow.Data.Schemas.MultiValued do
       _ -> {item, available}
     end
   end
+
+  defp expand_param(:error, _expand), do: :error
+  defp expand_param({:ok, nil}, _expand), do: {:ok, nil}
+  defp expand_param({:ok, value}, expand), do: {:ok, expand.(value)}
 
   defp existing_entries(%{__meta__: %{state: :built}}, _field), do: []
 

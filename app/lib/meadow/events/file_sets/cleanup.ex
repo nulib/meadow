@@ -1,6 +1,12 @@
 defmodule Meadow.Events.FileSets.Cleanup do
   @moduledoc """
-  Handler to clean up file set assets after records are deleted
+  Handler to clean up file set assets after records are deleted.
+
+  A file set's preservation location and derivatives live in their own
+  tables, whose rows are cascade-deleted with the file set and arrive as
+  their own delete events. Each handler checks that the owning file set is
+  really gone before touching S3, because the same rows are also replaced
+  (deleted and reinserted) during ordinary metadata updates.
   """
 
   alias Meadow.Config
@@ -12,7 +18,17 @@ defmodule Meadow.Events.FileSets.Cleanup do
 
   require Logger
 
-  on_delete(:file_sets, %{}, [{__MODULE__, :handle_delete}], & &1)
+  on_event(:all, fn events -> Enum.each(events, &handle_event/1) end)
+
+  def handle_event(%{type: :delete, name: :file_sets} = event), do: handle_delete(event)
+
+  def handle_event(%{type: :delete, name: :file_set_core_metadata} = event),
+    do: handle_core_metadata_delete(event)
+
+  def handle_event(%{type: :delete, name: :file_set_derivatives} = event),
+    do: handle_derivative_delete(event)
+
+  def handle_event(_event), do: :noop
 
   def handle_delete(%{name: name, old_record: record}) do
     with_log_metadata module: __MODULE__, id: record.id, name: name do
@@ -20,26 +36,33 @@ defmodule Meadow.Events.FileSets.Cleanup do
     end
   end
 
+  def handle_core_metadata_delete(%{name: name, old_record: record}) do
+    if file_set_gone?(record.file_set_id) do
+      with_log_metadata module: __MODULE__, id: record.file_set_id, name: name do
+        clean_preservation_file!(record)
+      end
+    end
+  end
+
+  def handle_derivative_delete(%{name: name, old_record: record}) do
+    if file_set_gone?(record.file_set_id) do
+      with_log_metadata module: __MODULE__, id: record.file_set_id, name: name do
+        Logger.info("Cleaning up #{record.kind} derivative at #{record.location}")
+        clean_derivative!(record.kind, record.location)
+      end
+    end
+  end
+
+  defp file_set_gone?(file_set_id), do: is_nil(FileSets.get_file_set(file_set_id))
+
   defp clean_up!(file_set_data) do
     with_log_metadata(module: __MODULE__, id: file_set_data.id) do
       Logger.warning("Cleaning up assets for file set #{file_set_data.id}")
 
       file_set_data
-      |> clean_derivatives!()
-      |> clean_preservation_file!()
       |> clean_structural_metadata!()
       |> clean_annotations!()
     end
-  end
-
-  defp clean_derivatives!(file_set_data) do
-    file_set_data.derivatives
-    |> Enum.each(fn {type, location} ->
-      Logger.info("Cleaning up #{type} derivative at #{location}")
-      clean_derivative!(type, location)
-    end)
-
-    file_set_data
   end
 
   defp clean_derivative!(:playlist, "s3://" <> _ = playlist) do
@@ -60,18 +83,19 @@ defmodule Meadow.Events.FileSets.Cleanup do
 
   defp clean_derivative!(_, _), do: :ok
 
-  defp clean_preservation_file!(
-         %{id: id, core_metadata: %{"location" => location}} = file_set_data
-       ) do
-    if in_ingest_bucket(file_set_data) do
+  defp clean_preservation_file!(%{file_set_id: id, location: location} = core_metadata)
+       when is_binary(location) do
+    if in_ingest_bucket(core_metadata) do
       Logger.warning("Leaving #{location} intact in the ingest bucket")
     else
       Logger.warning("Removing preservation file for #{id} at #{location}")
       delete_s3_uri(location)
     end
 
-    file_set_data
+    core_metadata
   end
+
+  defp clean_preservation_file!(core_metadata), do: core_metadata
 
   defp clean_structural_metadata!(%{id: id} = file_set_data) do
     Logger.warning("Removing structural metadata for #{id}")
@@ -94,10 +118,10 @@ defmodule Meadow.Events.FileSets.Cleanup do
     file_set_data
   end
 
-  defp in_ingest_bucket(%{core_metadata: core_metadata}) do
-    location = Map.get(core_metadata, "location")
-    if location, do: URI.parse(location) |> Map.get(:host) == Config.ingest_bucket()
-  end
+  defp in_ingest_bucket(%{location: location}) when is_binary(location),
+    do: URI.parse(location) |> Map.get(:host) == Config.ingest_bucket()
+
+  defp in_ingest_bucket(_), do: false
 
   defp delete_s3_uri(uri, recursive \\ false)
 

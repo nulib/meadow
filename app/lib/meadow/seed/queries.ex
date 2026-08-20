@@ -22,6 +22,57 @@ defmodule Meadow.Seed.Queries do
 
   def work_metadata_schemas, do: @work_metadata_schemas
 
+  # Relational file set metadata tables, exported alongside their file sets
+  @file_set_metadata_schemas [
+    core_metadata: Meadow.Data.Schemas.FileSetCoreMetadata,
+    structural_metadata: Meadow.Data.Schemas.FileSetStructuralMetadata,
+    derivatives: Meadow.Data.Schemas.FileSetDerivative,
+    extracted_metadata: Meadow.Data.Schemas.FileSetExtractedMetadata,
+    extracted_metadata_entries: Meadow.Data.Schemas.FileSetExtractedMetadataEntry
+  ]
+
+  def file_set_metadata_schemas, do: @file_set_metadata_schemas
+
+  def file_set_metadata_exports(prefix),
+    do: Enum.map(@file_set_metadata_schemas, fn {name, _} -> :"#{prefix}_#{name}" end)
+
+  for {name, schema} <- @file_set_metadata_schemas do
+    def unquote(:"ingest_sheet_file_sets_#{name}")([]), do: from(unquote(schema), limit: 0)
+
+    def unquote(:"ingest_sheet_file_sets_#{name}")(ingest_sheet_ids) do
+      file_set_ids =
+        from(w in Work,
+          join: fs in FileSet,
+          on: fs.work_id == w.id,
+          where: w.ingest_sheet_id in ^ingest_sheet_ids,
+          select: fs.id
+        )
+
+      file_set_metadata_query(unquote(schema), file_set_ids)
+    end
+
+    def unquote(:"standalone_file_sets_#{name}")([]), do: from(unquote(schema), limit: 0)
+
+    def unquote(:"standalone_file_sets_#{name}")(work_ids) do
+      file_set_ids = from(fs in FileSet, where: fs.work_id in ^work_ids, select: fs.id)
+      file_set_metadata_query(unquote(schema), file_set_ids)
+    end
+  end
+
+  defp file_set_metadata_query(
+         Meadow.Data.Schemas.FileSetExtractedMetadataEntry = schema,
+         file_set_ids
+       ) do
+    from(e in schema,
+      join: m in assoc(e, :extracted_metadata),
+      where: m.file_set_id in subquery(file_set_ids),
+      select: e
+    )
+  end
+
+  defp file_set_metadata_query(schema, file_set_ids),
+    do: from(m in schema, where: m.file_set_id in subquery(file_set_ids), select: m)
+
   @doc "Export names of the work metadata tables for the given work export (`:ingest_sheet_works` or `:standalone_works`)"
   def work_metadata_exports(prefix),
     do: Enum.map(@work_metadata_schemas, fn {name, _} -> :"#{prefix}_#{name}" end)
@@ -87,6 +138,34 @@ defmodule Meadow.Seed.Queries do
       distinct: true,
       select: r
     )
+  end
+
+  def ingest_sheet_row_fields([]), do: from(Meadow.Ingest.Schemas.RowField, limit: 0)
+
+  def ingest_sheet_row_fields(ingest_sheet_ids) do
+    from(f in Meadow.Ingest.Schemas.RowField,
+      join: r in Row,
+      on: f.row_id == r.id,
+      where: r.sheet_id in ^ingest_sheet_ids,
+      select: f
+    )
+  end
+
+  def ingest_sheet_row_errors([]), do: from(Meadow.Ingest.Schemas.RowError, limit: 0)
+
+  def ingest_sheet_row_errors(ingest_sheet_ids) do
+    from(e in Meadow.Ingest.Schemas.RowError,
+      join: r in Row,
+      on: e.row_id == r.id,
+      where: r.sheet_id in ^ingest_sheet_ids,
+      select: e
+    )
+  end
+
+  def ingest_sheet_states([]), do: from(Meadow.Ingest.Schemas.SheetState, limit: 0)
+
+  def ingest_sheet_states(ingest_sheet_ids) do
+    from(s in Meadow.Ingest.Schemas.SheetState, where: s.sheet_id in ^ingest_sheet_ids, select: s)
   end
 
   def ingest_sheet_progress([]), do: from(Progress, limit: 0)

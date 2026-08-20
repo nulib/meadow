@@ -55,7 +55,11 @@ defmodule Meadow.Ingest.WorkCreator do
   defp handle_result({:ok, progress_rows}) do
     Logger.enable(self())
     Logger.info("Creating #{length(progress_rows)} works")
-    create_works_from_rows(progress_rows |> Repo.preload(row: [sheet: :project]))
+
+    create_works_from_rows(
+      progress_rows
+      |> Repo.preload(row: [:fields, :errors, sheet: :project])
+    )
   end
 
   defp handle_result({:error, message}) do

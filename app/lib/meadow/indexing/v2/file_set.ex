@@ -4,6 +4,7 @@ defmodule Meadow.Indexing.V2.FileSet do
   """
 
   alias Meadow.Data.FileSets
+  alias Meadow.Data.Schemas.FileSetCoreMetadata
   alias Meadow.AI.Provenance
   alias Meadow.Utils.ExtractedMetadata
 
@@ -17,10 +18,10 @@ defmodule Meadow.Indexing.V2.FileSet do
       api_model: "FileSet",
       collection: collection(file_set.work.collection),
       create_date: file_set.inserted_at,
-      digests: file_set.core_metadata.digests,
+      digests: FileSetCoreMetadata.digests(file_set.core_metadata),
       description: file_set.core_metadata.description,
       download_url: FileSets.download_uri_for(file_set),
-      extracted_metadata: extracted_metadata(file_set.extracted_metadata),
+      extracted_metadata: extracted_metadata(FileSets.extracted_metadata_map(file_set)),
       group_with: file_set.group_with,
       id: file_set.id,
       image_caption: file_set.core_metadata.image_caption,
@@ -44,7 +45,7 @@ defmodule Meadow.Indexing.V2.FileSet do
   end
 
   defp representative_dimension(file_set, dimension) do
-    dimensions_from_extracted_metadata(file_set.extracted_metadata)
+    dimensions_from_extracted_metadata(FileSets.extracted_metadata_map(file_set))
     |> Map.get(dimension)
     |> case do
       value when is_number(value) -> value
