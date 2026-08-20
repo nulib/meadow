@@ -881,11 +881,12 @@ defmodule Meadow.Data.PlannerTest do
   end
 
   test "handles exception applying plan", %{plan: plan, work: work} do
+    # A controlled term the authority cannot resolve fails when the change is applied
     {:ok, change} =
       Planner.create_plan_change(%{
         plan_id: plan.id,
         work_id: work.id,
-        replace: %{descriptive_metadata: %{title: ["Updated"]}}
+        add: %{descriptive_metadata: %{genre: [%{term: "mock1:unknown"}]}}
       })
 
     Planner.approve_plan_change(change)
@@ -893,7 +894,7 @@ defmodule Meadow.Data.PlannerTest do
 
     assert {:ok, error_plan} = Planner.apply_plan(plan)
     assert error_plan.status == :error
-    assert error_plan.error |> String.contains?("invalid value for title")
+    assert error_plan.error |> String.contains?("invalid value for genre")
   end
 
   test "rolls back apply provenance when work update fails", %{plan: plan, work: work} do
@@ -905,24 +906,27 @@ defmodule Meadow.Data.PlannerTest do
         status: "completed"
       })
 
+    operations = %{add: %{descriptive_metadata: %{genre: [%{term: "mock1:unknown"}]}}}
+
     Provenance.record_targets_for_operations(
       activity,
       "Work",
       work.id,
-      %{replace: %{descriptive_metadata: %{title: ["Updated"]}}},
+      operations,
       origin: "ai_generated",
       status: "reviewed",
       event_type: "approved"
     )
 
     {:ok, change} =
-      Planner.create_plan_change(%{
-        plan_id: plan.id,
-        work_id: work.id,
-        replace: %{descriptive_metadata: %{title: ["Updated"]}},
-        status: :approved,
-        ai_activity_id: activity.id
-      })
+      Planner.create_plan_change(
+        Map.merge(operations, %{
+          plan_id: plan.id,
+          work_id: work.id,
+          status: :approved,
+          ai_activity_id: activity.id
+        })
+      )
 
     Planner.approve_plan_change(change)
     {:ok, plan} = Planner.approve_plan(plan)
