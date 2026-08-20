@@ -158,7 +158,8 @@ defmodule Meadow.Data.CSV.Import do
     decode_nav_place(value)
   end
 
-  defp decode_field(Meadow.Data.Types.CodedTerm, value, _field) when is_binary(value) do
+  defp decode_field({:parameterized, Meadow.Data.Types.CodedTerm, _}, value, _field)
+       when is_binary(value) do
     Meadow.Data.Types.CodedTerm.from_string(value)
   end
 

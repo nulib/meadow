@@ -153,7 +153,7 @@ defmodule Mix.Tasks.Meadow.InitializeDerivatives do
     Repo.transaction(
       fn ->
         from(f in FileSet)
-        |> where(fragment("role ->> 'id' in ('A', 'X')"))
+        |> where([f], f.role in ["A", "X"])
         |> where(fragment("core_metadata ->> 'mime_type' LIKE 'image/%'"))
         |> Repo.stream()
         |> Stream.each(fn file_set ->
