@@ -167,7 +167,8 @@ defmodule Meadow.Data.Works do
         where: f.work_id == ^work_id,
         where: f.role == "A",
         order_by: :rank,
-        limit: 1
+        limit: 1,
+        preload: ^FileSet.metadata_preloads()
       )
     )
   end
@@ -182,7 +183,7 @@ defmodule Meadow.Data.Works do
     |> Repo.preload([
       :ingest_sheet,
       :project,
-      file_sets: from(FileSet, order_by: [asc: :role, asc: :rank])
+      file_sets: {from(FileSet, order_by: [asc: :role, asc: :rank]), FileSet.metadata_preloads()}
     ])
     |> add_representative_image()
   end
@@ -198,10 +199,10 @@ defmodule Meadow.Data.Works do
       :ingest_sheet,
       :project,
       file_sets:
-        from(f in FileSet,
-          where: f.role == ^role,
-          order_by: [asc: :role, asc: :rank]
-        )
+        {from(f in FileSet,
+           where: f.role == ^role,
+           order_by: [asc: :role, asc: :rank]
+         ), FileSet.metadata_preloads()}
     ])
     |> add_representative_image()
   end
@@ -412,47 +413,47 @@ defmodule Meadow.Data.Works do
   """
   def set_representative_image(
         %Work{work_type: %{id: "VIDEO"}} = work,
-        %FileSet{id: _id, role: %{id: "A"}, derivatives: %{"poster" => _poster}} = file_set
+        %FileSet{role: %{id: "A"}} = file_set
       ) do
-    work
-    |> Repo.preload(:representative_file_set)
-    |> Work.update_changeset()
-    |> put_assoc(:representative_file_set, file_set)
-    |> Repo.update()
-    |> add_representative_image()
+    if FileSets.derivative?(file_set, "poster") do
+      work
+      |> Repo.preload(:representative_file_set)
+      |> Work.update_changeset()
+      |> put_assoc(:representative_file_set, file_set)
+      |> Repo.update()
+      |> add_representative_image()
+    else
+      {:ok, work}
+    end
   end
 
-  def set_representative_image(%Work{work_type: %{id: "VIDEO"}} = work, %FileSet{
-        id: _id,
-        role: %{id: "A"}
-      }),
-      do: {:ok, work}
-
-  def set_representative_image(work, %FileSet{
-        id: _id,
-        role: %{id: "X"},
-        derivatives: %{"copy" => _copy}
-      }),
-      do: {:ok, work}
+  def set_representative_image(work, %FileSet{role: %{id: "X"}} = file_set) do
+    if FileSets.derivative?(file_set, "copy"),
+      do: {:ok, work},
+      else: set_representative_file_set(work, file_set)
+  end
 
   def set_representative_image(%Work{} = work, file_set_id) when is_binary(file_set_id) do
     set_representative_image(work, FileSets.get_file_set!(file_set_id))
   end
 
-  def set_representative_image(%Work{} = work, %FileSet{id: _id} = file_set) do
-    work
-    |> Repo.preload(:representative_file_set)
-    |> Work.update_changeset()
-    |> put_assoc(:representative_file_set, file_set)
-    |> Repo.update()
-    |> add_representative_image()
-  end
+  def set_representative_image(%Work{} = work, %FileSet{id: _id} = file_set),
+    do: set_representative_file_set(work, file_set)
 
   def set_representative_image(%Work{} = work, nil) do
     work
     |> Repo.preload(:representative_file_set)
     |> Work.update_changeset()
     |> put_assoc(:representative_file_set, nil)
+    |> Repo.update()
+    |> add_representative_image()
+  end
+
+  defp set_representative_file_set(work, file_set) do
+    work
+    |> Repo.preload(:representative_file_set)
+    |> Work.update_changeset()
+    |> put_assoc(:representative_file_set, file_set)
     |> Repo.update()
     |> add_representative_image()
   end
@@ -538,18 +539,9 @@ defmodule Meadow.Data.Works do
   def add_representative_image(x), do: x
 
   defp placeholder_url(%Work{work_type: %{id: id}}) when id in ["AUDIO", "VIDEO"],
-    do:
-      FileSets.representative_image_url_for(%FileSet{
-        derivatives: %{"pyramid_tiff" => nil},
-        id: "00000000-0000-0000-0000-000000000002"
-      })
+    do: FileSets.iiif_image_url("00000000-0000-0000-0000-000000000002")
 
-  defp placeholder_url(_),
-    do:
-      FileSets.representative_image_url_for(%FileSet{
-        derivatives: %{"pyramid_tiff" => nil},
-        id: "00000000-0000-0000-0000-000000000001"
-      })
+  defp placeholder_url(_), do: FileSets.iiif_image_url("00000000-0000-0000-0000-000000000001")
 
   @doc """
   Plain string values of a repeating descriptive field (flat public shape)
@@ -598,7 +590,7 @@ defmodule Meadow.Data.Works do
         join: f in assoc(w, :file_sets),
         where: w.id == ^work_id,
         where: f.role == ^role_id,
-        preload: [file_sets: f]
+        preload: [file_sets: {f, ^FileSet.metadata_preloads()}]
       )
       |> Repo.one()
 

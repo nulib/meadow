@@ -44,14 +44,17 @@ defmodule Meadow.Events.IndexingTest do
 
       logged =
         capture_log(fn ->
-          file_set
-          |> Ecto.Changeset.change(%{core_metadata: nil})
-          |> Repo.update()
+          # Remove the core metadata row so encoding the file set fails
+          Repo.delete!(FileSets.get_file_set!(file_set.id).core_metadata)
+          FileSets.update_file_set(file_set, %{poster_offset: 1})
 
           assert_flushed(:file_sets)
         end)
 
-      assert String.contains?(logged, "id=#{file_set.id} [error] Index encoding failed due to: ** (") and
+      assert String.contains?(
+               logged,
+               "id=#{file_set.id} [error] Index encoding failed due to: ** ("
+             ) and
                (String.contains?(logged, "KeyError") or String.contains?(logged, "BadMapError"))
     end
 

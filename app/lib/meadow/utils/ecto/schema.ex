@@ -83,7 +83,15 @@ defmodule Meadow.Utils.Ecto.Schema do
   end
 
   # Storage bookkeeping columns on relational metadata rows that are not part of the value
-  @hidden_fields [:work_id, :section, :field, :position, :role_scheme]
+  @hidden_fields [
+    :work_id,
+    :section,
+    :field,
+    :position,
+    :role_scheme,
+    :file_set_id,
+    :extracted_metadata_id
+  ]
 
   # Associations that are part of a schema's value shape (metadata rows)
   @value_associations [
@@ -92,7 +100,12 @@ defmodule Meadow.Utils.Ecto.Schema do
     :notes,
     :related_url,
     :date_created,
-    :nav_place
+    :nav_place,
+    :core_metadata,
+    :structural_metadata,
+    :derivatives,
+    :extracted_metadata,
+    :entries
   ]
 
   defp unroll_schema(schema, opts) do

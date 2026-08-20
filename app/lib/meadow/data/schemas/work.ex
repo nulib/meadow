@@ -186,7 +186,7 @@ defmodule Meadow.Data.Schemas.Work do
   def required_index_preloads do
     [
       :collection,
-      :file_sets,
+      {:file_sets, FileSet.metadata_preloads()},
       :ingest_sheet,
       :project,
       :batches,
