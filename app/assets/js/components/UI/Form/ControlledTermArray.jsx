@@ -73,6 +73,11 @@ const UIFormControlledTermArray = ({
                     </p>
                     <input
                       type="hidden"
+                      {...register(`${itemName}.id`)}
+                      value={item.id || ""}
+                    />
+                    <input
+                      type="hidden"
                       {...register(`${itemName}.termId`)}
                       value={getTermId(item)}
                     />

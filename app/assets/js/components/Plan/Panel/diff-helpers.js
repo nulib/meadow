@@ -100,8 +100,10 @@ const buildNormalizedItem = (path, item) => {
     };
   }
 
-  // Text arrays and generic items
-  const str = String(item ?? "");
+  // Text arrays (work values arrive as { id, value } rows) and generic items
+  const text =
+    item && typeof item === "object" && "value" in item ? item.value : item;
+  const str = String(text ?? "");
   return { key: str, display: str };
 };
 

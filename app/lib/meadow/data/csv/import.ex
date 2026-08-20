@@ -93,7 +93,7 @@ defmodule Meadow.Data.CSV.Import do
       value = if value == "", do: nil, else: value
 
       decoded_value =
-        decode_field(schema.__schema__(:type, field), value, field)
+        decode_field(field_type(schema, field), value, field)
         |> add_scheme(field)
 
       put_path =
@@ -117,8 +117,30 @@ defmodule Meadow.Data.CSV.Import do
 
   defp add_scheme(value, _), do: value
 
+  # has_many metadata rows (free text, controlled terms, notes, ...) are exported
+  # as pipe-separated cells
+  defp decode_field({:assoc, _schema}, nil, _), do: []
+
+  defp decode_field({:assoc, schema}, value, field) when is_binary(value) do
+    value
+    |> split_multivalued_field()
+    |> Enum.map(&decode_field(schema, String.trim(&1), field))
+    |> Enum.reject(&is_nil/1)
+  end
+
+  defp decode_field(Meadow.Data.Schemas.MetadataValue, value, _field), do: value
+
+  defp decode_field(Meadow.Data.Schemas.DateCreatedEntry, value, _field),
+    do: Meadow.Data.Types.EDTFDate.from_string(value)
+
+  defp decode_field(Meadow.Data.Schemas.NavPlaceEntry, value, _field),
+    do: value |> decode_nav_place() |> List.wrap() |> List.first()
+
   defp decode_field({:array, _}, nil, _), do: []
-  defp decode_field({type, {schema, spec}}, value, field), do: decode_field({type, schema, spec}, value, field)
+
+  defp decode_field({type, {schema, spec}}, value, field),
+    do: decode_field({type, schema, spec}, value, field)
+
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: _}}, nil, _), do: []
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :one, related: _}}, nil, _), do: nil
   defp decode_field(_, nil, _), do: nil
@@ -167,7 +189,8 @@ defmodule Meadow.Data.CSV.Import do
     Meadow.Data.Types.EDTFDate.from_string(value)
   end
 
-  defp decode_field(Meadow.Data.Schemas.ControlledMetadataEntry, value, _field) when is_binary(value) do
+  defp decode_field(Meadow.Data.Schemas.ControlledMetadataEntry, value, _field)
+       when is_binary(value) do
     Meadow.Data.Schemas.ControlledMetadataEntry.from_string(value)
   end
 
@@ -204,14 +227,20 @@ defmodule Meadow.Data.CSV.Import do
 
   defp fetch_geonames_place(id) do
     case MeadowWeb.Resolvers.Data.GeoNames.place(nil, %{id: id}, nil) do
-      {:ok, feature} -> convert_feature_to_concise(feature)
+      {:ok, feature} ->
+        convert_feature_to_concise(feature)
+
       {:error, error} ->
         Logger.warning("Failed to fetch GeoNames feature for #{id}: #{inspect(error)}")
         nil
     end
   end
 
-  defp convert_feature_to_concise(%{"id" => id, "geometry" => geometry, "properties" => properties}) do
+  defp convert_feature_to_concise(%{
+         "id" => id,
+         "geometry" => geometry,
+         "properties" => properties
+       }) do
     label = get_in(properties, ["label", "en"]) |> List.first()
     summary = get_in(properties, ["summary", "en"]) |> List.first()
     coordinates = Map.get(geometry, "coordinates")
@@ -229,6 +258,19 @@ defmodule Meadow.Data.CSV.Import do
 
   defp schema_for(field) do
     [Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata]
-    |> Enum.find(& &1.__schema__(:type, field))
+    |> Enum.find(&field_type(&1, field))
+  end
+
+  defp field_type(schema, field) do
+    case schema.__schema__(:type, field) do
+      nil ->
+        case schema.__schema__(:association, field) do
+          %Ecto.Association.Has{cardinality: :many, related: related} -> {:assoc, related}
+          _ -> nil
+        end
+
+      type ->
+        type
+    end
   end
 end

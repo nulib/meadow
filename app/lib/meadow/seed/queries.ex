@@ -8,6 +8,43 @@ defmodule Meadow.Seed.Queries do
 
   import Ecto.Query
 
+  # Relational work metadata tables, exported alongside their works
+  @work_metadata_schemas [
+    descriptive_metadata: Meadow.Data.Schemas.WorkDescriptiveMetadata,
+    administrative_metadata: Meadow.Data.Schemas.WorkAdministrativeMetadata,
+    metadata_values: Meadow.Data.Schemas.MetadataValue,
+    controlled_entries: Meadow.Data.Schemas.ControlledMetadataEntry,
+    notes: Meadow.Data.Schemas.NoteEntry,
+    related_urls: Meadow.Data.Schemas.RelatedURLEntry,
+    dates_created: Meadow.Data.Schemas.DateCreatedEntry,
+    nav_places: Meadow.Data.Schemas.NavPlaceEntry
+  ]
+
+  def work_metadata_schemas, do: @work_metadata_schemas
+
+  @doc "Export names of the work metadata tables for the given work export (`:ingest_sheet_works` or `:standalone_works`)"
+  def work_metadata_exports(prefix),
+    do: Enum.map(@work_metadata_schemas, fn {name, _} -> :"#{prefix}_#{name}" end)
+
+  for {name, schema} <- @work_metadata_schemas do
+    def unquote(:"ingest_sheet_works_#{name}")([]), do: from(unquote(schema), limit: 0)
+
+    def unquote(:"ingest_sheet_works_#{name}")(ingest_sheet_ids) do
+      from(m in unquote(schema),
+        join: w in Work,
+        on: m.work_id == w.id,
+        where: w.ingest_sheet_id in ^ingest_sheet_ids,
+        select: m
+      )
+    end
+
+    def unquote(:"standalone_works_#{name}")([]), do: from(unquote(schema), limit: 0)
+
+    def unquote(:"standalone_works_#{name}")(work_ids) do
+      from(m in unquote(schema), where: m.work_id in ^work_ids, select: m)
+    end
+  end
+
   def collections(_) do
     from(c in Collection, select: c)
   end

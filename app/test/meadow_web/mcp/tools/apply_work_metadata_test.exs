@@ -1,5 +1,6 @@
 defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadataTest do
   use MeadowWeb.MCPCase
+  alias Meadow.Data.Schemas.MetadataValue
 
   alias Meadow.AI.Provenance
   alias MeadowWeb.MCP.Tools.ApplyWorkMetadata
@@ -22,7 +23,7 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadataTest do
 
       # Verify work was NOT mutated
       fresh = Meadow.Data.Works.get_work!(work.id)
-      assert fresh.descriptive_metadata.description == []
+      assert MetadataValue.values(fresh.descriptive_metadata.description) == []
     end
 
     test "executes normally when eval context is absent" do
@@ -38,7 +39,11 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadataTest do
       assert {:reply, _response, _frame} = ApplyWorkMetadata.execute(args, frame)
 
       fresh = Meadow.Data.Works.get_work!(work.id)
-      assert fresh.descriptive_metadata.description == ["A test description."]
+
+      assert MetadataValue.values(fresh.descriptive_metadata.description) == [
+               "A test description."
+             ]
+
       assert fresh.descriptive_metadata.notes == []
 
       assert [

@@ -1,5 +1,6 @@
 defmodule Meadow.BatchDriverTest do
   use Meadow.DataCase, shared: true
+  alias Meadow.Data.Schemas.MetadataValue
   use Meadow.IndexCase
 
   import Assertions
@@ -58,7 +59,11 @@ defmodule Meadow.BatchDriverTest do
     Works.list_works()
     |> Enum.each(fn work ->
       assert work.descriptive_metadata.alternate_title |> length() == 2
-      assert work.descriptive_metadata.alternate_title == ["First", "Second"]
+
+      assert MetadataValue.values(work.descriptive_metadata.alternate_title) == [
+               "First",
+               "Second"
+             ]
     end)
 
     assert logged |> String.contains?("Starting batch")

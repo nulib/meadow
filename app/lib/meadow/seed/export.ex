@@ -17,8 +17,12 @@ defmodule Meadow.Seed.Export do
 
   @common_exports ~w(collections controlled_term_cache nul_authorities)a
   @ingest_sheet_exports ~w(ingest_sheet_projects ingest_sheets ingest_sheet_rows ingest_sheet_progress
-    ingest_sheet_works ingest_sheet_file_sets ingest_sheet_action_states)a
-  @standalone_exports ~w(standalone_works standalone_file_sets standalone_action_states)a
+    ingest_sheet_works)a ++
+                          Queries.work_metadata_exports(:ingest_sheet_works) ++
+                          ~w(ingest_sheet_file_sets ingest_sheet_action_states)a
+  @standalone_exports [:standalone_works] ++
+                        Queries.work_metadata_exports(:standalone_works) ++
+                        ~w(standalone_file_sets standalone_action_states)a
 
   @doc """
   Export images and data from Meadow to an S3 bucket

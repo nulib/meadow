@@ -78,7 +78,7 @@ defmodule Meadow.Data.FileSets do
   """
   def get_file_set_with_work_and_sheet!(id) do
     FileSet
-    |> preload(work: [:ingest_sheet])
+    |> preload(^[work: [:ingest_sheet] ++ Meadow.Data.Schemas.Work.metadata_preloads()])
     |> Repo.get!(id)
   end
 
@@ -743,7 +743,8 @@ defmodule Meadow.Data.FileSets do
   end
 
   defp fetch_file_set_for_transcription(file_set_id) do
-    case Repo.get(FileSet, file_set_id) |> Repo.preload(work: []) do
+    case Repo.get(FileSet, file_set_id)
+         |> Repo.preload(work: Meadow.Data.Schemas.Work.metadata_preloads()) do
       nil ->
         {:error, {:file_set_not_found, file_set_id}}
 

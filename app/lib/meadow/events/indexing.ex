@@ -22,9 +22,34 @@ defmodule Meadow.Events.Indexing do
     works_file_sets: ~w[published visibility]a
   }
 
+  # Relational metadata tables whose rows belong to a work via `work_id`
+  @work_metadata_tables ~w(
+    work_descriptive_metadata work_administrative_metadata work_metadata_values
+    work_controlled_entries work_notes work_related_urls work_dates_created work_nav_places
+  )a
+
+  def work_metadata_tables, do: @work_metadata_tables
+
   require Logger
 
   on_event(:all, fn events -> Enum.each(events, &handle_indexing/1) end)
+
+  # A change to any metadata row reindexes its work; a title change also
+  # cascades to the work's file sets (they index `work_title`)
+  def handle_indexing(%{type: type, name: name, new_record: record} = event)
+      when name in @work_metadata_tables and type in [:insert, :update] do
+    IndexBatcher.reindex([record.work_id], :works)
+
+    if name == :work_descriptive_metadata and
+         Map.has_key?(Map.get(event, :changes) || %{}, :title) do
+      from(fs in FileSet, where: fs.work_id == ^record.work_id) |> send_to_batcher(:file_sets)
+    end
+  end
+
+  def handle_indexing(%{type: :delete, name: name, old_record: record})
+      when name in @work_metadata_tables do
+    IndexBatcher.reindex([record.work_id], :works)
+  end
 
   def handle_indexing(%{type: :insert, name: name, new_record: record}) do
     IndexBatcher.reindex([record.id], name)
@@ -74,8 +99,7 @@ defmodule Meadow.Events.Indexing do
       IndexBatcher.reindex([collection_id], :collections)
     end
 
-    if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:works_file_sets])) or
-         work_title_changed?(changes) do
+    if Map.keys(changes) |> Enum.any?(&(&1 in @cascade_fields[:works_file_sets])) do
       from(fs in FileSet, where: fs.work_id == ^id)
       |> send_to_batcher(:file_sets)
     end
@@ -138,13 +162,6 @@ defmodule Meadow.Events.Indexing do
   defp do_delete_indexing(_, _) do
     :noop
   end
-
-  defp work_title_changed?(%{descriptive_metadata: %{old_value: old, new_value: new}})
-       when is_map(old) and is_map(new) do
-    Map.get(old, "title") != Map.get(new, "title")
-  end
-
-  defp work_title_changed?(_), do: false
 
   defp send_to_batcher(queryable, schema) do
     query = queryable |> select([q], q.id)

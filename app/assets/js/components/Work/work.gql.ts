@@ -130,11 +130,26 @@ export const GET_WORK = gql`
           label
         }
         projectCycle
-        projectDesc
-        projectManager
-        projectName
-        projectProposer
-        projectTaskNumber
+        projectDesc {
+          id
+          value
+        }
+        projectManager {
+          id
+          value
+        }
+        projectName {
+          id
+          value
+        }
+        projectProposer {
+          id
+          value
+        }
+        projectTaskNumber {
+          id
+          value
+        }
         status {
           id
           label
@@ -145,13 +160,32 @@ export const GET_WORK = gql`
         title
       }
       descriptiveMetadata {
-        abstract
-        alternateTitle
-        boxName
-        boxNumber
-        caption
-        catalogKey
+        abstract {
+          id
+          value
+        }
+        alternateTitle {
+          id
+          value
+        }
+        boxName {
+          id
+          value
+        }
+        boxNumber {
+          id
+          value
+        }
+        caption {
+          id
+          value
+        }
+        catalogKey {
+          id
+          value
+        }
         contributor {
+          id
           term {
             id
             label
@@ -163,45 +197,72 @@ export const GET_WORK = gql`
           }
         }
         creator {
+          id
           term {
             id
             label
           }
         }
-        culturalContext
+        culturalContext {
+          id
+          value
+        }
         dateCreated {
+          id
           edtf
           humanized
         }
-        description
-        folderName
-        folderNumber
+        description {
+          id
+          value
+        }
+        folderName {
+          id
+          value
+        }
+        folderNumber {
+          id
+          value
+        }
         genre {
+          id
           term {
             id
             label
           }
         }
-        identifier
-        keywords
+        identifier {
+          id
+          value
+        }
+        keywords {
+          id
+          value
+        }
         language {
+          id
           term {
             id
             label
           }
         }
-        legacyIdentifier
+        legacyIdentifier {
+          id
+          value
+        }
         license {
           id
           label
         }
         location {
+          id
           term {
             id
             label
           }
         }
         notes {
+          id
           note
           type {
             id
@@ -209,11 +270,24 @@ export const GET_WORK = gql`
             scheme
           }
         }
-        physicalDescriptionMaterial
-        physicalDescriptionSize
-        provenance
-        publisher
+        physicalDescriptionMaterial {
+          id
+          value
+        }
+        physicalDescriptionSize {
+          id
+          value
+        }
+        provenance {
+          id
+          value
+        }
+        publisher {
+          id
+          value
+        }
         relatedUrl {
+          id
           url
           label {
             id
@@ -221,22 +295,39 @@ export const GET_WORK = gql`
             scheme
           }
         }
-        relatedMaterial
-        rightsHolder
+        relatedMaterial {
+          id
+          value
+        }
+        rightsHolder {
+          id
+          value
+        }
         rightsStatement {
           id
           label
         }
-        scopeAndContents
-        series
-        source
+        scopeAndContents {
+          id
+          value
+        }
+        series {
+          id
+          value
+        }
+        source {
+          id
+          value
+        }
         stylePeriod {
+          id
           term {
             id
             label
           }
         }
         subject {
+          id
           term {
             id
             label
@@ -247,8 +338,12 @@ export const GET_WORK = gql`
             scheme
           }
         }
-        tableOfContents
+        tableOfContents {
+          id
+          value
+        }
         technique {
+          id
           term {
             id
             label
@@ -336,7 +431,10 @@ export const GET_WORKS = gql`
       accessionNumber
       descriptiveMetadata {
         title
-        description
+        description {
+          id
+          value
+        }
       }
       fileSets {
         id
@@ -494,6 +592,7 @@ export const UPDATE_WORK = gql`
 
       descriptiveMetadata {
         contributor {
+          id
           term {
             id
             label
@@ -505,24 +604,34 @@ export const UPDATE_WORK = gql`
           }
         }
         creator {
+          id
           term {
             id
             label
           }
         }
-        culturalContext
-        description
+        culturalContext {
+          id
+          value
+        }
+        description {
+          id
+          value
+        }
         dateCreated {
+          id
           edtf
           humanized
         }
         genre {
+          id
           term {
             id
             label
           }
         }
         language {
+          id
           term {
             id
             label
@@ -533,6 +642,7 @@ export const UPDATE_WORK = gql`
           label
         }
         location {
+          id
           term {
             id
             label
@@ -543,12 +653,14 @@ export const UPDATE_WORK = gql`
           label
         }
         stylePeriod {
+          id
           term {
             id
             label
           }
         }
         subject {
+          id
           term {
             id
             label
@@ -560,6 +672,7 @@ export const UPDATE_WORK = gql`
           }
         }
         technique {
+          id
           term {
             id
             label
