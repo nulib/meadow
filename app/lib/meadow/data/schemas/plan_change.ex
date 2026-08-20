@@ -56,19 +56,24 @@ defmodule Meadow.Data.Schemas.PlanChange do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Meadow.Data.Schemas.Plan
+  alias Meadow.Data.Planner.Operations
+  alias Meadow.Data.Schemas.{Plan, PlanChangeOperation}
 
   @statuses [:pending, :proposed, :approved, :rejected, :completed, :error]
 
-  @derive {JSON.Encoder, except: [:plan, :__meta__]}
+  @derive {JSON.Encoder, except: [:plan, :operations, :__meta__]}
   @primary_key {:id, Ecto.UUID, autogenerate: false, read_after_writes: true}
   @timestamps_opts [type: :utc_datetime_usec]
   schema "plan_changes" do
     field(:plan_id, Ecto.UUID)
     field(:work_id, Ecto.UUID)
-    field(:add, :map)
-    field(:delete, :map)
-    field(:replace, :map)
+    # The operation maps are the working API; they are stored as
+    # `plan_change_operations` rows (see `load_operations/1`)
+    field(:add, :map, virtual: true)
+    field(:delete, :map, virtual: true)
+    field(:replace, :map, virtual: true)
+
+    has_many(:operations, PlanChangeOperation, on_replace: :delete)
     field(:status, Ecto.Enum, values: @statuses, default: :pending)
     field(:user, :string)
     field(:notes, :string)
@@ -84,6 +89,7 @@ defmodule Meadow.Data.Schemas.PlanChange do
   @doc false
   def changeset(plan_change, attrs) do
     plan_change
+    |> load_operations()
     |> cast(attrs, [
       :plan_id,
       :work_id,
@@ -103,8 +109,56 @@ defmodule Meadow.Data.Schemas.PlanChange do
     |> validate_map_format(:add)
     |> validate_map_format(:delete)
     |> validate_map_format(:replace)
+    |> put_operation_rows()
     |> foreign_key_constraint(:plan_id)
   end
+
+  # Rewrite the operation rows from the (cast) operation maps whenever any of
+  # them changed, or when the change is new
+  defp put_operation_rows(%{valid?: false} = changeset), do: changeset
+
+  defp put_operation_rows(changeset) do
+    changed? =
+      Enum.any?([:add, :delete, :replace], &match?({:ok, _}, fetch_change(changeset, &1)))
+
+    new? = changeset.data.__meta__.state == :built
+
+    if changed? or new? do
+      operations = %{
+        add: get_field(changeset, :add),
+        delete: get_field(changeset, :delete),
+        replace: get_field(changeset, :replace)
+      }
+
+      case Operations.to_rows(operations) do
+        {:ok, rows} ->
+          put_assoc(changeset, :operations, Enum.map(rows, &struct(PlanChangeOperation, &1)))
+
+        {:error, message} ->
+          add_error(changeset, :add, message)
+      end
+    else
+      changeset
+    end
+  end
+
+  @doc """
+  Populate the `add`/`delete`/`replace` maps of a persisted plan change (or
+  list of them) from its operation rows, preloading the rows if needed.
+  Already populated maps are left alone.
+  """
+  def load_operations(nil), do: nil
+  def load_operations(changes) when is_list(changes), do: Enum.map(changes, &load_operations/1)
+
+  def load_operations(%__MODULE__{__meta__: %{state: :loaded}} = change) do
+    change = Meadow.Repo.preload(change, :operations)
+
+    if is_nil(change.add) and is_nil(change.delete) and is_nil(change.replace),
+      do: Map.merge(change, Operations.to_maps(change.operations)),
+      else: change
+  end
+
+  def load_operations(change), do: change
 
   @doc """
   Transition change to approved status

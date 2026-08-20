@@ -5,6 +5,7 @@ defmodule MeadowWeb.Schema.Subscription.FileSetAnnotationTest do
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.FileSetAnnotation
 
+  import Assertions
   import Mox
 
   @reply_timeout 5000
@@ -100,6 +101,12 @@ defmodule MeadowWeb.Schema.Subscription.FileSetAnnotationTest do
                     }
                   },
                   @reply_timeout
+
+      # Wait for the task's final step (the work note) so it does not outlive the test
+      assert_async(timeout: 2000, sleep_time: 100) do
+        assert [%{type: %{id: "LOCAL_NOTE"}}] =
+                 Meadow.Data.Works.get_work!(work.id).descriptive_metadata.notes
+      end
     end
   end
 
