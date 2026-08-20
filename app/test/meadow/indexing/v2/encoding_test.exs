@@ -226,7 +226,10 @@ defmodule Meadow.Indexing.V2.EncodingTest do
       doc = subject |> Document.encode(2)
       assert doc |> get_in([:api_model]) == "FileSet"
       assert doc |> get_in([:description]) == subject.core_metadata.description
-      assert doc |> get_in([:digests]) == subject.core_metadata.digests
+
+      assert doc |> get_in([:digests]) ==
+               Meadow.Data.Schemas.FileSetCoreMetadata.digests(subject.core_metadata)
+
       assert doc |> get_in([:label]) == subject.core_metadata.label
       assert doc |> get_in([:poster_offset]) == 100
       assert doc |> get_in([:rank]) == subject.rank

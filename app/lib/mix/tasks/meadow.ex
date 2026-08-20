@@ -152,9 +152,12 @@ defmodule Mix.Tasks.Meadow.InitializeDerivatives do
 
     Repo.transaction(
       fn ->
-        from(f in FileSet)
-        |> where([f], f.role in ["A", "X"])
-        |> where(fragment("core_metadata ->> 'mime_type' LIKE 'image/%'"))
+        from(f in FileSet,
+          join: cm in assoc(f, :core_metadata),
+          where: f.role in ["A", "X"],
+          where: like(cm.mime_type, "image/%"),
+          preload: ^FileSet.metadata_preloads()
+        )
         |> Repo.stream()
         |> Stream.each(fn file_set ->
           pyramid_location = FileSets.pyramid_uri_for(file_set)

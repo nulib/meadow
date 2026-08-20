@@ -13,8 +13,7 @@ defmodule Meadow.Events.Indexing do
   use WalEx.Event, name: Meadow
 
   @cascade_fields %{
-    file_sets_works:
-      ~w[core_metadata derivatives extracted_metadata group_with poster_offset rank role structural_metadata]a,
+    file_sets_works: ~w[group_with poster_offset rank role]a,
     collections_file_sets: ~w[title]a,
     collections_works: ~w[title description]a,
     ingest_sheets_works: ~w[title]a,
@@ -29,6 +28,13 @@ defmodule Meadow.Events.Indexing do
   )a
 
   def work_metadata_tables, do: @work_metadata_tables
+
+  # Relational file set metadata tables whose rows belong to a file set via `file_set_id`
+  @file_set_metadata_tables ~w(
+    file_set_core_metadata file_set_structural_metadata file_set_derivatives file_set_extracted_metadata
+  )a
+
+  def file_set_metadata_tables, do: @file_set_metadata_tables
 
   require Logger
 
@@ -50,6 +56,21 @@ defmodule Meadow.Events.Indexing do
       when name in @work_metadata_tables do
     IndexBatcher.reindex([record.work_id], :works)
   end
+
+  # A change to any file set metadata row reindexes the file set and its work
+  # (the work document embeds its file sets)
+  def handle_indexing(%{type: type, name: name, new_record: record})
+      when name in @file_set_metadata_tables and type in [:insert, :update] do
+    reindex_file_set_and_work(record.file_set_id)
+  end
+
+  def handle_indexing(%{type: :delete, name: name, old_record: record})
+      when name in @file_set_metadata_tables do
+    reindex_file_set_and_work(record.file_set_id)
+  end
+
+  # Entries hang off the tool row, not the file set
+  def handle_indexing(%{name: :file_set_extracted_metadata_entries}), do: :noop
 
   def handle_indexing(%{type: :insert, name: name, new_record: record}) do
     IndexBatcher.reindex([record.id], name)
@@ -161,6 +182,13 @@ defmodule Meadow.Events.Indexing do
 
   defp do_delete_indexing(_, _) do
     :noop
+  end
+
+  defp reindex_file_set_and_work(file_set_id) do
+    IndexBatcher.reindex([file_set_id], :file_sets)
+
+    from(w in Work, join: fs in FileSet, on: fs.work_id == w.id, where: fs.id == ^file_set_id)
+    |> send_to_batcher(:works)
   end
 
   defp send_to_batcher(queryable, schema) do

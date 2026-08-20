@@ -65,9 +65,9 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
       assert(ActionStates.ok?(file_set_id, ExtractMediaMetadata))
 
       file_set = FileSets.get_file_set!(file_set_id)
-      assert file_set.extracted_metadata |> is_map()
+      assert FileSets.extracted_metadata_map(file_set) |> is_map()
 
-      with subject <- file_set.extracted_metadata |> Map.get("mediainfo") do
+      with subject <- FileSets.extracted_metadata_map(file_set) |> Map.get("mediainfo") do
         assert Map.get(subject, "tool") == @tool_name
         assert Map.get(subject, "tool_version")
 
@@ -96,7 +96,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadataTest do
 
       file_set = FileSets.get_file_set!(file_set_id)
 
-      with extracted <- file_set.extracted_metadata do
+      with extracted <- FileSets.extracted_metadata_map(file_set) do
         assert is_nil(extracted) || is_nil(Map.get(extracted, "mediainfo"))
       end
 

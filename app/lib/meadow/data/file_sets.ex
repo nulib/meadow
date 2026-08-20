@@ -12,7 +12,14 @@ defmodule Meadow.Data.FileSets do
   alias Meadow.AWS.S3
   alias Meadow.Config
   alias Meadow.Data.{Transcriber, Works}
-  alias Meadow.Data.Schemas.{FileSet, FileSetAnnotation}
+
+  alias Meadow.Data.Schemas.{
+    FileSet,
+    FileSetAnnotation,
+    FileSetDerivative,
+    FileSetExtractedMetadata
+  }
+
   alias Meadow.Notification
   alias Meadow.Pipeline.Actions.GeneratePosterImage
   alias Meadow.Repo
@@ -30,7 +37,7 @@ defmodule Meadow.Data.FileSets do
 
   """
   def list_file_sets do
-    Repo.all(FileSet)
+    FileSet |> with_metadata() |> Repo.all()
   end
 
   @doc """
@@ -47,12 +54,19 @@ defmodule Meadow.Data.FileSets do
       ** (Ecto.NoResultsError)
 
   """
-  def get_file_set!(id), do: Repo.get!(FileSet, id)
+  def get_file_set!(id), do: FileSet |> with_metadata() |> Repo.get!(id)
+
+  @doc "Adds the metadata row preloads to a FileSet query"
+  def with_metadata(queryable \\ FileSet), do: preload(queryable, ^FileSet.metadata_preloads())
+
+  @doc "Preloads the metadata rows on a file set (or list of file sets)"
+  def preload_metadata(file_set_or_file_sets),
+    do: Repo.preload(file_set_or_file_sets, FileSet.metadata_preloads())
 
   @doc """
 
   """
-  def get_file_set(id), do: Repo.get(FileSet, id)
+  def get_file_set(id), do: FileSet |> with_metadata() |> Repo.get(id)
 
   @doc """
   Gets a file_set by accession_number
@@ -60,7 +74,7 @@ defmodule Meadow.Data.FileSets do
   Raises `Ecto.NoResultsError` if the Work does not exist
   """
   def get_file_set_by_accession_number!(accession_number) do
-    Repo.get_by!(FileSet, accession_number: accession_number)
+    FileSet |> with_metadata() |> Repo.get_by!(accession_number: accession_number)
   end
 
   @doc """
@@ -79,6 +93,7 @@ defmodule Meadow.Data.FileSets do
   def get_file_set_with_work_and_sheet!(id) do
     FileSet
     |> preload(^[work: [:ingest_sheet] ++ Meadow.Data.Schemas.Work.metadata_preloads()])
+    |> with_metadata()
     |> Repo.get!(id)
   end
 
@@ -198,13 +213,52 @@ defmodule Meadow.Data.FileSets do
     end
   end
 
-  def add_derivative(%FileSet{derivatives: nil}, type, value),
-    do: add_derivative_to_map(%{}, type, value)
+  @doc """
+  The `%{kind => location}` map of a file set's derivatives plus `type`,
+  ready to pass back as the `derivatives` attribute of an update
+  """
+  def add_derivative(%FileSet{} = file_set, type, value),
+    do: file_set |> derivatives_map() |> Map.put(to_string(type), value)
 
-  def add_derivative(%FileSet{derivatives: map}, type, value),
-    do: add_derivative_to_map(map, type, value)
+  @doc "The `%{kind => location}` map of a file set's derivatives"
+  def derivatives_map(%FileSet{derivatives: derivatives}) when is_list(derivatives),
+    do: FileSetDerivative.to_map(derivatives)
 
-  defp add_derivative_to_map(map, type, value), do: Map.put(map, to_string(type), value)
+  def derivatives_map(%FileSet{derivatives: %{} = map}) when not is_struct(map), do: map
+
+  def derivatives_map(%FileSet{__meta__: %{state: :loaded}} = file_set),
+    do: file_set |> preload_metadata() |> derivatives_map()
+
+  def derivatives_map(_), do: %{}
+
+  @doc "The location of one derivative kind, or nil"
+  def derivative(%FileSet{} = file_set, kind),
+    do: file_set |> derivatives_map() |> Map.get(to_string(kind))
+
+  @doc "True when the file set has a derivative of `kind` (even with no location yet)"
+  def derivative?(%FileSet{} = file_set, kind),
+    do: file_set |> derivatives_map() |> Map.has_key?(to_string(kind))
+
+  @doc "The legacy `%{tool => document}` map of a file set's extracted metadata"
+  def extracted_metadata_map(%FileSet{extracted_metadata: rows}) when is_list(rows),
+    do: FileSetExtractedMetadata.to_map(rows)
+
+  def extracted_metadata_map(%FileSet{extracted_metadata: %{} = map}) when not is_struct(map),
+    do: map
+
+  def extracted_metadata_map(%FileSet{__meta__: %{state: :loaded}} = file_set),
+    do: file_set |> preload_metadata() |> extracted_metadata_map()
+
+  def extracted_metadata_map(_), do: %{}
+
+  @doc "The extracted metadata row for `tool`, or nil"
+  def extracted_tool(%FileSet{extracted_metadata: rows}, tool) when is_list(rows),
+    do: Enum.find(rows, &(&1.tool == to_string(tool)))
+
+  def extracted_tool(%FileSet{__meta__: %{state: :loaded}} = file_set, tool),
+    do: file_set |> preload_metadata() |> extracted_tool(tool)
+
+  def extracted_tool(_, _), do: nil
 
   def derivative_location(file_set) do
     dest_bucket = Config.pyramid_bucket()
@@ -274,25 +328,20 @@ defmodule Meadow.Data.FileSets do
   @doc """
   Get the representative image url for a file set. Could be a pyramid, poster, or nil
   """
-  def representative_image_url_for(
-        %FileSet{derivatives: %{"pyramid_tiff" => _pyramid}} = file_set
-      ) do
-    with uri <- URI.parse(Meadow.Config.iiif_server_url()) do
-      uri
-      |> URI.merge(file_set.id)
-      |> URI.to_string()
-    end
-  end
-
-  def representative_image_url_for(%FileSet{derivatives: %{"poster" => _poster}} = file_set) do
-    with uri <- URI.parse(Meadow.Config.iiif_server_url()) do
-      uri
-      |> URI.merge("posters/#{file_set.id}")
-      |> URI.to_string()
+  def representative_image_url_for(%FileSet{} = file_set) do
+    cond do
+      derivative?(file_set, "pyramid_tiff") -> iiif_image_url(file_set.id)
+      derivative?(file_set, "poster") -> iiif_image_url("posters/#{file_set.id}")
+      true -> nil
     end
   end
 
   def representative_image_url_for(_), do: nil
+
+  @doc "The IIIF image URL for an image id (a file set id, `posters/<id>`, or a placeholder id)"
+  def iiif_image_url(image_id) do
+    Meadow.Config.iiif_server_url() |> URI.parse() |> URI.merge(image_id) |> URI.to_string()
+  end
 
   @doc """
   Get the pyramid path for a file set
@@ -342,10 +391,15 @@ defmodule Meadow.Data.FileSets do
   @doc """
   Get the distribution streaming playlist url for a file set
   """
-  def distribution_streaming_uri_for(%FileSet{derivatives: %{"playlist" => playlist}})
-      when is_binary(playlist) and byte_size(playlist) > 0 do
-    with %{path: path} <- URI.parse(playlist) do
-      Config.streaming_url() |> Path.join(path)
+  def distribution_streaming_uri_for(%FileSet{} = file_set) do
+    case derivative(file_set, "playlist") do
+      playlist when is_binary(playlist) and byte_size(playlist) > 0 ->
+        with %{path: path} <- URI.parse(playlist) do
+          Config.streaming_url() |> Path.join(path)
+        end
+
+      _ ->
+        nil
     end
   rescue
     FunctionClauseError -> nil
@@ -383,13 +437,10 @@ defmodule Meadow.Data.FileSets do
 
   def public_vtt_url_for(_), do: nil
 
-  def duration_in_milliseconds(%FileSet{extracted_metadata: %{"mediainfo" => mediainfo}}) do
-    case mediainfo do
-      %{"value" => %{"media" => %{"track" => [%{"Duration" => duration_string} | _]}}} ->
-        parse_duration_string(duration_string)
-
-      _ ->
-        nil
+  def duration_in_milliseconds(%FileSet{} = file_set) do
+    case extracted_tool(file_set, "mediainfo") do
+      %{duration_ms: duration} -> duration
+      _ -> nil
     end
   end
 
@@ -408,62 +459,31 @@ defmodule Meadow.Data.FileSets do
     end
   end
 
-  defp parse_duration_string(value) when is_binary(value) do
-    case Float.parse(value) do
-      {duration, _} -> duration * 1000
-      :error -> nil
-    end
-  end
-
-  defp parse_duration_string(_), do: nil
-
-  def height(%FileSet{
-        role: %{id: "A"},
-        extracted_metadata: %{"mediainfo" => mediainfo},
-        core_metadata: %{mime_type: "video/" <> _}
-      }) do
-    with {height, _} <-
-           Integer.parse(
-             get_in(mediainfo, [
-               "value",
-               "media",
-               "track",
-               Access.at(1),
-               "Height"
-             ])
-           ) do
-      height
-    end
-  end
-
-  def height(%FileSet{extracted_metadata: %{"exif" => %{"value" => %{"ImageHeight" => height}}}}),
-    do: height
-
+  def height(%FileSet{} = file_set), do: dimension(file_set, :height)
   def height(_), do: nil
 
-  def width(%FileSet{
-        role: %{id: "A"},
-        extracted_metadata: %{"mediainfo" => mediainfo},
-        core_metadata: %{mime_type: "video/" <> _}
-      }) do
-    with {width, _} <-
-           Integer.parse(
-             get_in(mediainfo, [
-               "value",
-               "media",
-               "track",
-               Access.at(1),
-               "Width"
-             ])
-           ) do
-      width
+  def width(%FileSet{} = file_set), do: dimension(file_set, :width)
+  def width(_), do: nil
+
+  # Video access files take their dimensions from MediaInfo, everything else from EXIF
+  defp dimension(
+         %FileSet{role: %{id: "A"}, core_metadata: %{mime_type: "video/" <> _}} = file_set,
+         dim
+       ) do
+    case extracted_tool(file_set, "mediainfo") do
+      nil -> exif_dimension(file_set, dim)
+      mediainfo -> Map.get(mediainfo, dim)
     end
   end
 
-  def width(%FileSet{extracted_metadata: %{"exif" => %{"value" => %{"ImageWidth" => width}}}}),
-    do: width
+  defp dimension(file_set, dim), do: exif_dimension(file_set, dim)
 
-  def width(_), do: nil
+  defp exif_dimension(file_set, dim) do
+    case extracted_tool(file_set, "exif") do
+      nil -> nil
+      exif -> Map.get(exif, dim)
+    end
+  end
 
   def aspect_ratio(file_set) do
     width = width(file_set)
@@ -744,7 +764,7 @@ defmodule Meadow.Data.FileSets do
   end
 
   defp add_transcription_note(%{file_set_id: file_set_id, model: model}) do
-    case Repo.get(FileSet, file_set_id)
+    case get_file_set(file_set_id)
          |> Repo.preload(work: Meadow.Data.Schemas.Work.metadata_preloads()) do
       %FileSet{work: work, core_metadata: %{label: label}} when not is_nil(work) ->
         today = Date.utc_today() |> Date.to_iso8601()
@@ -781,7 +801,7 @@ defmodule Meadow.Data.FileSets do
   end
 
   defp fetch_file_set_for_transcription(file_set_id) do
-    case Repo.get(FileSet, file_set_id)
+    case get_file_set(file_set_id)
          |> Repo.preload(work: Meadow.Data.Schemas.Work.metadata_preloads()) do
       nil ->
         {:error, {:file_set_not_found, file_set_id}}

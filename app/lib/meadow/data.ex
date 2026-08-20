@@ -22,7 +22,9 @@ defmodule Meadow.Data do
 
   """
   def get_work_by_file_set_id(id) do
-    Repo.get!(FileSet, id)
+    FileSet
+    |> Meadow.Data.FileSets.with_metadata()
+    |> Repo.get!(id)
     |> Ecto.assoc(:work)
     |> Repo.one()
   end
@@ -62,7 +64,8 @@ defmodule Meadow.Data do
       from f in FileSet,
         where: f.work_id == ^work_id,
         where: f.role == ^role_id,
-        order_by: :rank
+        order_by: :rank,
+        preload: ^FileSet.metadata_preloads()
     )
   end
 

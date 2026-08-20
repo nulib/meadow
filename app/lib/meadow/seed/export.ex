@@ -16,13 +16,17 @@ defmodule Meadow.Seed.Export do
   require Logger
 
   @common_exports ~w(collections controlled_term_cache nul_authorities)a
-  @ingest_sheet_exports ~w(ingest_sheet_projects ingest_sheets ingest_sheet_rows ingest_sheet_progress
-    ingest_sheet_works)a ++
+  @ingest_sheet_exports ~w(ingest_sheet_projects ingest_sheets ingest_sheet_states ingest_sheet_rows
+    ingest_sheet_row_fields ingest_sheet_row_errors ingest_sheet_progress ingest_sheet_works)a ++
                           Queries.work_metadata_exports(:ingest_sheet_works) ++
-                          ~w(ingest_sheet_file_sets ingest_sheet_action_states)a
+                          [:ingest_sheet_file_sets] ++
+                          Queries.file_set_metadata_exports(:ingest_sheet_file_sets) ++
+                          [:ingest_sheet_action_states]
   @standalone_exports [:standalone_works] ++
                         Queries.work_metadata_exports(:standalone_works) ++
-                        ~w(standalone_file_sets standalone_action_states)a
+                        [:standalone_file_sets] ++
+                        Queries.file_set_metadata_exports(:standalone_file_sets) ++
+                        [:standalone_action_states]
 
   @doc """
   Export images and data from Meadow to an S3 bucket
@@ -140,15 +144,13 @@ defmodule Meadow.Seed.Export do
     from(w in Work,
       join: fs in FileSet,
       on: fs.work_id == w.id,
+      join: cm in assoc(fs, :core_metadata),
       where: w.ingest_sheet_id in ^ingest_sheet_ids,
-      select: %{
-        id: fs.id,
-        preservation_file: fragment("?.core_metadata::jsonb -> 'location'", fs)
-      }
+      select: %{id: fs.id, preservation_file: cm.location}
     )
     |> Repo.all()
     |> Enum.map(fn fs ->
-      Map.put(fs, :pyramid_file, FileSets.pyramid_uri_for(fs))
+      Map.put(fs, :pyramid_file, FileSets.pyramid_uri_for(FileSets.get_file_set!(fs.id)))
     end)
   end
 
@@ -156,15 +158,13 @@ defmodule Meadow.Seed.Export do
 
   def work_assets(work_ids, _) do
     from(fs in FileSet,
+      join: cm in assoc(fs, :core_metadata),
       where: fs.work_id in ^work_ids,
-      select: %{
-        id: fs.id,
-        preservation_file: fragment("?.core_metadata::jsonb -> 'location'", fs)
-      }
+      select: %{id: fs.id, preservation_file: cm.location}
     )
     |> Repo.all()
     |> Enum.map(fn fs ->
-      Map.put(fs, :pyramid_file, FileSets.pyramid_uri_for(fs))
+      Map.put(fs, :pyramid_file, FileSets.pyramid_uri_for(FileSets.get_file_set!(fs.id)))
     end)
   end
 

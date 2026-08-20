@@ -144,17 +144,21 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "get_file_set!/1 returns a file set by id" do
-      file_set = file_set_fixture()
+      file_set = file_set_fixture() |> FileSets.preload_metadata()
       assert FileSets.get_file_set!(file_set.id) == file_set
     end
 
     test "get_file_set_by_accession_number!/1 returns a file set by accession_number" do
-      file_set = file_set_fixture()
+      file_set = file_set_fixture() |> FileSets.preload_metadata()
       assert FileSets.get_file_set_by_accession_number!(file_set.accession_number) == file_set
     end
 
     test "get_file_set_with_work_and_sheet!/1 returns a file set with work and ingest sheet preloaded" do
-      file_set = file_set_fixture() |> Repo.preload(:work)
+      file_set =
+        file_set_fixture()
+        |> FileSets.preload_metadata()
+        |> Repo.preload(work: [:ingest_sheet] ++ Meadow.Data.Schemas.Work.metadata_preloads())
+
       assert FileSets.get_file_set_with_work_and_sheet!(file_set.id) == file_set
     end
 
@@ -249,24 +253,28 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "pyramid_uri_for/1 for a FileSet" do
-      file_set_a = file_set_fixture(
-        role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        core_metadata: %{
-          mime_type: "image/jpeg",
-          location: "s3://foo",
-          original_filename: "s3://bar"
-        }
-      )
+      file_set_a =
+        file_set_fixture(
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            mime_type: "image/jpeg",
+            location: "s3://foo",
+            original_filename: "s3://bar"
+          }
+        )
+
       file_set_s = file_set_fixture(role: %{id: "S", scheme: "FILE_SET_ROLE"})
       file_set_p = file_set_fixture(role: %{id: "P", scheme: "FILE_SET_ROLE"})
-      file_set_x_image = file_set_fixture(
-        role: %{id: "X", scheme: "FILE_SET_ROLE"},
-        core_metadata: %{
-          mime_type: "image/jpeg",
-          location: "s3://foo",
-          original_filename: "s3://bar"
-        }
-      )
+
+      file_set_x_image =
+        file_set_fixture(
+          role: %{id: "X", scheme: "FILE_SET_ROLE"},
+          core_metadata: %{
+            mime_type: "image/jpeg",
+            location: "s3://foo",
+            original_filename: "s3://bar"
+          }
+        )
 
       file_set_x_pdf =
         file_set_fixture(
@@ -314,13 +322,14 @@ defmodule Meadow.Data.FileSetsTest do
     end
 
     test "poster_uri_for/1 for a FileSet with a playlist" do
-      file_set = file_set_fixture(
-        %{
+      file_set =
+        file_set_fixture(%{
           core_metadata: %{
             mime_type: "video/mp4",
             location: "s3://foo",
             original_filename: "s3://bar"
-        }})
+          }
+        })
 
       with url <- file_set |> FileSets.poster_uri_for() do
         assert url |> String.starts_with?("s3://#{@pyramid_bucket}/posters/")
@@ -448,7 +457,9 @@ defmodule Meadow.Data.FileSetsTest do
   describe "group_with functionality" do
     test "update_file_set/2 with valid group_with value" do
       file_set1 = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
-      file_set2 = file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+
+      file_set2 =
+        file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
 
       assert {:ok, %FileSet{} = updated_file_set} =
                FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
@@ -458,17 +469,26 @@ defmodule Meadow.Data.FileSetsTest do
 
     test "update_file_set/2 rejects group_with when source file set doesn't have role 'A'" do
       file_set1 = file_set_fixture(%{role: %{id: "P", scheme: "FILE_SET_ROLE"}})
-      file_set2 = file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
 
-      assert {:error, changeset} = FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
-      assert %{group_with: ["Only file sets with role 'Access (A)' can be grouped"]} = errors_on(changeset)
+      file_set2 =
+        file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+
+      assert {:error, changeset} =
+               FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+
+      assert %{group_with: ["Only file sets with role 'Access (A)' can be grouped"]} =
+               errors_on(changeset)
     end
 
     test "update_file_set/2 rejects group_with when target file set doesn't have role 'A'" do
       file_set1 = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
-      file_set2 = file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "P", scheme: "FILE_SET_ROLE"}})
 
-      assert {:error, changeset} = FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+      file_set2 =
+        file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "P", scheme: "FILE_SET_ROLE"}})
+
+      assert {:error, changeset} =
+               FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+
       assert %{group_with: ["Target file set must have role 'Access (A)'"]} = errors_on(changeset)
     end
 
@@ -476,7 +496,9 @@ defmodule Meadow.Data.FileSetsTest do
       file_set = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
       non_existent_id = Ecto.UUID.generate()
 
-      assert {:error, changeset} = FileSets.update_file_set(file_set, %{group_with: non_existent_id})
+      assert {:error, changeset} =
+               FileSets.update_file_set(file_set, %{group_with: non_existent_id})
+
       assert %{group_with: ["Target file set not found"]} = errors_on(changeset)
     end
 
@@ -485,31 +507,41 @@ defmodule Meadow.Data.FileSetsTest do
       work = work_fixture()
       file_set2 = file_set_fixture(%{work_id: work.id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
 
-      assert {:error, changeset} = FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+      assert {:error, changeset} =
+               FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+
       assert %{group_with: ["Target file set belongs to a different work"]} = errors_on(changeset)
     end
 
     test "update_file_set/2 rejects group_with when target file set already has a group_with value" do
       file_set1 = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
-      file_set2 = file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
-      file_set3 = file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+
+      file_set2 =
+        file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
+
+      file_set3 =
+        file_set_fixture(%{work_id: file_set1.work_id, role: %{id: "A", scheme: "FILE_SET_ROLE"}})
 
       # First set file_set2 to group with file_set3
       assert {:ok, %FileSet{}} = FileSets.update_file_set(file_set2, %{group_with: file_set3.id})
 
       # Now try to set file_set1 to group with file_set2 (which already has a group_with)
-      assert {:error, changeset} = FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
-      assert %{group_with: ["Target file set already has a group_with value"]} = errors_on(changeset)
+      assert {:error, changeset} =
+               FileSets.update_file_set(file_set1, %{group_with: file_set2.id})
+
+      assert %{group_with: ["Target file set already has a group_with value"]} =
+               errors_on(changeset)
     end
 
     test "create_file_set/1 with valid group_with value" do
       existing_file_set = file_set_fixture(%{role: %{id: "A", scheme: "FILE_SET_ROLE"}})
 
-      attrs = Map.merge(@valid_attrs, %{
-        work_id: existing_file_set.work_id,
-        role: %{id: "A", scheme: "FILE_SET_ROLE"},
-        group_with: existing_file_set.id
-      })
+      attrs =
+        Map.merge(@valid_attrs, %{
+          work_id: existing_file_set.work_id,
+          role: %{id: "A", scheme: "FILE_SET_ROLE"},
+          group_with: existing_file_set.id
+        })
 
       assert {:ok, %FileSet{} = file_set} = FileSets.create_file_set(attrs)
       assert file_set.group_with == existing_file_set.id

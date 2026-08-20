@@ -8,7 +8,10 @@ defmodule Meadow.Data.Schemas.FileSet do
     ActionState,
     FileSetAnnotation,
     FileSetCoreMetadata,
+    FileSetDerivative,
+    FileSetExtractedMetadata,
     FileSetStructuralMetadata,
+    MultiValued,
     Work
   }
 
@@ -27,15 +30,20 @@ defmodule Meadow.Data.Schemas.FileSet do
   @timestamps_opts [type: :utc_datetime_usec]
   schema "file_sets" do
     field(:accession_number)
-    field(:extracted_metadata, :map)
     field(:role, Types.CodedTerm, scheme: "file_set_role")
     field(:rank, :integer)
     field(:position, :any, virtual: true)
-    field(:derivatives, :map)
     field(:poster_offset, :integer)
 
-    embeds_one(:core_metadata, FileSetCoreMetadata, on_replace: :update)
-    embeds_one(:structural_metadata, FileSetStructuralMetadata, on_replace: :delete)
+    has_one(:core_metadata, FileSetCoreMetadata, on_replace: :update)
+    has_one(:structural_metadata, FileSetStructuralMetadata, on_replace: :delete)
+    has_many(:derivatives, FileSetDerivative, on_replace: :delete, preload_order: [asc: :kind])
+
+    has_many(:extracted_metadata, FileSetExtractedMetadata,
+      on_replace: :delete,
+      preload_order: [asc: :tool]
+    )
+
     timestamps()
 
     belongs_to(:work, Work)
@@ -59,20 +67,20 @@ defmodule Meadow.Data.Schemas.FileSet do
   end
 
   defp changeset_params do
-    {[:accession_number, :role],
-     [:work_id, :position, :extracted_metadata, :derivatives, :poster_offset, :group_with]}
+    {[:accession_number, :role], [:work_id, :position, :poster_offset, :group_with]}
   end
 
   def changeset(file_set \\ %__MODULE__{}, params) do
     with {required_params, optional_params} <- changeset_params() do
       changeset =
         file_set
+        |> preload_metadata()
         |> cast(rename_core_metadata(params), required_params ++ optional_params)
         |> validate_trimmed(:accession_number)
-        |> prepare_embed(:core_metadata)
-        |> cast_embed(:core_metadata)
-        |> prepare_embed(:structural_metadata)
-        |> cast_embed(:structural_metadata)
+        |> prepare_assoc(:core_metadata)
+        |> cast_assoc(:core_metadata)
+        |> cast_assoc(:structural_metadata)
+        |> cast_metadata_rows()
         |> validate_required([:core_metadata | required_params])
         |> validate_number(:poster_offset, greater_than_or_equal_to: 0)
         |> assoc_constraint(:work)
@@ -96,11 +104,12 @@ defmodule Meadow.Data.Schemas.FileSet do
   def update_changeset(file_set, params) do
     with {_, optional_params} <- changeset_params() do
       file_set
+      |> preload_metadata()
       |> cast(rename_core_metadata(params), optional_params)
-      |> prepare_embed(:core_metadata)
-      |> cast_embed(:core_metadata)
-      |> prepare_embed(:structural_metadata)
-      |> cast_embed(:structural_metadata)
+      |> prepare_assoc(:core_metadata)
+      |> cast_assoc(:core_metadata)
+      |> cast_assoc(:structural_metadata)
+      |> cast_metadata_rows()
       |> set_rank(scope: [:work_id, :role])
       |> validate_number(:poster_offset, greater_than_or_equal_to: 0)
       |> validate_group_with()
@@ -108,8 +117,50 @@ defmodule Meadow.Data.Schemas.FileSet do
     end
   end
 
+  # `derivatives` arrives as a `%{kind => location}` map and `extracted_metadata`
+  # as a `%{tool => document}` map (the shapes the pipeline has always sent);
+  # each becomes child rows, keeping the row ids of kinds/tools already present
+  defp cast_metadata_rows(changeset) do
+    changeset
+    |> MultiValued.cast_entries(:derivatives,
+      with: fn row, params, _position -> FileSetDerivative.changeset(row, params) end,
+      key: &Map.get(&1, :kind),
+      normalize: &identity/1,
+      expand: &FileSetDerivative.to_params/1
+    )
+    |> MultiValued.cast_entries(:extracted_metadata,
+      with: fn row, params, _position -> FileSetExtractedMetadata.changeset(row, params) end,
+      key: &Map.get(&1, :tool),
+      normalize: &identity/1,
+      expand: &FileSetExtractedMetadata.to_params/1
+    )
+  end
+
+  defp identity(value), do: value
+
+  @doc "Nested preload list for the metadata rows of a file set"
+  def metadata_preloads,
+    do: [:core_metadata, :structural_metadata, :derivatives, extracted_metadata: :entries]
+
+  @doc "Preload whatever metadata associations of a persisted file set are still missing"
+  def preload_metadata(%__MODULE__{__meta__: %{state: :loaded}} = file_set) do
+    missing =
+      Enum.filter(metadata_preloads(), fn
+        {assoc, _nested} -> not Ecto.assoc_loaded?(Map.get(file_set, assoc))
+        assoc -> not Ecto.assoc_loaded?(Map.get(file_set, assoc))
+      end)
+
+    case missing do
+      [] -> file_set
+      preloads -> Meadow.Repo.preload(file_set, preloads)
+    end
+  end
+
+  def preload_metadata(file_set), do: file_set
+
   def required_index_preloads,
-    do: [work: [:collection] ++ Meadow.Data.Schemas.Work.metadata_preloads()]
+    do:
+      [work: [:collection] ++ Meadow.Data.Schemas.Work.metadata_preloads()] ++ metadata_preloads()
 
   defp rename_core_metadata(%{metadata: _, core_metadata: _} = params) do
     Logger.warning("Parameter map has both :metadata and :core_metadata. Ignoring :metadata.")
