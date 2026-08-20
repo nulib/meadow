@@ -643,12 +643,14 @@ export function prepFacetKey(
  */
 export function prepNotes(
   items: Array<{
+    id?: string;
     note: string;
     typeId: string;
   }> = [],
 ) {
   try {
     return items.map((item) => ({
+      ...(item.id ? { id: item.id } : {}),
       note: item.note,
       type: {
         scheme: "NOTE_TYPE",
@@ -666,12 +668,14 @@ export function prepNotes(
  */
 export function prepRelatedUrl(
   items: Array<{
+    id?: string;
     url: string;
     labelId: string;
   }> = [],
 ) {
   try {
     return items.map((item) => ({
+      ...(item.id ? { id: item.id } : {}),
       url: item.url,
       label: {
         scheme: "RELATED_URL",

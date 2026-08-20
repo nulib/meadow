@@ -22,7 +22,7 @@ defmodule Meadow.Data.Schemas.Collection do
     field(:title, :string)
 
     field(:published, :boolean, default: false)
-    field(:visibility, Types.CodedTerm)
+    field(:visibility, Types.CodedTerm, scheme: "visibility")
 
     timestamps()
 

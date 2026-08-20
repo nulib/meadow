@@ -8,7 +8,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
   """
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Utils.{Lambda, StructMap}
+  alias Meadow.Utils.Lambda
 
   use Meadow.Pipeline.Actions.Common
 
@@ -19,11 +19,9 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
   def actiondoc, do: "Extract EXIF metadata from FileSet"
 
   def already_complete?(file_set, _) do
-    with existing_metadata <-
-           file_set
-           |> StructMap.deep_struct_to_map()
-           |> get_in([:extracted_metadata, "exif"]) do
-      not (is_nil(existing_metadata) or Enum.empty?(existing_metadata))
+    case FileSets.extracted_tool(file_set, "exif") do
+      nil -> false
+      %{entries: entries} -> not Enum.empty?(entries)
     end
   end
 
@@ -53,10 +51,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadata do
 
   def handle_result({:ok, exif_metadata}, file_set) do
     extracted_metadata =
-      case file_set.extracted_metadata do
-        nil -> %{exif: exif_metadata}
-        map -> map |> Map.delete("exif") |> Map.put(:exif, exif_metadata)
-      end
+      file_set |> FileSets.extracted_metadata_map() |> Map.put("exif", exif_metadata)
 
     FileSets.update_file_set(file_set, %{extracted_metadata: extracted_metadata})
     ActionStates.set_state!(file_set, __MODULE__, "ok")
