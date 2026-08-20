@@ -312,13 +312,7 @@ defmodule Meadow.Data.Works.MetadataWriter do
     do: Ecto.Changeset.apply_changes(changeset)
 
   defp apply_changes!(%Ecto.Changeset{} = changeset, field) do
-    errors =
-      Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-        Enum.reduce(opts, msg, fn {key, value}, acc ->
-          String.replace(acc, "%{#{key}}", to_string(value))
-        end)
-      end)
-
+    errors = Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
     raise ArgumentError, "invalid value for #{field}: #{inspect(errors)}"
   end
 

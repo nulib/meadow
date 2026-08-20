@@ -4,6 +4,7 @@ defmodule Meadow.Data.Schemas.JSONEncoders do
   """
 
   alias Ecto.Association.NotLoaded
+  alias Meadow.Data.Schemas.{FileSetDerivative, FileSetExtractedMetadata}
 
   # Storage bookkeeping on metadata child rows that is not part of the value
   @hidden_keys [:__meta__, :work, :work_id, :section, :field, :position, :role_scheme]
@@ -14,6 +15,14 @@ defmodule Meadow.Data.Schemas.JSONEncoders do
     |> Enum.map(fn
       {key, _} when key in @hidden_keys ->
         nil
+
+      # File set derivative and extracted metadata rows are presented in the
+      # `%{kind => location}` / `%{tool => document}` shape they had as jsonb
+      {:derivatives, rows} when is_list(rows) ->
+        {:derivatives, FileSetDerivative.to_map(rows)}
+
+      {:extracted_metadata, rows} when is_list(rows) ->
+        {:extracted_metadata, FileSetExtractedMetadata.to_map(rows)}
 
       {key, %NotLoaded{__cardinality__: :one}} ->
         {key, nil}

@@ -33,7 +33,7 @@ defmodule Meadow.Data.Schemas.ValidationsTest do
     def changeset(record, attrs) do
       record
       |> cast(attrs, [:name, :order])
-      |> prepare_embed(:child_schema)
+      |> prepare_assoc(:child_schema)
       |> cast_embed(:child_schema)
     end
   end
@@ -54,19 +54,20 @@ defmodule Meadow.Data.Schemas.ValidationsTest do
       subject
       |> ParentSchema.changeset(%{child_schema: tags[:child_param]})
 
-    {:ok, %{subject: subject, changeset: change.changes.child_schema}}
+    {:ok, %{subject: subject, changeset: Map.get(change.changes, :child_schema)}}
   end
 
-  # Passing nil as an embedded value results in an empty (default) schema
+  # Passing nil for an existing child leaves it untouched (a missing child
+  # would be built empty instead)
   @tag child_param: nil
   test "child_schema: nil", %{changeset: changeset} do
-    refute is_nil(changeset)
+    assert is_nil(changeset)
+  end
 
-    with values <- changeset.changes do
-      assert values.array_field == []
-      assert values.string_field == "default"
-      assert is_nil(values.number_field)
-    end
+  test "a missing child is built empty" do
+    change = ParentSchema.changeset(%ParentSchema{id: "new"}, %{name: "New Parent"})
+    assert %Ecto.Changeset{action: :insert, changes: changes} = change.changes.child_schema
+    assert changes == %{}
   end
 
   # Passing a map of values as embedded changes updates the schema as expected

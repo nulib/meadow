@@ -44,9 +44,11 @@ defmodule Meadow.Events.IndexingTest do
 
       logged =
         capture_log(fn ->
-          # Remove the core metadata row so encoding the file set fails
+          # Remove the core metadata row so encoding the file set fails, then touch
+          # the row to trigger an indexing event (rank has no post-processing
+          # side effects, unlike poster_offset)
           Repo.delete!(FileSets.get_file_set!(file_set.id).core_metadata)
-          FileSets.update_file_set(file_set, %{poster_offset: 1})
+          FileSets.update_file_set(file_set, %{rank: 99})
 
           assert_flushed(:file_sets)
         end)
