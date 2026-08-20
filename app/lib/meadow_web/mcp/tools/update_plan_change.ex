@@ -973,7 +973,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
 
   defp coded_fields do
     editable_descriptive_schema_fields()
-    |> Enum.filter(&(WorkDescriptiveMetadata.__schema__(:type, &1) == Types.CodedTerm))
+    |> Enum.filter(&Types.CodedTerm.coded_term_type?(WorkDescriptiveMetadata.__schema__(:type, &1)))
   end
 
   defp replace_only_fields do

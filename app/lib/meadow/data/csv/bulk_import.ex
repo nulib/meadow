@@ -146,10 +146,25 @@ defmodule Meadow.Data.CSV.BulkImport do
         |> put_in([:updated_at], timestamp)
         |> update_in([:descriptive_metadata, :id], &(&1 || Ecto.UUID.generate()))
         |> update_in([:administrative_metadata, :id], &(&1 || Ecto.UUID.generate()))
+        |> dump_coded_columns()
       end)
       |> Stream.chunk_every(@chunk_size)
       |> Stream.map(&stream_chunk_of_rows/1)
     end
+  end
+
+  # Top-level coded term columns (visibility, work_type) are stored as the bare
+  # term id, so the COPY stream must carry the id rather than a JSON object.
+  @coded_columns ~w(visibility work_type behavior)a
+
+  defp dump_coded_columns(entry) do
+    Enum.reduce(@coded_columns, entry, fn column, acc ->
+      case Map.get(acc, column) do
+        %{id: id} -> Map.put(acc, column, id)
+        %{"id" => id} -> Map.put(acc, column, id)
+        _ -> acc
+      end
+    end)
   end
 
   defp stream_chunk_of_rows(chunk) do

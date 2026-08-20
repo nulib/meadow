@@ -107,6 +107,10 @@ defmodule Meadow.Utils.Ecto.Schema do
         {field, unroll_schema(related, %{read_only: read_only, parents: [field | parents], is_read_only: is_read_only})}
       {:parameterized, {Ecto.Embedded, %{cardinality: :many, related: related}}} ->
         {field, [unroll_schema(related, %{read_only: read_only, parents: [field | parents], is_read_only: is_read_only})]}
+      {:parameterized, {Types.CodedTerm, %{scheme: scheme}}} when is_binary(scheme) ->
+        {field, coded_term_spec(scheme)} |> maybe_read_only(is_read_only)
+      {:parameterized, {Types.CodedTerm, _}} ->
+        {field, unroll_coded_term(field, parents)} |> maybe_read_only(is_read_only)
       {:array, type} ->
         {field, [unroll_field(type, field, parents)]} |> maybe_read_only(is_read_only)
       type ->
@@ -126,16 +130,19 @@ defmodule Meadow.Utils.Ecto.Schema do
   defp unroll_coded_term(:role, [parent | _]) do
     case @schemes[parent] do
       nil -> nil
-      scheme -> %{id: "(valid id for scheme `#{scheme}`)", label: "(valid label for scheme `#{scheme}`)", scheme: scheme}
+      scheme -> coded_term_spec(scheme)
     end
   end
 
   defp unroll_coded_term(field, parents) do
     case get_in(@schemes, Enum.reverse([field | parents])) do
       nil -> nil
-      scheme -> %{id: "(valid id for scheme `#{scheme}`)", label: "(valid label for scheme `#{scheme}`)", scheme: scheme}
+      scheme -> coded_term_spec(scheme)
     end
   end
+
+  defp coded_term_spec(scheme),
+    do: %{id: "(valid id for scheme `#{scheme}`)", label: "(valid label for scheme `#{scheme}`)", scheme: scheme}
 
   defp maybe_read_only({field, _value}, true), do: {field, "READ_ONLY"}
   defp maybe_read_only({field, value}, false), do: {field, value}

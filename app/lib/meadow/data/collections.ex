@@ -70,9 +70,9 @@ defmodule Meadow.Data.Collections do
         total: count(),
         published: filter(count(), w.published == true),
         unpublished: filter(count(), w.published == false),
-        image: filter(count(), fragment("?->>'id' = ?", w.work_type, "IMAGE")),
-        audio: filter(count(), fragment("?->>'id' = ?", w.work_type, "AUDIO")),
-        video: filter(count(), fragment("?->>'id' = ?", w.work_type, "VIDEO"))
+        image: filter(count(), w.work_type == "IMAGE"),
+        audio: filter(count(), w.work_type == "AUDIO"),
+        video: filter(count(), w.work_type == "VIDEO")
       }
     )
     |> Repo.one()
