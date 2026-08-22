@@ -58,7 +58,7 @@ defmodule Meadow.Data.Planner do
   alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment}
   alias Meadow.Data.Schemas.{Plan, PlanChange}
-  alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Schemas.{Work, WorkDescriptiveMetadata}
   alias Meadow.Data.Works
   alias Meadow.Repo
   alias Meadow.Utils.{Atoms, ChangesetErrors, StructMap}
@@ -1227,8 +1227,8 @@ defmodule Meadow.Data.Planner do
     end)
   end
 
-  @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
-  @coded_fields ~w(license rights_statement)a
+  @controlled_fields WorkDescriptiveMetadata.__metadata__(:fields, :controlled)
+  @coded_fields WorkDescriptiveMetadata.__metadata__(:fields, :coded)
   @single_valued_fields ~w(title)
 
   defp apply_controlled_field_operations(work, delete, add) do

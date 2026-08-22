@@ -8,7 +8,10 @@ defmodule Meadow.Data.Planner.Operations do
   """
 
   alias Meadow.Data.Schemas.{
+    DateCreatedEntry,
     MetadataValue,
+    NoteEntry,
+    RelatedURLEntry,
     WorkAdministrativeMetadata,
     WorkDescriptiveMetadata
   }
@@ -78,59 +81,34 @@ defmodule Meadow.Data.Planner.Operations do
     end
   end
 
-  # What shape a field holds: a list or scalar of a value kind
-  @descriptive_kinds Map.new(
-                       Enum.map(
-                         WorkDescriptiveMetadata.multi_valued_fields(),
-                         &{&1, {:list, :string}}
-                       ) ++
-                         Enum.map(
-                           WorkDescriptiveMetadata.scalar_fields(),
-                           &{&1, {:scalar, :string}}
-                         ) ++
-                         Enum.map(
-                           WorkDescriptiveMetadata.coded_fields(),
-                           &{&1, {:scalar, :coded}}
-                         ) ++
-                         Enum.map(
-                           WorkDescriptiveMetadata.controlled_fields(),
-                           &{&1, {:list, :controlled}}
-                         ) ++
-                         [
-                           date_created: {:list, :edtf},
-                           notes: {:list, :note},
-                           related_url: {:list, :related_url}
-                         ]
-                     )
-  @administrative_kinds Map.new(
-                          Enum.map(
-                            WorkAdministrativeMetadata.multi_valued_fields(),
-                            &{&1, {:list, :string}}
-                          ) ++
-                            Enum.map(
-                              WorkAdministrativeMetadata.scalar_fields(),
-                              &{&1, {:scalar, :string}}
-                            ) ++
-                            Enum.map(
-                              WorkAdministrativeMetadata.coded_fields(),
-                              &{&1, {:scalar, :coded}}
-                            )
-                        )
-  @section_kinds %{
-    "descriptive_metadata" => @descriptive_kinds,
-    "administrative_metadata" => @administrative_kinds
+  @section_schemas %{
+    "descriptive_metadata" => WorkDescriptiveMetadata,
+    "administrative_metadata" => WorkAdministrativeMetadata
   }
 
   defp field_kind(nil, field) when field in @top_level_coded, do: {:scalar, :coded}
   defp field_kind(nil, field) when field in @top_level_boolean, do: {:scalar, :boolean}
   defp field_kind(nil, _field), do: {:scalar, :string}
 
+  # What shape a field holds (a list or scalar of a value kind), derived from
+  # the metadata schema's field kinds. Entry fields with no value kind here
+  # (nav_place) cannot be proposed.
   defp field_kind(section, field) do
-    kinds = Map.fetch!(@section_kinds, section)
-    Map.get(kinds, String.to_existing_atom(field), :unsupported)
+    schema = Map.fetch!(@section_schemas, section)
+    field = String.to_existing_atom(field)
+    shape(schema.__metadata__(:kind, field), schema.__metadata__(:schema, field))
   rescue
     ArgumentError -> :unsupported
   end
+
+  defp shape(:string, _), do: {:scalar, :string}
+  defp shape(:coded, _), do: {:scalar, :coded}
+  defp shape(:values, _), do: {:list, :string}
+  defp shape(:controlled, _), do: {:list, :controlled}
+  defp shape(:entries, DateCreatedEntry), do: {:list, :edtf}
+  defp shape(:entries, NoteEntry), do: {:list, :note}
+  defp shape(:entries, RelatedURLEntry), do: {:list, :related_url}
+  defp shape(_kind, _schema), do: :unsupported
 
   # -- encoding one item ----------------------------------------------------
 

@@ -144,8 +144,8 @@ defmodule Meadow.Data.Schemas.Work do
   """
   def metadata_preloads do
     [
-      descriptive_metadata: WorkDescriptiveMetadata.preloads(),
-      administrative_metadata: WorkAdministrativeMetadata.preloads()
+      descriptive_metadata: WorkDescriptiveMetadata.repeating_fields(),
+      administrative_metadata: WorkAdministrativeMetadata.repeating_fields()
     ]
   end
 

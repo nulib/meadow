@@ -76,7 +76,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   alias Anubis.Server.Response
   alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment, Planner}
-  alias Meadow.Data.Schemas.WorkDescriptiveMetadata
+  alias Meadow.Data.Schemas.{DateCreatedEntry, WorkDescriptiveMetadata}
   alias Meadow.Data.Works
   alias Meadow.Repo
   require Logger
@@ -1126,25 +1126,33 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   end
 
   defp editable_descriptive_schema_fields,
-    do: WorkDescriptiveMetadata.permitted() ++ WorkDescriptiveMetadata.multi_valued_fields()
+    do:
+      WorkDescriptiveMetadata.permitted() ++
+        WorkDescriptiveMetadata.__metadata__(:fields, :values)
 
   defp editable_descriptive_embed_fields,
-    do: WorkDescriptiveMetadata.controlled_fields() ++ WorkDescriptiveMetadata.entry_fields()
+    do:
+      WorkDescriptiveMetadata.__metadata__(:fields, :controlled) ++
+        WorkDescriptiveMetadata.__metadata__(:fields, :entries)
 
-  defp controlled_fields, do: WorkDescriptiveMetadata.controlled_fields()
+  defp controlled_fields, do: WorkDescriptiveMetadata.__metadata__(:fields, :controlled)
 
-  defp coded_fields, do: WorkDescriptiveMetadata.coded_fields()
+  defp coded_fields, do: WorkDescriptiveMetadata.__metadata__(:fields, :coded)
 
   defp replace_only_fields do
     coded_fields() ++ single_value_string_fields()
   end
 
-  defp single_value_string_fields, do: WorkDescriptiveMetadata.scalar_fields()
+  defp single_value_string_fields, do: WorkDescriptiveMetadata.__metadata__(:fields, :string)
 
-  defp date_fields, do: WorkDescriptiveMetadata.edtf_fields()
+  defp date_fields,
+    do: WorkDescriptiveMetadata.__metadata__(:fields, {:entries, DateCreatedEntry})
 
   defp role_required_fields do
-    ~w(subject contributor)a
+    Enum.filter(
+      controlled_fields(),
+      &WorkDescriptiveMetadata.__metadata__(:options, &1)[:role_required]
+    )
   end
 
   defp nested_coded_fields do

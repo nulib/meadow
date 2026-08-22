@@ -26,14 +26,10 @@ defmodule Meadow.Data.Works.MetadataWriter do
 
   alias Meadow.Repo
 
-  @descriptive_multi WorkDescriptiveMetadata.multi_valued_fields()
-  @administrative_multi WorkAdministrativeMetadata.multi_valued_fields()
-  @controlled_fields WorkDescriptiveMetadata.controlled_fields()
-  @entry_schemas %{
-    notes: NoteEntry,
-    related_url: RelatedURLEntry,
-    date_created: DateCreatedEntry
-  }
+  @descriptive_multi WorkDescriptiveMetadata.__metadata__(:fields, :values)
+  @administrative_multi WorkAdministrativeMetadata.__metadata__(:fields, :values)
+  @controlled_fields WorkDescriptiveMetadata.__metadata__(:fields, :controlled)
+  @entry_fields WorkDescriptiveMetadata.__metadata__(:fields, :entries) -- [:nav_place]
 
   @doc """
   Merge `%{descriptive_metadata: %{...}, administrative_metadata: %{...}}` into
@@ -69,7 +65,7 @@ defmodule Meadow.Data.Works.MetadataWriter do
         raise ArgumentError,
               "controlled field #{field} must be updated with replace_controlled_values/4, got #{inspect(value)}"
 
-      {field, value} when is_map_key(@entry_schemas, field) ->
+      {field, value} when field in @entry_fields ->
         write_entries(work_ids, field, List.wrap(value), mode)
 
       {:nav_place, _value} ->
@@ -148,7 +144,7 @@ defmodule Meadow.Data.Works.MetadataWriter do
   # -- notes / related urls / dates -----------------------------------------
 
   defp write_entries(work_ids, field, entries, mode) do
-    schema = Map.fetch!(@entry_schemas, field)
+    schema = WorkDescriptiveMetadata.__metadata__(:schema, field)
 
     attrs =
       Enum.map(entries, fn entry ->

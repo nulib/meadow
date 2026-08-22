@@ -263,6 +263,4 @@ defmodule Meadow.Data.Enrichment do
   end
 
   defp atomize_keys(value), do: value
-
-
 end
