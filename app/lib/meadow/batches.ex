@@ -5,14 +5,14 @@ defmodule Meadow.Batches do
 
   import Ecto.Query, warn: false
   alias Meadow.Data.{Indexer, Works}
-  alias Meadow.Data.Schemas.{Batch, Work}
+  alias Meadow.Data.Schemas.{Batch, Work, WorkDescriptiveMetadata}
   alias Meadow.Repo
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.HTTP
 
   require Logger
 
-  @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
+  @controlled_fields WorkDescriptiveMetadata.__metadata__(:fields, :controlled)
 
   @doc """
   Creates a batch.

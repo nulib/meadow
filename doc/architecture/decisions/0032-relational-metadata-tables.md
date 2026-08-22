@@ -77,6 +77,12 @@ Concretely, for works:
   `update_all`. The CSV metadata update applies each row through
   `Work.update_changeset/2`. The plpgsql functions, the `work_terms` table and
   its triggers are dropped.
+- `WorkDescriptiveMetadata` and `WorkAdministrativeMetadata` are declared with
+  `Meadow.Data.Schemas.MetadataSchema`: each field is listed once with its kind
+  (`string`, `coded`, `values`, `controlled`, `entries`) and the Ecto schema,
+  the changeset and a `__metadata__/1,2` reflection function are generated
+  from that list. Code that needs to classify fields (the planner, the batch
+  writer, the MCP tools) asks the schema instead of keeping its own lists.
 - `Work.metadata_preloads/0` is the single preload list for the metadata rows;
   `Meadow.Data.Works` applies it on every read, `Work.changeset/2` preloads
   anything still missing before casting, and the search indexer and dataloader
