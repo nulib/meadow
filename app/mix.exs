@@ -39,7 +39,7 @@ defmodule Meadow.MixProject do
   def application do
     [
       mod: {Meadow.Application, []},
-      extra_applications: [:os_mon, :retry],
+      extra_applications: [:aws_credentials, :os_mon, :retry],
       included_applications: [:anubis_mcp]
     ]
   end
@@ -61,12 +61,13 @@ defmodule Meadow.MixProject do
       {:assertions, "~> 0.21", only: :test},
       {:atomic_map, "~> 0.8"},
       {:authoritex, "~> 3.0"},
+      {:aws, "~> 1.0"},
+      {:aws_credentials, "~> 1.1"},
       {:aws_signature, "~> 0.4"},
       {:briefly, "~> 0.5"},
       {:broadway_dashboard, "~> 0.4"},
       {:broadway_sqs, "~> 0.7"},
       {:cachex, "~> 4.0"},
-      {:configparser_ex, "~> 5.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 2.0"},
       {:ecto_enum, "~> 1.4"},
@@ -75,12 +76,6 @@ defmodule Meadow.MixProject do
       {:ecto_sql, "~> 3.13"},
       {:edtf, "~> 2.0"},
       {:ets, "~> 0.9"},
-      {:ex_aws, "~> 2.7"},
-      {:ex_aws_s3, "~> 2.3"},
-      {:ex_aws_lambda, "~> 2.0"},
-      {:ex_aws_secretsmanager, "~> 2.0"},
-      {:ex_aws_ssm, "~> 2.1"},
-      {:ex_aws_sts, "~> 2.3"},
       {:excoveralls, "~> 0.10", only: :test},
       {:faker, "~> 0.12", only: [:dev, :test]},
       {:gettext, "~> 1.0"},
@@ -90,6 +85,9 @@ defmodule Meadow.MixProject do
       {:inflex28, "~> 2.1"},
       {:jason, "~> 1.0"},
       {:jwt, "~> 0.1"},
+      # `jwt` pins jsx ~> 2.8 while `aws_credentials` requires ~> 3.1. jwt only calls
+      # jsx:encode/1 and jsx:decode/2 with [return_maps], both of which jsx 3.1 supports.
+      {:jsx, "~> 3.1", override: true},
       {:libcluster, "~> 3.3"},
       {:logger_file_backend, "~> 0.0"},
       {:mox, "~> 1.0", only: :test},

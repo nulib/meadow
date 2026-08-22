@@ -10,7 +10,6 @@ defmodule Meadow.Data.Transcriber do
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.HTTP
   alias Meadow.Utils.AWS, as: AWSUtils
-  alias Meadow.Utils.AWS.BedrockStream
   alias Meadow.Utils.DCAPI
 
   require Logger
@@ -245,18 +244,19 @@ defmodule Meadow.Data.Transcriber do
       trimmed ->
         [
           %{
-            "text" => """
-            An existing transcription of this image is provided below for
-            reference only. Use it to help resolve ambiguous or hard-to-read
-            passages, but the image remains the source of truth: correct any
-            errors, add anything it omits, and drop anything not actually
-            present in the image.
+            "text" =>
+              """
+              An existing transcription of this image is provided below for
+              reference only. Use it to help resolve ambiguous or hard-to-read
+              passages, but the image remains the source of truth: correct any
+              errors, add anything it omits, and drop anything not actually
+              present in the image.
 
-            <existing_transcription>
-            #{trimmed}
-            </existing_transcription>
-            """
-            |> String.trim()
+              <existing_transcription>
+              #{trimmed}
+              </existing_transcription>
+              """
+              |> String.trim()
           }
         ]
     end
@@ -299,25 +299,8 @@ defmodule Meadow.Data.Transcriber do
 
   defp invoke_model_with_stream(model_id, body) do
     Logger.info("Invoking Bedrock streaming endpoint")
-    operation = build_stream_operation(model_id, body)
-    invoke_with_stream(operation)
-  end
 
-  defp build_stream_operation(model_id, body) do
-    post =
-      %ExAws.Operation.JSON{
-        data: body,
-        headers: [{"Content-Type", "application/json"}],
-        http_method: :post,
-        path: "/model/#{model_id}/converse-stream",
-        service: :"bedrock-runtime"
-      }
-
-    %{post | stream_builder: &BedrockStream.stream_objects!(post, nil, &1)}
-  end
-
-  defp invoke_with_stream(operation) do
-    ExAws.stream!(operation, service_override: :bedrock)
+    Meadow.AWS.Bedrock.converse_stream(model_id, body)
     |> consume_stream()
   rescue
     error ->

@@ -4,6 +4,7 @@ defmodule Meadow.Events.FileSets.Cleanup do
   """
 
   alias Meadow.Config
+  alias Meadow.AWS.S3
   alias Meadow.Data.FileSets
 
   use Meadow.Utils.Logging
@@ -75,8 +76,7 @@ defmodule Meadow.Events.FileSets.Cleanup do
   defp clean_structural_metadata!(%{id: id} = file_set_data) do
     Logger.warning("Removing structural metadata for #{id}")
 
-    ExAws.S3.delete_object(Config.pyramid_bucket(), FileSets.vtt_location(id))
-    |> ExAws.request()
+    S3.delete_object(Config.pyramid_bucket(), FileSets.vtt_location(id))
 
     file_set_data
   end
@@ -103,26 +103,20 @@ defmodule Meadow.Events.FileSets.Cleanup do
 
   defp delete_s3_uri(uri, true) do
     with %{host: bucket, path: "/" <> key} <- URI.parse(uri) do
-      case ExAws.S3.head_bucket(bucket) |> ExAws.request() do
-        {:error, {:http_error, 404, _}} ->
-          :noop
-
-        _ ->
-          keys =
-            ExAws.S3.list_objects(bucket, prefix: key)
-            |> ExAws.stream!()
-            |> Stream.map(& &1.key)
-
-          ExAws.S3.delete_all_objects(bucket, keys)
-          |> ExAws.request()
+      if S3.bucket_exists?(bucket) do
+        bucket
+        |> S3.stream_objects(prefix: key)
+        |> Stream.map(& &1.key)
+        |> then(&S3.delete_objects(bucket, &1))
+      else
+        :noop
       end
     end
   end
 
   defp delete_s3_uri(uri, false) do
     with %{host: bucket, path: "/" <> key} <- URI.parse(uri) do
-      ExAws.S3.delete_object(bucket, key)
-      |> ExAws.request()
+      S3.delete_object(bucket, key)
     end
   end
 end

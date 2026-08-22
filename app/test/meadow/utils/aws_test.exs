@@ -1,6 +1,8 @@
 defmodule Meadow.Utils.AWSTest do
   use Honeybadger.Case
   use Meadow.S3Case
+
+  alias Meadow.AWS.S3
   alias Meadow.Utils.AWS
 
   @project_folder_name "name-of-folder"
@@ -23,25 +25,20 @@ defmodule Meadow.Utils.AWSTest do
     end
 
     test "create_s3_folder/2 writes an \"empty\" folder to a bucket" do
-      assert {:ok, %{status_code: 200}} = AWS.create_s3_folder(@bucket, @project_folder_name)
+      assert :ok = AWS.create_s3_folder(@bucket, @project_folder_name)
     end
 
-    # test "create_s3_folder/2 creates bucket when it does not exist" do
-    #   with bucket <- @random_bucket do
-    #     assert {:error, {:http_error, 404, _}} =
-    #              bucket |> ExAws.S3.head_bucket() |> ExAws.request()
-    #
-    #     assert {:ok, %{status_code: 200}} = AWS.create_s3_folder(bucket, @project_folder_name)
-    #   end
-    # end
+    test "create_s3_folder/2 creates the bucket when it does not exist" do
+      with bucket <- @random_bucket do
+        refute S3.bucket_exists?(bucket)
+        assert :ok = AWS.create_s3_folder(bucket, @project_folder_name)
+        assert S3.bucket_exists?(bucket)
+      end
+    end
   end
 
   test "presigned_url/2 generates a presigned url" do
-    config = ExAws.Config.new(:s3)
-    scheme = config[:scheme]
-    host = config[:host]
-    port = config[:port]
-    regex = ~r{#{scheme}#{host}(:#{port})?/#{@bucket}/ingest_sheets(.)*}
+    regex = ~r{#{endpoint()}/#{@bucket}/ingest_sheets(.)*}
 
     with {:ok, presigned_url} <- AWS.presigned_url(@bucket, %{upload_type: "ingest_sheet"}) do
       assert presigned_url =~ regex
@@ -49,15 +46,20 @@ defmodule Meadow.Utils.AWSTest do
   end
 
   test "presigned_url/2 for a file set uses the original filename's extension" do
-    config = ExAws.Config.new(:s3)
-    scheme = config[:scheme]
-    host = config[:host]
-    port = config[:port]
-    regex = ~r{#{scheme}#{host}(:#{port})?/#{@bucket}/file_sets(.)*.jpg}
+    regex = ~r{#{endpoint()}/#{@bucket}/file_sets(.)*.jpg}
 
     with {:ok, presigned_url} <-
            AWS.presigned_url(@bucket, %{upload_type: "file_set", filename: "original.jpg"}) do
       assert presigned_url =~ regex
     end
+  end
+
+  # The scheme/host/port `Meadow.AWS` will actually sign against, escaped for a regex.
+  defp endpoint do
+    client = Meadow.AWS.client(:s3)
+
+    client
+    |> Meadow.AWS.endpoint_url(Meadow.AWS.host(client, "s3"))
+    |> Regex.escape()
   end
 end

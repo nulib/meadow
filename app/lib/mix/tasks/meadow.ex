@@ -78,6 +78,7 @@ defmodule Mix.Tasks.Meadow.BackfillAnnotationContent do
 
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.FileSetAnnotation
+  alias Meadow.AWS.S3
   alias Meadow.Repo
 
   import Ecto.Query
@@ -121,8 +122,8 @@ defmodule Mix.Tasks.Meadow.BackfillAnnotationContent do
   defp fetch_and_store(%FileSetAnnotation{s3_location: s3_location} = annotation) do
     %URI{host: bucket, path: "/" <> key} = URI.parse(s3_location)
 
-    case ExAws.S3.get_object(bucket, key) |> ExAws.request() do
-      {:ok, %{body: body}} ->
+    case S3.get_object(bucket, key) do
+      {:ok, body} ->
         case FileSets.update_annotation(annotation, %{content: body}) do
           {:ok, _} -> :ok
           {:error, reason} -> {:error, reason}

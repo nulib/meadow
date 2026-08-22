@@ -7,6 +7,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
 
   """
   alias Meadow.Data.{ActionStates, FileSets}
+  alias Meadow.AWS.S3
   alias Meadow.Utils.StructMap
 
   use Meadow.Pipeline.Actions.Common
@@ -50,9 +51,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   defp copy_hashes_from_s3(url) do
     %{host: bucket, path: "/" <> key} = URI.parse(url)
 
-    ExAws.S3.get_object_tagging(bucket, key)
-    |> ExAws.request!()
-    |> get_in([:body, :tags])
+    S3.get_object_tagging!(bucket, key)
     |> extract_tags()
     |> Enum.reject(&is_nil/1)
     |> Enum.into(%{})

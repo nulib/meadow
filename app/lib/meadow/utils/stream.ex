@@ -5,14 +5,11 @@ defmodule Meadow.Utils.Stream do
 
   require Logger
 
-  alias ExAws.S3
+  alias Meadow.AWS.S3
 
   def exists?("s3://" <> _ = url) do
     with %{host: bucket, path: "/" <> key} <- URI.parse(url) do
-      case S3.head_object(bucket, key) |> ExAws.request() do
-        {:ok, %{status_code: status}} when status in 200..299 -> true
-        _ -> false
-      end
+      S3.object_exists?(bucket, key)
     end
   end
 
@@ -28,10 +25,9 @@ defmodule Meadow.Utils.Stream do
   def copy("s3://" <> _ = source, "s3://" <> _ = dest) do
     with {source_bucket, source_key} <- parse_s3_uri(source),
          {dest_bucket, dest_key} <- parse_s3_uri(dest) do
-      S3.put_object_copy(dest_bucket, dest_key, source_bucket, source_key,
+      S3.copy_object!(dest_bucket, dest_key, source_bucket, source_key,
         metadata_directive: "COPY"
       )
-      |> ExAws.request!()
     end
   end
 
@@ -44,24 +40,14 @@ defmodule Meadow.Utils.Stream do
   end
 
   def copy("file://" <> source, "s3://" <> _ = dest) do
-    %{size: size} = File.stat!(source)
-
     {dest_bucket, dest_key} = parse_s3_uri(dest)
-
-    if size > 5 * 1024 * 1024 do
-      S3.Upload.stream_file(source) |> S3.upload(dest_bucket, dest_key)
-    else
-      content = File.read!(source)
-      S3.put_object(dest_bucket, dest_key, content)
-    end
-    |> ExAws.request!()
+    S3.upload_file!(source, dest_bucket, dest_key)
   end
 
   def list_contents("s3://" <> _ = url) do
     {bucket, prefix} = parse_s3_uri(url)
 
-    S3.list_objects_v2(bucket, prefix: prefix)
-    |> ExAws.stream!()
+    S3.stream_objects(bucket, prefix: prefix)
     |> Stream.map(fn %{key: key} -> "s3://#{bucket}/#{key}" end)
     |> Enum.to_list()
   end
@@ -74,7 +60,7 @@ defmodule Meadow.Utils.Stream do
 
   def stream_from("s3://" <> _ = url) do
     with %{host: bucket, path: "/" <> key} <- URI.parse(url) do
-      S3.download_file(bucket, key, :memory) |> ExAws.stream!()
+      S3.stream_object(bucket, key)
     end
   end
 
@@ -109,15 +95,23 @@ defmodule Meadow.Utils.Stream do
       end
 
     case Req.parse_message(resp, message) do
-      {:ok, [{:data, chunk}]} -> {[chunk], resp}
-      {:ok, [{:trailers, _}]} -> {[], resp}
-      {:ok, [:done]} -> {:halt, resp}
+      {:ok, [{:data, chunk}]} ->
+        {[chunk], resp}
+
+      {:ok, [{:trailers, _}]} ->
+        {[], resp}
+
+      {:ok, [:done]} ->
+        {:halt, resp}
+
       {:error, reason} ->
         with msg <- "Error streaming #{inspect(resp)}: #{inspect(reason)}" do
           Logger.error(msg)
           raise Meadow.StreamError, message: msg
         end
-      :unknown -> {[], resp}
+
+      :unknown ->
+        {[], resp}
     end
   end
 

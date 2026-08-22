@@ -2,7 +2,7 @@ defmodule MediaConvert.Mock do
   @moduledoc """
   Mock AWS Elemental MediaConvert client
   """
-  alias ExAws.S3
+  alias Meadow.AWS.S3
   alias Meadow.Config
   alias Meadow.Data.FileSets
   alias Meadow.Pipeline.Actions.TranscodeComplete
@@ -11,7 +11,7 @@ defmodule MediaConvert.Mock do
 
   def configure! do
     with bucket <- Config.streaming_bucket() do
-      S3.put_bucket_policy(
+      S3.put_bucket_policy!(
         bucket,
         %{
           "Statement" => [
@@ -30,9 +30,7 @@ defmodule MediaConvert.Mock do
           ],
           "Version" => "2012-10-17"
         }
-        |> Jason.encode!()
       )
-      |> ExAws.request!()
     end
 
     :ok
@@ -105,14 +103,9 @@ defmodule MediaConvert.Mock do
 
     with %{host: source_bucket, path: "/" <> source_key} <- file_input(template) |> URI.parse(),
          %{host: destination_bucket, path: "/" <> destination_key} <- URI.parse(destination) do
-      S3.put_object_copy(
-        destination_bucket,
-        destination_key,
-        source_bucket,
-        source_key,
-        acl: :public_read
+      S3.copy_object!(destination_bucket, destination_key, source_bucket, source_key,
+        acl: "public-read"
       )
-      |> ExAws.request!()
     end
 
     template
@@ -135,7 +128,7 @@ defmodule MediaConvert.Mock do
       },
       "detail-type": "MediaConvert Job State Change",
       id: Ecto.UUID.generate(),
-      region: ExAws.Config.new(:mediaconvert) |> Map.get(:region),
+      region: Meadow.AWS.client(:mediaconvert).region,
       resources: ["arn:aws:mediaconvert:us-east-1:012345678901:jobs/fake-job-id"],
       source: "aws.mediaconvert",
       time: timestamp |> DateTime.truncate(:second) |> DateTime.to_iso8601(),
@@ -161,7 +154,7 @@ defmodule MediaConvert.Mock do
       },
       "detail-type": "MediaConvert Job State Change",
       id: Ecto.UUID.generate(),
-      region: ExAws.Config.new(:mediaconvert) |> Map.get(:region),
+      region: Meadow.AWS.client(:mediaconvert).region,
       resources: ["arn:aws:mediaconvert:us-east-1:012345678901:jobs/fake-job-id"],
       source: "aws.mediaconvert",
       time: timestamp |> DateTime.truncate(:second) |> DateTime.to_iso8601(),

@@ -50,15 +50,13 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
 
       assert(object_exists?(@preservation_bucket, preservation_key))
 
-      with {:ok, %{headers: headers}} <-
-             ExAws.S3.head_object(@preservation_bucket, preservation_key) |> ExAws.request() do
-        assert headers |> Enum.member?({"content-type", "image/tiff"})
-        assert headers |> Enum.member?({"x-amz-meta-md5", @md5})
+      with {:ok, %{content_type: content_type, metadata: metadata}} <-
+             S3.head_object(@preservation_bucket, preservation_key) do
+        assert content_type == "image/tiff"
+        assert Map.get(metadata, "md5") == @md5
       end
 
-      with {:ok, %{body: %{tags: tags}}} <-
-             ExAws.S3.get_object_tagging(@preservation_bucket, preservation_key)
-             |> ExAws.request() do
+      with {:ok, tags} <- S3.get_object_tagging(@preservation_bucket, preservation_key) do
         assert Enum.member?(tags, %{key: "computed-md5", value: @md5})
       end
 
@@ -72,8 +70,7 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
     @describetag s3: [@fixture]
 
     setup tags do
-      ExAws.S3.put_object(@preservation_bucket, tags.preservation_key, @content)
-      |> ExAws.request!()
+      S3.put_object!(@preservation_bucket, tags.preservation_key, @content)
 
       on_exit(fn ->
         delete_object(@preservation_bucket, tags.preservation_key)
@@ -138,11 +135,8 @@ defmodule Meadow.Pipeline.Actions.CopyFileToPreservationTest do
     @describetag s3: [@fixture]
 
     setup tags do
-      ExAws.S3.put_object(@preservation_bucket, tags.preservation_key, @content)
-      |> ExAws.request!()
-
-      ExAws.S3.put_object(@ingest_bucket, "ingest-object", @content)
-      |> ExAws.request!()
+      S3.put_object!(@preservation_bucket, tags.preservation_key, @content)
+      S3.put_object!(@ingest_bucket, "ingest-object", @content)
 
       on_exit(fn ->
         delete_object(@preservation_bucket, tags.preservation_key)

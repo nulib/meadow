@@ -4,6 +4,7 @@ defmodule Meadow.Events.FileSets.StructuralMetadata do
   """
 
   alias Meadow.Config
+  alias Meadow.AWS.S3
   alias Meadow.Data.FileSets
 
   use Meadow.Utils.Logging
@@ -30,10 +31,9 @@ defmodule Meadow.Events.FileSets.StructuralMetadata do
        when is_binary(vtt) do
     Logger.info("Writing structural metadata for #{id}")
 
-    ExAws.S3.put_object(Config.pyramid_bucket(), FileSets.vtt_location(id), vtt,
+    S3.put_object(Config.pyramid_bucket(), FileSets.vtt_location(id), vtt,
       content_type: "text/vtt"
     )
-    |> ExAws.request()
   end
 
   defp do_write_structural_metadata(_), do: :noop

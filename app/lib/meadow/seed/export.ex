@@ -4,6 +4,7 @@ defmodule Meadow.Seed.Export do
   """
 
   alias Ecto.Adapters.SQL
+  alias Meadow.AWS.S3
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Repo
@@ -87,12 +88,7 @@ defmodule Meadow.Seed.Export do
       |> CSV.dump_to_iodata()
       |> IO.iodata_to_binary()
 
-    ExAws.S3.put_object(
-      opts.bucket,
-      Path.join([opts.prefix, "exported_assets.csv"]),
-      exported_csv
-    )
-    |> ExAws.request!()
+    S3.put_object!(opts.bucket, Path.join([opts.prefix, "exported_assets.csv"]), exported_csv)
 
     {:ok, %{sheet_ids: sheet_ids, work_ids: work_ids, exported_assets: exported_assets}}
   end
@@ -100,8 +96,7 @@ defmodule Meadow.Seed.Export do
   def export_manifest(bucket, prefix) do
     manifest = %{last_migration_version: Migration.latest_version()} |> Jason.encode!()
 
-    ExAws.S3.put_object(bucket, Path.join([prefix, "manifest.json"]), manifest)
-    |> ExAws.request!()
+    S3.put_object!(bucket, Path.join([prefix, "manifest.json"]), manifest)
   end
 
   def export_common(_, nil), do: raise(ArgumentError, "Export requires a prefix")
@@ -206,27 +201,20 @@ defmodule Meadow.Seed.Export do
     with %URI{host: source_bucket, path: "/" <> source_key} <- URI.parse(source),
          key <- Path.join([prefix, source_key]) do
       status =
-        case ExAws.S3.put_object_copy(
-               bucket,
-               key,
-               source_bucket,
-               source_key,
-               metadata_directive: "COPY"
-             )
-             |> ExAws.request() do
+        case S3.copy_object(bucket, key, source_bucket, source_key, metadata_directive: "COPY") do
+          {:ok, _} ->
+            200
+
           {:error, {:http_error, status, _}} ->
             Logger.warning("Failed to copy: HTTP error #{status}")
             status
 
-          {:error, message} ->
-            Logger.warning("Failed to copy because: #{message}")
-            500
+          {:error, :not_found} ->
+            Logger.warning("Failed to copy: source not found")
+            404
 
-          {:ok, %{status_code: status}} ->
-            status
-
-          other ->
-            Logger.warning("Unexpected response: #{inspect(other)}")
+          {:error, reason} ->
+            Logger.warning("Failed to copy because: #{inspect(reason)}")
             500
         end
 
@@ -242,8 +230,7 @@ defmodule Meadow.Seed.Export do
   end
 
   defp upload_dump(rows, bucket, key) do
-    ExAws.S3.put_object(bucket, key, Enum.join(rows, ""))
-    |> ExAws.request!()
+    S3.put_object!(bucket, key, Enum.join(rows, ""))
   end
 
   defp interpolate_params(queryable) do
