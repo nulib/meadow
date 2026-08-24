@@ -1615,4 +1615,54 @@ defmodule Meadow.AI.ProvenanceTest do
       assert Provenance.work_ids_with_applied_ai_targets([]) == []
     end
   end
+
+  describe "ai_involved?/2" do
+    test "true for an applied Work-level AI target" do
+      work = work_fixture()
+      seed_lookup_target(work, "ai_generated", "applied")
+
+      assert Provenance.ai_involved?(Provenance.work_summary(work.id), work.id)
+    end
+
+    test "false when the only target is a transcription (FileSetAnnotation)" do
+      work = work_fixture()
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "transcription",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "FileSetAnnotation",
+            target_id: Ecto.UUID.generate(),
+            field_path: "file_set_annotations.content",
+            operation: "replace",
+            proposed_value: ["transcribed text"],
+            origin: "ai_generated",
+            status: "applied"
+          },
+          "applied"
+        )
+
+      refute Provenance.ai_involved?(Provenance.work_summary(work.id), work.id)
+    end
+
+    test "false when the AI target has not yet been applied" do
+      work = work_fixture()
+      seed_lookup_target(work, "ai_generated", "proposed")
+
+      refute Provenance.ai_involved?(Provenance.work_summary(work.id), work.id)
+    end
+
+    test "false for a work with no provenance targets at all" do
+      work = work_fixture()
+
+      refute Provenance.ai_involved?(Provenance.work_summary(work.id), work.id)
+    end
+  end
 end

@@ -71,6 +71,9 @@
         "type": "object",
         "enabled": false
       },
+      "ai_involved": {
+        "type": "boolean"
+      },
       "create_date": {
         "type": "date_nanos"
       },

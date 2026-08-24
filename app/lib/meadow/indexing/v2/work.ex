@@ -9,6 +9,8 @@ defmodule Meadow.Indexing.V2.Work do
   alias Meadow.Search.Config
 
   def encode(work) do
+    ai_provenance = Provenance.work_summary(work.id)
+
     %{
       abstract: work.descriptive_metadata.abstract,
       accession_number: work.accession_number,
@@ -37,7 +39,8 @@ defmodule Meadow.Indexing.V2.Work do
       folder_number: work.descriptive_metadata.folder_number,
       genre: encode_field(work.descriptive_metadata.genre),
       id: work.id,
-      ai_provenance: Provenance.work_summary_map(work.id),
+      ai_provenance: Provenance.summary_map(ai_provenance),
+      ai_involved: Provenance.ai_involved?(ai_provenance, work.id),
       identifier: work.descriptive_metadata.identifier,
       iiif_manifest: manifest_id(work),
       indexed_at: NaiveDateTime.utc_now(),

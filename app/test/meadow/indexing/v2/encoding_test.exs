@@ -72,6 +72,36 @@ defmodule Meadow.Indexing.V2.EncodingTest do
              } = doc |> get_in([:ai_provenance, "descriptive_metadata.description"])
 
       assert activity_id == activity.id
+      assert doc |> get_in([:ai_involved]) == true
+    end
+
+    test "work is not ai_involved when its only AI target is a transcription", %{work: subject} do
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "transcription",
+          model: "test-model",
+          work_id: subject.id,
+          status: "completed"
+        })
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "FileSetAnnotation",
+            target_id: Ecto.UUID.generate(),
+            field_path: "file_set_annotations.content",
+            operation: "replace",
+            proposed_value: ["Transcribed text"],
+            origin: "ai_generated",
+            status: "applied"
+          },
+          "applied"
+        )
+
+      doc = subject |> Document.encode(2)
+
+      assert doc |> get_in([:ai_involved]) == false
     end
 
     test "indexes a work with AI provenance without bulk mapping errors", %{work: subject} do
@@ -109,6 +139,8 @@ defmodule Meadow.Indexing.V2.EncodingTest do
 
       assert get_in(source, ["ai_provenance", "descriptive_metadata.description", "origin"]) ==
                "ai_generated"
+
+      assert get_in(source, ["ai_involved"]) == true
     end
 
     test "work encodes nav_place", %{work: subject} do
