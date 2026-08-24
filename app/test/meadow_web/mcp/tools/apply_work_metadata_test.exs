@@ -39,9 +39,7 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadataTest do
 
       fresh = Meadow.Data.Works.get_work!(work.id)
       assert fresh.descriptive_metadata.description == ["A test description."]
-
-      assert [%{note: note_text, type: %{id: "LOCAL_NOTE"}}] = fresh.descriptive_metadata.notes
-      assert note_text =~ "Some metadata created with the assistance of AI"
+      assert fresh.descriptive_metadata.notes == []
 
       assert [
                %{
@@ -53,6 +51,29 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadataTest do
                  origin: "ai_generated"
                }
              ] = Provenance.work_summary(work.id)
+    end
+
+    test "does not overwrite a work's existing curator-authored notes" do
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{
+            title: "Curator Note Test",
+            notes: [%{note: "Curator wrote this.", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}]
+          }
+        })
+
+      frame = %Anubis.Server.Frame{}
+
+      args = %{
+        work_id: work.id,
+        description: "A test description.",
+        subjects: []
+      }
+
+      assert {:reply, _response, _frame} = ApplyWorkMetadata.execute(args, frame)
+
+      fresh = Meadow.Data.Works.get_work!(work.id)
+      assert [%{note: "Curator wrote this.", type: %{id: "GENERAL_NOTE"}}] = fresh.descriptive_metadata.notes
     end
   end
 end
