@@ -76,7 +76,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   alias Anubis.Server.Response
   alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment, Planner}
-  alias Meadow.Data.Schemas.{DateCreatedEntry, WorkDescriptiveMetadata}
+  alias Meadow.Data.Schemas.WorkDescriptiveMetadata
   alias Meadow.Data.Works
   alias Meadow.Repo
   require Logger
@@ -986,8 +986,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
 
   defp single_value_string_fields, do: WorkDescriptiveMetadata.__metadata__(:fields, :string)
 
-  defp date_fields,
-    do: WorkDescriptiveMetadata.__metadata__(:fields, {:entries, DateCreatedEntry})
+  defp date_fields, do: WorkDescriptiveMetadata.__metadata__(:fields, :dates)
 
   defp role_required_fields do
     Enum.filter(

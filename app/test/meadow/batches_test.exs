@@ -1,6 +1,5 @@
 defmodule Meadow.BatchesTest do
   use Meadow.DataCase
-  alias Meadow.Data.Schemas.MetadataValue
   use Meadow.IndexCase
 
   alias Meadow.Batches
@@ -206,17 +205,14 @@ defmodule Meadow.BatchesTest do
       |> Enum.each(fn work ->
         assert work.descriptive_metadata.alternate_title |> length() == 2
 
-        assert MetadataValue.values(work.descriptive_metadata.box_name) == [
+        assert work.descriptive_metadata.box_name == [
                  "Michael Jordan",
                  "His Airness"
                ]
 
-        assert MetadataValue.values(work.descriptive_metadata.box_number) == []
+        assert work.descriptive_metadata.box_number == []
 
-        assert Enum.map(
-                 work.descriptive_metadata.date_created,
-                 &Map.take(&1, [:edtf, :humanized])
-               ) == [
+        assert work.descriptive_metadata.date_created == [
                  %{edtf: "1009", humanized: "1009"},
                  %{edtf: "100X", humanized: "1000s"},
                  %{edtf: "1968%", humanized: "circa 1968?"}
@@ -253,12 +249,12 @@ defmodule Meadow.BatchesTest do
 
       Works.list_works()
       |> Enum.each(fn work ->
-        assert MetadataValue.values(work.descriptive_metadata.cultural_context) == [
+        assert work.descriptive_metadata.cultural_context == [
                  "Some Context",
                  "Some More Context"
                ]
 
-        assert MetadataValue.values(work.descriptive_metadata.box_name) == [
+        assert work.descriptive_metadata.box_name == [
                  "Michael Jordan",
                  "His Airness"
                ]

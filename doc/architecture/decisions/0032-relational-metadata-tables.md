@@ -47,30 +47,57 @@ ordinary Ecto schemas and associations. The Elixir struct API stays the same
 encoders and the CSV code keep reading metadata the way they always have; only
 the storage and the write paths change.
 
-Concretely, for works:
+Concretely, for works, a child table is created only where one earns its keep:
+where it carries a foreign key, or where it is queried relationally. Repeating
+fields that are neither become columns on the metadata row — normalizing a
+repeating scalar purely to give it row identity buys nothing and costs a
+wrapper struct, a preload and a public shape change. Applying that test field
+by field:
 
-- `work_descriptive_metadata` and `work_administrative_metadata` hold the
-  scalar and coded fields, one row per work keyed by `work_id`.
-- Repeating fields are child rows with a uuid `id` and a `position`:
-  `work_metadata_values` (all repeating free text, with `section` and `field`
-  columns), `work_controlled_entries` (term URI plus optional role),
-  `work_notes`, `work_related_urls`, `work_dates_created` and
-  `work_nav_places`.
+| Field kind | Storage | Why |
+| --- | --- | --- |
+| repeating free text (29 fields) | `text[]` column | no foreign key, never joined |
+| EDTF dates (`date_created`) | `text[]` of EDTF strings | no foreign key, never joined |
+| places (`nav_place`) | embedded jsonb | no foreign key, never joined, and cannot be batch updated or proposed |
+| controlled terms (8 fields) | `work_controlled_entries` | queried by term and role; role has a foreign key |
+| notes, related URLs | `work_notes`, `work_related_urls` | note type and URL label have foreign keys |
+| scalars, coded terms | columns | — |
+
+- `work_descriptive_metadata` and `work_administrative_metadata` hold one row
+  per work keyed by `work_id`: scalars and coded terms as columns, repeating
+  free text and EDTF dates as `text[]`, places as embedded jsonb.
+- `work_controlled_entries`, `work_notes` and `work_related_urls` are child
+  rows with a uuid `id` and a `position`.
+- A controlled entry's identity is its natural key (`work_id`, `field`,
+  `term_id`, `role_id`), enforced by a unique index; the uuid is only a
+  technical primary key and is not exposed. `role_scheme` is a generated column
+  (`contributor` implies `marc_relator`, `subject` implies `subject_role`), so
+  the application never maintains it while the pair still carries a real
+  foreign key.
+- Derived values are not stored. A coded term's label is resolved from
+  `coded_terms` on load, a controlled term's from the term cache, and a date's
+  `humanized` rendering is computed by `Meadow.Data.Types.EDTFDate` on load, so
+  a change to the humanizer cannot leave stale renderings behind. Plan change
+  operations are the exception: they record `term_label` and `role_label` as
+  shown to the reviewer at proposal time, because an authority can relabel a
+  term afterwards.
 - Coded terms are stored as their text id. Each coded column is paired with a
   generated `*_scheme` column so the pair carries a real composite foreign
   key to `coded_terms (id, scheme)`; `Meadow.Data.Types.CodedTerm` is an
   `Ecto.ParameterizedType` that takes the scheme from the field declaration
   and still loads `%{id, scheme, label}`.
-- In Ecto, `embeds_one` becomes `has_one` and each repeating field is a
-  filtered `has_many` on the shared child table (`where:` for reads,
+- In Ecto, `embeds_one` becomes `has_one`. Controlled fields are filtered
+  `has_many` associations on the shared child table (`where:` for reads,
   `defaults:` so rows built by `cast_assoc` are stamped with the field,
-  `preload_order: [asc: :position]`, `on_replace: :delete`).
-  `Meadow.Data.Schemas.MultiValued` normalizes incoming lists (bare strings
-  become `{value}` params), reattaches ids to unchanged items by exact natural
-  key so re-sending a list never remints ids, rejects foreign or duplicate
-  ids, and hands the list to `cast_assoc`, which does the insert, update and
-  delete diffing. Position uniqueness is a deferrable constraint because a
-  reorder rewrites positions inside one transaction.
+  `preload_order: [asc: :position]`, `on_replace: :delete`); notes and related
+  URLs have a table each. `Meadow.Data.Schemas.MultiValued` normalizes incoming
+  lists, reattaches ids to unchanged items by exact natural key so re-sending a
+  list never remints ids or rewrites unchanged rows, rejects foreign or
+  duplicate ids, and hands the list to `cast_assoc`, which does the insert,
+  update and delete diffing. It now serves ten fields rather than forty-one.
+  Position uniqueness is a deferrable constraint because a reorder rewrites
+  positions inside one transaction. Array-backed fields need none of this:
+  order is the array's own order, and the whole column is rewritten at once.
 - Batch updates and plan-change application use
   `Meadow.Data.Works.MetadataWriter`, which validates values through the same
   entry changesets and then applies them with `insert_all`, `delete_all` and
@@ -88,10 +115,11 @@ Concretely, for works:
   anything still missing before casting, and the search indexer and dataloader
   include it. The metadata tables are added to the WAL publication so a change
   to any metadata row reindexes its work.
-- GraphQL exposes repeating free-text values as `{ id, value }` objects and
-  accepts an optional `id` on every repeating input; notes, related URLs,
-  dates and controlled entries gain an `id` as well. The search index and the
-  CSV export keep their flat public shapes.
+- The GraphQL shape is unchanged from before the cutover: repeating free-text
+  values are `[String]`, and controlled entries and dates carry no `id`. Only
+  notes and related URLs gain an `id`, which clients echo so that an unrelated
+  edit does not rewrite the rows. The search index and the CSV export keep
+  their flat public shapes.
 
 The same approach applies, table by table, to file set metadata, ingest sheet
 rows and states, and plan change operations.
@@ -107,20 +135,36 @@ place until a final cleanup migration removes them.
 
 Metadata becomes queryable with joins and indexes, enforceable with foreign
 keys and check constraints, and writable through validated changesets and
-set-based Ecto queries. Every repeating item has a stable uuid, so the goals
-of the unmerged item-identity work are met by the primary key, and the
-reconciliation heuristics that work needed are unnecessary. Free-text item
-provenance continues to be keyed by the item's text until plan change
-operations carry their own ids (the relational plan change phase), at which
-point the minted operation id can become the value row id.
+set-based Ecto queries. Controlled terms in particular are searchable by term,
+by term and role, and by term, role and field, all served by one index — the
+capability the `work_terms` projection existed to provide.
 
-Reads that touch metadata must preload the associations. A list preload costs
-one query per association (about forty per list, independent of list size),
-which is acceptable for the staff interface and the indexer's chunks; a
-grouped single-query loader remains available as an optimization if a hot path
-needs it. A changeset on a work that was fetched without the preloads is
-repaired automatically, at the cost of the missing preload queries.
+The Elixir struct API really is unchanged from the jsonb embeds:
+`work.descriptive_metadata.abstract` is a list of strings, `date_created` a
+list of `%{edtf, humanized}`, `nav_place` a list of place structs. No accessor,
+unwrapping helper or public/internal shape distinction is needed, and the
+search index encoder, the ARK builder, provenance and the CSV code read
+metadata exactly as they did before.
 
-Clients that edit repeating values should echo the `id` they were given;
-unchanged values are matched by text either way, but an edited value without
-its id is new content. The CSV cell format is unchanged.
+Reads that touch metadata must preload the two metadata rows and the ten child
+associations. A list preload costs one query per association, independent of
+list size; a grouped single-query loader for the eight controlled fields
+remains available if a hot path needs it. A changeset on a work fetched without
+the preloads is repaired automatically, at the cost of the missing queries.
+
+Two costs are accepted deliberately:
+
+- Free-text items have no stable id. Item-level provenance (ADR 31) keys them
+  by text, which is what it already did, and plan change operations now carry
+  their own ids. If per-item identity becomes necessary, it can be added by
+  giving the fields back their rows, or by keying provenance to the operation
+  id.
+- Substring search over an array needs `EXISTS (SELECT 1 FROM unnest(col) v
+  WHERE v ILIKE ?)`, which no index serves, or a `pg_trgm` expression index on
+  `array_to_string(col, ' ')` — one per searchable field, where a row-per-value
+  table would need one index for all of them. This is acceptable because
+  free-text search over works is served by the search index, and no query in
+  the application does substring matching on these fields.
+
+The CSV cell format and header order are unchanged; header order now derives
+from the schema declaration order rather than a hand-maintained list.

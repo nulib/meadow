@@ -15,8 +15,6 @@ defmodule Meadow.Data.Works.MetadataWriter do
 
   alias Meadow.Data.Schemas.{
     ControlledMetadataEntry,
-    DateCreatedEntry,
-    MetadataValue,
     NoteEntry,
     RelatedURLEntry,
     Work,
@@ -24,12 +22,15 @@ defmodule Meadow.Data.Works.MetadataWriter do
     WorkDescriptiveMetadata
   }
 
+  alias Meadow.Data.Types.EDTFDate
   alias Meadow.Repo
 
   @descriptive_multi WorkDescriptiveMetadata.__metadata__(:fields, :values)
   @administrative_multi WorkAdministrativeMetadata.__metadata__(:fields, :values)
   @controlled_fields WorkDescriptiveMetadata.__metadata__(:fields, :controlled)
-  @entry_fields WorkDescriptiveMetadata.__metadata__(:fields, :entries) -- [:nav_place]
+  @date_fields WorkDescriptiveMetadata.__metadata__(:fields, :dates)
+  @place_fields WorkDescriptiveMetadata.__metadata__(:fields, :places)
+  @entry_fields WorkDescriptiveMetadata.__metadata__(:fields, :entries)
 
   @doc """
   Merge `%{descriptive_metadata: %{...}, administrative_metadata: %{...}}` into
@@ -59,7 +60,10 @@ defmodule Meadow.Data.Works.MetadataWriter do
   defp merge_section(work_ids, :descriptive, values, mode) do
     Enum.each(values, fn
       {field, value} when field in @descriptive_multi ->
-        write_values(work_ids, "descriptive", field, List.wrap(value), mode)
+        write_values(work_ids, WorkDescriptiveMetadata, field, List.wrap(value), mode)
+
+      {field, value} when field in @date_fields ->
+        write_dates(work_ids, WorkDescriptiveMetadata, field, List.wrap(value), mode)
 
       {field, value} when field in @controlled_fields ->
         raise ArgumentError,
@@ -68,8 +72,8 @@ defmodule Meadow.Data.Works.MetadataWriter do
       {field, value} when field in @entry_fields ->
         write_entries(work_ids, field, List.wrap(value), mode)
 
-      {:nav_place, _value} ->
-        raise ArgumentError, "nav_place cannot be batch updated"
+      {field, _value} when field in @place_fields ->
+        raise ArgumentError, "#{field} cannot be batch updated"
 
       {field, value} ->
         set_scalar(work_ids, WorkDescriptiveMetadata, field, value)
@@ -79,7 +83,7 @@ defmodule Meadow.Data.Works.MetadataWriter do
   defp merge_section(work_ids, :administrative, values, mode) do
     Enum.each(values, fn
       {field, value} when field in @administrative_multi ->
-        write_values(work_ids, "administrative", field, List.wrap(value), mode)
+        write_values(work_ids, WorkAdministrativeMetadata, field, List.wrap(value), mode)
 
       {field, value} ->
         set_scalar(work_ids, WorkAdministrativeMetadata, field, value)
@@ -110,38 +114,62 @@ defmodule Meadow.Data.Works.MetadataWriter do
     |> Repo.update_all(set: [updated_at: DateTime.utc_now()])
   end
 
-  # -- free text values ---------------------------------------------------
+  # -- free text values and dates ---------------------------------------------
 
-  defp write_values(work_ids, section, field, values, mode) do
-    field = to_string(field)
-    values = values |> Enum.map(&MetadataValue.value/1) |> Enum.reject(&is_nil/1)
+  defp write_values(work_ids, schema, field, values, mode) do
+    values = values |> Enum.map(&value_string/1) |> Enum.reject(&is_nil/1)
+    update_array(work_ids, schema, field, values, mode)
+  end
 
-    if mode == :replace do
-      from(v in MetadataValue,
-        where: v.work_id in ^work_ids and v.section == ^section and v.field == ^field
-      )
-      |> Repo.delete_all()
+  defp value_string(value) when is_binary(value), do: value
+  defp value_string(%{value: value}) when is_binary(value), do: value
+  defp value_string(%{"value" => value}) when is_binary(value), do: value
+  defp value_string(nil), do: nil
+  defp value_string(other), do: to_string(other)
+
+  # Only the EDTF string is stored; `humanized` is derived on load
+  defp write_dates(work_ids, schema, field, values, mode) do
+    edtf =
+      values
+      |> Enum.reject(&is_nil/1)
+      |> Enum.map(fn value ->
+        case EDTFDate.cast(value) do
+          {:ok, %{edtf: edtf}} -> edtf
+          _ -> raise ArgumentError, "invalid value for #{field}: #{inspect(value)}"
+        end
+      end)
+
+    update_array(work_ids, schema, field, edtf, mode)
+  end
+
+  defp update_array(work_ids, schema, field, values, mode) do
+    unless field in schema.permitted() do
+      raise ArgumentError, "#{inspect(schema)} has no batch-updatable field #{field}"
     end
 
-    insert_rows(
-      MetadataValue,
-      work_ids,
-      starting_positions(MetadataValue, work_ids, section: section, field: field),
-      fn work_id, value, position ->
-        %{
-          id: Ecto.UUID.generate(),
-          work_id: work_id,
-          section: section,
-          field: field,
-          position: position,
-          value: value
-        }
-      end,
-      values
+    apply_array(work_ids, schema, field, values, mode)
+
+    from(m in schema, where: m.work_id in ^work_ids)
+    |> Repo.update_all(set: [updated_at: DateTime.utc_now()])
+  end
+
+  defp apply_array(work_ids, schema, field, values, :replace) do
+    from(m in schema, where: m.work_id in ^work_ids)
+    |> Repo.update_all(set: [{field, values}])
+  end
+
+  # `:append` concatenates without deduplicating, matching the jsonb writer it
+  # replaces. Ecto cannot express `array_cat` against a runtime column name, so
+  # this is raw SQL; `field in permitted()` above guarantees it is a declared
+  # field of the schema rather than caller-supplied text.
+  defp apply_array(work_ids, schema, field, values, :append) do
+    Repo.query!(
+      "UPDATE #{schema.__schema__(:source)} SET #{field} = array_cat(#{field}, $1::text[]) WHERE work_id = ANY($2)",
+      [values, Enum.map(work_ids, &Ecto.UUID.dump!/1)]
     )
   end
 
-  # -- notes / related urls / dates -----------------------------------------
+  # -- notes / related urls ---------------------------------------------------
 
   defp write_entries(work_ids, field, entries, mode) do
     schema = WorkDescriptiveMetadata.__metadata__(:schema, field)
@@ -172,7 +200,6 @@ defmodule Meadow.Data.Works.MetadataWriter do
 
   defp entry_columns(NoteEntry), do: [:note, :type]
   defp entry_columns(RelatedURLEntry), do: [:url, :label]
-  defp entry_columns(DateCreatedEntry), do: [:edtf, :humanized]
 
   # -- controlled terms -------------------------------------------------------
 
@@ -203,18 +230,14 @@ defmodule Meadow.Data.Works.MetadataWriter do
   defp add_controlled(_work_ids, _field, []), do: :ok
 
   defp add_controlled(work_ids, field, add) do
-    # validate (and resolve the role scheme) through the entry changeset once per distinct entry
-    validated =
-      Enum.map(add, fn %{term: term, role: role_id} = entry ->
-        params = %{term: term, role: role_id && %{id: role_id}}
-
-        changeset =
-          %ControlledMetadataEntry{field: field}
-          |> ControlledMetadataEntry.changeset(params, 0)
-
-        struct = apply_changes!(changeset, field)
-        Map.put(entry, :role_scheme, struct.role_scheme)
-      end)
+    # Validate through the entry changeset once per distinct entry, so an
+    # unknown term or role raises before anything is written. `role_scheme` is a
+    # generated column, so there is nothing to resolve here.
+    Enum.each(add, fn %{term: term, role: role_id} ->
+      %ControlledMetadataEntry{field: field}
+      |> ControlledMetadataEntry.changeset(%{term: term, role: role_id && %{id: role_id}}, 0)
+      |> apply_changes!(field)
+    end)
 
     existing =
       from(e in ControlledMetadataEntry,
@@ -229,18 +252,17 @@ defmodule Meadow.Data.Works.MetadataWriter do
     rows =
       work_ids
       |> Enum.flat_map(fn work_id ->
-        validated
+        add
         |> Enum.reject(&MapSet.member?(existing, {work_id, &1.term, &1.role}))
         |> Enum.with_index(Map.get(positions, work_id, 0))
-        |> Enum.map(fn {%{term: term, role: role_id, role_scheme: role_scheme}, position} ->
+        |> Enum.map(fn {%{term: term, role: role_id}, position} ->
           %{
             id: Ecto.UUID.generate(),
             work_id: work_id,
             field: field,
             position: position,
             term: term,
-            role: role_id,
-            role_scheme: role_scheme
+            role: role_id
           }
         end)
       end)

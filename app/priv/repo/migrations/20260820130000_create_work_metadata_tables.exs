@@ -1,18 +1,22 @@
 defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
   @moduledoc """
   Move work descriptive/administrative metadata out of the `works` jsonb
-  columns into relational tables:
+  columns.
 
-    * `work_descriptive_metadata`, `work_administrative_metadata` (one row per work)
-    * `work_metadata_values` (repeating free text, all fields)
-    * `work_controlled_entries` (controlled terms with optional role)
-    * `work_notes`, `work_related_urls`, `work_dates_created`, `work_nav_places`
+  A child table is created only where one earns its keep — where it carries a
+  foreign key to `coded_terms` or is queried relationally:
+
+    * `work_descriptive_metadata`, `work_administrative_metadata` (one row per
+      work) hold scalars and coded terms as columns, repeating free text and
+      EDTF dates as `text[]`, and places as embedded jsonb
+    * `work_controlled_entries` (queried by term and role; role has a foreign key)
+    * `work_notes`, `work_related_urls` (note type and URL label have foreign keys)
 
   Existing data is backfilled from the jsonb columns, which are left in place
   (unused) until the cleanup migration drops them. The `work_terms` projection
-  table and the jsonb batch-update functions are replaced by the new tables
-  and dropped here. Forward-only for data: `down/0` drops the new tables, the
-  jsonb columns still hold the original data.
+  table and the jsonb batch-update functions are replaced by the new tables and
+  dropped here. Forward-only for data: `down/0` drops the new tables, the jsonb
+  columns still hold the original data.
   """
 
   use Ecto.Migration
@@ -28,8 +32,10 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
 
   @controlled_fields ~w(contributor creator genre language location style_period subject technique)
 
-  @metadata_tables ~w(work_descriptive_metadata work_administrative_metadata work_metadata_values
-    work_controlled_entries work_notes work_related_urls work_dates_created work_nav_places)
+  @role_fields ~w(contributor subject)
+
+  @metadata_tables ~w(work_descriptive_metadata work_administrative_metadata
+    work_controlled_entries work_notes work_related_urls)
 
   def up do
     create_tables()
@@ -70,8 +76,15 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
   defp create_tables do
     create table(:work_descriptive_metadata, primary_key: false) do
       add(:work_id, references(:works, type: :uuid, on_delete: :delete_all), primary_key: true)
+
+      Enum.each(@descriptive_values, fn field ->
+        add(String.to_atom(field), {:array, :text}, null: false, default: [])
+      end)
+
       add(:title, :text)
       add(:terms_of_use, :text)
+      add(:date_created, {:array, :text}, null: false, default: [])
+      add(:nav_place, :map, null: false, default: fragment("'[]'::jsonb"))
       add(:license_id, :text)
       add(:license_scheme, :text, generated: "ALWAYS AS ('license') STORED")
       add(:rights_statement_id, :text)
@@ -85,6 +98,11 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
 
     create table(:work_administrative_metadata, primary_key: false) do
       add(:work_id, references(:works, type: :uuid, on_delete: :delete_all), primary_key: true)
+
+      Enum.each(@administrative_values, fn field ->
+        add(String.to_atom(field), {:array, :text}, null: false, default: [])
+      end)
+
       add(:library_unit_id, :text)
       add(:library_unit_scheme, :text, generated: "ALWAYS AS ('library_unit') STORED")
       add(:preservation_level_id, :text)
@@ -99,33 +117,6 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
     coded_fk(:work_administrative_metadata, :preservation_level)
     coded_fk(:work_administrative_metadata, :status)
 
-    create table(:work_metadata_values, primary_key: false) do
-      add(:id, :uuid, primary_key: true, default: fragment("gen_random_uuid()"))
-      add(:work_id, references(:works, type: :uuid, on_delete: :delete_all), null: false)
-      add(:section, :text, null: false)
-      add(:field, :text, null: false)
-      add(:position, :integer, null: false)
-      add(:value, :text, null: false)
-    end
-
-    create(
-      constraint(:work_metadata_values, :section_must_be_known,
-        check: "section IN ('descriptive', 'administrative')"
-      )
-    )
-
-    create(index(:work_metadata_values, [:work_id, :section, :field]))
-
-    # Free text fields (abstract, description, ...) can be arbitrarily long,
-    # and btree can't index a value larger than ~1/3 of a page. Exact-value
-    # lookups only make sense for short values anyway (identifiers, box/folder
-    # names, etc.), so skip indexing anything too long to matter.
-    create(
-      index(:work_metadata_values, [:field, :value], where: "octet_length(value) < 2000")
-    )
-
-    deferrable_unique(:work_metadata_values, ~w(work_id section field position))
-
     create table(:work_controlled_entries, primary_key: false) do
       add(:id, :uuid, primary_key: true, default: fragment("gen_random_uuid()"))
       add(:work_id, references(:works, type: :uuid, on_delete: :delete_all), null: false)
@@ -133,7 +124,10 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
       add(:position, :integer, null: false)
       add(:term_id, :text, null: false)
       add(:role_id, :text)
-      add(:role_scheme, :text)
+
+      # The role's scheme is a function of the field, so it is derived rather
+      # than stored by the application; the pair still carries a real FK.
+      add(:role_scheme, :text, generated: "ALWAYS AS (#{role_scheme_expression()}) STORED")
     end
 
     create(
@@ -143,14 +137,8 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
     )
 
     create(
-      constraint(:work_controlled_entries, :role_scheme_must_be_a_role_scheme,
-        check: "role_scheme IS NULL OR role_scheme IN ('marc_relator', 'subject_role')"
-      )
-    )
-
-    create(
-      constraint(:work_controlled_entries, :role_id_and_scheme_go_together,
-        check: "(role_id IS NULL) = (role_scheme IS NULL)"
+      constraint(:work_controlled_entries, :only_role_fields_carry_a_role,
+        check: "role_id IS NULL OR field IN (#{quoted_list(@role_fields)})"
       )
     )
 
@@ -161,7 +149,17 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
     """)
 
     create(index(:work_controlled_entries, [:work_id, :field]))
-    create(index(:work_controlled_entries, [:term_id]))
+
+    # Leading `term_id` also serves term-only lookups, so this one index covers
+    # search by term, by term and role, and by term, role and field
+    create(index(:work_controlled_entries, [:term_id, :role_id, :field]))
+
+    # An entry's identity is its natural key; `id` is only a technical primary key
+    execute("""
+    CREATE UNIQUE INDEX work_controlled_entries_natural_key
+      ON work_controlled_entries (work_id, field, term_id, COALESCE(role_id, ''))
+    """)
+
     deferrable_unique(:work_controlled_entries, ~w(work_id field position))
 
     create table(:work_notes, primary_key: false) do
@@ -190,33 +188,6 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
     create(index(:work_related_urls, [:work_id]))
     deferrable_unique(:work_related_urls, ~w(work_id position))
 
-    create table(:work_dates_created, primary_key: false) do
-      add(:id, :uuid, primary_key: true, default: fragment("gen_random_uuid()"))
-      add(:work_id, references(:works, type: :uuid, on_delete: :delete_all), null: false)
-      add(:position, :integer, null: false)
-      add(:edtf, :text, null: false)
-      add(:humanized, :text)
-    end
-
-    create(index(:work_dates_created, [:work_id]))
-    create(index(:work_dates_created, [:edtf]))
-    deferrable_unique(:work_dates_created, ~w(work_id position))
-
-    create table(:work_nav_places, primary_key: false) do
-      add(:id, :uuid, primary_key: true, default: fragment("gen_random_uuid()"))
-      add(:work_id, references(:works, type: :uuid, on_delete: :delete_all), null: false)
-      add(:position, :integer, null: false)
-      add(:place_id, :text)
-      add(:label, :text)
-      add(:summary, :text)
-      add(:longitude, :float)
-      add(:latitude, :float)
-    end
-
-    create(index(:work_nav_places, [:work_id]))
-    create(index(:work_nav_places, [:place_id]))
-    deferrable_unique(:work_nav_places, ~w(work_id position))
-
     # Top-level coded columns (converted to text ids earlier) get the same
     # integrity guarantee
     top_level_coded_fk(:works, :visibility, "visibility")
@@ -224,6 +195,10 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
     top_level_coded_fk(:works, :behavior, "behavior")
     top_level_coded_fk(:collections, :visibility, "visibility")
     top_level_coded_fk(:file_sets, :role, "file_set_role")
+  end
+
+  defp role_scheme_expression do
+    "CASE field WHEN 'contributor' THEN 'marc_relator' WHEN 'subject' THEN 'subject_role' END"
   end
 
   defp coded_fk(table, column) do
@@ -309,6 +284,32 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
            WHERE ct.id = e->'role'->>'id'
              AND ct.scheme = COALESCE(e->'role'->>'scheme', CASE f.field WHEN 'contributor' THEN 'marc_relator' WHEN 'subject' THEN 'subject_role' END)
          )
+       """},
+      # `role_scheme` is now derived from the field, so a role on any other
+      # field has nowhere to live
+      {"controlled entries carrying a role on a field that has no role scheme",
+       """
+       SELECT count(*) FROM works w
+       CROSS JOIN unnest(ARRAY[#{quoted_list(@controlled_fields -- @role_fields)}]) f(field)
+       CROSS JOIN LATERAL jsonb_array_elements(#{array_or_empty("w.descriptive_metadata->f.field")}) e
+       WHERE e->'role'->>'id' IS NOT NULL
+       """},
+      # The natural key is now unique, so exact duplicates would fail the load
+      {"works with duplicate controlled entries in one field",
+       """
+       SELECT COALESCE(sum(duplicates), 0) FROM (
+         SELECT count(*) - count(DISTINCT (term, role)) AS duplicates
+         FROM (
+           SELECT w.id AS work_id, f.field,
+                  CASE WHEN jsonb_typeof(e->'term') = 'object' THEN e->'term'->>'id' ELSE e->>'term' END AS term,
+                  COALESCE(e->'role'->>'id', '') AS role
+           FROM works w
+           CROSS JOIN unnest(ARRAY[#{quoted_list(@controlled_fields)}]) f(field)
+           CROSS JOIN LATERAL jsonb_array_elements(#{array_or_empty("w.descriptive_metadata->f.field")}) e
+         ) entries
+         WHERE term IS NOT NULL
+         GROUP BY work_id, field
+       ) counts
        """}
     ]
 
@@ -342,10 +343,15 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
     Logger.info("Backfilling work_descriptive_metadata")
 
     execute("""
-    INSERT INTO work_descriptive_metadata (work_id, title, terms_of_use, license_id, rights_statement_id, inserted_at, updated_at)
+    INSERT INTO work_descriptive_metadata
+      (work_id, #{Enum.join(@descriptive_values, ", ")}, title, terms_of_use, date_created,
+       nav_place, license_id, rights_statement_id, inserted_at, updated_at)
     SELECT w.id,
+           #{value_arrays("descriptive_metadata", @descriptive_values)},
            w.descriptive_metadata->>'title',
            w.descriptive_metadata->>'terms_of_use',
+           #{edtf_array("w.descriptive_metadata->'date_created'")},
+           #{nav_place_jsonb("w.descriptive_metadata->'nav_place'")},
            w.descriptive_metadata->'license'->>'id',
            w.descriptive_metadata->'rights_statement'->>'id',
            COALESCE((w.descriptive_metadata->>'inserted_at')::timestamp, w.inserted_at),
@@ -356,8 +362,11 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
     Logger.info("Backfilling work_administrative_metadata")
 
     execute("""
-    INSERT INTO work_administrative_metadata (work_id, library_unit_id, preservation_level_id, status_id, project_cycle, inserted_at, updated_at)
+    INSERT INTO work_administrative_metadata
+      (work_id, #{Enum.join(@administrative_values, ", ")}, library_unit_id,
+       preservation_level_id, status_id, project_cycle, inserted_at, updated_at)
     SELECT w.id,
+           #{value_arrays("administrative_metadata", @administrative_values)},
            w.administrative_metadata->'library_unit'->>'id',
            w.administrative_metadata->'preservation_level'->>'id',
            w.administrative_metadata->'status'->>'id',
@@ -367,20 +376,13 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
     FROM works w
     """)
 
-    Logger.info("Backfilling work_metadata_values")
-    backfill_values("descriptive", "descriptive_metadata", @descriptive_values)
-    backfill_values("administrative", "administrative_metadata", @administrative_values)
-
     Logger.info("Backfilling work_controlled_entries")
 
     execute("""
-    INSERT INTO work_controlled_entries (work_id, field, position, term_id, role_id, role_scheme)
+    INSERT INTO work_controlled_entries (work_id, field, position, term_id, role_id)
     SELECT w.id, f.field, e.ordinality - 1,
            CASE WHEN jsonb_typeof(e.elem->'term') = 'object' THEN e.elem->'term'->>'id' ELSE e.elem->>'term' END,
-           e.elem->'role'->>'id',
-           CASE WHEN e.elem->'role'->>'id' IS NULL THEN NULL
-                ELSE COALESCE(e.elem->'role'->>'scheme', CASE f.field WHEN 'contributor' THEN 'marc_relator' WHEN 'subject' THEN 'subject_role' END)
-           END
+           e.elem->'role'->>'id'
     FROM works w
     CROSS JOIN unnest(ARRAY[#{quoted_list(@controlled_fields)}]) f(field)
     CROSS JOIN LATERAL jsonb_array_elements(#{array_or_empty("w.descriptive_metadata->f.field")}) WITH ORDINALITY e(elem, ordinality)
@@ -404,37 +406,6 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
     FROM works w
     CROSS JOIN LATERAL jsonb_array_elements(#{array_or_empty("w.descriptive_metadata->'related_url'")}) WITH ORDINALITY e(elem, ordinality)
     """)
-
-    Logger.info("Backfilling work_dates_created")
-
-    execute("""
-    INSERT INTO work_dates_created (work_id, position, edtf, humanized)
-    SELECT w.id, e.ordinality - 1, e.elem->>'edtf', e.elem->>'humanized'
-    FROM works w
-    CROSS JOIN LATERAL jsonb_array_elements(#{array_or_empty("w.descriptive_metadata->'date_created'")}) WITH ORDINALITY e(elem, ordinality)
-    WHERE e.elem->>'edtf' IS NOT NULL
-    """)
-
-    Logger.info("Backfilling work_nav_places")
-
-    execute("""
-    INSERT INTO work_nav_places (work_id, position, place_id, label, summary, longitude, latitude)
-    SELECT w.id, e.ordinality - 1, e.elem->>'id', e.elem->>'label', e.elem->>'summary',
-           (e.elem->'coordinates'->>0)::float, (e.elem->'coordinates'->>1)::float
-    FROM works w
-    CROSS JOIN LATERAL jsonb_array_elements(#{array_or_empty("w.descriptive_metadata->'nav_place'")}) WITH ORDINALITY e(elem, ordinality)
-    """)
-  end
-
-  defp backfill_values(section, column, fields) do
-    execute("""
-    INSERT INTO work_metadata_values (work_id, section, field, position, value)
-    SELECT w.id, '#{section}', f.field, e.ordinality - 1, e.value
-    FROM works w
-    CROSS JOIN unnest(ARRAY[#{quoted_list(fields)}]) f(field)
-    CROSS JOIN LATERAL jsonb_array_elements_text(#{array_or_empty("w.#{column}->f.field")}) WITH ORDINALITY e(value, ordinality)
-    WHERE e.value IS NOT NULL
-    """)
   end
 
   defp verify! do
@@ -446,26 +417,15 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
       raise "Metadata row counts do not match works: #{work_count} works, #{descriptive_count} descriptive, #{administrative_count} administrative"
     end
 
-    # jsonb_array_length counts literal JSON nulls, but backfill_values drops
-    # them (they aren't real values), so count the same way it does: non-null
-    # elements of jsonb_array_elements_text.
+    # Both sides count non-null jsonb elements the same way the backfill does,
+    # so a mismatch means an array expression dropped something
     expected_values =
-      count!("""
-      SELECT count(*)
-      FROM works w
-      CROSS JOIN unnest(ARRAY[#{quoted_list(@descriptive_values)}]) f(field)
-      CROSS JOIN LATERAL jsonb_array_elements_text(#{array_or_empty("w.descriptive_metadata->f.field")}) e(value)
-      WHERE e.value IS NOT NULL
-      """) +
-        count!("""
-        SELECT count(*)
-        FROM works w
-        CROSS JOIN unnest(ARRAY[#{quoted_list(@administrative_values)}]) f(field)
-        CROSS JOIN LATERAL jsonb_array_elements_text(#{array_or_empty("w.administrative_metadata->f.field")}) e(value)
-        WHERE e.value IS NOT NULL
-        """)
+      count!(jsonb_element_count("descriptive_metadata", @descriptive_values)) +
+        count!(jsonb_element_count("administrative_metadata", @administrative_values))
 
-    actual_values = count!("SELECT count(*) FROM work_metadata_values")
+    actual_values =
+      count!(array_element_count("work_descriptive_metadata", @descriptive_values)) +
+        count!(array_element_count("work_administrative_metadata", @administrative_values))
 
     unless expected_values == actual_values do
       raise "Expected #{expected_values} metadata values, backfilled #{actual_values}"
@@ -475,9 +435,7 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
       "Backfilled #{descriptive_count} works, #{actual_values} values, " <>
         "#{count!("SELECT count(*) FROM work_controlled_entries")} controlled entries, " <>
         "#{count!("SELECT count(*) FROM work_notes")} notes, " <>
-        "#{count!("SELECT count(*) FROM work_related_urls")} related urls, " <>
-        "#{count!("SELECT count(*) FROM work_dates_created")} dates, " <>
-        "#{count!("SELECT count(*) FROM work_nav_places")} places"
+        "#{count!("SELECT count(*) FROM work_related_urls")} related urls"
     )
   end
 
@@ -496,6 +454,58 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
   # ---------------------------------------------------------------------------
   # helpers
 
+  defp value_arrays(column, fields) do
+    Enum.map_join(fields, ",\n           ", fn field ->
+      text_array("w.#{column}->'#{field}'")
+    end)
+  end
+
+  # `ARRAY(subquery)` preserves the subquery's row order, and
+  # `jsonb_array_elements_text` yields elements in array order. Literal JSON
+  # nulls become SQL NULL and are dropped, matching what the jsonb embeds
+  # treated as absent.
+  defp text_array(expr) do
+    "COALESCE(ARRAY(SELECT v FROM jsonb_array_elements_text(#{array_or_empty(expr)}) v WHERE v IS NOT NULL), '{}')"
+  end
+
+  # Only the EDTF string is stored; `humanized` is derived on load
+  defp edtf_array(expr) do
+    "COALESCE(ARRAY(SELECT e->>'edtf' FROM jsonb_array_elements(#{array_or_empty(expr)}) e WHERE e->>'edtf' IS NOT NULL), '{}')"
+  end
+
+  # The concise public map becomes the embedded schema's field names
+  defp nav_place_jsonb(expr) do
+    """
+    COALESCE((
+      SELECT jsonb_agg(
+               jsonb_build_object(
+                 'place_id', e->>'id',
+                 'label', e->>'label',
+                 'summary', e->>'summary',
+                 'longitude', (e->'coordinates'->>0)::float,
+                 'latitude', (e->'coordinates'->>1)::float
+               ) ORDER BY ord
+             )
+      FROM jsonb_array_elements(#{array_or_empty(expr)}) WITH ORDINALITY t(e, ord)
+    ), '[]'::jsonb)
+    """
+  end
+
+  defp jsonb_element_count(column, fields) do
+    """
+    SELECT count(*)
+    FROM works w
+    CROSS JOIN unnest(ARRAY[#{quoted_list(fields)}]) f(field)
+    CROSS JOIN LATERAL jsonb_array_elements_text(#{array_or_empty("w.#{column}->f.field")}) e(value)
+    WHERE e.value IS NOT NULL
+    """
+  end
+
+  defp array_element_count(table, fields) do
+    sums = Enum.map_join(fields, " + ", &"COALESCE(array_length(#{&1}, 1), 0)")
+    "SELECT COALESCE(sum(#{sums}), 0) FROM #{table}"
+  end
+
   defp array_or_empty(expr),
     do: "CASE WHEN jsonb_typeof(#{expr}) = 'array' THEN #{expr} ELSE '[]'::jsonb END"
 
@@ -503,6 +513,12 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
 
   defp count!(sql) do
     %{rows: [[count]]} = repo().query!(sql)
-    count || 0
+    to_integer(count)
   end
+
+  # `sum()` over bigint returns numeric, which arrives as a Decimal; comparing
+  # that to 0 with `==` is always false, so normalize before any check does
+  defp to_integer(nil), do: 0
+  defp to_integer(count) when is_integer(count), do: count
+  defp to_integer(%Decimal{} = count), do: Decimal.to_integer(count)
 end

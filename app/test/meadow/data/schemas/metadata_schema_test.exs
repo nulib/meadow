@@ -4,9 +4,7 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
 
   alias Meadow.Data.Schemas.{
     ControlledMetadataEntry,
-    DateCreatedEntry,
     MetadataSchema,
-    MetadataValue,
     NavPlaceEntry,
     NoteEntry,
     RelatedURLEntry,
@@ -19,17 +17,17 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
       assert WorkAdministrativeMetadata.__metadata__(:fields) == [
                :library_unit,
                :preservation_level,
-               :status,
-               :project_cycle,
                :project_name,
                :project_desc,
                :project_proposer,
                :project_manager,
-               :project_task_number
+               :project_task_number,
+               :project_cycle,
+               :status
              ]
 
       assert WorkDescriptiveMetadata.__metadata__(:fields) |> Enum.take(4) ==
-               [:title, :terms_of_use, :license, :rights_statement]
+               [:abstract, :alternate_title, :box_name, :box_number]
     end
 
     test "section" do
@@ -38,7 +36,7 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
     end
 
     test "fields by kind" do
-      assert WorkDescriptiveMetadata.__metadata__(:fields, :string) == [:title, :terms_of_use]
+      assert WorkDescriptiveMetadata.__metadata__(:fields, :string) == [:terms_of_use, :title]
 
       assert WorkDescriptiveMetadata.__metadata__(:fields, :coded) == [
                :license,
@@ -48,22 +46,34 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
       assert :abstract in WorkDescriptiveMetadata.__metadata__(:fields, :values)
       refute :title in WorkDescriptiveMetadata.__metadata__(:fields, :values)
 
+      assert WorkDescriptiveMetadata.__metadata__(:fields, :dates) == [:date_created]
+      assert WorkDescriptiveMetadata.__metadata__(:fields, :places) == [:nav_place]
+
       assert WorkDescriptiveMetadata.__metadata__(:fields, :controlled) ==
                ~w(contributor creator genre language location style_period subject technique)a
 
-      assert WorkDescriptiveMetadata.__metadata__(:fields, :entries) ==
-               [:date_created, :notes, :related_url, :nav_place]
+      assert WorkDescriptiveMetadata.__metadata__(:fields, :entries) == [:notes, :related_url]
 
-      assert WorkDescriptiveMetadata.__metadata__(:fields, {:entries, DateCreatedEntry}) ==
-               [:date_created]
+      assert WorkDescriptiveMetadata.__metadata__(:fields, {:entries, NoteEntry}) == [:notes]
 
       assert WorkAdministrativeMetadata.__metadata__(:fields, :entries) == []
+      assert WorkAdministrativeMetadata.__metadata__(:fields, :places) == []
+
+      assert WorkAdministrativeMetadata.__metadata__(:fields, :values) == [
+               :project_name,
+               :project_desc,
+               :project_proposer,
+               :project_manager,
+               :project_task_number
+             ]
     end
 
     test "kind, options and schema of a field" do
       assert WorkDescriptiveMetadata.__metadata__(:kind, :title) == :string
       assert WorkDescriptiveMetadata.__metadata__(:kind, :license) == :coded
       assert WorkDescriptiveMetadata.__metadata__(:kind, :abstract) == :values
+      assert WorkDescriptiveMetadata.__metadata__(:kind, :date_created) == :dates
+      assert WorkDescriptiveMetadata.__metadata__(:kind, :nav_place) == :places
       assert WorkDescriptiveMetadata.__metadata__(:kind, :creator) == :controlled
       assert WorkDescriptiveMetadata.__metadata__(:kind, :notes) == :entries
       assert WorkDescriptiveMetadata.__metadata__(:kind, :nope) == nil
@@ -72,8 +82,10 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
       assert WorkDescriptiveMetadata.__metadata__(:options, :creator) == []
       assert WorkDescriptiveMetadata.__metadata__(:options, :nope) == nil
 
+      # Only the kinds backed by a struct have a schema; plain columns do not
       assert WorkDescriptiveMetadata.__metadata__(:schema, :title) == nil
-      assert WorkDescriptiveMetadata.__metadata__(:schema, :abstract) == MetadataValue
+      assert WorkDescriptiveMetadata.__metadata__(:schema, :abstract) == nil
+      assert WorkDescriptiveMetadata.__metadata__(:schema, :date_created) == nil
       assert WorkDescriptiveMetadata.__metadata__(:schema, :creator) == ControlledMetadataEntry
       assert WorkDescriptiveMetadata.__metadata__(:schema, :notes) == NoteEntry
       assert WorkDescriptiveMetadata.__metadata__(:schema, :related_url) == RelatedURLEntry
@@ -81,17 +93,41 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
       assert WorkDescriptiveMetadata.__metadata__(:schema, :nope) == nil
     end
 
-    test "permitted and repeating partition the fields" do
+    test "permitted, embeds and repeating partition the fields" do
       all = WorkDescriptiveMetadata.__metadata__(:fields)
       permitted = WorkDescriptiveMetadata.permitted()
+      embeds = WorkDescriptiveMetadata.__metadata__(:embeds)
       repeating = WorkDescriptiveMetadata.repeating_fields()
 
       assert permitted == WorkDescriptiveMetadata.__metadata__(:permitted)
       assert repeating == WorkDescriptiveMetadata.__metadata__(:repeating)
-      assert permitted == [:title, :terms_of_use, :license, :rights_statement]
-      assert Enum.sort(permitted ++ repeating) == Enum.sort(all)
+      assert embeds == [:nav_place]
+
+      assert repeating == [
+               :contributor,
+               :creator,
+               :genre,
+               :language,
+               :location,
+               :style_period,
+               :subject,
+               :technique,
+               :notes,
+               :related_url
+             ]
+
+      assert Enum.sort(permitted ++ embeds ++ repeating) == Enum.sort(all)
       assert permitted -- WorkDescriptiveMetadata.__schema__(:fields) == []
+      assert embeds -- WorkDescriptiveMetadata.__schema__(:embeds) == []
       assert repeating -- WorkDescriptiveMetadata.__schema__(:associations) == []
+    end
+
+    test "a metadata row with no child rows is entirely permitted" do
+      assert WorkAdministrativeMetadata.permitted() ==
+               WorkAdministrativeMetadata.__metadata__(:fields)
+
+      assert WorkAdministrativeMetadata.repeating_fields() == []
+      assert WorkAdministrativeMetadata.__metadata__(:embeds) == []
     end
 
     test "field_names covers every declared field" do
@@ -112,16 +148,27 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
       assert WorkAdministrativeMetadata.__schema__(:field_source, :status) == :status_id
     end
 
-    test "values fields are has_many MetadataValue filtered to section and field" do
-      assert %Ecto.Association.Has{
-               related: MetadataValue,
-               owner_key: :work_id,
-               related_key: :work_id,
-               where: [section: "administrative", field: "project_name"],
-               defaults: [section: "administrative", field: "project_name"],
-               preload_order: [asc: :position],
+    test "values and dates fields are array columns defaulting to empty" do
+      assert WorkDescriptiveMetadata.__schema__(:type, :abstract) == {:array, :string}
+      assert WorkAdministrativeMetadata.__schema__(:type, :project_name) == {:array, :string}
+
+      assert WorkDescriptiveMetadata.__schema__(:type, :date_created) ==
+               {:array, Meadow.Data.Types.EDTFDate}
+
+      empty = %WorkDescriptiveMetadata{}
+      assert empty.abstract == []
+      assert empty.date_created == []
+    end
+
+    test "places fields are embeds_many, not associations" do
+      assert WorkDescriptiveMetadata.__schema__(:embeds) == [:nav_place]
+      refute :nav_place in WorkDescriptiveMetadata.__schema__(:associations)
+
+      assert %Ecto.Embedded{
+               cardinality: :many,
+               related: NavPlaceEntry,
                on_replace: :delete
-             } = WorkAdministrativeMetadata.__schema__(:association, :project_name)
+             } = WorkDescriptiveMetadata.__schema__(:embed, :nav_place)
     end
 
     test "controlled fields are has_many ControlledMetadataEntry filtered to field" do
@@ -154,33 +201,64 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
   end
 
   describe "changeset/2" do
-    test "casts columns, values, controlled and entries fields" do
+    test "casts columns, values, dates, places and entries fields" do
       changeset =
         WorkDescriptiveMetadata.changeset(%WorkDescriptiveMetadata{}, %{
           title: "Title",
           license: %{id: "http://www.europeana.eu/portal/rights/rr-r.html", scheme: "license"},
-          abstract: ["one", %{value: "two"}],
+          abstract: ["one", "two"],
           date_created: ["1999", %{edtf: "2000"}],
+          nav_place: [
+            %{"id" => "https://sws.geonames.org/4887398/", "coordinates" => [-87.65, 41.85]}
+          ],
           notes: [%{note: "a note", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}]
         })
 
       assert changeset.valid?, inspect(changeset.errors)
       assert Ecto.Changeset.get_change(changeset, :title) == "Title"
+      assert Ecto.Changeset.get_change(changeset, :abstract) == ["one", "two"]
 
-      assert changeset
-             |> Ecto.Changeset.get_change(:abstract)
-             |> Enum.map(&Ecto.Changeset.get_change(&1, :value)) == ["one", "two"]
+      # A bare string and a `%{edtf: ...}` map are both accepted, and both
+      # humanize on the way in
+      assert Ecto.Changeset.get_change(changeset, :date_created) == [
+               %{edtf: "1999", humanized: "1999"},
+               %{edtf: "2000", humanized: "2000"}
+             ]
 
-      assert changeset
-             |> Ecto.Changeset.get_change(:abstract)
-             |> Enum.map(&Ecto.Changeset.get_change(&1, :position)) == [0, 1]
+      assert [place] = Ecto.Changeset.get_change(changeset, :nav_place)
 
-      assert changeset
-             |> Ecto.Changeset.get_change(:date_created)
-             |> Enum.map(&Ecto.Changeset.get_change(&1, :edtf)) == ["1999", "2000"]
+      assert place.changes == %{
+               place_id: "https://sws.geonames.org/4887398/",
+               longitude: -87.65,
+               latitude: 41.85
+             }
 
       assert [note] = Ecto.Changeset.get_change(changeset, :notes)
       assert Ecto.Changeset.get_change(note, :note) == "a note"
+    end
+
+    test "an invalid date is reported against its position, with the value in the message" do
+      changeset =
+        WorkDescriptiveMetadata.changeset(%WorkDescriptiveMetadata{}, %{
+          date_created: ["1999", "bad_date"]
+        })
+
+      refute changeset.valid?
+
+      assert changeset.errors == [
+               "date_created#2": {~s'"bad_date" is not a valid EDTF date', []}
+             ]
+    end
+
+    test "a place needs something to identify it" do
+      changeset =
+        WorkDescriptiveMetadata.changeset(%WorkDescriptiveMetadata{}, %{
+          nav_place: [%{"summary" => "nothing but a summary"}]
+        })
+
+      refute changeset.valid?
+      assert [place] = Ecto.Changeset.get_change(changeset, :nav_place)
+      assert Keyword.has_key?(place.errors, :place_id)
     end
 
     test "only declared columns are permitted" do
@@ -210,7 +288,7 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
       refute Keyword.has_key?(creator_changeset.errors, :role)
     end
 
-    test "round trips through the database, preserving ids of unchanged values" do
+    test "columns, arrays and places round trip through the database" do
       work = work_fixture()
 
       {:ok, _} =
@@ -218,24 +296,70 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
         |> loaded_metadata()
         |> WorkDescriptiveMetadata.changeset(%{
           abstract: ["first", "second"],
-          related_url: [%{url: "https://example.org", label: %{id: "RELATED_INFORMATION"}}]
+          date_created: ["1999", "~1968"],
+          nav_place: [
+            %{"id" => "https://sws.geonames.org/4887398/", "label" => "Chicago"}
+          ]
         })
         |> Repo.update()
 
       reloaded = loaded_metadata(work.id)
-      assert WorkDescriptiveMetadata.values(reloaded, :abstract) == ["first", "second"]
-      assert [%RelatedURLEntry{url: "https://example.org"}] = reloaded.related_url
-      assert WorkDescriptiveMetadata.values(nil, :abstract) == []
 
-      [%MetadataValue{id: first_id}, %MetadataValue{id: second_id}] = reloaded.abstract
+      assert reloaded.abstract == ["first", "second"]
+
+      assert reloaded.date_created == [
+               %{edtf: "1999", humanized: "1999"},
+               %{edtf: "~1968", humanized: "circa 1968"}
+             ]
+
+      assert [%NavPlaceEntry{place_id: "https://sws.geonames.org/4887398/", label: "Chicago"}] =
+               reloaded.nav_place
+
+      # An array field is replaced wholesale, and emptying it is a real change
+      {:ok, _} =
+        reloaded
+        |> WorkDescriptiveMetadata.changeset(%{abstract: [], nav_place: []})
+        |> Repo.update()
+
+      assert loaded_metadata(work.id).abstract == []
+      assert loaded_metadata(work.id).nav_place == []
+    end
+
+    test "child rows keep their ids when they are re-sent unchanged" do
+      work = work_fixture()
+
+      {:ok, _} =
+        work.id
+        |> loaded_metadata()
+        |> WorkDescriptiveMetadata.changeset(%{
+          related_url: [
+            %{url: "https://example.org/first", label: %{id: "RELATED_INFORMATION"}},
+            %{url: "https://example.org/second", label: %{id: "RELATED_INFORMATION"}}
+          ]
+        })
+        |> Repo.update()
+
+      reloaded = loaded_metadata(work.id)
+
+      assert [
+               %RelatedURLEntry{id: first_id, url: "https://example.org/first"},
+               %RelatedURLEntry{id: second_id, url: "https://example.org/second"}
+             ] = reloaded.related_url
 
       {:ok, _} =
         reloaded
-        |> WorkDescriptiveMetadata.changeset(%{abstract: ["first", "third"]})
+        |> WorkDescriptiveMetadata.changeset(%{
+          related_url: [
+            %{url: "https://example.org/first", label: %{id: "RELATED_INFORMATION"}},
+            %{url: "https://example.org/third", label: %{id: "RELATED_INFORMATION"}}
+          ]
+        })
         |> Repo.update()
 
-      assert [%MetadataValue{id: ^first_id, value: "first"}, %MetadataValue{id: third_id}] =
-               loaded_metadata(work.id).abstract
+      assert [
+               %RelatedURLEntry{id: ^first_id, url: "https://example.org/first"},
+               %RelatedURLEntry{id: third_id, url: "https://example.org/third"}
+             ] = loaded_metadata(work.id).related_url
 
       refute third_id == second_id
     end
@@ -274,8 +398,19 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
     end
 
     test "kinds" do
-      assert MetadataSchema.kinds() == [:string, :coded, :values, :controlled, :entries]
-      assert MetadataSchema.column_kinds() ++ MetadataSchema.row_kinds() == MetadataSchema.kinds()
+      assert MetadataSchema.kinds() == [
+               :string,
+               :coded,
+               :values,
+               :dates,
+               :places,
+               :controlled,
+               :entries
+             ]
+
+      assert MetadataSchema.column_kinds() ++
+               MetadataSchema.embed_kinds() ++
+               MetadataSchema.row_kinds() == MetadataSchema.kinds()
     end
   end
 end

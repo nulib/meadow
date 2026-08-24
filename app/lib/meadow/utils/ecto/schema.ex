@@ -85,13 +85,15 @@ defmodule Meadow.Utils.Ecto.Schema do
   # Storage bookkeeping columns on relational metadata rows that are not part of the value
   @hidden_fields [
     :work_id,
-    :section,
     :field,
     :position,
-    :role_scheme,
     :file_set_id,
     :extracted_metadata_id
   ]
+
+  # A controlled entry is identified by its term and role, so its row uuid is
+  # not part of the declared shape and cannot be echoed back by a client
+  @hidden_by_schema %{Meadow.Data.Schemas.ControlledMetadataEntry => [:id]}
 
   # Associations that are part of a schema's value shape (metadata rows)
   @value_associations [
@@ -99,7 +101,6 @@ defmodule Meadow.Utils.Ecto.Schema do
     :administrative_metadata,
     :notes,
     :related_url,
-    :date_created,
     :nav_place,
     :core_metadata,
     :structural_metadata,
@@ -113,9 +114,11 @@ defmodule Meadow.Utils.Ecto.Schema do
     parents = Map.get(opts, :parents, [])
     is_read_only = Map.get(opts, :is_read_only, false)
 
+    hidden = @hidden_fields ++ Map.get(@hidden_by_schema, schema, [])
+
     fields =
       schema.__schema__(:fields)
-      |> Enum.reject(&(&1 in @hidden_fields))
+      |> Enum.reject(&(&1 in hidden))
       |> Enum.map(fn field ->
         is_read_only = Enum.any?([is_read_only, Enum.member?(read_only, field)])
 
@@ -156,7 +159,7 @@ defmodule Meadow.Utils.Ecto.Schema do
 
   defp metadata_row?(related),
     do:
-      related in [Meadow.Data.Schemas.MetadataValue, Meadow.Data.Schemas.ControlledMetadataEntry]
+      related == Meadow.Data.Schemas.ControlledMetadataEntry
 
   defp unroll_association(schema, field, %{
          read_only: read_only,
@@ -175,9 +178,6 @@ defmodule Meadow.Utils.Ecto.Schema do
 
   defp unroll_related(_related, :many, %{is_read_only: true}), do: "READ_ONLY"
   defp unroll_related(related, :one, opts), do: unroll_schema(related, opts)
-
-  defp unroll_related(Meadow.Data.Schemas.DateCreatedEntry, :many, _opts),
-    do: [%{id: "UUID", edtf: "valid EDTF date string"}]
 
   defp unroll_related(related, :many, opts), do: [unroll_schema(related, opts)]
 

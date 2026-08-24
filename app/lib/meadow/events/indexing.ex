@@ -23,8 +23,8 @@ defmodule Meadow.Events.Indexing do
 
   # Relational metadata tables whose rows belong to a work via `work_id`
   @work_metadata_tables ~w(
-    work_descriptive_metadata work_administrative_metadata work_metadata_values
-    work_controlled_entries work_notes work_related_urls work_dates_created work_nav_places
+    work_descriptive_metadata work_administrative_metadata
+    work_controlled_entries work_notes work_related_urls
   )a
 
   def work_metadata_tables, do: @work_metadata_tables

@@ -198,10 +198,7 @@ export const INGEST_SHEET_WORKS = gql`
       accessionNumber
       descriptiveMetadata {
         title
-        description {
-          id
-          value
-        }
+        description
       }
       fileSets {
         id

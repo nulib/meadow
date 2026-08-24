@@ -12,12 +12,9 @@ defmodule Meadow.Seed.Queries do
   @work_metadata_schemas [
     descriptive_metadata: Meadow.Data.Schemas.WorkDescriptiveMetadata,
     administrative_metadata: Meadow.Data.Schemas.WorkAdministrativeMetadata,
-    metadata_values: Meadow.Data.Schemas.MetadataValue,
     controlled_entries: Meadow.Data.Schemas.ControlledMetadataEntry,
     notes: Meadow.Data.Schemas.NoteEntry,
-    related_urls: Meadow.Data.Schemas.RelatedURLEntry,
-    dates_created: Meadow.Data.Schemas.DateCreatedEntry,
-    nav_places: Meadow.Data.Schemas.NavPlaceEntry
+    related_urls: Meadow.Data.Schemas.RelatedURLEntry
   ]
 
   def work_metadata_schemas, do: @work_metadata_schemas

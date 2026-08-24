@@ -1,6 +1,5 @@
 defmodule Meadow.Indexing.V2.EncodingTest do
   use Meadow.AuthorityCase
-  alias Meadow.Data.Schemas.MetadataValue
   use Meadow.DataCase
   use Meadow.IndexCase
 
@@ -209,7 +208,7 @@ defmodule Meadow.Indexing.V2.EncodingTest do
       assert doc |> get_in([:title]) == subject.descriptive_metadata.title
 
       assert doc |> get_in([:alternate_title]) ==
-               MetadataValue.values(subject.descriptive_metadata.alternate_title)
+               subject.descriptive_metadata.alternate_title
 
       assert doc |> get_in([:collection, :title]) == subject.collection.title
 

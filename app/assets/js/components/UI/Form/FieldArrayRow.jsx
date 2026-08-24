@@ -27,13 +27,6 @@ function FieldArrayRow({
 
   return (
     <li className="field" data-testid="field-array-row">
-      {/* Stable id of an existing value, echoed back so edits keep its identity */}
-      <input
-        type="hidden"
-        defaultValue={item.metadataId || ""}
-        {...register(`${itemName}.metadataId`)}
-        data-testid="input-field-array-id"
-      />
       <div className="is-flex">
         {isTextarea ? (
           <textarea

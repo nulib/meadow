@@ -7,15 +7,19 @@ defmodule Meadow.Data.Schemas.JSONEncoders do
   alias Meadow.Data.Schemas.{FileSetDerivative, FileSetExtractedMetadata}
 
   # Storage bookkeeping on metadata child rows that is not part of the value
-  @hidden_keys [:__meta__, :work, :work_id, :section, :field, :position, :role_scheme]
+  @hidden_keys [:__meta__, :work, :work_id, :position]
+
+  # A controlled entry's identity is its term and role; the row's uuid is only a
+  # technical primary key and is not part of the public value.
+  @hidden_by_struct %{Meadow.Data.Schemas.ControlledMetadataEntry => [:id, :field]}
 
   def prep_struct(struct, protocol) do
+    hidden = @hidden_keys ++ Map.get(@hidden_by_struct, struct.__struct__, [])
+
     struct
     |> Map.from_struct()
+    |> Enum.reject(fn {key, _} -> key in hidden end)
     |> Enum.map(fn
-      {key, _} when key in @hidden_keys ->
-        nil
-
       # File set derivative and extracted metadata rows are presented in the
       # `%{kind => location}` / `%{tool => document}` shape they had as jsonb
       {:derivatives, rows} when is_list(rows) ->
@@ -46,12 +50,10 @@ alias Meadow.Data.Schemas.{
   CodedTerm,
   Collection,
   ControlledMetadataEntry,
-  DateCreatedEntry,
   FileSetAnnotation,
   FileSetCoreMetadata,
   FileSetStructuralMetadata,
   FileSet,
-  MetadataValue,
   NavPlaceEntry,
   NoteEntry,
   RelatedURLEntry,
@@ -65,12 +67,10 @@ defimpl Jason.Encoder,
     CodedTerm,
     Collection,
     ControlledMetadataEntry,
-    DateCreatedEntry,
     FileSetAnnotation,
     FileSetCoreMetadata,
     FileSetStructuralMetadata,
     FileSet,
-    MetadataValue,
     NavPlaceEntry,
     NoteEntry,
     RelatedURLEntry,
@@ -90,12 +90,10 @@ defimpl JSON.Encoder,
     CodedTerm,
     Collection,
     ControlledMetadataEntry,
-    DateCreatedEntry,
     FileSetAnnotation,
     FileSetCoreMetadata,
     FileSetStructuralMetadata,
     FileSet,
-    MetadataValue,
     NavPlaceEntry,
     NoteEntry,
     RelatedURLEntry,
