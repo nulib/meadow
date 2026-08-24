@@ -186,7 +186,6 @@ defmodule Meadow.Arks do
   end
 
   defp scalar_value([%ControlledMetadataEntry{term: %{label: value}} | _]), do: value
-  defp scalar_value([%Meadow.Data.Schemas.MetadataValue{value: value} | _]), do: value
   defp scalar_value([value | _]), do: value
   defp scalar_value(%{label: value}), do: value
   defp scalar_value([]), do: nil

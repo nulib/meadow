@@ -20,7 +20,6 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
     field :field, :string
     field :position, :integer
     field :role, Types.CodedTerm, schemes: @role_schemes, source: :role_id
-    field :role_scheme, :string
     field :term, Types.ControlledTerm, source: :term_id
   end
 
@@ -32,7 +31,6 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
     |> cast(params, [:role, :term])
     |> put_position(position)
     |> validate_required([:term])
-    |> sync_role_scheme()
   end
 
   def changeset_with_role(metadata, params, position \\ nil) do
@@ -40,21 +38,10 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
     |> cast(params, [:role, :term])
     |> put_position(position)
     |> validate_required([:term, :role])
-    |> sync_role_scheme()
   end
 
   defp put_position(changeset, nil), do: changeset
   defp put_position(changeset, position), do: put_change(changeset, :position, position)
-
-  # `role_scheme` mirrors the scheme of the cast role so the pair can carry a
-  # real foreign key to `coded_terms`
-  defp sync_role_scheme(changeset) do
-    case fetch_change(changeset, :role) do
-      {:ok, %{scheme: scheme}} -> put_change(changeset, :role_scheme, scheme)
-      {:ok, nil} -> put_change(changeset, :role_scheme, nil)
-      :error -> changeset
-    end
-  end
 
   @doc "Natural identity of an entry or entry params: `{term_id, role_id}`"
   def natural_key(entry) do

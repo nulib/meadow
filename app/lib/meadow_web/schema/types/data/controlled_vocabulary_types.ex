@@ -82,7 +82,6 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "Controlled metadata entry"
   object :controlled_metadata_entry do
-    field :id, :id
     field :term, :controlled_term
     field :role, :coded_term
   end
@@ -96,7 +95,6 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "EDTF Date"
   object :edtf_date_entry do
-    field :id, :id
     field :edtf, :string
     field :humanized, :string
   end
@@ -115,9 +113,8 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
     field :label, :coded_term
   end
 
-  @desc "Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs. Echo `id` to keep an existing entry's identity."
+  @desc "Controlled Vocab input, term required, label is looked up on the backend. Provide role for compound vocabs. An entry is identified by its term and role, so there is no id to echo."
   input_object :controlled_metadata_entry_input do
-    field :id, :id
     field :term, non_null(:id)
     field :role, :coded_term_input
   end
@@ -130,7 +127,6 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "EDTF date input"
   input_object :edtf_date_input do
-    field :id, :id
     field :edtf, :string
   end
 

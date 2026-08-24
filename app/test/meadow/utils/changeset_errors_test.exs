@@ -70,9 +70,10 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
                    ]
                  }
                ],
-               date_created: [
-                 %{},
-                 %{edtf: [%{error: "is not a valid EDTF date", value: ~s'"bad_date"'}]}
+               # Dates are array items rather than child rows, so the error is
+               # filed under its 1-based position with the value in the message
+               "date_created#2": [
+                 %{error: ~s'"bad_date" is not a valid EDTF date', value: nil}
                ],
                genre: [
                  %{term: [%{error: "is from an unknown authority", value: ~s'"wrong"'}]},

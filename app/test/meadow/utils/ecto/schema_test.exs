@@ -48,21 +48,20 @@ defmodule Meadow.Utils.Ecto.SchemaTest do
 
     test "handles single- and multi-value fields in embedded schemas", %{subject: subject} do
       assert subject.descriptive_metadata.title == "string"
-      assert subject.descriptive_metadata.alternate_title == [%{id: "UUID", value: "string"}]
+      assert subject.descriptive_metadata.alternate_title == ["string"]
     end
 
     test "handles multi-valued controlled term without role in embedded schemas", %{
       subject: subject
     } do
       assert subject.descriptive_metadata.language == [
-               %{id: "UUID", term: %{id: "URI", label: "string"}, role: nil}
+               %{term: %{id: "URI", label: "string"}, role: nil}
              ]
     end
 
     test "handles multi-valued controlled term with role in embedded schemas", %{subject: subject} do
       assert subject.descriptive_metadata.subject == [
                %{
-                 id: "UUID",
                  term: %{id: "URI", label: "string"},
                  role: %{
                    id: "(valid id for scheme `subject_role`)",
@@ -74,9 +73,7 @@ defmodule Meadow.Utils.Ecto.SchemaTest do
     end
 
     test "handles EDTF date fields in embedded schemas", %{subject: subject} do
-      assert subject.descriptive_metadata.date_created == [
-               %{id: "UUID", edtf: "valid EDTF date string"}
-             ]
+      assert subject.descriptive_metadata.date_created == ["valid EDTF date string"]
     end
   end
 

@@ -1111,9 +1111,6 @@ defmodule Meadow.AI.Provenance do
 
   defp preload_work_metadata(work), do: work
 
-  defp public_value([%Meadow.Data.Schemas.MetadataValue{} | _] = values),
-    do: Meadow.Data.Schemas.MetadataValue.values(values)
-
   defp public_value(%Ecto.Association.NotLoaded{}), do: nil
   defp public_value(value), do: value
 
@@ -1590,10 +1587,6 @@ defmodule Meadow.AI.Provenance do
   defp item_identifier(%{url: url}) when is_binary(url), do: url
   defp item_identifier(%{"edtf" => edtf}) when is_binary(edtf), do: edtf
   defp item_identifier(%{edtf: edtf}) when is_binary(edtf), do: edtf
-  # Free-text metadata values (`%{id, value}` rows) are identified by their
-  # text, matching the plain-string proposals recorded at plan time
-  defp item_identifier(%{"value" => value}) when is_binary(value), do: value
-  defp item_identifier(%{value: value}) when is_binary(value), do: value
   defp item_identifier(%{"id" => id}), do: id
   defp item_identifier(value) when is_binary(value), do: value
   defp item_identifier(_), do: nil

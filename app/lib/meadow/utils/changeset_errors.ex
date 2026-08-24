@@ -85,7 +85,18 @@ defmodule Meadow.Utils.ChangesetErrors do
     |> List.flatten()
   end
 
-  defp flatten_errors({field, [error]}), do: {to_string(field), humanize_error(error)}
+  # A `field#position` key names one item of a repeating field, so its messages
+  # are always a list, matching the indexed keys generated below. Errors filed
+  # directly under such a key (array items, which have no child changeset)
+  # would otherwise collapse to a bare string.
+  defp flatten_errors({field, [error]}) do
+    name = to_string(field)
+    text = humanize_error(error)
+
+    if String.contains?(name, "#"),
+      do: {name, List.wrap(text)},
+      else: {name, text}
+  end
 
   defp flatten_errors({field, value}) when is_list(value) do
     value

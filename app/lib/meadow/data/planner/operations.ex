@@ -8,8 +8,6 @@ defmodule Meadow.Data.Planner.Operations do
   """
 
   alias Meadow.Data.Schemas.{
-    DateCreatedEntry,
-    MetadataValue,
     NoteEntry,
     RelatedURLEntry,
     WorkAdministrativeMetadata,
@@ -104,8 +102,8 @@ defmodule Meadow.Data.Planner.Operations do
   defp shape(:string, _), do: {:scalar, :string}
   defp shape(:coded, _), do: {:scalar, :coded}
   defp shape(:values, _), do: {:list, :string}
+  defp shape(:dates, _), do: {:list, :edtf}
   defp shape(:controlled, _), do: {:list, :controlled}
-  defp shape(:entries, DateCreatedEntry), do: {:list, :edtf}
   defp shape(:entries, NoteEntry), do: {:list, :note}
   defp shape(:entries, RelatedURLEntry), do: {:list, :related_url}
   defp shape(_kind, _schema), do: :unsupported
@@ -116,10 +114,7 @@ defmodule Meadow.Data.Planner.Operations do
 
   defp encode(:string, value, base),
     do:
-      Map.merge(base, %{
-        value_kind: "string",
-        value_text: to_string(MetadataValue.value(value) || value)
-      })
+      Map.merge(base, %{value_kind: "string", value_text: to_string(value)})
 
   defp encode(:boolean, value, base),
     do: Map.merge(base, %{value_kind: "boolean", value_text: to_string(value)})

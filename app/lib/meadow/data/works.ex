@@ -8,7 +8,7 @@ defmodule Meadow.Data.Works do
   alias Meadow.Config
   alias Meadow.AWS.S3
   alias Meadow.Data.FileSets
-  alias Meadow.Data.Schemas.{ControlledMetadataEntry, FileSet, Work, WorkDescriptiveMetadata}
+  alias Meadow.Data.Schemas.{ControlledMetadataEntry, FileSet, Work}
   alias Meadow.Data.Works.MetadataWriter
   alias Meadow.Repo
 
@@ -542,14 +542,6 @@ defmodule Meadow.Data.Works do
     do: FileSets.iiif_image_url("00000000-0000-0000-0000-000000000002")
 
   defp placeholder_url(_), do: FileSets.iiif_image_url("00000000-0000-0000-0000-000000000001")
-
-  @doc """
-  Plain string values of a repeating descriptive field (flat public shape)
-  """
-  def descriptive_values(%Work{descriptive_metadata: %WorkDescriptiveMetadata{} = md}, field),
-    do: WorkDescriptiveMetadata.values(md, field)
-
-  def descriptive_values(_, _), do: []
 
   defdelegate merge_metadata(work_ids, values, mode), to: MetadataWriter, as: :merge
   defdelegate replace_controlled_values(work_ids, field, remove, add), to: MetadataWriter

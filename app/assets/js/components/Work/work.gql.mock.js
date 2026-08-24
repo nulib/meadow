@@ -22,11 +22,11 @@ export const mockWork = {
     libraryUnit: { id: "Unit 1", label: "Unit 1" },
     preservationLevel: { id: 1, label: "Level 1" },
     projectCycle: "Project Cycle Name",
-    projectDesc: [{ id: "mv-0001", value: "New Project Description" }],
-    projectManager: [{ id: "mv-0002", value: "New Project Manager" }],
-    projectName: [{ id: "mv-0003", value: "New Project Name" }],
-    projectProposer: [{ id: "mv-0004", value: "New Project Proposer" }],
-    projectTaskNumber: [{ id: "mv-0005", value: "New Project Task Number" }],
+    projectDesc: ["New Project Description"],
+    projectManager: ["New Project Manager"],
+    projectName: ["New Project Name"],
+    projectProposer: ["New Project Proposer"],
+    projectTaskNumber: ["New Project Task Number"],
     status: {
       id: "NOT STARTED",
       label: "Not Started",
@@ -40,10 +40,7 @@ export const mockWork = {
     title: "Collection 1232432 Name",
   },
   descriptiveMetadata: {
-    abstract: [
-      { id: "mv-0006", value: "New Abstract Test" },
-      { id: "mv-0007", value: "New Abstract Again" },
-    ],
+    abstract: ["New Abstract Test", "New Abstract Again"],
     alternateTitle: [],
     boxName: [],
     boxNumber: [],
@@ -51,7 +48,6 @@ export const mockWork = {
     catalogKey: [],
     contributor: [
       {
-        id: "entry-001",
         role: {
           id: "art",
           label: "Artist",
@@ -65,24 +61,19 @@ export const mockWork = {
     ],
     creator: [
       {
-        id: "entry-002",
         term: {
           id: "https://theurioftheresource123",
           label: "This is the label",
         },
       },
     ],
-    culturalContext: [{ id: "mv-0008", value: "Ima context" }],
-    dateCreated: [
-      { id: "dc-001", edtf: "2010", humanized: "2010" },
-      { id: "dc-002", edtf: "2020", humanized: "2020" },
-    ],
-    description: [{ id: "mv-0009", value: "Work description here" }],
+    culturalContext: ["Ima context"],
+    dateCreated: [{ edtf: "2010" }, { edtf: "2020" }],
+    description: ["Work description here"],
     folderName: [],
     folderNumber: [],
     genre: [
       {
-        id: "entry-003",
         term: {
           id: "http://vocab.getty.edu/aat/300417848",
           label: "Dralon (R)",
@@ -93,7 +84,6 @@ export const mockWork = {
     keywords: [],
     language: [
       {
-        id: "entry-004",
         term: {
           id: "https://theurioftheresource123",
           label: "This is the label",
@@ -107,7 +97,6 @@ export const mockWork = {
     },
     location: [
       {
-        id: "entry-005",
         term: {
           id: "https://theurioftheresource123",
           label: "This is the label",
@@ -139,7 +128,6 @@ export const mockWork = {
     source: [],
     stylePeriod: [
       {
-        id: "entry-006",
         term: {
           id: "https://theurioftheresource123",
           label: "This is the label",
@@ -148,7 +136,6 @@ export const mockWork = {
     ],
     subject: [
       {
-        id: "entry-007",
         term: {
           id: "https://clint.biz",
           label: "veritatis omnis est",
@@ -163,7 +150,6 @@ export const mockWork = {
     tableOfContents: [],
     technique: [
       {
-        id: "entry-008",
         term: {
           id: "https://theurioftheresource123",
           label: "This is the label",
@@ -289,10 +275,7 @@ export const mockWork2 = {
   },
   collection: null,
   descriptiveMetadata: {
-    abstract: [
-      { id: "mv-0010", value: "New Abstract Test" },
-      { id: "mv-0011", value: "New Abstract Again" },
-    ],
+    abstract: ["New Abstract Test", "New Abstract Again"],
     alternateTitle: [],
     boxName: [],
     boxNumber: [],
@@ -300,7 +283,6 @@ export const mockWork2 = {
     catalogKey: [],
     contributor: [
       {
-        id: "entry-009",
         role: {
           id: "art",
           label: "Artist",
@@ -314,19 +296,17 @@ export const mockWork2 = {
     ],
     creator: [
       {
-        id: "entry-010",
         term: {
           id: "http://vocab.getty.edu/ulan/500467488",
           label: "Mccormick, B. B.",
         },
       },
     ],
-    description: [{ id: "mv-0012", value: "Work description here" }],
+    description: ["Work description here"],
     folderName: [],
     folderNumber: [],
     genre: [
       {
-        id: "entry-011",
         term: {
           id: "http://vocab.getty.edu/aat/300417848",
           label: "Dralon (R)",

@@ -221,21 +221,9 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:related_url, list_of(:related_url_entry))
   end
 
-  @desc "One value of a repeating free-text metadata field, with its stable id"
-  object :metadata_value do
-    field(:id, non_null(:id))
-    field(:value, non_null(:string))
-  end
-
-  @desc "Input for one value of a repeating free-text field. Echo `id` to keep an existing value's identity; omit it for new values (unchanged values are matched by text)."
-  input_object :metadata_value_input do
-    field(:id, :id)
-    field(:value, non_null(:string))
-  end
-
   @desc "`uncontrolled_descriptive_fields` represents all uncontrolled descriptive metadata fields."
   object :uncontrolled_descriptive_fields do
-    metadata_fields(WorkDescriptiveMetadata, :values, list_of(:metadata_value),
+    metadata_fields(WorkDescriptiveMetadata, :values, list_of(:string),
       except: [:citation],
       deprecate: [publisher: "Publisher field is deprecated"]
     )
@@ -243,18 +231,9 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     metadata_fields(WorkDescriptiveMetadata, :string, :string)
   end
 
-  @desc "Input for uncontrolled descriptive metadata fields"
-  input_object :uncontrolled_descriptive_fields_input do
-    metadata_fields(WorkDescriptiveMetadata, :values, list_of(:metadata_value_input),
-      except: [:citation]
-    )
-
-    metadata_fields(WorkDescriptiveMetadata, :string, :string)
-  end
-
   @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object."
   object :work_descriptive_metadata do
-    field(:citation, list_of(:metadata_value))
+    field(:citation, list_of(:string))
     field(:date_created, list_of(:edtf_date_entry))
     metadata_fields(WorkDescriptiveMetadata, :coded, :coded_term)
 
@@ -269,13 +248,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   end
 
   object :uncontrolled_administrative_fields do
-    metadata_fields(WorkAdministrativeMetadata, :values, list_of(:metadata_value))
-    metadata_fields(WorkAdministrativeMetadata, :string, :string)
-  end
-
-  @desc "Input for uncontrolled administrative metadata fields"
-  input_object :uncontrolled_administrative_fields_input do
-    metadata_fields(WorkAdministrativeMetadata, :values, list_of(:metadata_value_input))
+    metadata_fields(WorkAdministrativeMetadata, :values, list_of(:string))
     metadata_fields(WorkAdministrativeMetadata, :string, :string)
   end
 
@@ -334,7 +307,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
   input_object :work_administrative_metadata_input do
     metadata_fields(WorkAdministrativeMetadata, :coded, :coded_term_input)
 
-    import_fields(:uncontrolled_administrative_fields_input)
+    import_fields(:uncontrolled_administrative_fields)
   end
 
   @desc "Input fields for works descriptive metadata"
@@ -344,9 +317,9 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:nav_place, :json)
     field(:notes, list_of(:note_entry_input))
     field(:related_url, list_of(:related_url_entry_input))
-    field(:citation, list_of(:metadata_value_input))
+    field(:citation, list_of(:string))
     import_fields(:controlled_fields_input)
-    import_fields(:uncontrolled_descriptive_fields_input)
+    import_fields(:uncontrolled_descriptive_fields)
   end
 
   @desc "`controlled_fields_input` controlled fields that can be updated on a work object"

@@ -128,11 +128,6 @@ defmodule Meadow.Data.CSV.Import do
     |> Enum.reject(&is_nil/1)
   end
 
-  defp decode_field(Meadow.Data.Schemas.MetadataValue, value, _field), do: value
-
-  defp decode_field(Meadow.Data.Schemas.DateCreatedEntry, value, _field),
-    do: Meadow.Data.Types.EDTFDate.from_string(value)
-
   defp decode_field(Meadow.Data.Schemas.NavPlaceEntry, value, _field),
     do: value |> decode_nav_place() |> List.wrap() |> List.first()
 
@@ -150,14 +145,20 @@ defmodule Meadow.Data.CSV.Import do
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :one, related: type}}, value, field),
     do: decode_field({:embedded, type}, value, field)
 
+  # The whole nav_place cell is a list of GeoNames ids resolved together, so it
+  # is not split and mapped like other embedded lists
+  defp decode_field(
+         {_, _, %Ecto.Embedded{cardinality: :many, related: Meadow.Data.Schemas.NavPlaceEntry}},
+         value,
+         _field
+       )
+       when is_binary(value),
+       do: decode_nav_place(value) || []
+
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: type}}, value, field) do
     value
     |> split_multivalued_field()
     |> Enum.map(&decode_field({:embedded, type}, String.trim(&1), field))
-  end
-
-  defp decode_field({:array, :map}, value, :nav_place) when is_binary(value) do
-    decode_nav_place(value) || []
   end
 
   defp decode_field({:array, type}, value, field) do
@@ -174,10 +175,6 @@ defmodule Meadow.Data.CSV.Import do
         true -> value
       end
     end
-  end
-
-  defp decode_field(:map, value, :nav_place) when is_binary(value) do
-    decode_nav_place(value)
   end
 
   defp decode_field({:parameterized, Meadow.Data.Types.CodedTerm, _}, value, _field)

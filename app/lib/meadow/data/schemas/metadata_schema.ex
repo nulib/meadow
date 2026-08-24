@@ -1,6 +1,6 @@
 defmodule Meadow.Data.Schemas.MetadataSchema do
   @moduledoc """
-  Declarative definition of a per-work metadata row and its repeating child rows.
+  Declarative definition of a per-work metadata row and its repeating fields.
 
   A metadata module declares each field once, with its kind, and this module
   derives the Ecto schema, the changeset and a reflection function from that
@@ -15,6 +15,8 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
           string :title
           coded :license
           values :abstract
+          dates :date_created
+          places :nav_place
           controlled :contributor, role_required: true
           entries :notes, Meadow.Data.Schemas.NoteEntry
         end
@@ -22,27 +24,32 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
 
   Field kinds and what they generate:
 
-    * `string name` - a `:string` column on the metadata row
+    * `string name` - a `:string` column
     * `coded name` - a `Meadow.Data.Types.CodedTerm` column whose scheme is the
       field name and whose database column is `name_id`
-    * `values name` - a `has_many` of `Meadow.Data.Schemas.MetadataValue` rows
-      filtered to `section`/`field`
+    * `values name` - a `text[]` column of plain strings
+    * `dates name` - a `text[]` column of EDTF strings, loading as
+      `%{edtf, humanized}` via `Meadow.Data.Types.EDTFDate`
+    * `places name` - an `embeds_many` in a jsonb column
     * `controlled name, role_required: boolean` - a `has_many` of
       `Meadow.Data.Schemas.ControlledMetadataEntry` rows filtered to `field`
     * `entries name, schema` - a `has_many` of `schema` rows (one table per
       field); `schema` must define `changeset/3`, `natural_key/1` and
       `to_params/1`
 
-  Every `has_many` is ordered by `position` and uses `on_replace: :delete`;
-  `Meadow.Data.Schemas.MultiValued.cast_entries/3` handles the casting.
+  Only `controlled` and `entries` are child rows: they carry a foreign key to
+  `coded_terms` or are queried relationally, which is what earns a table. Every
+  such `has_many` is ordered by `position` and uses `on_replace: :delete`;
+  `Meadow.Data.Schemas.MultiValued.cast_entries/3` handles the casting and
+  reattaches ids by natural key so unchanged rows are not rewritten.
 
   Generated functions:
 
     * `changeset/2`
     * `__metadata__/1` and `__metadata__/2`
-    * `permitted/0` - column fields (`string` and `coded`)
+    * `permitted/0` - fields cast directly on the row
     * `repeating_fields/0` - every child-row field; also the preload list
-    * `values/2` - plain string values of a `values` field
+    * `field_names/0` - every field in declaration order (CSV header order)
 
   Reflection:
 
@@ -56,14 +63,18 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
   """
 
   import Ecto.Changeset
-  alias Meadow.Data.Schemas.{ControlledMetadataEntry, MetadataSchema, MetadataValue, MultiValued}
 
-  @kinds [:string, :coded, :values, :controlled, :entries]
-  @column_kinds [:string, :coded]
-  @row_kinds [:values, :controlled, :entries]
+  alias Meadow.Data.Schemas.{ControlledMetadataEntry, MetadataSchema, MultiValued, NavPlaceEntry}
+  alias Meadow.Data.Types.EDTFDate
+
+  @kinds [:string, :coded, :values, :dates, :places, :controlled, :entries]
+  @column_kinds [:string, :coded, :values, :dates]
+  @embed_kinds [:places]
+  @row_kinds [:controlled, :entries]
 
   def kinds, do: @kinds
   def column_kinds, do: @column_kinds
+  def embed_kinds, do: @embed_kinds
   def row_kinds, do: @row_kinds
 
   defmacro __using__(opts) do
@@ -84,7 +95,16 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
   defmacro metadata(do: block) do
     quote do
       import Meadow.Data.Schemas.MetadataSchema,
-        only: [string: 1, coded: 1, values: 1, controlled: 1, controlled: 2, entries: 2]
+        only: [
+          string: 1,
+          coded: 1,
+          values: 1,
+          dates: 1,
+          places: 1,
+          controlled: 1,
+          controlled: 2,
+          entries: 2
+        ]
 
       unquote(block)
 
@@ -117,6 +137,8 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
   defmacro string(name), do: declare(name, :string, [])
   defmacro coded(name), do: declare(name, :coded, [])
   defmacro values(name), do: declare(name, :values, [])
+  defmacro dates(name), do: declare(name, :dates, [])
+  defmacro places(name), do: declare(name, :places, [])
 
   defmacro controlled(name, opts \\ []),
     do: declare(name, :controlled, Keyword.take(opts, [:role_required]))
@@ -149,12 +171,14 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
         source: :"#{name}_id"
       )
 
-  def __define__(module, section, name, :values, _opts),
-    do:
-      has_many(module, name, MetadataValue,
-        where: [section: section, field: to_string(name)],
-        defaults: [section: section, field: to_string(name)]
-      )
+  def __define__(module, _section, name, :values, _opts),
+    do: Ecto.Schema.__field__(module, name, {:array, :string}, default: [])
+
+  def __define__(module, _section, name, :dates, _opts),
+    do: Ecto.Schema.__field__(module, name, {:array, EDTFDate}, default: [])
+
+  def __define__(module, _section, name, :places, _opts),
+    do: Ecto.Schema.__embeds_many__(module, name, NavPlaceEntry, on_replace: :delete)
 
   def __define__(module, _section, name, :controlled, _opts),
     do:
@@ -186,17 +210,19 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
             "#{inspect(env.module)} uses MetadataSchema but has no `metadata do ... end` block"
     end
 
-    declared = Module.get_attribute(env.module, :metadata_declared)
-    generated_functions(for {name, :values, _} <- declared, do: name)
+    generated_functions()
   end
 
-  defp generated_functions(values_fields) do
+  defp generated_functions do
     quote do
-      @doc "Column fields cast directly on the metadata row"
+      @doc "Fields cast directly on the metadata row"
       def permitted, do: __metadata__(:permitted)
 
       @doc "Every repeating (child-row) field; also the preload list"
       def repeating_fields, do: __metadata__(:repeating)
+
+      @doc "Every field in declaration order (CSV export headers depend on this)"
+      def field_names, do: __metadata__(:fields)
 
       @doc "Reflection over the declared fields (see `Meadow.Data.Schemas.MetadataSchema`)"
       def __metadata__(:section), do: @metadata_section
@@ -209,12 +235,6 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
 
       def changeset(metadata, params),
         do: MetadataSchema.cast_metadata(__MODULE__, metadata, params)
-
-      @doc "Plain string values of a repeating free-text field"
-      def values(%__MODULE__{} = metadata, field) when field in unquote(values_fields),
-        do: metadata |> Map.get(field) |> MetadataValue.values()
-
-      def values(nil, _field), do: []
     end
   end
 
@@ -223,6 +243,9 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
 
   def reflect(declared, :permitted),
     do: for({name, kind, _} <- declared, kind in @column_kinds, do: name)
+
+  def reflect(declared, :embeds),
+    do: for({name, kind, _} <- declared, kind in @embed_kinds, do: name)
 
   def reflect(declared, :repeating),
     do: for({name, kind, _} <- declared, kind in @row_kinds, do: name)
@@ -242,8 +265,8 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
 
   def reflect(declared, :schema, field) do
     case find_field(declared, field) do
-      {_, :values, _} -> MetadataValue
       {_, :controlled, _} -> ControlledMetadataEntry
+      {_, :places, _} -> NavPlaceEntry
       {_, :entries, opts} -> Keyword.fetch!(opts, :schema)
       _ -> nil
     end
@@ -254,16 +277,90 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
   defp maybe_elem(nil, _index), do: nil
   defp maybe_elem(tuple, index), do: elem(tuple, index)
 
-  @doc "The child-row schema backing a repeating field (nil for column fields)"
+  @doc "The child-row schema backing a repeating field (nil for plain column fields)"
   def entry_schema(module, field), do: module.__metadata__(:schema, field)
 
-  @doc "Cast the column fields, then every repeating field through `MultiValued.cast_entries/3`"
+  @doc """
+  Cast the plain column fields, then the EDTF date arrays (which report errors
+  per item), the embedded places, and finally every child-row field through
+  `MultiValued.cast_entries/3`.
+  """
   def cast_metadata(module, metadata, params) do
-    changeset = cast(metadata, params, module.__metadata__(:permitted))
+    date_fields = module.__metadata__(:fields, :dates)
 
+    changeset = cast(metadata, params, module.__metadata__(:permitted) -- date_fields)
+
+    changeset
+    |> cast_dates(date_fields)
+    |> cast_places(module.__metadata__(:embeds))
+    |> cast_rows(module)
+  end
+
+  defp cast_places(changeset, fields) do
+    Enum.reduce(fields, changeset, fn field, acc ->
+      cast_embed(acc, field, with: &NavPlaceEntry.changeset/2)
+    end)
+  end
+
+  defp cast_rows(changeset, module) do
     Enum.reduce(module.__metadata__(:repeating), changeset, fn field, acc ->
       MultiValued.cast_entries(acc, field, cast_options(module, field))
     end)
+  end
+
+  # Ecto's `{:array, type}` cast fails the whole field on one bad element, which
+  # would lose track of *which* date was invalid. Cast item by item so each
+  # failure is reported against its position (1-based, matching
+  # `Meadow.Utils.ChangesetErrors`).
+  defp cast_dates(changeset, fields) do
+    Enum.reduce(fields, changeset, fn field, acc ->
+      case fetch_param(changeset.params, field) do
+        :error -> acc
+        {:ok, nil} -> put_change(acc, field, [])
+        {:ok, items} when is_list(items) -> cast_date_list(acc, field, items)
+        {:ok, _} -> add_error(acc, field, "is invalid")
+      end
+    end)
+  end
+
+  defp cast_date_list(changeset, field, items) do
+    {values, errors} =
+      items
+      |> Enum.with_index(1)
+      |> Enum.reduce({[], []}, fn {item, position}, {values, errors} ->
+        case EDTFDate.cast(item) do
+          {:ok, nil} -> {values, errors}
+          {:ok, value} -> {[value | values], errors}
+          {:error, opts} -> {values, [date_error(field, position, item, opts) | errors]}
+          :error -> {values, [date_error(field, position, item, []) | errors]}
+        end
+      end)
+
+    case Enum.reverse(errors) do
+      [] ->
+        put_change(changeset, field, Enum.reverse(values))
+
+      errors ->
+        Enum.reduce(errors, changeset, fn {key, message}, acc -> add_error(acc, key, message) end)
+    end
+  end
+
+  # The offending value is baked into the message because the error is filed
+  # under a synthetic `field#position` key, which has no matching param for
+  # `ChangesetErrors` to interpolate.
+  defp date_error(field, position, item, opts) do
+    message = Keyword.get(opts, :message, "is invalid")
+    value = item |> EDTFDate.edtf() |> then(&(&1 || item))
+
+    {:"#{field}##{position}", "#{inspect(value)} #{message}"}
+  end
+
+  defp fetch_param(params, field) do
+    cond do
+      Map.has_key?(params, to_string(field)) -> {:ok, Map.get(params, to_string(field))}
+      Map.has_key?(params, field) -> {:ok, Map.get(params, field)}
+      true -> :error
+    end
   end
 
   defp cast_options(module, field) do
@@ -284,6 +381,5 @@ defmodule Meadow.Data.Schemas.MetadataSchema do
 
   defp changeset_fun(_module, _field, schema), do: &schema.changeset/3
 
-  defp key_fun(MetadataValue), do: &MetadataValue.value/1
   defp key_fun(schema), do: &schema.natural_key/1
 end

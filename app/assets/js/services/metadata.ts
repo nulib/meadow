@@ -541,7 +541,6 @@ export function prepControlledTermInput(
   controlledTerm?: MetadataField,
   formItems: Array<{
     authority?: string;
-    id?: string;
     label: string;
     roleId?: string;
     termId: string;
@@ -558,16 +557,12 @@ export function prepControlledTermInput(
       return true;
     })
     // Next prepare the object in the right shape
-    .map(({ id, termId, roleId, label }) => {
+    .map(({ termId, roleId, label }) => {
       let obj: {
-        id?: string;
         label?: string;
         role?: { id: string; scheme: string };
         term: string;
       } = { term: termId };
-      if (id) {
-        obj.id = id;
-      }
       if (roleId) {
         obj.role = { id: roleId, scheme: findScheme(controlledTerm) };
       }
@@ -589,34 +584,6 @@ export function prepFieldArrayItemsForPost(
   items: Array<{ metadataItem: string }> = [],
 ) {
   return items.map(({ metadataItem }) => metadataItem);
-}
-
-/**
- * Convert form field array items into MetadataValueInput objects for a work
- * update. An item that came from the API keeps its stable `id` (carried in the
- * form as `metadataId`); new items are sent without one.
- * @param {Array} items Array of object entries possible in form
- * @returns {Array} Array of { id?, value } objects
- */
-export function prepMetadataValuesForPost(
-  items: Array<{ metadataItem: string; metadataId?: string }> = [],
-) {
-  return items.map(({ metadataItem, metadataId }) =>
-    metadataId
-      ? { id: metadataId, value: metadataItem }
-      : { value: metadataItem },
-  );
-}
-
-/**
- * The plain text of a metadata value, whether it arrived as a bare string
- * (search index, batch forms) or as a { id, value } object (GraphQL work data)
- */
-export function metadataValueText(value: any): string {
-  if (value && typeof value === "object" && "value" in value) {
-    return value.value;
-  }
-  return value;
 }
 
 /**
@@ -740,12 +707,10 @@ export function deleteKeyFromObject(item: any) {
 export function prepEDTFforPost(
   items: Array<{
     metadataItem: string;
-    metadataId?: string;
   }> = [],
 ) {
   return items.map((item) => {
-    const edtf = item.metadataItem || item;
-    return item.metadataId ? { id: item.metadataId, edtf } : { edtf };
+    return { edtf: item.metadataItem || item };
   });
 }
 
@@ -860,8 +825,5 @@ export function splitFacetKey(key: string) {
 }
 
 export function convertFieldArrayValToHookFormVal(value: any) {
-  if (value && typeof value === "object" && "value" in value) {
-    return { metadataItem: value.value, metadataId: value.id };
-  }
   return { metadataItem: value };
 }

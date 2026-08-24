@@ -7,7 +7,7 @@ defmodule MeadowWeb.Schema.MetadataFields do
       import MeadowWeb.Schema.MetadataFields
 
       object :uncontrolled_descriptive_fields do
-        metadata_fields(WorkDescriptiveMetadata, :values, list_of(:metadata_value),
+        metadata_fields(WorkDescriptiveMetadata, :values, list_of(:string),
           except: [:citation],
           deprecate: [publisher: "Publisher field is deprecated"]
         )
@@ -15,9 +15,23 @@ defmodule MeadowWeb.Schema.MetadataFields do
         metadata_fields(WorkDescriptiveMetadata, :string, :string)
       end
 
+  The GraphQL type is always supplied by the caller, so a kind is not tied to
+  one type: the same `:values` fields are `list_of(:string)` on both the output
+  object and the input object, and `:coded` fields are `:coded_term` on output
+  and `:coded_term_input` on input. Any kind
+  `Meadow.Data.Schemas.MetadataSchema` declares works here (`:string`,
+  `:coded`, `:values`, `:dates`, `:places`, `:controlled`, `:entries`); the
+  kinds with only one field apiece (`:dates`, `:places`) and the `:entries`
+  fields, whose types differ per field, are still declared by hand.
+
   Options:
     * `:except` - fields of that kind to leave out
     * `:deprecate` - `[field: reason]` deprecations to attach
+
+  A deprecation attached here also reaches any input object that pulls the
+  object in with `import_fields/1`, and Absinthe's introspection omits
+  deprecated input fields, so a deprecated field disappears from the published
+  input schema (it is still accepted at runtime).
   """
 
   @doc "Declare one Absinthe field of `type` for every `kind` field of `schema`"

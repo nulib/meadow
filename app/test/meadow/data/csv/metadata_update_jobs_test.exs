@@ -1,6 +1,5 @@
 defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   use Meadow.DataCase
-  alias Meadow.Data.Schemas.MetadataValue
   use Meadow.CSVMetadataUpdateCase
   use Meadow.IndexCase
   use Meadow.GeoNamesCase
@@ -72,14 +71,11 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
         assert work.published
         assert work.visibility.id == "AUTHENTICATED"
 
-        assert Enum.map(
-                 work.descriptive_metadata.date_created,
-                 &Map.take(&1, [:edtf, :humanized])
-               ) == [
+        assert work.descriptive_metadata.date_created == [
                  %{edtf: "~1899", humanized: "circa 1899"}
                ]
 
-        assert MetadataValue.values(work.administrative_metadata.project_proposer) == [
+        assert work.administrative_metadata.project_proposer == [
                  "Socrates Poole",
                  "Lord Bowler"
                ]

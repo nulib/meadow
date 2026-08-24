@@ -1,19 +1,24 @@
 defmodule Meadow.Data.Schemas.NavPlaceEntry do
   @moduledoc """
-  One `nav_place` entry on a work (`work_nav_places`): a GeoNames place id,
-  label, optional summary and a point coordinate. The public shape is the
-  concise map `%{"id", "label", "summary", "coordinates" => [lon, lat]}`
-  produced by the CSV importer.
+  One `nav_place` entry on a work: a GeoNames place id, label, optional summary
+  and a point coordinate.
+
+  Places are embedded in the `nav_place` jsonb column of
+  `work_descriptive_metadata` rather than stored as rows: they carry no foreign
+  key, are never queried relationally, and cannot be batch updated or proposed
+  by a plan change, so a table would buy nothing. List order is the jsonb array
+  order, so there is no `position`.
+
+  The public shape is the concise map
+  `%{"id", "label", "summary", "coordinates" => [lon, lat]}` produced by the CSV
+  importer.
   """
 
   import Ecto.Changeset
   use Ecto.Schema
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
-  @foreign_key_type Ecto.UUID
-  schema "work_nav_places" do
-    belongs_to :work, Meadow.Data.Schemas.Work
-    field :position, :integer
+  @primary_key false
+  embedded_schema do
     field :place_id, :string
     field :label, :string
     field :summary, :string
@@ -21,10 +26,9 @@ defmodule Meadow.Data.Schemas.NavPlaceEntry do
     field :latitude, :float
   end
 
-  def changeset(entry, params, position \\ nil) do
+  def changeset(entry, params) do
     entry
     |> cast(to_params(params), [:place_id, :label, :summary, :longitude, :latitude])
-    |> put_position(position)
     |> validate_place()
   end
 
@@ -35,20 +39,9 @@ defmodule Meadow.Data.Schemas.NavPlaceEntry do
       else: add_error(changeset, :place_id, "can't be blank")
   end
 
-  defp put_position(changeset, nil), do: changeset
-  defp put_position(changeset, position), do: put_change(changeset, :position, position)
-
-  @doc "Natural identity: the place id, falling back to label and coordinates"
-  def natural_key(entry) do
-    params = to_params(entry)
-
-    Map.get(params, :place_id) ||
-      {Map.get(params, :label), Map.get(params, :longitude), Map.get(params, :latitude)}
-  end
-
   @doc "Convert the concise GeoJSON-ish map into entry params"
   def to_params(%__MODULE__{} = entry),
-    do: Map.take(entry, [:id, :place_id, :label, :summary, :longitude, :latitude])
+    do: Map.take(entry, [:place_id, :label, :summary, :longitude, :latitude])
 
   def to_params(%{} = map) do
     map = Map.new(map, fn {k, v} -> {to_string(k), v} end)
@@ -56,7 +49,6 @@ defmodule Meadow.Data.Schemas.NavPlaceEntry do
     case Map.fetch(map, "place_id") do
       {:ok, _} ->
         %{
-          id: map["id"],
           place_id: map["place_id"],
           label: map["label"],
           summary: map["summary"],

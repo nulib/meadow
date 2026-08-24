@@ -7,7 +7,6 @@ defmodule Meadow.Indexing.V2.Work do
 
   alias Meadow.Data.Schemas.{
     ControlledMetadataEntry,
-    MetadataValue,
     NavPlaceEntry,
     NoteEntry,
     RelatedURLEntry
@@ -20,31 +19,31 @@ defmodule Meadow.Indexing.V2.Work do
     ai_provenance = Provenance.work_summary(work.id)
 
     %{
-      abstract: strings(work.descriptive_metadata.abstract),
+      abstract: work.descriptive_metadata.abstract,
       accession_number: work.accession_number,
-      alternate_title: strings(work.descriptive_metadata.alternate_title),
+      alternate_title: work.descriptive_metadata.alternate_title,
       api_link: Path.join([api_url(), "works", work.id]),
       api_model: "Work",
       ark: work.ark,
       batch_ids: work.batches |> Enum.map(& &1.id),
       behavior: encode_label(work.behavior),
-      box_name: strings(work.descriptive_metadata.box_name),
-      box_number: strings(work.descriptive_metadata.box_number),
+      box_name: work.descriptive_metadata.box_name,
+      box_number: work.descriptive_metadata.box_number,
       canonical_link: Path.join([dc_url(), "items", work.id]),
-      caption: strings(work.descriptive_metadata.caption),
-      catalog_key: strings(work.descriptive_metadata.catalog_key),
+      caption: work.descriptive_metadata.caption,
+      catalog_key: work.descriptive_metadata.catalog_key,
       collection: collection(work.collection),
       contributor: encode_field(work.descriptive_metadata.contributor),
       create_date: work.inserted_at,
       creator: encode_field(work.descriptive_metadata.creator),
       csv_metadata_update_jobs: work.metadata_update_jobs |> Enum.map(& &1.id),
-      cultural_context: strings(work.descriptive_metadata.cultural_context),
+      cultural_context: work.descriptive_metadata.cultural_context,
       date_created_edtf: encode_edtf(work.descriptive_metadata.date_created),
       date_created: encode_field(work.descriptive_metadata.date_created),
-      description: strings(work.descriptive_metadata.description),
+      description: work.descriptive_metadata.description,
       file_sets: file_sets(work),
-      folder_name: strings(work.descriptive_metadata.folder_name),
-      folder_number: strings(work.descriptive_metadata.folder_number),
+      folder_name: work.descriptive_metadata.folder_name,
+      folder_number: work.descriptive_metadata.folder_number,
       genre: encode_field(work.descriptive_metadata.genre),
       id: work.id,
       ai_provenance: Provenance.summary_map(ai_provenance),
@@ -54,9 +53,9 @@ defmodule Meadow.Indexing.V2.Work do
       indexed_at: NaiveDateTime.utc_now(),
       ingest_sheet: format(work.ingest_sheet),
       ingest_project: format(work.project),
-      keywords: strings(work.descriptive_metadata.keywords),
+      keywords: work.descriptive_metadata.keywords,
       language: encode_field(work.descriptive_metadata.language),
-      legacy_identifier: strings(work.descriptive_metadata.legacy_identifier),
+      legacy_identifier: work.descriptive_metadata.legacy_identifier,
       library_unit: encode_label(work.administrative_metadata.library_unit),
       license: format(work.descriptive_metadata.license),
       location: encode_field(work.descriptive_metadata.location),
@@ -64,25 +63,25 @@ defmodule Meadow.Indexing.V2.Work do
       notes: encode_field(work.descriptive_metadata.notes),
       nav_place: encode_nav_place(work.descriptive_metadata.nav_place),
       physical_description_material:
-        strings(work.descriptive_metadata.physical_description_material),
-      physical_description_size: strings(work.descriptive_metadata.physical_description_size),
+        work.descriptive_metadata.physical_description_material,
+      physical_description_size: work.descriptive_metadata.physical_description_size,
       preservation_level: encode_label(work.administrative_metadata.preservation_level),
       project: encode_project(work.administrative_metadata),
-      provenance: strings(work.descriptive_metadata.provenance),
+      provenance: work.descriptive_metadata.provenance,
       published: work.published,
-      publisher: strings(work.descriptive_metadata.publisher),
-      related_material: strings(work.descriptive_metadata.related_material),
+      publisher: work.descriptive_metadata.publisher,
+      related_material: work.descriptive_metadata.related_material,
       related_url: encode_field(work.descriptive_metadata.related_url),
       representative_file_set: representative_file_set(work),
-      rights_holder: strings(work.descriptive_metadata.rights_holder),
+      rights_holder: work.descriptive_metadata.rights_holder,
       rights_statement: format(work.descriptive_metadata.rights_statement),
-      scope_and_contents: strings(work.descriptive_metadata.scope_and_contents),
-      series: strings(work.descriptive_metadata.series),
-      source: strings(work.descriptive_metadata.source),
+      scope_and_contents: work.descriptive_metadata.scope_and_contents,
+      series: work.descriptive_metadata.series,
+      source: work.descriptive_metadata.source,
       status: encode_label(work.administrative_metadata.status),
       style_period: encode_field(work.descriptive_metadata.style_period),
       subject: encode_field(work.descriptive_metadata.subject),
-      table_of_contents: strings(work.descriptive_metadata.table_of_contents),
+      table_of_contents: work.descriptive_metadata.table_of_contents,
       technique: encode_field(work.descriptive_metadata.technique),
       terms_of_use: work.descriptive_metadata.terms_of_use,
       thumbnail: Path.join([api_url(), "works", work.id, "thumbnail"]),
@@ -195,16 +194,14 @@ defmodule Meadow.Indexing.V2.Work do
   def encode_project(admin_metadata) do
     %{
       cycle: admin_metadata.project_cycle,
-      desc: first_string(admin_metadata.project_desc),
-      manager: first_string(admin_metadata.project_manager),
-      name: first_string(admin_metadata.project_name),
-      proposer: first_string(admin_metadata.project_proposer),
-      task_number: first_string(admin_metadata.project_task_number)
+      desc: List.first(admin_metadata.project_desc),
+      manager: List.first(admin_metadata.project_manager),
+      name: List.first(admin_metadata.project_name),
+      proposer: List.first(admin_metadata.project_proposer),
+      task_number: List.first(admin_metadata.project_task_number)
     }
   end
 
-  defp strings(values), do: MetadataValue.values(values)
-  defp first_string(values), do: values |> strings() |> List.first()
 
   def file_sets(work) do
     Enum.flat_map(["A", "P", "S", "X"], fn role ->

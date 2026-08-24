@@ -1,33 +1,66 @@
 defmodule Meadow.Data.Types.EDTFDate do
   @moduledoc """
-  Helpers for EDTF date values. Dates are stored as
-  `Meadow.Data.Schemas.DateCreatedEntry` rows; this module keeps the parsing
-  and humanizing helpers used by CSV import and batch updates.
+  Ecto type for EDTF dates.
+
+  The column stores only the EDTF string; `humanized` is derived on load, so a
+  change to the humanizer can never leave stale renderings in the database.
+  Values load as `%{edtf, humanized}` so callers keep reading `.humanized`.
   """
 
-  def from_string(value), do: %{edtf: value}
+  use Ecto.Type
 
-  @doc "Humanize an EDTF string or `{edtf}` map into `{:ok, %{edtf, humanized}}`"
-  def humanize(nil), do: {:ok, nil}
-  def humanize(%{edtf: ""}), do: {:error, message: "cannot be blank"}
+  @invalid "is not a valid EDTF date"
 
-  def humanize(%{edtf: edtf, humanized: humanized}),
-    do: {:ok, %{edtf: edtf, humanized: humanized}}
+  def type, do: :string
 
-  def humanize(%{"edtf" => edtf, "humanized" => humanized}),
-    do: {:ok, %{edtf: edtf, humanized: humanized}}
+  def embed_as(_format), do: :dump
 
-  def humanize(%{"edtf" => edtf}), do: humanize(edtf)
-  def humanize(%{edtf: edtf}), do: humanize(edtf)
-  def humanize(""), do: {:error, message: "cannot be blank"}
+  def cast(value), do: humanize(value)
 
-  def humanize(edtf) when is_binary(edtf) do
-    case EDTF.humanize(edtf, validate: false) do
-      {:error, _} -> :error
-      result -> {:ok, %{edtf: edtf, humanized: result}}
+  # Stored values were valid when written; a humanizer change should degrade to
+  # the raw string rather than fail the whole load
+  def load(edtf) when is_binary(edtf) do
+    case humanize(edtf) do
+      {:ok, value} -> {:ok, value}
+      _ -> {:ok, %{edtf: edtf, humanized: edtf}}
     end
   end
 
-  def humanize(%{}), do: {:ok, nil}
-  def humanize(_), do: {:error, message: "Invalid edtf type"}
+  def load(nil), do: {:ok, nil}
+  def load(_), do: :error
+
+  def dump(nil), do: {:ok, nil}
+  def dump(edtf) when is_binary(edtf), do: {:ok, edtf}
+  def dump(%{edtf: edtf}) when is_binary(edtf), do: {:ok, edtf}
+  def dump(%{"edtf" => edtf}) when is_binary(edtf), do: {:ok, edtf}
+  def dump(_), do: :error
+
+  @doc "The EDTF string of a date value, whatever shape it arrived in"
+  def edtf(%{edtf: edtf}), do: edtf
+  def edtf(%{"edtf" => edtf}), do: edtf
+  def edtf(edtf) when is_binary(edtf), do: edtf
+  def edtf(_), do: nil
+
+  @doc "Normalize a bare EDTF string into params (kept for CSV import and batches)"
+  def from_string(value), do: %{edtf: value}
+
+  @doc "Whether a value is a castable EDTF date; used for per-item error reporting"
+  def valid?(value), do: match?({:ok, _}, humanize(value))
+
+  defp humanize(nil), do: {:ok, nil}
+  defp humanize(""), do: {:error, message: "cannot be blank"}
+  defp humanize(%{edtf: ""}), do: {:error, message: "cannot be blank"}
+  defp humanize(%{"edtf" => ""}), do: {:error, message: "cannot be blank"}
+
+  defp humanize(edtf) when is_binary(edtf) do
+    case EDTF.humanize(edtf, validate: false) do
+      {:error, _} -> {:error, message: @invalid}
+      humanized -> {:ok, %{edtf: edtf, humanized: humanized}}
+    end
+  end
+
+  defp humanize(%{edtf: edtf}) when is_binary(edtf), do: humanize(edtf)
+  defp humanize(%{"edtf" => edtf}) when is_binary(edtf), do: humanize(edtf)
+  defp humanize(%{}), do: {:ok, nil}
+  defp humanize(_), do: {:error, message: "Invalid edtf type"}
 end
