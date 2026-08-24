@@ -118,7 +118,7 @@ defmodule Meadow.Repo.Migrations.CreatePlanChangeOperations do
         chunk
         |> Enum.with_index()
         |> Enum.map_reduce([], fn {row, i}, acc ->
-          row = Map.put(row, :plan_change_id, change_id)
+          row = Map.put(row, :plan_change_id, Ecto.UUID.dump!(change_id))
           base = i * length(@columns)
 
           placeholder =
