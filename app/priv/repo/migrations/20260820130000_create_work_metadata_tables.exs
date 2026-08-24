@@ -115,7 +115,15 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
     )
 
     create(index(:work_metadata_values, [:work_id, :section, :field]))
-    create(index(:work_metadata_values, [:field, :value]))
+
+    # Free text fields (abstract, description, ...) can be arbitrarily long,
+    # and btree can't index a value larger than ~1/3 of a page. Exact-value
+    # lookups only make sense for short values anyway (identifiers, box/folder
+    # names, etc.), so skip indexing anything too long to matter.
+    create(
+      index(:work_metadata_values, [:field, :value], where: "octet_length(value) < 2000")
+    )
+
     deferrable_unique(:work_metadata_values, ~w(work_id section field position))
 
     create table(:work_controlled_entries, primary_key: false) do
@@ -438,14 +446,23 @@ defmodule Meadow.Repo.Migrations.CreateWorkMetadataTables do
       raise "Metadata row counts do not match works: #{work_count} works, #{descriptive_count} descriptive, #{administrative_count} administrative"
     end
 
+    # jsonb_array_length counts literal JSON nulls, but backfill_values drops
+    # them (they aren't real values), so count the same way it does: non-null
+    # elements of jsonb_array_elements_text.
     expected_values =
       count!("""
-      SELECT COALESCE(sum(jsonb_array_length(#{array_or_empty("w.descriptive_metadata->f.field")})), 0)
-      FROM works w CROSS JOIN unnest(ARRAY[#{quoted_list(@descriptive_values)}]) f(field)
+      SELECT count(*)
+      FROM works w
+      CROSS JOIN unnest(ARRAY[#{quoted_list(@descriptive_values)}]) f(field)
+      CROSS JOIN LATERAL jsonb_array_elements_text(#{array_or_empty("w.descriptive_metadata->f.field")}) e(value)
+      WHERE e.value IS NOT NULL
       """) +
         count!("""
-        SELECT COALESCE(sum(jsonb_array_length(#{array_or_empty("w.administrative_metadata->f.field")})), 0)
-        FROM works w CROSS JOIN unnest(ARRAY[#{quoted_list(@administrative_values)}]) f(field)
+        SELECT count(*)
+        FROM works w
+        CROSS JOIN unnest(ARRAY[#{quoted_list(@administrative_values)}]) f(field)
+        CROSS JOIN LATERAL jsonb_array_elements_text(#{array_or_empty("w.administrative_metadata->f.field")}) e(value)
+        WHERE e.value IS NOT NULL
         """)
 
     actual_values = count!("SELECT count(*) FROM work_metadata_values")

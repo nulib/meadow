@@ -193,8 +193,17 @@ defmodule Meadow.Repo.Migrations.CreateFileSetMetadataTables do
         INSERT INTO file_set_extracted_metadata (file_set_id, tool, tool_version, width, height, duration_ms)
         VALUES ($1::uuid, $2, $3, $4, $5, $6) RETURNING id::text
         """,
-        [file_set_id, tool, document["tool_version"], dims.width, dims.height, dims.duration_ms]
+        [
+          Ecto.UUID.dump!(file_set_id),
+          tool,
+          document["tool_version"],
+          dims.width,
+          dims.height,
+          dims.duration_ms
+        ]
       )
+
+    metadata_id = Ecto.UUID.dump!(metadata_id)
 
     document
     |> flatten()
