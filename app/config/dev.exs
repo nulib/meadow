@@ -1,5 +1,8 @@
 import Config
 
+# BroadwaySQS only. See the note in config/config.exs. Meadow's own credentials come
+# from `aws_credentials`, which walks the standard AWS chain (env, ~/.aws, ECS, EKS,
+# web identity, EC2 metadata) with no configuration needed.
 config :ex_aws,
   access_key_id: [:instance_role],
   secret_access_key: [:instance_role],
@@ -22,16 +25,34 @@ if System.get_env("AWS_LOCALSTACK", "false") == "true" do
     },
     mediaconvert_client: MediaConvert.Mock
 
-  [:logs, :mediaconvert, :s3, :secretsmanager, :sns, :sqs]
-  |> Enum.each(fn service ->
-    config :ex_aws, service,
-      scheme: "https://",
-      host: "localhost.localstack.cloud",
-      port: 4566,
-      access_key_id: "fake",
-      secret_access_key: "fake",
-      region: "us-east-1"
-  end)
+  # Point Meadow's own AWS calls (`Meadow.AWS`) at Localstack, for the services Localstack
+  # actually provides. Anything not listed here — Bedrock, CloudFront — still resolves to
+  # the real AWS endpoint, as it did under ExAws.
+  config :meadow, :aws,
+    services:
+      Map.new(
+        [:logs, :mediaconvert, :s3, :secretsmanager, :sns, :sqs],
+        &{&1, [proto: "https", endpoint: "localhost.localstack.cloud", port: 4566]}
+      )
+
+  # Charlists, not binaries: aws_credentials' env provider runs the value through
+  # :erlang.list_to_binary/1, which rejects an Elixir binary.
+  config :aws_credentials,
+    credential_providers: [:aws_credentials_env],
+    aws_access_key_id: ~c"fake",
+    aws_secret_access_key: ~c"fake",
+    aws_default_region: ~c"us-east-1"
+
+  # BroadwaySQS only. See the note in config/config.exs.
+  config :ex_aws,
+    access_key_id: "fake",
+    secret_access_key: "fake",
+    region: "us-east-1"
+
+  config :ex_aws, :sqs,
+    scheme: "https://",
+    host: "localhost.localstack.cloud",
+    port: 4566
 end
 
 config :meadow, MeadowWeb.Endpoint,

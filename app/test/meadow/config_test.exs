@@ -55,11 +55,13 @@ defmodule Meadow.ConfigTest do
     with env <- Config.aws_environment() |> Enum.into(%{}) do
       assert env |> Map.has_key?(~c"TMPDIR")
 
-      if Application.get_env(:ex_aws, :s3) do
+      if Application.get_env(:meadow, :aws) |> Keyword.get(:services, %{}) |> Map.has_key?(:s3) do
         assert env |> Map.get(~c"AWS_REGION") == ~c"us-east-1"
         assert env |> Map.get(~c"AWS_SECRET_ACCESS_KEY") == ~c"fake"
         assert env |> Map.get(~c"AWS_ACCESS_KEY_ID") == ~c"fake"
-        assert env |> Map.get(~c"AWS_ENDPOINT_URL_S3") |> Enum.slice(0..16) == ~c"https://localhost"
+
+        assert env |> Map.get(~c"AWS_ENDPOINT_URL_S3") |> Enum.slice(0..16) ==
+                 ~c"https://localhost"
       end
     end
   end

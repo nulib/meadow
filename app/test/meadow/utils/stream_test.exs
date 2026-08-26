@@ -9,7 +9,7 @@ defmodule Meadow.Utils.StreamTest do
   @fixture %{bucket: @bucket, key: @key, content: @content}
 
   setup do
-    with {:ok, url} <- ExAws.S3.presigned_url(ExAws.Config.new(:s3), :get, @bucket, @key) do
+    with {:ok, url} <- Meadow.AWS.S3.presigned_url(:get, @bucket, @key) do
       {:ok, url: url}
     end
   end

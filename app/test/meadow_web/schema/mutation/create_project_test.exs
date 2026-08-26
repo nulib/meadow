@@ -19,7 +19,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateProjectTest do
     project = Projects.get_project_by_title("The project title")
     assert project.title == "The project title"
 
-    ExAws.S3.delete_object(Meadow.Config.ingest_bucket(), project.folder) |> ExAws.request()
+    Meadow.AWS.S3.delete_object(Meadow.Config.ingest_bucket(), project.folder)
   end
 
   describe "authorization" do
@@ -44,7 +44,7 @@ defmodule MeadowWeb.Schema.Mutation.CreateProjectTest do
 
       project = Projects.get_project_by_title("The project title")
 
-      ExAws.S3.delete_object(Meadow.Config.ingest_bucket(), project.folder) |> ExAws.request()
+      Meadow.AWS.S3.delete_object(Meadow.Config.ingest_bucket(), project.folder)
     end
   end
 end

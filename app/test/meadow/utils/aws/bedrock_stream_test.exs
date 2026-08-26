@@ -80,19 +80,22 @@ defmodule Meadow.Utils.AWS.BedrockStreamTest do
     message <> <<message_checksum::unsigned-32>>
   end
 
-  defp config(port) do
-    %{
-      scheme: "http://",
-      host: "localhost",
-      port: port,
-      normalize_path: true,
-      disable_headers_signature: true
+  # A client pointed at the local mock rather than Bedrock. Credentials are present so
+  # the request still goes through Req's sigv4 step, exactly as it does in production.
+  defp client(port) do
+    %AWS.Client{
+      access_key_id: "fake",
+      secret_access_key: "fake",
+      region: "us-east-1",
+      endpoint: "localhost",
+      proto: "http",
+      port: port
     }
   end
 
-  defp operation(path) do
-    %{service: :"bedrock-runtime", data: %{"prompt" => "hi"}, path: path, params: %{}}
-  end
+  defp url(port, path), do: "http://localhost:#{port}#{path}"
+
+  defp data, do: %{"prompt" => "hi"}
 
   test "streams and decodes multiple chunks", %{port: port} do
     :persistent_term.put(:mock_chunks, [
@@ -103,8 +106,7 @@ defmodule Meadow.Utils.AWS.BedrockStreamTest do
     :persistent_term.put(:mock_delay, 50)
 
     result =
-      operation("/ok")
-      |> BedrockStream.stream_objects!(nil, config(port))
+      BedrockStream.stream_objects!(client(port), url(port, "/ok"), data())
       |> Enum.to_list()
 
     assert result == [
@@ -114,17 +116,15 @@ defmodule Meadow.Utils.AWS.BedrockStreamTest do
   end
 
   test "raises on non-200 status", %{port: port} do
-    assert_raise ExAws.Error, ~r/rejected: 403/, fn ->
-      operation("/bad_status")
-      |> BedrockStream.stream_objects!(nil, config(port))
+    assert_raise Meadow.AWS.Error, ~r/rejected: 403/, fn ->
+      BedrockStream.stream_objects!(client(port), url(port, "/bad_status"), data())
       |> Enum.to_list()
     end
   end
 
   test "raises on unexpected content-type", %{port: port} do
-    assert_raise ExAws.Error, ~r/Expected content-type/, fn ->
-      operation("/bad_content_type")
-      |> BedrockStream.stream_objects!(nil, config(port))
+    assert_raise Meadow.AWS.Error, ~r/Expected content-type/, fn ->
+      BedrockStream.stream_objects!(client(port), url(port, "/bad_content_type"), data())
       |> Enum.to_list()
     end
   end
@@ -134,9 +134,8 @@ defmodule Meadow.Utils.AWS.BedrockStreamTest do
     Application.put_env(:meadow, :ai, Keyword.put(original, :transcriber_stream_timeout, 200))
     on_exit(fn -> Application.put_env(:meadow, :ai, original) end)
 
-    assert_raise ExAws.Error, ~r/timed out/, fn ->
-      operation("/hang")
-      |> BedrockStream.stream_objects!(nil, config(port))
+    assert_raise Meadow.AWS.Error, ~r/timed out/, fn ->
+      BedrockStream.stream_objects!(client(port), url(port, "/hang"), data())
       |> Enum.to_list()
     end
   end

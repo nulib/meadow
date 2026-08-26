@@ -4,6 +4,7 @@ defmodule Meadow.Events.FileSets.Annotations do
   """
 
   alias Meadow.Data.Schemas.{FileSet, FileSetAnnotation, Work}
+  alias Meadow.AWS.S3
   alias Meadow.Notification
   alias Meadow.Repo
 
@@ -20,7 +21,7 @@ defmodule Meadow.Events.FileSets.Annotations do
       when is_binary(s3_object) do
     Logger.info("Deleting annotation S3 object: #{s3_object}")
     %{host: bucket, path: "/" <> key} = URI.parse(s3_object)
-    ExAws.S3.delete_object(bucket, key) |> ExAws.request()
+    S3.delete_object(bucket, key)
   end
 
   def notify_annotation_subscriptions(%{new_record: %{id: id}, changes: %{status: _}}) do

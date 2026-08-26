@@ -1,5 +1,8 @@
 import Config
 
+# BroadwaySQS only. See the note in config/config.exs. Meadow's own credentials come
+# from `aws_credentials`, which walks the standard AWS chain (env, ~/.aws, ECS, EKS,
+# web identity, EC2 metadata) with no configuration needed.
 config :ex_aws,
   access_key_id: [:instance_role],
   secret_access_key: [:instance_role],
@@ -11,4 +14,5 @@ config :logger,
   ],
   level: :info
 
-config :meadow, :evals, default_query_name: "Berkeley Folk Music Festival — has description + subjects"
+config :meadow, :evals,
+  default_query_name: "Berkeley Folk Music Festival — has description + subjects"

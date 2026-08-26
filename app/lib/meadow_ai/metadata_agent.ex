@@ -202,7 +202,7 @@ defmodule MeadowAI.MetadataAgent do
       {:error, {:query_execution_error, error}}
   end
 
-  defp process_execution_result({:ok, %{"statusCode" => 200, "body" => body}}, opts) do
+  defp process_execution_result({:ok, %{status_code: 200, body: body}}, opts) do
     case Jason.decode(body) do
       {:ok, decoded} ->
         log_metrics(decoded, Keyword.get(opts, :metadata, %{}))
@@ -213,12 +213,12 @@ defmodule MeadowAI.MetadataAgent do
     end
   end
 
-  defp process_execution_result({:ok, %{"statusCode" => status_code, "body" => body}}, _opts) do
+  defp process_execution_result({:ok, %{status_code: status_code, body: body}}, _opts) do
     Logger.error("Lambda execution error: Status #{status_code}, Body: #{body}")
     {:error, {:lambda_invocation_failed, status_code, body}}
   end
 
-  defp process_execution_result({:ok, %{"errorMessage" => error_message}}, _opts) do
+  defp process_execution_result({:ok, %{error_message: error_message}}, _opts) do
     Logger.error("Lambda execution error: #{error_message}")
     {:error, {:lambda_invocation_failed, error_message}}
   end
@@ -232,7 +232,6 @@ defmodule MeadowAI.MetadataAgent do
     config = AIConfig.get(:metrics_log)
 
     CloudwatchLogs.create_log_stream(config[:group], config[:stream])
-    |> ExAws.request()
 
     cloudwatch_message =
       message
@@ -245,6 +244,5 @@ defmodule MeadowAI.MetadataAgent do
         "message" => Jason.encode!(cloudwatch_message)
       }
     ])
-    |> ExAws.request()
   end
 end

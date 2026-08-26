@@ -21,9 +21,7 @@ defmodule Meadow.S3Case do
 
         @tag s3: [@fixture]
         test "file exists" do
-          assert {:ok, _} =
-            ExAws.S3.head_object(@bucket, @key)
-            |> ExAws.request!()
+          assert {:ok, _} = Meadow.AWS.S3.head_object(@bucket, @key)
         end
       end
 
@@ -41,9 +39,13 @@ defmodule Meadow.S3Case do
   """
   use ExUnit.CaseTemplate
 
+  alias Meadow.AWS.S3
+
   using do
     quote do
       use Meadow.BucketNames
+
+      alias Meadow.AWS.S3
 
       defp object_content(uri) do
         %{path: key, host: bucket} = URI.parse(uri)
@@ -51,8 +53,8 @@ defmodule Meadow.S3Case do
       end
 
       defp object_content(bucket, key) do
-        case bucket |> ExAws.S3.get_object(key) |> ExAws.request() do
-          {:ok, %{body: body}} -> body
+        case S3.get_object(bucket, key) do
+          {:ok, body} -> body
           _ -> nil
         end
       end
@@ -62,23 +64,14 @@ defmodule Meadow.S3Case do
         object_exists?(bucket, key)
       end
 
-      defp object_exists?(bucket, key) do
-        case bucket |> ExAws.S3.head_object(key) |> ExAws.request() do
-          {:ok, _} -> true
-          {:error, _} -> false
-        end
-      end
+      defp object_exists?(bucket, key), do: S3.object_exists?(bucket, key)
 
+      # Atom keys are convenient in assertions and safe here, where the set of metadata
+      # keys is bounded by the test suite itself.
       defp object_metadata(bucket, key) do
-        case bucket |> ExAws.S3.head_object(key) |> ExAws.request() do
-          {:ok, %{headers: headers}} ->
-            headers
-            |> Enum.map(fn {header, value} -> {String.downcase(header), value} end)
-            |> Enum.filter(fn {header, value} -> header |> String.starts_with?("x-amz-meta") end)
-            |> Enum.map(fn {"x-amz-meta-" <> key, value} ->
-              {key |> String.downcase() |> String.to_atom(), value}
-            end)
-            |> Enum.into(%{})
+        case S3.head_object(bucket, key) do
+          {:ok, %{metadata: metadata}} ->
+            Map.new(metadata, fn {k, v} -> {String.to_atom(k), v} end)
 
           _ ->
             nil
@@ -86,23 +79,16 @@ defmodule Meadow.S3Case do
       end
 
       defp object_size(bucket, key) do
-        case bucket |> ExAws.S3.head_object(key) |> ExAws.request() do
-          {:ok, %{headers: headers}} ->
-            headers
-            |> Enum.into(%{})
-            |> Map.get("content-length")
-            |> String.to_integer()
-
-          _ ->
-            0
+        case S3.head_object(bucket, key) do
+          {:ok, %{content_length: content_length}} -> content_length
+          _ -> 0
         end
       end
 
       defp delete_bucket(bucket) do
         bucket
         |> empty_bucket()
-        |> ExAws.S3.delete_bucket()
-        |> ExAws.request()
+        |> S3.delete_bucket()
       end
 
       defp delete_object(uri) do
@@ -110,32 +96,21 @@ defmodule Meadow.S3Case do
         delete_object(bucket, key)
       end
 
-      defp delete_object(bucket, key) do
-        ExAws.S3.delete_object(bucket, key)
-        |> ExAws.request()
-      end
+      defp delete_object(bucket, key), do: S3.delete_object(bucket, key)
 
       defp empty_bucket(bucket) do
-        case ExAws.S3.head_bucket(bucket) |> ExAws.request() do
-          {:ok, _} ->
-            objects =
-              bucket
-              |> ExAws.S3.list_objects()
-              |> ExAws.request!()
-              |> get_in([:body, :contents])
-              |> Enum.map(& &1.key)
-
-            ExAws.S3.delete_all_objects(bucket, objects) |> ExAws.request()
-            bucket
-
-          {:error, _} ->
-            bucket
+        if S3.bucket_exists?(bucket) do
+          bucket
+          |> S3.stream_objects()
+          |> Stream.map(& &1.key)
+          |> then(&S3.delete_objects(bucket, &1))
         end
+
+        bucket
       end
 
       defp upload_object(bucket, key, content) do
-        ExAws.S3.put_object(bucket, key, to_string(content))
-        |> ExAws.request!()
+        S3.put_object!(bucket, key, to_string(content))
       end
     end
   end
@@ -144,42 +119,24 @@ defmodule Meadow.S3Case do
     tags
     |> Map.get(:s3, [])
     |> Enum.each(fn %{bucket: bucket, key: key, content: content} ->
-      ExAws.S3.put_object(bucket, key, to_string(content))
-      |> ExAws.request!()
+      S3.put_object!(bucket, key, to_string(content))
     end)
 
     on_exit(fn ->
       tags
       |> Map.get(:s3, [])
       |> Enum.each(fn %{bucket: bucket, key: key} ->
-        ExAws.S3.delete_object(bucket, key) |> ExAws.request!()
+        S3.delete_object!(bucket, key)
       end)
     end)
 
     :ok
   end
 
-  def add_tagging_header(op, content) do
-    with digest <-
-           :crypto.hash_init(:md5)
-           |> :crypto.hash_update(content)
-           |> :crypto.hash_final()
-           |> Base.encode16()
-           |> String.downcase(),
-         tagging <- "computed-md5=#{digest}&computed-md5-last-modified=#{System.system_time()}",
-         headers <- Map.get(op, :headers, %{}) do
-      Map.put(op, :headers, Map.put(headers, "x-amz-tagging", tagging))
-    end
-  end
-
   def show_cleanup_warnings do
     require Logger
 
-    all_buckets =
-      ExAws.S3.list_buckets()
-      |> ExAws.request!()
-      |> get_in([:body, :buckets])
-      |> Enum.map(& &1.name)
+    all_buckets = S3.list_buckets!()
 
     with buckets <- Meadow.Config.buckets() do
       if Meadow.Config.use_localstack?() do
@@ -189,14 +146,9 @@ defmodule Meadow.S3Case do
 
       buckets
       |> Enum.each(fn bucket ->
-        objects =
-          ExAws.S3.list_objects(bucket)
-          |> ExAws.request!()
-          |> get_in([:body, :contents])
-          |> Enum.map(& &1.key)
-
-        objects
-        |> Enum.each(&Logger.warning("Unexpected object left in bucket \"#{bucket}\": #{&1}"))
+        bucket
+        |> S3.stream_objects()
+        |> Enum.each(&Logger.warning("Unexpected object left in bucket \"#{bucket}\": #{&1.key}"))
       end)
     end
   end

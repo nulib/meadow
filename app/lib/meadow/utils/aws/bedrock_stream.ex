@@ -1,13 +1,13 @@
 defmodule Meadow.Utils.AWS.BedrockStream do
   @moduledoc """
-  Minimal helper for consuming AWS Bedrock streaming responses without the
-  external `ex_aws_bedrock` dependency.
+  Minimal helper for consuming AWS Bedrock streaming responses.
 
-  It signs the request using `ExAws.Auth`, opens a streaming connection via
+  aws-elixir's HTTP clients buffer whole response bodies, which a chunked
+  `application/vnd.amazon.eventstream` response can't tolerate, so this signs the
+  request with `Meadow.Utils.AWS.aws_sigv4_options/2`, opens a streaming connection via
   `Req`/`Finch`, and emits decoded event stream payloads.
   """
 
-  alias ExAws.Request.Url
   alias Meadow.Config
   alias Meadow.HTTP
   alias Meadow.Utils.AWS
@@ -26,9 +26,8 @@ defmodule Meadow.Utils.AWS.BedrockStream do
   @doc """
   Returns a stream of decoded Bedrock response events.
   """
-  def stream_objects!(%{data: data} = operation, _opts, config) do
+  def stream_objects!(client, url, data) do
     encoded_body = Jason.encode!(data)
-    url = Url.build(operation, config)
 
     timeout = stream_timeout()
 
@@ -47,7 +46,7 @@ defmodule Meadow.Utils.AWS.BedrockStream do
           transport_opts: [verify: :verify_peer]
         ],
         retry: false,
-        aws_sigv4: AWS.aws_sigv4_options(config, :bedrock)
+        aws_sigv4: AWS.aws_sigv4_options(client, Meadow.AWS.Bedrock.signing_name())
       )
 
     verify_status!(resp)
@@ -70,7 +69,7 @@ defmodule Meadow.Utils.AWS.BedrockStream do
 
   defp verify_status!(%Req.Response{status: status} = resp) do
     Req.cancel_async_response(resp)
-    raise ExAws.Error, message: "Bedrock streaming request rejected: #{status}"
+    raise Meadow.AWS.Error, message: "Bedrock streaming request rejected: #{status}"
   end
 
   defp next_chunk({resp, :done}, _timeout), do: {:halt, {resp, :done}}
@@ -91,11 +90,11 @@ defmodule Meadow.Utils.AWS.BedrockStream do
             {[], state}
 
           {:error, reason} ->
-            raise ExAws.Error, message: "Bedrock streaming error: #{inspect(reason)}"
+            raise Meadow.AWS.Error, message: "Bedrock streaming error: #{inspect(reason)}"
         end
     after
       timeout ->
-        raise ExAws.Error,
+        raise Meadow.AWS.Error,
           message: "Bedrock streaming timed out waiting for data after #{timeout}ms"
     end
   end
@@ -114,11 +113,11 @@ defmodule Meadow.Utils.AWS.BedrockStream do
         :ok
 
       [value] ->
-        raise ExAws.Error,
+        raise Meadow.AWS.Error,
           message: "Expected #{header} #{inspect(expected)}, received #{inspect(value)}"
 
       [] ->
-        raise ExAws.Error, message: "Missing #{header} header in Bedrock response"
+        raise Meadow.AWS.Error, message: "Missing #{header} header in Bedrock response"
     end
   end
 

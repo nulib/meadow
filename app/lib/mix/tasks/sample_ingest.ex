@@ -34,6 +34,7 @@ defmodule Mix.Tasks.Meadow.SampleIngest do
   use Mix.Task
 
   alias Meadow.Config
+  alias Meadow.AWS.S3
   alias Meadow.Ingest.{AIPreview, Projects, Sheets, SheetsToWorks, Validator}
   alias Meadow.Utils.AWS
   alias NimbleCSV.RFC4180, as: CSV
@@ -169,8 +170,7 @@ defmodule Mix.Tasks.Meadow.SampleIngest do
       path = Path.join(fixture_dir, name)
       key = "#{project.folder}/#{name}"
 
-      ExAws.S3.put_object(bucket, key, File.read!(path))
-      |> ExAws.request!()
+      S3.put_object!(bucket, key, File.read!(path))
 
       Logger.info("Uploaded s3://#{bucket}/#{key}")
 
@@ -180,7 +180,10 @@ defmodule Mix.Tasks.Meadow.SampleIngest do
 
   defp upload_csv(project, title) do
     short = short_id()
-    accession_keys = @rows |> Enum.flat_map(fn {_, w, f, _, _, _, _, _, _} -> [w, f] end) |> Enum.uniq()
+
+    accession_keys =
+      @rows |> Enum.flat_map(fn {_, w, f, _, _, _, _, _, _} -> [w, f] end) |> Enum.uniq()
+
     accession_map = Map.new(accession_keys, fn key -> {key, Ecto.UUID.generate()} end)
 
     csv_rows =
@@ -207,8 +210,7 @@ defmodule Mix.Tasks.Meadow.SampleIngest do
     bucket = Config.upload_bucket()
     key = "sample_ingest/#{short}.csv"
 
-    ExAws.S3.put_object(bucket, key, csv_body)
-    |> ExAws.request!()
+    S3.put_object!(bucket, key, csv_body)
 
     Logger.info("Uploaded s3://#{bucket}/#{key}")
 
@@ -283,9 +285,7 @@ defmodule Mix.Tasks.Meadow.SampleIngest do
   end
 
   defp generate_ai_preview(sheet) do
-    Logger.info(
-      "Invoking metadata-agent lambda"
-    )
+    Logger.info("Invoking metadata-agent lambda")
 
     parent = self()
     started_at = System.monotonic_time(:second)

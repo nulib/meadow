@@ -4,6 +4,7 @@ defmodule Meadow.Data.PreservationCheckWriter do
   """
 
   alias Meadow.Config
+  alias Meadow.AWS.S3
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.Work
   alias Meadow.Repo
@@ -37,12 +38,7 @@ defmodule Meadow.Data.PreservationCheckWriter do
 
     case generate_csv(cache_key) do
       {:ok, data} ->
-        ExAws.S3.put_object(
-          Config.preservation_check_bucket(),
-          "#{filename}",
-          data
-        )
-        |> ExAws.request!()
+        S3.put_object!(Config.preservation_check_bucket(), "#{filename}", data)
 
         {:ok, location(filename), failed_rows(cache_key)}
 
@@ -103,6 +99,7 @@ defmodule Meadow.Data.PreservationCheckWriter do
     end)
     |> Stream.flat_map(fn work ->
       work_fields = work_row_data(work)
+
       work.file_sets
       |> Stream.map(fn file_set ->
         work_fields ++

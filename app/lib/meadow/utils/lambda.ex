@@ -92,21 +92,19 @@ defmodule Meadow.Utils.Lambda do
 
   def init(_), do: :noop
 
+  # aws-elixir's `AWS.Lambda.invoke/4` merges Invoke's response headers into the decoded
+  # result, so a successful invocation comes back carrying these alongside whatever the
+  # function actually returned. They are stripped so remote invocations return the same
+  # shape as local ones.
+  @injected_response_keys ~w(DurableExecutionArn ExecutedVersion FunctionError LogResult)
+
   defp invoke_lambda(lambda, payload, opts) do
     # coveralls-ignore-start
     Logger.metadata(lambda: lambda)
 
-    request_opts =
-      Enum.reduce(opts, [], fn
-        {:retries, nil}, acc -> acc
-        {:retries, retries}, acc -> [retries: [max_attempts: retries]] ++ acc
-        {:timeout, timeout}, acc -> [http_opts: [recv_timeout: timeout]] ++ acc
-        {:on_log, _on_log}, acc -> acc
-        _, acc -> acc
-      end)
-
-    case ExAws.Lambda.invoke(lambda, payload, %{})
-         |> ExAws.request(request_opts) do
+    case Meadow.AWS.client(:lambda)
+         |> AWS.Lambda.invoke(lambda, payload, request_opts(opts))
+         |> Meadow.AWS.Response.unwrap(&strip_injected_keys/1) do
       {:ok, %{"errorType" => _, "errorMessage" => error_message, "trace" => trace}} ->
         Meadow.Error.report(%Meadow.LambdaError{message: error_message}, __MODULE__, [], %{
           lambda: lambda,
@@ -116,8 +114,8 @@ defmodule Meadow.Utils.Lambda do
 
         {:error, error_message}
 
-      {:error, {:http_error, status, %{body: message}}} = result ->
-        Meadow.Error.report(%Meadow.LambdaError{message: message}, __MODULE__, [], %{
+      {:error, {:http_error, status, message}} = result ->
+        Meadow.Error.report(%Meadow.LambdaError{message: inspect(message)}, __MODULE__, [], %{
           http_status: status,
           lambda: lambda,
           payload: payload
@@ -131,6 +129,33 @@ defmodule Meadow.Utils.Lambda do
 
     # coveralls-ignore-stop
   end
+
+  defp request_opts(opts) do
+    Enum.reduce(opts, [], fn
+      {:retries, nil}, acc ->
+        acc
+
+      {:retries, retries}, acc ->
+        [enable_retries?: true, retry_opts: [max_retries: retries]] ++ acc
+
+      {:timeout, timeout}, acc ->
+        [receive_timeout: timeout] ++ acc
+
+      _, acc ->
+        acc
+    end)
+  end
+
+  # A function that returns a JSON scalar arrives wrapped in a "Body" key, because
+  # aws-elixir has to put it somewhere to merge the response headers alongside it.
+  defp strip_injected_keys(%{"Body" => body} = result)
+       when map_size(result) <= length(@injected_response_keys) + 1,
+       do: body
+
+  defp strip_injected_keys(result) when is_map(result),
+    do: Map.drop(result, @injected_response_keys)
+
+  defp strip_injected_keys(result), do: result
 
   defp invoke_local(script, handler, payload, opts) do
     with [script_file | [script_dir | _]] <- Path.split(script) |> Enum.reverse() do

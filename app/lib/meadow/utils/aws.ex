@@ -4,6 +4,7 @@ defmodule Meadow.Utils.AWS do
   @moduledoc """
   Utility functions for AWS requests and object management
   """
+  alias Meadow.AWS.S3
   alias Meadow.Config
   alias Meadow.Config.Secrets
   alias Meadow.Utils.AWS.MultipartCopy
@@ -13,11 +14,12 @@ defmodule Meadow.Utils.AWS do
 
   require Logger
 
+  @cloudfront_api_version "2020-05-31"
+
   @doc "Log a message to the configured CloudWatch Logs metrics log"
   def log_metrics(message) do
     with log_config <- Config.ai(:metrics_log) do
       CloudwatchLogs.create_log_stream(log_config[:group], log_config[:stream])
-      |> ExAws.request()
 
       CloudwatchLogs.put_log_events(log_config[:group], log_config[:stream], [
         %{
@@ -25,7 +27,6 @@ defmodule Meadow.Utils.AWS do
           "message" => Jason.encode!(message)
         }
       ])
-      |> ExAws.request()
     end
   end
 
@@ -48,18 +49,13 @@ defmodule Meadow.Utils.AWS do
   def create_s3_folder(bucket, name) do
     bucket
     |> check_bucket()
-    |> ExAws.S3.put_object("#{name}/.folder", "")
-    |> ExAws.request()
+    |> S3.put_object("#{name}/.folder", "")
   end
 
   def check_object_tags!(bucket, key, required_tags) do
-    case ExAws.S3.get_object_tagging(bucket, key) |> ExAws.request() do
-      {:ok, %{status_code: 200, body: %{tags: actual_tags}}} ->
-        existing_tags = Enum.map(actual_tags, &Map.get(&1, :key))
-        required_tags -- existing_tags == []
-
-      other ->
-        raise "Unexpected response: #{other}"
+    case S3.has_tags?(bucket, key, required_tags) do
+      result when is_boolean(result) -> result
+      other -> raise "Unexpected response: #{inspect(other)}"
     end
   end
 
@@ -93,17 +89,26 @@ defmodule Meadow.Utils.AWS do
   def invalidate_cache(file_set, :streaming, _),
     do: perform_streaming_invalidation("/#{Pairtree.generate!(file_set.id)}/*")
 
+  @doc """
+  Build the credentials Req's `:aws_sigv4` step needs to sign a request for `service`.
+
+  Used for services we talk to outside aws-elixir: OpenSearch (`:es`) and the Bedrock
+  event stream.
+  """
   def aws_sigv4_options(service) do
-    ExAws.Config.new(service)
+    Meadow.AWS.client(service)
     |> aws_sigv4_options(service)
   end
 
-  def aws_sigv4_options(%{access_key_id: _} = config, service) do
-    config
-    |> Map.take([:access_key_id, :secret_access_key, :region])
-    |> Enum.into([])
-    |> Keyword.put(:service, service)
-    |> Keyword.put(:token, Map.get(config, :security_token))
+  def aws_sigv4_options(%{access_key_id: access_key_id} = client, service)
+      when is_binary(access_key_id) do
+    [
+      access_key_id: access_key_id,
+      secret_access_key: client.secret_access_key,
+      region: client.region,
+      service: service,
+      token: Map.get(client, :session_token)
+    ]
   end
 
   def aws_sigv4_options(_, _) do
@@ -123,36 +128,22 @@ defmodule Meadow.Utils.AWS do
   end
 
   defp perform_invalidation(path, distribution_id) do
-    version = "2020-05-31"
-    caller_reference = "meadow-app-#{Ecto.UUID.generate()}"
-
-    data = """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/#{version}/">
-        <CallerReference>#{caller_reference}</CallerReference>
-        <Paths>
-          <Items>
-              <Path>#{path}</Path>
-          </Items>
-          <Quantity>1</Quantity>
-        </Paths>
-    </InvalidationBatch>
-    """
-
-    operation = %ExAws.Operation.RestQuery{
-      action: :create_invalidation,
-      body: data,
-      http_method: :post,
-      path: "/#{version}/distribution/#{distribution_id}/invalidation",
-      service: :cloudfront
+    input = %{
+      {"InvalidationBatch",
+       %{xmlns: "http://cloudfront.amazonaws.com/doc/#{@cloudfront_api_version}/"}} => %{
+        "CallerReference" => "meadow-app-#{Ecto.UUID.generate()}",
+        "Paths" => %{"Quantity" => 1, "Items" => %{"Path" => path}}
+      }
     }
 
-    case operation |> ExAws.request() do
-      {:ok, %{status_code: status_code}} when status_code in 200..299 ->
+    Meadow.AWS.client(:cloudfront)
+    |> AWS.CloudFront.create_invalidation(distribution_id, input)
+    |> case do
+      {:ok, _body, _response} ->
         :ok
 
-      _ ->
-        Logger.error("Unable to clear cache for #{path}")
+      other ->
+        Logger.error("Unable to clear cache for #{path}: #{inspect(other)}")
         :ok
     end
   end
@@ -165,34 +156,21 @@ defmodule Meadow.Utils.AWS do
     end
   end
 
+  defp ensure_bucket_exists(:undefined), do: {:error, "Bucket: undefined not configured"}
+
   defp ensure_bucket_exists(bucket) do
-    case bucket do
-      :undefined ->
-        {:error, "Bucket: #{bucket} not configured"}
-
-      bucket ->
-        case bucket |> ExAws.S3.head_bucket() |> ExAws.request() do
-          {:error, {:http_error, 404, _}} ->
-            bucket
-            |> ExAws.S3.put_bucket("us-east-1")
-            |> ExAws.request!()
-
-            {:ok, :created}
-
-          {:ok, _} ->
-            {:ok, :exists}
-
-          other ->
-            other
-        end
+    if S3.bucket_exists?(bucket) do
+      {:ok, :exists}
+    else
+      S3.create_bucket!(bucket, "us-east-1")
+      {:ok, :created}
     end
   end
 
   defp generate_presigned_url(bucket, path, method \\ :put) do
     bucket
     |> check_bucket()
-
-    ExAws.S3.presigned_url(ExAws.Config.new(:s3), method, bucket, path)
+    |> then(&S3.presigned_url(method, &1, path))
   end
 
   defp prefix, do: Secrets.prefix()

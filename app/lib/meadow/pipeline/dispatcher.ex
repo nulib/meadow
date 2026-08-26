@@ -10,6 +10,7 @@ defmodule Meadow.Pipeline.Dispatcher do
   use Meadow.Utils.Logging
 
   alias Meadow.Config
+  alias Meadow.AWS.S3
   alias Meadow.Utils.Pairtree
 
   alias Meadow.Pipeline.Actions.{
@@ -229,10 +230,8 @@ defmodule Meadow.Pipeline.Dispatcher do
 
   defp skip_transcode?(file_set) do
     Config.streaming_bucket()
-    |> ExAws.S3.list_objects_v2(prefix: Pairtree.generate!(file_set.id))
-    |> ExAws.request!()
-    |> get_in([:body, :key_count])
-    |> String.to_integer()
+    |> S3.list_objects!(prefix: Pairtree.generate!(file_set.id))
+    |> Map.get(:key_count)
     |> then(&(&1 > 0))
   end
 

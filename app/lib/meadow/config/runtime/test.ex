@@ -75,7 +75,7 @@ defmodule Meadow.Config.Runtime.Test do
 
     config :meadow, :sitemaps,
       gzip: true,
-      store: Sitemapper.S3Store,
+      store: Meadow.Utils.Sitemap.S3Store,
       base_url: "http://localhost:3333/",
       sitemap_url: "http://localhost:3333/",
       store_config: [bucket: prefix("upload"), path: ""]
@@ -87,7 +87,7 @@ defmodule Meadow.Config.Runtime.Test do
     config :meadow, :ai,
       metrics_log: [
         group: get_secret(:meadow, ["logging", "log_group"]),
-        region: ExAws.Config.new(:s3)[:region],
+        region: Meadow.AWS.client(:s3).region,
         stream: "meadow/metrics"
       ]
 
@@ -95,6 +95,7 @@ defmodule Meadow.Config.Runtime.Test do
       assert_receive_timeout: 500
 
     config :honeybadger,
+      http_adapter: {Honeybadger.HTTPAdapter.Req, [finch: [name: Meadow.FinchPool]]},
       environment_name: :test,
       exclude_envs: [:dev, :test],
       api_key: "abc123",

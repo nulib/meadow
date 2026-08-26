@@ -5,6 +5,7 @@ defmodule Meadow.Pipeline.Action do
   use Meadow.Utils.Logging
 
   alias Broadway.Message
+  alias Meadow.AWS.SQS
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.Data.Schemas.FileSet
   alias Meadow.Ingest.{Progress, Rows}
@@ -113,9 +114,7 @@ defmodule Meadow.Pipeline.Action do
 
   def send_message(action, data, context \\ %{}) do
     with {url, message} <- sendable_message(action, data, context) do
-      url
-      |> ExAws.SQS.send_message(message)
-      |> ExAws.request!()
+      SQS.send_message!(url, message)
     end
   end
 
@@ -190,9 +189,7 @@ defmodule Meadow.Pipeline.Action do
   def queue_url(action) do
     configuration(action)
     |> get_in([:producer, :queue_name])
-    |> ExAws.SQS.get_queue_url()
-    |> ExAws.request!()
-    |> get_in([:body, :queue_url])
+    |> SQS.queue_url!()
   end
 
   @doc "Process a FileSet"

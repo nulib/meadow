@@ -30,6 +30,7 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
   """
   use Mix.Task
 
+  alias Meadow.AWS.S3
   alias Meadow.Config
 
   require Logger
@@ -83,8 +84,7 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
       |> Stream.map(&IO.iodata_to_binary/1)
       |> Enum.join("")
 
-    ExAws.S3.put_object(Config.upload_bucket(), key, data)
-    |> ExAws.request!()
+    S3.put_object!(Config.upload_bucket(), key, data)
 
     Logger.info("Done. Look for your export in bucket: #{Config.upload_bucket()}, key: #{key}")
   end
@@ -154,6 +154,7 @@ defmodule Mix.Tasks.NulAuthorities.Import do
   Import NUL Authorities from a CSV
   """
   require Logger
+  alias Meadow.AWS.S3
   alias Meadow.{Config, Repo}
   alias NimbleCSV.RFC4180, as: CSV
   alias NUL.Schemas.AuthorityRecord
@@ -166,8 +167,7 @@ defmodule Mix.Tasks.NulAuthorities.Import do
     Logger.info("Looking for CSV in bucket: #{Config.upload_bucket()}, key: #{filename}")
 
     case Config.upload_bucket()
-         |> ExAws.S3.get_object(filename)
-         |> ExAws.request() do
+         |> S3.get_object(filename) do
       {:error, _} ->
         Logger.error(
           "Error loading: #{filename}. Make sure your file is in the correct bucket: #{Config.upload_bucket()}"
@@ -183,7 +183,7 @@ defmodule Mix.Tasks.NulAuthorities.Import do
 
   defp create_records(csv) do
     Repo.transaction(fn ->
-      CSV.parse_string(csv.body, skip_headers: false)
+      CSV.parse_string(csv, skip_headers: false)
       |> Enum.map(fn
         [id | [label]] -> %{id: id, label: label}
         [label] -> %{id: "info:nul/" <> Ecto.UUID.generate(), label: label}
@@ -207,6 +207,7 @@ defmodule Mix.Tasks.NulAuthorities.Export do
   Export NUL Authorities to CSV
   """
   require Logger
+  alias Meadow.AWS.S3
   alias Meadow.{Config, Repo}
   alias NUL.Schemas.AuthorityRecord
 
@@ -224,8 +225,7 @@ defmodule Mix.Tasks.NulAuthorities.Export do
       |> CSVParser.dump_to_iodata()
       |> Enum.map_join("", &IO.iodata_to_binary/1)
 
-    ExAws.S3.put_object(Config.upload_bucket(), key, data)
-    |> ExAws.request!()
+    S3.put_object!(Config.upload_bucket(), key, data)
 
     Logger.info("Done. Look for your export in bucket: #{Config.upload_bucket()}, key: #{key}")
   after

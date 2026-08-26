@@ -65,8 +65,7 @@ defmodule Meadow.Pipeline.Actions.CreateDerivativeCopyTest do
     @describetag s3: [@fixture]
 
     setup tags do
-      ExAws.S3.put_object(@pyramid_bucket, tags.derivative_key, @content)
-      |> ExAws.request!()
+      S3.put_object!(@pyramid_bucket, tags.derivative_key, @content)
 
       on_exit(fn ->
         delete_object(@preservation_bucket, tags.derivative_key)
