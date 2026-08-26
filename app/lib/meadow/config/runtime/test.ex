@@ -95,7 +95,7 @@ defmodule Meadow.Config.Runtime.Test do
       assert_receive_timeout: 500
 
     config :honeybadger,
-      http_adapter: {Honeybadger.HTTPAdapter.Req, [finch: Meadow.FinchPool]},
+      http_adapter: {Honeybadger.HTTPAdapter.Req, [finch: [name: Meadow.FinchPool]]},
       environment_name: :test,
       exclude_envs: [:dev, :test],
       api_key: "abc123",
