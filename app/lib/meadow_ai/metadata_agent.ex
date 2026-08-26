@@ -167,21 +167,10 @@ defmodule MeadowAI.MetadataAgent do
       Keyword.get(opts, :context, %{})
       |> Map.put_new(:simple, simple)
 
-    auth_header =
-      case opts[:auth_token] do
-        nil -> {}
-        token -> {"Authorization", "Bearer #{token}"}
-      end
-
-    firewall_secrurity_header =
-      case opts[:firewall_security_header] do
-        [] -> {}
-        header -> {header[:name], header[:value]}
-      end
-
     headers =
-      [auth_header, firewall_secrurity_header]
-      |> Enum.into(%{})
+      %{}
+      |> put_auth_header(opts[:auth_token])
+      |> put_firewall_security_header(opts[:firewall_security_header])
 
     Config.lambda_config(:metadataAgent)
     |> Lambda.invoke(
@@ -198,11 +187,28 @@ defmodule MeadowAI.MetadataAgent do
     |> process_execution_result(opts)
   rescue
     error ->
-      Logger.error("Error executing Claude query: #{Exception.message(error)}")
+      Logger.error(
+        "Error executing Claude query: #{Exception.format(:error, error, __STACKTRACE__)}"
+      )
+
       {:error, {:query_execution_error, error}}
   end
 
-  defp process_execution_result({:ok, %{status_code: 200, body: body}}, opts) do
+  defp put_auth_header(headers, nil), do: headers
+  defp put_auth_header(headers, token), do: Map.put(headers, "Authorization", "Bearer #{token}")
+
+  defp put_firewall_security_header(headers, header) when is_list(header) do
+    case {header[:name], header[:value]} do
+      {name, value} when is_binary(name) and is_binary(value) -> Map.put(headers, name, value)
+      _ -> headers
+    end
+  end
+
+  defp put_firewall_security_header(headers, _), do: headers
+
+  # The metadataAgent lambda returns an API Gateway style `{statusCode, body}` map, which
+  # `Meadow.Utils.Lambda.invoke/3` hands back JSON-decoded with its wire (string) keys.
+  defp process_execution_result({:ok, %{"statusCode" => 200, "body" => body}}, opts) do
     case Jason.decode(body) do
       {:ok, decoded} ->
         log_metrics(decoded, Keyword.get(opts, :metadata, %{}))
@@ -213,14 +219,19 @@ defmodule MeadowAI.MetadataAgent do
     end
   end
 
-  defp process_execution_result({:ok, %{status_code: status_code, body: body}}, _opts) do
+  defp process_execution_result({:ok, %{"statusCode" => status_code, "body" => body}}, _opts) do
     Logger.error("Lambda execution error: Status #{status_code}, Body: #{body}")
     {:error, {:lambda_invocation_failed, status_code, body}}
   end
 
-  defp process_execution_result({:ok, %{error_message: error_message}}, _opts) do
+  defp process_execution_result({:ok, %{"errorMessage" => error_message}}, _opts) do
     Logger.error("Lambda execution error: #{error_message}")
     {:error, {:lambda_invocation_failed, error_message}}
+  end
+
+  defp process_execution_result({:error, reason}, _opts) do
+    Logger.error("Lambda invocation failed: #{inspect(reason)}")
+    {:error, {:lambda_invocation_failed, reason}}
   end
 
   defp process_execution_result(result, _opts) do

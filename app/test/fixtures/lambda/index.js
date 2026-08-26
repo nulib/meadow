@@ -46,4 +46,35 @@ const testHandler = async (event, _context, _callback) => {
   }
 }
 
-module.exports = {testHandler}
+// Mimics the response contract of lambdas/metadata-agent/index.js: an API Gateway style
+// `{statusCode, body}` map on completion, or a bare `errorMessage` when the runtime
+// reports a failure. The scenario is chosen via `event.context.test`.
+const metadataAgentHandler = async (event, _context, _callback) => {
+  switch (event.context && event.context.test) {
+    case "error_status":
+      return { statusCode: 500, body: "Something went wrong" };
+    case "error_message":
+      return { errorMessage: "Task timed out after 900.00 seconds" };
+    case "invalid_json":
+      return { statusCode: 200, body: "this is not json" };
+    case "echo_headers":
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ result: event.additional_headers, total_cost_usd: 0 })
+      };
+    default:
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          type: "result",
+          subtype: "success",
+          is_error: false,
+          result: `Processed: ${event.prompt}`,
+          total_cost_usd: 0.25,
+          usage: { input_tokens: 10, output_tokens: 20 }
+        })
+      };
+  }
+}
+
+module.exports = {testHandler, metadataAgentHandler}
