@@ -65,7 +65,7 @@ defmodule Meadow.Config.Runtime do
     Logger.info("Configuring honeybadger")
 
     config :honeybadger,
-      http_adapter: {Honeybadger.HTTPAdapter.Req, [finch: Meadow.FinchPool]},
+      http_adapter: {Honeybadger.HTTPAdapter.Req, [finch: [name: Meadow.FinchPool]]},
       api_key: get_secret(:meadow, ["honeybadger", "api_key"], "DO_NOT_REPORT"),
       environment_name:
         get_secret(:meadow, ["honeybadger", "environment"], to_string(environment())),

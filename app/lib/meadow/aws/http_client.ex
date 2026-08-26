@@ -55,7 +55,7 @@ defmodule Meadow.AWS.HTTPClient do
   # Meadow's pool once the supervision tree is up; Req's own pool before that.
   defp put_finch(opts) do
     if Process.whereis(Meadow.FinchPool) do
-      Keyword.put(opts, :finch, Meadow.FinchPool)
+      Keyword.put(opts, :finch, [name: Meadow.FinchPool])
     else
       opts
     end
