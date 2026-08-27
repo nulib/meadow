@@ -319,10 +319,16 @@ defmodule Meadow.Config.Runtime do
     Logger.info("Configuring meadow S3 buckets")
     config :meadow, buckets()
 
-    Logger.info("Configuring meadow lambdas")
+    Logger.info("Configuring meadow AI settings")
 
     config :meadow, :ai,
       metrics_log: log_configuration(),
+      model:
+        get_secret(
+          :meadow,
+          ["meadow_ai", "model"],
+          "us.anthropic.claude-opus-5"
+        ),
       transcriber_stream_timeout: 900_000,
       transcriber_model:
         get_secret(
@@ -330,6 +336,9 @@ defmodule Meadow.Config.Runtime do
           ["meadow_ai", "model"],
           "us.anthropic.claude-opus-5"
         )
+
+    Logger.info("Configuring meadow lambdas")
+
 
     if System.get_env("USE_SAM_LAMBDAS") do
       config :meadow, :aws,
@@ -386,15 +395,6 @@ defmodule Meadow.Config.Runtime do
            [14 * 24 * 60 * 60, [limit: 2_500, exclude_prefix: "http://vocab.getty.edu/"]]}
         }
       ]
-
-    config :meadow, :ai,
-      metrics_log: log_configuration(),
-      model:
-        get_secret(
-          :meadow,
-          ["meadow_ai", "model"],
-          "us.anthropic.claude-opus-5"
-        )
 
     Logger.info("Configuring ueberauth for NU SSO")
 
