@@ -20,31 +20,33 @@ resource "aws_iam_role" "replication_role" {
       },
     ]
   })
+}
 
-  inline_policy {
-    name = "${var.stack_name}-replication-policy"
+resource "aws_iam_role_policy" "replication_role_policy" {
+  count = local.is_production ? 1 : 0
+  name  = "${var.stack_name}-replication-role-policy"
+  role  = aws_iam_role.replication_role[count.index].id
 
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Effect   = "Allow"
-          Action   = ["s3:GetReplicationConfiguration", "s3:ListBucket"]
-          Resource = ["${aws_s3_bucket.meadow_preservation.arn}"]
-        },
-        {
-          Effect   = "Allow"
-          Action   = ["s3:GetObjectVersionForReplication", "s3:GetObjectVersionAcl", "s3:GetObjectVersionTagging"]
-          Resource = ["${aws_s3_bucket.meadow_preservation.arn}/*"]
-        },
-        {
-          Effect   = "Allow"
-          Action   = ["s3:ReplicateObject", "s3:ReplicateDelete", "s3:ReplicateTags"]
-          Resource = ["${aws_s3_bucket.meadow_preservation_replica[count.index].arn}/*"]
-        }
-      ]
-    })
-  }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["s3:GetReplicationConfiguration", "s3:ListBucket"]
+        Resource = ["${aws_s3_bucket.meadow_preservation.arn}"]
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["s3:GetObjectVersionForReplication", "s3:GetObjectVersionAcl", "s3:GetObjectVersionTagging"]
+        Resource = ["${aws_s3_bucket.meadow_preservation.arn}/*"]
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["s3:ReplicateObject", "s3:ReplicateDelete", "s3:ReplicateTags"]
+        Resource = ["${aws_s3_bucket.meadow_preservation_replica[count.index].arn}/*"]
+      }
+    ]
+  })
 }
 
 resource "aws_s3_bucket" "meadow_preservation_replica" {

@@ -86,6 +86,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_ingest" {
       days = 30
     }
   }
+
+  rule {
+    id     = "AbortIncompleteMultipartUpload"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = local.is_staging ? 5 : 7
+    }
+
+    expiration {
+      expired_object_delete_marker = false
+    }
+  }
 }
 
 resource "aws_s3_bucket" "meadow_uploads" {
@@ -176,6 +189,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_staging" {
       expired_object_delete_marker = true
     }
   }
+
+  rule {
+    id        = "AbortIncompleteMultipartUpload"
+    status    = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation   = 7
+    }
+
+    expiration {
+      expired_object_delete_marker = false
+    }
+  }
 }
 
 resource "aws_s3_bucket_intelligent_tiering_configuration" "meadow_preservation_production" {
@@ -218,6 +244,29 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_preservation_production
     }
     expiration {
       expired_object_delete_marker = true
+    }
+  }
+
+  rule {
+    id     = "noncurrent-versions-direct-to-glacier-ir"
+    status = "Enabled"
+
+    noncurrent_version_transition {
+      noncurrent_days = 0
+      storage_class   = "GLACIER_IR"
+    }
+  }
+
+  rule {
+    id     = "AbortIncompleteMultipartUpload"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+
+    expiration {
+      days    = 0
     }
   }
 }
@@ -352,6 +401,35 @@ resource "aws_s3_bucket_lifecycle_configuration" "meadow_pyramids" {
     }
 
     status = "Enabled"
+  }
+
+  rule {
+    id     = "AbortIncompleteMultipartUpload"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+
+    expiration {
+      days    = 0
+    }
+  }
+
+  rule {
+    id     = "Transition_to_Intelligent_Tiering"
+    status = "Enabled"
+
+    noncurrent_version_transition {
+      newer_noncurrent_versions = 1
+      noncurrent_days           = 1
+      storage_class             = "INTELLIGENT_TIERING"
+    }
+
+    transition {
+      days          = 0
+      storage_class = "INTELLIGENT_TIERING"
+    }
   }
 }
 

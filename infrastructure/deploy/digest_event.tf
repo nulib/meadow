@@ -1,5 +1,5 @@
 data "aws_cloudformation_stack" "fixity" {
-  name = "fixity"
+  name = "stack-${var.environment}-fixity"
 }
 
 locals {
