@@ -25,8 +25,9 @@ defmodule Meadow.AWS.HTTPClient do
 
   @behaviour AWS.HTTPClient
 
-  # Timeout options aws-elixir may pass through from a caller's request options.
-  @request_options [:pool_timeout, :receive_timeout, :connect_options]
+  # Options aws-elixir may pass through from a caller's request options: timeouts, and
+  # `:plug` so tests can route a request through `Req.Test`.
+  @request_options [:pool_timeout, :receive_timeout, :connect_options, :plug]
 
   @impl AWS.HTTPClient
   def request(method, url, body, headers, options) do
