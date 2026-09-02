@@ -134,7 +134,10 @@ defmodule Meadow.AWS.S3 do
     Meadow.AWS.client(:s3)
     |> AWS.S3.copy_object(dest_bucket, object_key(dest_key), input)
     |> Response.unwrap(fn body ->
-      %{etag: body |> get_in([:copy_object_result, :e_tag]) |> unquote_etag()}
+      %{
+        etag:
+          body |> Response.normalize() |> get_in([:copy_object_result, :e_tag]) |> unquote_etag()
+      }
     end)
   end
 
@@ -275,6 +278,7 @@ defmodule Meadow.AWS.S3 do
     |> AWS.S3.list_buckets()
     |> Response.unwrap(fn body ->
       body
+      |> Response.normalize()
       |> get_in([:list_all_my_buckets_result, :buckets, :bucket])
       |> Response.list()
       |> Enum.map(& &1.name)
@@ -311,9 +315,22 @@ defmodule Meadow.AWS.S3 do
 
   ## Multipart
 
+  # CopyObject-only options. CreateMultipartUpload has no header for them, so
+  # aws-elixir would XML-encode them into the POST body, and S3 rejects that request
+  # with `InvalidRequest: The request included a body`. (LocalStack ignores the body,
+  # which is why only real S3 fails.) A multipart copy always writes the metadata and
+  # tags given at initiation, so REPLACE is the only behavior anyway.
+  @copy_only_keys [:metadata_directive, :tagging_directive]
+
+  @doc """
+  Start a multipart upload and return its upload id. `opts` accepts the same keys as
+  `copy_object/5`; the copy directives are dropped, since they only apply to CopyObject.
+  """
   def create_multipart_upload(bucket, key, opts \\ []) do
+    input = opts |> Keyword.drop(@copy_only_keys) |> copy_object_input()
+
     Meadow.AWS.client(:s3)
-    |> AWS.S3.create_multipart_upload(bucket, object_key(key), copy_object_input(opts))
+    |> AWS.S3.create_multipart_upload(bucket, object_key(key), input, request_opts(opts))
     |> Response.unwrap(fn body ->
       get_in(body, ["InitiateMultipartUploadResult", "UploadId"])
     end)
@@ -355,7 +372,7 @@ defmodule Meadow.AWS.S3 do
     Meadow.AWS.client(:s3)
     |> AWS.S3.upload_part_copy(bucket, object_key(key), input, request_opts(opts))
     |> Response.unwrap(fn body ->
-      body |> get_in([:copy_part_result, :e_tag]) |> unquote_etag()
+      body |> Response.normalize() |> get_in([:copy_part_result, :e_tag]) |> unquote_etag()
     end)
   end
 
@@ -373,7 +390,9 @@ defmodule Meadow.AWS.S3 do
 
     Meadow.AWS.client(:s3)
     |> AWS.S3.complete_multipart_upload(bucket, object_key(key), input)
-    |> Response.unwrap(fn body -> Map.get(body, :complete_multipart_upload_result, %{}) end)
+    |> Response.unwrap(fn body ->
+      body |> Response.normalize() |> Map.get(:complete_multipart_upload_result, %{})
+    end)
   end
 
   def abort_multipart_upload(bucket, key, upload_id) do
@@ -396,27 +415,29 @@ defmodule Meadow.AWS.S3 do
     case client do
       %{access_key_id: access_key_id, secret_access_key: secret} when is_binary(access_key_id) ->
         url =
-        [
-          Meadow.AWS.endpoint_url(client, Meadow.AWS.host(client, "s3")),
-          AWS.Util.encode_uri(bucket),
-          object_key(key)
-        ]
-        |> Enum.join("/")
+          [
+            Meadow.AWS.endpoint_url(client, Meadow.AWS.host(client, "s3")),
+            AWS.Util.encode_uri(bucket),
+            object_key(key)
+          ]
+          |> Enum.join("/")
 
-      signed =
-        :aws_signature.sign_v4_query_params(
-          access_key_id,
-          secret,
-          client.region,
-          "s3",
-          NaiveDateTime.utc_now() |> NaiveDateTime.to_erl(),
-          method |> to_string() |> String.upcase(),
-          url,
-          presign_options(client, opts)
-        )
+        signed =
+          :aws_signature.sign_v4_query_params(
+            access_key_id,
+            secret,
+            client.region,
+            "s3",
+            NaiveDateTime.utc_now() |> NaiveDateTime.to_erl(),
+            method |> to_string() |> String.upcase(),
+            url,
+            presign_options(client, opts)
+          )
 
-      {:ok, signed}
-      _ -> {:error, :no_credentials}
+        {:ok, signed}
+
+      _ ->
+        {:error, :no_credentials}
     end
   end
 
@@ -537,6 +558,10 @@ defmodule Meadow.AWS.S3 do
     |> Map.put("Body", content)
   end
 
+  # Options forwarded to the HTTP client rather than encoded into the request. `:plug`
+  # lets tests route a request through `Req.Test` and inspect what goes over the wire.
+  @request_option_keys [:receive_timeout, :request_timeout, :pool_timeout, :plug]
+
   @input_keys %{
     acl: "ACL",
     cache_control: "CacheControl",
@@ -549,8 +574,7 @@ defmodule Meadow.AWS.S3 do
   }
 
   # Options consumed by Meadow rather than sent to S3.
-  @passthrough_keys [:chunk_size, :max_concurrency, :expires_in] ++
-                      [:receive_timeout, :request_timeout, :pool_timeout]
+  @passthrough_keys [:chunk_size, :max_concurrency, :expires_in] ++ @request_option_keys
 
   defp copy_object_input(opts) do
     Enum.reduce(opts, %{}, fn {key, value}, input ->
@@ -575,8 +599,7 @@ defmodule Meadow.AWS.S3 do
 
   # Only options aws-elixir passes through to the HTTP client, so callers can set
   # per-request timeouts on slow multipart operations.
-  defp request_opts(opts),
-    do: Keyword.take(opts, [:receive_timeout, :request_timeout, :pool_timeout])
+  defp request_opts(opts), do: Keyword.take(opts, @request_option_keys)
 
   defp presign_options(client, opts) do
     [
