@@ -19,20 +19,41 @@ defmodule Meadow.Seed.Import do
   require Logger
 
   @import_tables [
-    {:collections, Collection},
-    {:controlled_term_cache, ControlledTermCache},
-    {:nul_authorities, NUL.Schemas.AuthorityRecord},
-    {:ingest_sheet_projects, Project},
-    {:ingest_sheets, Sheet},
-    {:ingest_sheet_rows, Row},
-    {:ingest_sheet_progress, Progress},
-    {:ingest_sheet_works, Work},
-    {:ingest_sheet_file_sets, FileSet},
-    {:ingest_sheet_action_states, ActionState},
-    {:standalone_works, Work},
-    {:standalone_file_sets, FileSet},
-    {:standalone_action_states, ActionState}
-  ]
+                   {:collections, Collection},
+                   {:controlled_term_cache, ControlledTermCache},
+                   {:nul_authorities, NUL.Schemas.AuthorityRecord},
+                   {:ingest_sheet_projects, Project},
+                   {:ingest_sheets, Sheet},
+                   {:ingest_sheet_states, Meadow.Ingest.Schemas.SheetState},
+                   {:ingest_sheet_rows, Row},
+                   {:ingest_sheet_row_fields, Meadow.Ingest.Schemas.RowField},
+                   {:ingest_sheet_row_errors, Meadow.Ingest.Schemas.RowError},
+                   {:ingest_sheet_progress, Progress},
+                   {:ingest_sheet_works, Work}
+                 ] ++
+                   Enum.map(
+                     Meadow.Seed.Queries.work_metadata_schemas(),
+                     fn {name, schema} -> {:"ingest_sheet_works_#{name}", schema} end
+                   ) ++
+                   [{:ingest_sheet_file_sets, FileSet}] ++
+                   Enum.map(
+                     Meadow.Seed.Queries.file_set_metadata_schemas(),
+                     fn {name, schema} -> {:"ingest_sheet_file_sets_#{name}", schema} end
+                   ) ++
+                   [
+                     {:ingest_sheet_action_states, ActionState},
+                     {:standalone_works, Work}
+                   ] ++
+                   Enum.map(
+                     Meadow.Seed.Queries.work_metadata_schemas(),
+                     fn {name, schema} -> {:"standalone_works_#{name}", schema} end
+                   ) ++
+                   [{:standalone_file_sets, FileSet}] ++
+                   Enum.map(
+                     Meadow.Seed.Queries.file_set_metadata_schemas(),
+                     fn {name, schema} -> {:"standalone_file_sets_#{name}", schema} end
+                   ) ++
+                   [{:standalone_action_states, ActionState}]
 
   @null_fields %{
     Collection => ~w(representative_work_id),
@@ -207,6 +228,7 @@ defmodule Meadow.Seed.Import do
     Repo.transaction(
       fn ->
         FileSet
+        |> FileSets.with_metadata()
         |> Repo.stream()
         |> Stream.each(&update_file_set_preservation_location/1)
         |> Stream.run()

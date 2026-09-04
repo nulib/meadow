@@ -62,6 +62,12 @@ const UIFormNote = ({
                     </p>
                     <input
                       type="hidden"
+                      name={`${itemName}.id`}
+                      {...register(`${itemName}.id`)}
+                      value={item.id || ""}
+                    />
+                    <input
+                      type="hidden"
                       name={`${itemName}.note`}
                       {...register(`${itemName}.note`)}
                       value={item.note}

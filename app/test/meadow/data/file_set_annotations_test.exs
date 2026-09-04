@@ -366,6 +366,7 @@ defmodule Meadow.Data.FileSetAnnotationsTest do
                  FileSets.get_annotation!(annotation_id)
 
         assert [%{origin: "ai_modified_human_content"}] = Provenance.work_summary(work.id)
+        assert_transcription_note(work.id)
       end
 
       # The single (file_set, transcription) slot now holds only the new one.
@@ -405,7 +406,17 @@ defmodule Meadow.Data.FileSetAnnotationsTest do
                  FileSets.get_annotation!(annotation_id)
 
         assert [%{origin: "ai_generated"}] = Provenance.work_summary(work.id)
+        assert_transcription_note(work.id)
       end
+    end
+
+    # The transcription task finishes by adding a note to the work. Waiting for it
+    # keeps the task from outliving the test's sandbox connection.
+    defp assert_transcription_note(work_id) do
+      assert [%{note: note_text, type: %{id: "LOCAL_NOTE"}}] =
+               Meadow.Data.Works.get_work!(work_id).descriptive_metadata.notes
+
+      assert note_text =~ "Transcription generated for"
     end
   end
 

@@ -22,7 +22,9 @@ defmodule Meadow.Data do
 
   """
   def get_work_by_file_set_id(id) do
-    Repo.get!(FileSet, id)
+    FileSet
+    |> Meadow.Data.FileSets.with_metadata()
+    |> Repo.get!(id)
     |> Ecto.assoc(:work)
     |> Repo.one()
   end
@@ -58,13 +60,12 @@ defmodule Meadow.Data do
 
   """
   def ranked_file_sets_for_work(work_id, role_id) do
-    map = %{"id" => role_id}
-
     Repo.all(
       from f in FileSet,
         where: f.work_id == ^work_id,
-        where: fragment("role @> ?::jsonb", ^map),
-        order_by: :rank
+        where: f.role == ^role_id,
+        order_by: :rank,
+        preload: ^FileSet.metadata_preloads()
     )
   end
 
@@ -73,6 +74,8 @@ defmodule Meadow.Data do
   def datasource do
     Dataloader.Ecto.new(Repo, query: &query/2)
   end
+
+  def query(Meadow.Data.Schemas.Work, _), do: Meadow.Data.Works.with_metadata()
 
   def query(queryable, _) do
     queryable

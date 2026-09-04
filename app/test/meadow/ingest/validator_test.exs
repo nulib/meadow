@@ -237,7 +237,7 @@ defmodule Meadow.Ingest.ValidatorTest do
 
       %{
         errors: [
-          %Meadow.Ingest.Schemas.Row.Error{
+          %Meadow.Ingest.Schemas.RowError{
             field: "filename",
             message: message
           }
@@ -260,7 +260,7 @@ defmodule Meadow.Ingest.ValidatorTest do
 
       %{
         errors: [
-          %Meadow.Ingest.Schemas.Row.Error{
+          %Meadow.Ingest.Schemas.RowError{
             field: "filename",
             message: message
           }
@@ -304,7 +304,7 @@ defmodule Meadow.Ingest.ValidatorTest do
 
       %{
         errors: [
-          %Meadow.Ingest.Schemas.Row.Error{
+          %Meadow.Ingest.Schemas.RowError{
             field: "filename",
             message: message
           }

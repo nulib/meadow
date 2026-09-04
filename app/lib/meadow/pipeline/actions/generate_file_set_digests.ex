@@ -8,7 +8,6 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
   """
   alias Meadow.Data.{ActionStates, FileSets}
   alias Meadow.AWS.S3
-  alias Meadow.Utils.StructMap
 
   use Meadow.Pipeline.Actions.Common
 
@@ -18,8 +17,9 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
 
   def already_complete?(file_set, _) do
     case file_set
-         |> StructMap.deep_struct_to_map()
-         |> get_in([:core_metadata, :digests]) do
+         |> FileSets.preload_metadata()
+         |> Map.get(:core_metadata)
+         |> Meadow.Data.Schemas.FileSetCoreMetadata.digests() do
       %{"sha1" => _} -> true
       %{"sha256" => _} -> true
       %{"md5" => _} -> true

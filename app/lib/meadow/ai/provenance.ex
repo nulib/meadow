@@ -605,6 +605,8 @@ defmodule Meadow.AI.Provenance do
 
   defp each_changed_ai_field(work_before, work_after, opts, fun) do
     except = Keyword.get(opts, :except, [])
+    work_before = preload_work_metadata(work_before)
+    work_after = preload_work_metadata(work_after)
 
     work_before.id
     |> applied_ai_targets()
@@ -656,6 +658,8 @@ defmodule Meadow.AI.Provenance do
   def record_work_human_attestation(work_before, work_after, field_paths, actor, opts) do
     reason = Keyword.get(opts, :reason)
     item_ids = Keyword.get(opts, :item_ids)
+    work_before = preload_work_metadata(work_before)
+    work_after = preload_work_metadata(work_after)
 
     targets_by_path =
       work_before.id
@@ -1027,7 +1031,9 @@ defmodule Meadow.AI.Provenance do
 
   defp finalize_apply_target!(target, origin, operation, prior_value) do
     snapshot =
-      if present_value?(prior_value), do: %{source_value_snapshot: wrap_value(prior_value)}, else: %{}
+      if present_value?(prior_value),
+        do: %{source_value_snapshot: wrap_value(prior_value)},
+        else: %{}
 
     attrs =
       if modification?(origin, operation, prior_value) do
@@ -1066,6 +1072,8 @@ defmodule Meadow.AI.Provenance do
   targets before a plan change exists.
   """
   def prior_values_for_operations(work, operations) do
+    work = preload_work_metadata(work)
+
     operations
     |> operation_targets("Work", work.id)
     |> Map.new(fn %{field_path: field_path} -> {field_path, field_value(work, field_path)} end)
@@ -1074,6 +1082,8 @@ defmodule Meadow.AI.Provenance do
   # Field paths are either two-segment ("descriptive_metadata.description") or
   # single-segment top-level work fields ("published", "visibility",
   # "collection_id" — the uncontrolled field operations the planner supports).
+  # Values are recorded in their public shape: repeating free-text fields are
+  # plain strings (the same shape plan proposals and the search index use).
   defp field_value(work, field_path) do
     case String.split(field_path, ".", parts: 2) do
       [field] ->
@@ -1086,12 +1096,26 @@ defmodule Meadow.AI.Provenance do
         with section_atom when not is_nil(section_atom) <- safe_existing_atom(section),
              field_atom when not is_nil(field_atom) <- safe_existing_atom(field),
              %{} = section_value <- Map.get(work, section_atom) do
-          Map.get(section_value, field_atom)
+          section_value |> Map.get(field_atom) |> public_value()
         else
           _ -> nil
         end
     end
   end
+
+  # Preload metadata rows only when the work still carries real (or not yet
+  # loaded) associations; callers may hand in snapshots with other values
+  defp preload_work_metadata(%Work{descriptive_metadata: d, administrative_metadata: a} = work)
+       when is_struct(d) and is_struct(a),
+       do: Work.preload_metadata(work)
+
+  defp preload_work_metadata(work), do: work
+
+  defp public_value([%Meadow.Data.Schemas.MetadataValue{} | _] = values),
+    do: Meadow.Data.Schemas.MetadataValue.values(values)
+
+  defp public_value(%Ecto.Association.NotLoaded{}), do: nil
+  defp public_value(value), do: value
 
   defp safe_existing_atom(string) do
     String.to_existing_atom(string)
@@ -1516,6 +1540,10 @@ defmodule Meadow.AI.Provenance do
   defp item_identifier(%{url: url}) when is_binary(url), do: url
   defp item_identifier(%{"edtf" => edtf}) when is_binary(edtf), do: edtf
   defp item_identifier(%{edtf: edtf}) when is_binary(edtf), do: edtf
+  # Free-text metadata values (`%{id, value}` rows) are identified by their
+  # text, matching the plain-string proposals recorded at plan time
+  defp item_identifier(%{"value" => value}) when is_binary(value), do: value
+  defp item_identifier(%{value: value}) when is_binary(value), do: value
   defp item_identifier(%{"id" => id}), do: id
   defp item_identifier(value) when is_binary(value), do: value
   defp item_identifier(_), do: nil
@@ -1728,7 +1756,10 @@ defmodule Meadow.AI.Provenance do
   defp put_object_identifier(attrs) do
     attrs
     |> Map.put_new(:object_identifier_type, "Meadow")
-    |> Map.put_new(:object_identifier_value, map_value(attrs, :target_id) || map_value(attrs, :item_id))
+    |> Map.put_new(
+      :object_identifier_value,
+      map_value(attrs, :target_id) || map_value(attrs, :item_id)
+    )
   end
 
   defp source_object_category(attrs) do

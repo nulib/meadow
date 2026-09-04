@@ -205,8 +205,8 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
 
     field :extracted_metadata, :string do
       resolve(fn file_set, _, _ ->
-        case file_set |> Map.get(:extracted_metadata) do
-          nil -> {:ok, nil}
+        case FileSets.extracted_metadata_map(file_set) do
+          map when map_size(map) == 0 -> {:ok, nil}
           value -> ExtractedMetadata.transform(value) |> Jason.encode()
         end
       end)
@@ -226,7 +226,12 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
     field(:mime_type, :string)
     field(:original_filename, :string)
     field(:description, :string)
-    field(:digests, :digests)
+
+    field(:digests, :digests,
+      resolve: fn core_metadata, _, _ ->
+        {:ok, Meadow.Data.Schemas.FileSetCoreMetadata.digests(core_metadata)}
+      end
+    )
   end
 
   @desc "`digests` represents the possible digest hashes for a file set."

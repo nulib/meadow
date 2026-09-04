@@ -63,7 +63,9 @@ defmodule Meadow.Pipeline.Action do
       |> Enum.map(&action.prepare_file_set_id/1)
 
     file_set_ids = messages |> Enum.map(&extract_file_set_id/1) |> Enum.reject(&is_nil/1)
-    file_sets = from(fs in FileSet, where: fs.id in ^file_set_ids) |> Repo.all()
+
+    file_sets =
+      from(fs in FileSet, where: fs.id in ^file_set_ids) |> FileSets.with_metadata() |> Repo.all()
 
     messages
     |> Enum.map(

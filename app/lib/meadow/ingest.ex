@@ -41,6 +41,9 @@ defmodule Meadow.Ingest do
     Dataloader.Ecto.new(Repo, query: &query/2)
   end
 
+  def query(Meadow.Ingest.Schemas.Row, _), do: Meadow.Ingest.Rows.with_children()
+  def query(Meadow.Ingest.Schemas.Sheet, _), do: Meadow.Ingest.Sheets.with_state()
+
   def query(queryable, _) do
     queryable
   end

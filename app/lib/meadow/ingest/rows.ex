@@ -1,6 +1,6 @@
 defmodule Meadow.Ingest.Rows do
   import Ecto.Query, warn: false
-  alias Meadow.Ingest.Schemas.Row
+  alias Meadow.Ingest.Schemas.{Row, RowField}
   alias Meadow.Repo
 
   @moduledoc """
@@ -11,14 +11,18 @@ defmodule Meadow.Ingest.Rows do
   Gets a row by id
   """
   def get_row(row_id) do
-    Repo.get!(Row, row_id)
+    Row |> with_children() |> Repo.get!(row_id)
   end
+
+  @doc "Adds the field/error preloads to a Row query"
+  def with_children(queryable \\ Row), do: preload(queryable, ^Row.preloads())
 
   @doc """
   Gets a row by ingest sheet and row number
   """
   def get_row(sheet_id, row_num) do
     from(r in Row, where: r.sheet_id == ^sheet_id and r.row == ^row_num)
+    |> with_children()
     |> Repo.one()
   end
 
@@ -29,6 +33,7 @@ defmodule Meadow.Ingest.Rows do
     from(r in Row,
       where: r.sheet_id == ^sheet_id and r.file_set_accession_number == ^file_set_accession_number
     )
+    |> with_children()
     |> Repo.one()
   end
 
@@ -54,25 +59,15 @@ defmodule Meadow.Ingest.Rows do
   Get all of the rows needed to create and single work and all of its file sets
   """
   def get_rows_by_work_accession_number(sheet_id, work_accession_number) do
-    # Query to unroll the array of fields into multiple rows with one field def each
-    rows_with_fields =
-      from(r in Row,
-        select: %{r | single_field_pair: fragment("jsonb_array_elements(?.fields)", r)}
-      )
-
-    # Query to select only those rows from the above where the field header is
-    # 'work_accession_number' and the value is the desired work_accession_number
-    from(r in subquery(rows_with_fields),
-      where:
-        r.sheet_id == ^sheet_id and
-          fragment(
-            "?.single_field_pair->>'header' = 'work_accession_number' and ?.single_field_pair->>'value' = ?",
-            r,
-            r,
-            ^work_accession_number
-          ),
-      order_by: r.row
+    from(r in Row,
+      join: f in RowField,
+      on: f.row_id == r.id,
+      where: r.sheet_id == ^sheet_id,
+      where: f.header == "work_accession_number" and f.value == ^work_accession_number,
+      order_by: r.row,
+      distinct: true
     )
+    |> with_children()
     |> Repo.all()
   end
 
@@ -91,6 +86,7 @@ defmodule Meadow.Ingest.Rows do
     criteria
     |> Enum.reduce(Row, &row_criteria/2)
     |> order_by(asc: :row)
+    |> with_children()
     |> Repo.all()
   end
 
