@@ -4,6 +4,7 @@ defmodule Meadow.Utils.Ecto.Schema do
   human-readable format.
   """
 
+  alias Meadow.Data.Schemas.ValueEntry
   alias Meadow.Data.Types
 
   @schemes %{
@@ -105,6 +106,13 @@ defmodule Meadow.Utils.Ecto.Schema do
     case schema.__schema__(:type, field) do
       {:parameterized, {Ecto.Embedded, %{cardinality: :one, related: related}}} ->
         {field, unroll_schema(related, %{read_only: read_only, parents: [field | parents], is_read_only: is_read_only})}
+      # Repeating free-text fields are identified ValueEntry embeds internally,
+      # but the agent-facing view is flattened to bare strings everywhere else
+      # (get_work, get_plan_changes); the schema resource must agree, or the
+      # agent is invited to propose `{id, value}` objects it should never send.
+      # Ids are minted server-side at the plan-change boundary.
+      {:parameterized, {Ecto.Embedded, %{cardinality: :many, related: ValueEntry}}} ->
+        {field, ["string"]} |> maybe_read_only(is_read_only)
       {:parameterized, {Ecto.Embedded, %{cardinality: :many, related: related}}} ->
         {field, [unroll_schema(related, %{read_only: read_only, parents: [field | parents], is_read_only: is_read_only})]}
       {:array, type} ->

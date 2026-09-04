@@ -4,7 +4,7 @@ defmodule Meadow.Data.CSV.Import do
   """
 
   alias Meadow.Data.CSV.Export
-  alias Meadow.Data.Schemas.{Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
+  alias Meadow.Data.Schemas.{ValueEntry, Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
   alias Meadow.Utils.Stream, as: StreamUtil
   alias Meadow.Utils.Truth
   alias NimbleCSV.RFC4180, as: CSV
@@ -122,6 +122,19 @@ defmodule Meadow.Data.CSV.Import do
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: _}}, nil, _), do: []
   defp decode_field({_, _, %Ecto.Embedded{cardinality: :one, related: _}}, nil, _), do: nil
   defp decode_field(_, nil, _), do: nil
+
+  # Repeating free-text fields are ValueEntry embeds; exported cells carry each
+  # item's stable id as a `uuid:` prefix, so decode recovers `%{id, value}` and
+  # identity survives the round trip even for edited values. Items without the
+  # prefix (hand-authored cells) decode to plain values: unchanged ones keep
+  # their existing ids on save (exact-value rehydration) and new ones get minted
+  # ids.
+  defp decode_field({_, _, %Ecto.Embedded{cardinality: :many, related: ValueEntry}}, value, _) do
+    value
+    |> split_multivalued_field()
+    |> Enum.map(&ValueEntry.from_string/1)
+    |> Enum.reject(&is_nil/1)
+  end
 
   defp decode_field({:embedded, type}, value, field), do: decode_field(type, value, field)
 

@@ -7,6 +7,10 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
   use Ecto.Schema
   alias Meadow.Data.Types
 
+  # Controlled entries are identified by their authority `term.id`, a stable
+  # natural key, so they need no synthetic embed id (and adding one would break the
+  # exact-jsonb-match delete in `replace_controlled_value/4`). Per-item provenance
+  # keys controlled items on `term.id` via `natural_key/1`.
   @primary_key false
   embedded_schema do
     field :role, Types.CodedTerm

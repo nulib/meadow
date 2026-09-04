@@ -7,7 +7,7 @@ defmodule Meadow.Data.Schemas.RelatedURLEntry do
   use Ecto.Schema
   alias Meadow.Data.Types
 
-  @primary_key false
+  @primary_key {:id, :binary_id, autogenerate: true}
   embedded_schema do
     field :url, :string
     field :label, Types.CodedTerm
@@ -15,7 +15,7 @@ defmodule Meadow.Data.Schemas.RelatedURLEntry do
 
   def changeset(metadata, params) do
     metadata
-    |> cast(params, [:url, :label])
+    |> cast(params, [:id, :url, :label])
     |> validate_required([:url, :label])
   end
 

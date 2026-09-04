@@ -38,21 +38,28 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadataTest do
       assert {:reply, _response, _frame} = ApplyWorkMetadata.execute(args, frame)
 
       fresh = Meadow.Data.Works.get_work!(work.id)
-      assert fresh.descriptive_metadata.description == ["A test description."]
+
+      assert [%{id: description_id, value: "A test description."}] =
+               fresh.descriptive_metadata.description
 
       assert [%{note: note_text, type: %{id: "LOCAL_NOTE"}}] = fresh.descriptive_metadata.notes
       assert note_text =~ "Some metadata created with the assistance of AI"
 
+      summaries = Provenance.work_summary(work.id)
+
       assert [
                %{
                  field_path: "descriptive_metadata.description",
-                 origin: "ai_generated"
+                 origin: "ai_generated",
+                 proposed_value: %{
+                   "value" => [%{"id" => ^description_id, "value" => "A test description."}]
+                 }
                },
                %{
                  field_path: "descriptive_metadata.subject",
                  origin: "ai_generated"
                }
-             ] = Provenance.work_summary(work.id)
+             ] = summaries
     end
   end
 end

@@ -321,29 +321,40 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   defp validate_rows(other), do: other
 
   defp validate_chunk_of_rows(rows) do
-    existing_ids = get_chunk_of_ids(rows)
+    existing_works = get_chunk_of_works(rows)
 
-    Stream.map(rows, fn row ->
-      changeset = Work.changeset(%Work{}, row)
-
-      if is_nil(row.id),
-        do: Changeset.add_error(changeset, :id, "is required"),
-        else: changeset |> validate_id_and_accession(row, existing_ids)
-    end)
+    Stream.map(rows, &validate_row(&1, existing_works))
   end
 
-  defp validate_id_and_accession(changeset, row, existing_ids) do
-    with %{id: id, accession_number: accession_number} <- row do
-      case Map.get(existing_ids, id) do
-        ^accession_number -> changeset
-        :invalid_uuid -> changeset |> Changeset.add_error(:id, "is not a valid UUID")
-        nil -> changeset |> Changeset.add_error(:id, "not found")
-        _ -> changeset |> Changeset.add_error(:accession_number, "does not match")
-      end
+  defp validate_row(%{id: nil} = row, _existing_works) do
+    %Work{} |> Work.changeset(row) |> Changeset.add_error(:id, "is required")
+  end
+
+  defp validate_row(row, existing_works) do
+    case Map.get(existing_works, row.id) do
+      %Work{} = work ->
+        work
+        |> Work.changeset(row)
+        |> validate_accession_number(row, work)
+
+      :invalid_uuid ->
+        %Work{} |> Work.changeset(row) |> Changeset.add_error(:id, "is not a valid UUID")
+
+      nil ->
+        %Work{} |> Work.changeset(row) |> Changeset.add_error(:id, "not found")
     end
   end
 
-  defp get_chunk_of_ids(rows) do
+  defp validate_accession_number(changeset, %{accession_number: accession_number}, %{
+         accession_number: accession_number
+       }),
+       do: changeset
+
+  defp validate_accession_number(changeset, _row, _work) do
+    Changeset.add_error(changeset, :accession_number, "does not match")
+  end
+
+  defp get_chunk_of_works(rows) do
     work_ids = Enum.map(rows, & &1.id)
 
     uuids =
@@ -358,8 +369,9 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     invalid_results = (work_ids -- uuids) |> Enum.map(&{&1, :invalid_uuid})
 
     valid_results =
-      from(w in Work, where: w.id in ^uuids, select: {w.id, w.accession_number})
+      from(w in Work, where: w.id in ^uuids)
       |> Repo.all()
+      |> Enum.map(&{&1.id, &1})
 
     (valid_results ++ invalid_results)
     |> Enum.into(%{})

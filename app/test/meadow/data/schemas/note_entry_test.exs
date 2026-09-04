@@ -32,6 +32,22 @@ defmodule Meadow.Data.Schemas.NoteEntryTest do
 
       refute changeset.valid?
     end
+
+    test "is configured to autogenerate a binary_id primary key" do
+      assert {:id, :id, :binary_id} = NoteEntry.__schema__(:autogenerate_id)
+    end
+
+    test "preserves a supplied id (so identity survives an edit)" do
+      id = Ecto.UUID.generate()
+
+      entry =
+        %NoteEntry{id: id, note: "Original", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}
+        |> NoteEntry.changeset(%{id: id, note: "Edited", type: %{id: "GENERAL_NOTE", scheme: "note_type"}})
+        |> Ecto.Changeset.apply_changes()
+
+      assert entry.id == id
+      assert entry.note == "Edited"
+    end
   end
 
   describe "from_string/1" do

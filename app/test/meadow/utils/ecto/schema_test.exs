@@ -48,7 +48,11 @@ defmodule Meadow.Utils.Ecto.SchemaTest do
 
     test "handles single- and multi-value fields in embedded schemas", %{subject: subject} do
       assert subject.descriptive_metadata.title == "string"
+      # Repeating free-text fields are identified ValueEntry embeds internally,
+      # but the agent-facing schema presents them flattened, as plain strings,
+      # matching get_work/get_plan_changes (ids are server-minted and hidden).
       assert subject.descriptive_metadata.alternate_title == ["string"]
+      assert subject.descriptive_metadata.description == ["string"]
     end
 
     test "handles multi-valued controlled term without role in embedded schemas", %{subject: subject} do

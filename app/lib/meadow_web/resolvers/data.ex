@@ -7,6 +7,7 @@ defmodule MeadowWeb.Resolvers.Data do
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Data.Works.TransferFileSets
   alias Meadow.Pipeline
+  alias Meadow.Repo
   alias Meadow.Utils.AWS.S3, as: S3Utils
   alias Meadow.Utils.ChangesetErrors
   require Logger
@@ -47,35 +48,49 @@ defmodule MeadowWeb.Resolvers.Data do
   def update_work(_, %{id: id, work: work_params}, resolution) do
     work = Works.get_work!(id)
     {attestations, work_params} = Map.pop(work_params, :human_authored_attestations, [])
+    actor = actor_username(resolution)
+    attested_paths = Enum.map(attestations, & &1.field_path)
 
-    case Works.update_work(work, work_params) do
-      {:error, changeset} ->
+    # The save and its AI provenance are recorded in one transaction: an
+    # AI-touched value must not persist without its provenance, so a provenance
+    # failure rolls the save back rather than leaving a hole in the audit trail.
+    Repo.transaction(fn ->
+      case Works.update_work(work, work_params) do
+        {:ok, updated_work} ->
+          # Record any direct human edits of AI-provenanced fields so the origin
+          # reflects human mediation instead of silently staying "AI generated".
+          # Skip fields the user explicitly attested as human-authored — those go
+          # through the attestation path below so they don't also pick up an
+          # "AI + human edited" event.
+          Provenance.record_work_manual_edit!(work, updated_work, actor, except: attested_paths)
+          record_attestations(work, updated_work, attestations, actor)
+          updated_work
+
+        {:error, changeset} ->
+          Repo.rollback({:changeset, changeset})
+      end
+    end)
+    |> case do
+      {:ok, updated_work} ->
+        {:ok, updated_work}
+
+      {:error, {:changeset, changeset}} ->
         {:error, message: "Could not update work", details: humanize_work_changeset(changeset)}
 
-      {:ok, updated_work} ->
-        actor = actor_username(resolution)
-        attested_paths = Enum.map(attestations, & &1.field_path)
-
-        # Record any direct human edits of AI-provenanced fields so the origin
-        # reflects human mediation instead of silently staying "AI generated".
-        # Skip fields the user explicitly attested as human-authored — those go
-        # through the attestation path below so they don't also pick up an
-        # "AI + human edited" event.
-        case Provenance.record_work_manual_edit(work, updated_work, actor,
-               except: attested_paths
-             ) do
-          :ok ->
-            :ok
-
-          other ->
-            Logger.warning(
-              "Failed to record manual-edit provenance for work #{work.id}: #{inspect(other)}"
-            )
-        end
-
-        record_attestations(work, updated_work, attestations, actor)
-        {:ok, updated_work}
+      {:error, reason} ->
+        {:error, message: "Could not update work", details: inspect(reason)}
     end
+  rescue
+    error ->
+      # The rescue exists so a provenance failure surfaces as a clean GraphQL
+      # error after the rollback, but the full failure must still reach the
+      # logs, or genuine bugs hide behind "Could not update work".
+      Logger.error(
+        "update_work failed for work #{id}: " <>
+          Exception.format(:error, error, __STACKTRACE__)
+      )
+
+      {:error, message: "Could not update work", details: Exception.message(error)}
   end
 
   # Record an explicit human attestation for each field the user marked as
@@ -115,21 +130,37 @@ defmodule MeadowWeb.Resolvers.Data do
     work = Works.get_work!(work_id)
 
     # Attest-without-edit: the live work is unchanged, so before == after. The
-    # attestation event still records both values for an auditable trail.
-    case Provenance.record_work_human_attestation(
-           work,
-           work,
-           field_paths,
-           actor_username(resolution),
-           reason: Map.get(args, :reason),
-           item_ids: Map.get(args, :item_ids)
-         ) do
-      {:ok, _attested} ->
-        {:ok, Works.get_work!(work_id)}
+    # attestation event still records both values for an auditable trail. Wrapped
+    # in a transaction so a partial DB failure records no events at all.
+    Repo.transaction(fn ->
+      case Provenance.record_work_human_attestation(
+             work,
+             work,
+             field_paths,
+             actor_username(resolution),
+             reason: Map.get(args, :reason),
+             item_ids: Map.get(args, :item_ids)
+           ) do
+        {:ok, _attested} -> Works.get_work!(work_id)
+        {:error, reasons} -> Repo.rollback(reasons)
+      end
+    end)
+    |> case do
+      {:ok, updated_work} ->
+        {:ok, updated_work}
 
       {:error, reasons} ->
         {:error, message: "Could not attest human-authored metadata", details: inspect(reasons)}
     end
+  rescue
+    error ->
+      Logger.error(
+        "attest_human_authored_metadata failed for work #{work_id}: " <>
+          Exception.format(:error, error, __STACKTRACE__)
+      )
+
+      {:error,
+       message: "Could not attest human-authored metadata", details: Exception.message(error)}
   end
 
   defp actor_username(%{context: %{current_user: %{username: username}}}), do: username

@@ -174,6 +174,40 @@ describe("prepFieldArrayItemsForPost()", () => {
   });
 });
 
+describe("prepValueEntryItemsForPost()", () => {
+  it("preserves an existing item's id so identity survives the edit", () => {
+    expect(
+      metadata.prepValueEntryItemsForPost([
+        { metadataItem: "Edited", id: "abc-123" },
+      ]),
+    ).toEqual([{ id: "abc-123", value: "Edited" }]);
+  });
+
+  it("sends a new item (no id) as just a value for the backend to mint", () => {
+    expect(
+      metadata.prepValueEntryItemsForPost([{ metadataItem: "Brand new" }]),
+    ).toEqual([{ value: "Brand new" }]);
+  });
+
+  it("returns an empty array when no items exist", () => {
+    expect(metadata.prepValueEntryItemsForPost()).toEqual([]);
+  });
+});
+
+describe("convertFieldArrayValToHookFormVal()", () => {
+  it("carries a { id, value } item's id into the form", () => {
+    expect(
+      metadata.convertFieldArrayValToHookFormVal({ id: "abc-123", value: "A" }),
+    ).toEqual({ metadataItem: "A", id: "abc-123" });
+  });
+
+  it("passes a plain string through unchanged (legacy/collection fields)", () => {
+    expect(metadata.convertFieldArrayValToHookFormVal("A")).toEqual({
+      metadataItem: "A",
+    });
+  });
+});
+
 describe("prepNotes()", () => {
   var notesFormValues = [
     {
@@ -205,6 +239,20 @@ describe("prepNotes()", () => {
       },
     ];
     expect(results).toEqual(expectedResults);
+  });
+
+  it("carries an existing note's id through so identity is preserved on edit", () => {
+    let results = metadata.prepNotes([
+      { id: "note-123", note: "note 1", typeId: "GENERAL_NOTE" },
+      { note: "new note", typeId: "GENERAL_NOTE" },
+    ]);
+    expect(results[0]).toEqual({
+      id: "note-123",
+      note: "note 1",
+      type: { scheme: "NOTE_TYPE", id: "GENERAL_NOTE" },
+    });
+    // A new note (no id) does not send one; the backend mints it.
+    expect(results[1]).not.toHaveProperty("id");
   });
 });
 
@@ -239,5 +287,18 @@ describe("prepRelatedUrl()", () => {
       },
     ];
     expect(results).toEqual(expectedResults);
+  });
+
+  it("carries an existing entry's id through so identity is preserved on edit", () => {
+    let results = metadata.prepRelatedUrl([
+      { id: "url-123", url: "http://google.com", labelId: "RESEARCH_GUIDE" },
+      { url: "http://new.com", labelId: "RESEARCH_GUIDE" },
+    ]);
+    expect(results[0]).toEqual({
+      id: "url-123",
+      url: "http://google.com",
+      label: { scheme: "RELATED_URL", id: "RESEARCH_GUIDE" },
+    });
+    expect(results[1]).not.toHaveProperty("id");
   });
 });
