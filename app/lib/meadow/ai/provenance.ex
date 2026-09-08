@@ -1150,6 +1150,7 @@ defmodule Meadow.AI.Provenance do
         status: target.status,
         activity_id: activity.id,
         activity_type: activity.activity_type,
+        activity_work_id: activity.work_id,
         ai_use_type: activity.ai_use_type,
         access_mode: activity.access_mode,
         reversibility: activity.reversibility,
@@ -1215,26 +1216,42 @@ defmodule Meadow.AI.Provenance do
   end
 
   @doc """
-  Whether a work's own descriptive metadata (as opposed to, e.g., a file set
-  transcription that merely shares the work's `work_id`) currently carries
-  applied AI provenance. Takes a summary already computed by `work_summary/1`
-  so index-time callers don't run the underlying query twice.
+  A work's AI involvement, broken out by kind, so a single index field can say
+  *which* kind of AI touch a work carries rather than collapsing them into one
+  boolean. Takes a summary already computed by `work_summary/1` so index-time
+  callers don't run the underlying query twice.
 
-  Deliberately narrower than "any AI-involved target associated with this
-  work": `target_type` is constrained to `"Work"` so transcriptions (recorded
-  as `FileSetAnnotation` targets) are excluded, and `target_id` is constrained
-  to this work so a work used only as AI source material for a different work
-  is not flagged. See `applied_ai_targets/1` for the equivalent query-driven
-  check used elsewhere in this module.
+    * `descriptive_metadata` — the work's own metadata (`target_type == "Work"`)
+      currently carries applied AI provenance.
+    * `file_set_annotations` — one of the work's file sets carries an applied
+      AI-generated annotation (e.g. a transcription), recorded as a
+      `FileSetAnnotation` target whose activity is scoped to this work.
+
+  Both checks require the target to be `applied` with an AI-involved origin,
+  and both are scoped to this work specifically: `target_id`/`activity_work_id`
+  guard against a work that was used only as AI source material for a
+  *different* work's change being flagged here. See `applied_ai_targets/1` for
+  the equivalent query-driven check used elsewhere in this module.
   """
-  def ai_involved?(summary, work_id) do
+  def ai_involvement(summary, work_id) do
     work_id = to_string(work_id)
 
-    Enum.any?(summary, fn entry ->
-      entry.target_type == "Work" and entry.target_id == work_id and
-        entry.status == "applied" and entry.origin in @ai_involved_origins
-    end)
+    %{
+      descriptive_metadata: Enum.any?(summary, &work_target_ai?(&1, work_id)),
+      file_set_annotations: Enum.any?(summary, &annotation_target_ai?(&1, work_id))
+    }
   end
+
+  defp work_target_ai?(entry, work_id),
+    do: entry.target_type == "Work" and entry.target_id == work_id and applied_ai?(entry)
+
+  defp annotation_target_ai?(entry, work_id) do
+    entry.target_type == "FileSetAnnotation" and
+      to_string(entry.activity_work_id) == work_id and applied_ai?(entry)
+  end
+
+  defp applied_ai?(entry),
+    do: entry.status == "applied" and entry.origin in @ai_involved_origins
 
   def target_summary(target_type, target_id) do
     target_type
@@ -1259,6 +1276,7 @@ defmodule Meadow.AI.Provenance do
         status: target.status,
         activity_id: activity.id,
         activity_type: activity.activity_type,
+        activity_work_id: activity.work_id,
         ai_use_type: activity.ai_use_type,
         access_mode: activity.access_mode,
         reversibility: activity.reversibility,

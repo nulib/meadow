@@ -72,7 +72,14 @@
         "enabled": false
       },
       "ai_involved": {
-        "type": "boolean"
+        "properties": {
+          "descriptive_metadata": {
+            "type": "boolean"
+          },
+          "file_set_annotations": {
+            "type": "boolean"
+          }
+        }
       },
       "create_date": {
         "type": "date_nanos"

@@ -1616,17 +1616,8 @@ defmodule Meadow.AI.ProvenanceTest do
     end
   end
 
-  describe "ai_involved?/2" do
-    test "true for an applied Work-level AI target" do
-      work = work_fixture()
-      seed_lookup_target(work, "ai_generated", "applied")
-
-      assert Provenance.ai_involved?(Provenance.work_summary(work.id), work.id)
-    end
-
-    test "false when the only target is a transcription (FileSetAnnotation)" do
-      work = work_fixture()
-
+  describe "ai_involvement/2" do
+    defp seed_transcription_target(work, status \\ "applied") do
       {:ok, activity} =
         Provenance.create_activity(%{
           activity_type: "transcription",
@@ -1644,25 +1635,88 @@ defmodule Meadow.AI.ProvenanceTest do
             operation: "replace",
             proposed_value: ["transcribed text"],
             origin: "ai_generated",
-            status: "applied"
+            status: status
           },
-          "applied"
+          status
         )
 
-      refute Provenance.ai_involved?(Provenance.work_summary(work.id), work.id)
+      :ok
+    end
+
+    defp seed_work_target(work, origin, status) do
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      {:ok, _target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: work.id,
+            field_path: "descriptive_metadata.description",
+            operation: "replace",
+            proposed_value: ["value"],
+            origin: origin,
+            status: status
+          },
+          "proposed"
+        )
+
+      :ok
+    end
+
+    test "descriptive_metadata true for an applied Work-level AI target" do
+      work = work_fixture()
+      seed_work_target(work, "ai_generated", "applied")
+
+      assert Provenance.ai_involvement(Provenance.work_summary(work.id), work.id) == %{
+               descriptive_metadata: true,
+               file_set_annotations: false
+             }
+    end
+
+    test "file_set_annotations true when the only target is a transcription (FileSetAnnotation)" do
+      work = work_fixture()
+      seed_transcription_target(work)
+
+      assert Provenance.ai_involvement(Provenance.work_summary(work.id), work.id) == %{
+               descriptive_metadata: false,
+               file_set_annotations: true
+             }
+    end
+
+    test "both true when a work has both an AI-generated field and a transcription" do
+      work = work_fixture()
+      seed_work_target(work, "ai_generated", "applied")
+      seed_transcription_target(work)
+
+      assert Provenance.ai_involvement(Provenance.work_summary(work.id), work.id) == %{
+               descriptive_metadata: true,
+               file_set_annotations: true
+             }
     end
 
     test "false when the AI target has not yet been applied" do
       work = work_fixture()
-      seed_lookup_target(work, "ai_generated", "proposed")
+      seed_work_target(work, "ai_generated", "proposed")
 
-      refute Provenance.ai_involved?(Provenance.work_summary(work.id), work.id)
+      assert Provenance.ai_involvement(Provenance.work_summary(work.id), work.id) == %{
+               descriptive_metadata: false,
+               file_set_annotations: false
+             }
     end
 
     test "false for a work with no provenance targets at all" do
       work = work_fixture()
 
-      refute Provenance.ai_involved?(Provenance.work_summary(work.id), work.id)
+      assert Provenance.ai_involvement(Provenance.work_summary(work.id), work.id) == %{
+               descriptive_metadata: false,
+               file_set_annotations: false
+             }
     end
   end
 end

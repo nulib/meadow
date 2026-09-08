@@ -72,10 +72,15 @@ defmodule Meadow.Indexing.V2.EncodingTest do
              } = doc |> get_in([:ai_provenance, "descriptive_metadata.description"])
 
       assert activity_id == activity.id
-      assert doc |> get_in([:ai_involved]) == true
+
+      assert doc |> get_in([:ai_involved]) == %{
+               descriptive_metadata: true,
+               file_set_annotations: false
+             }
     end
 
-    test "work is not ai_involved when its only AI target is a transcription", %{work: subject} do
+    test "work's ai_involved reflects only file_set_annotations when its only AI target is a transcription",
+         %{work: subject} do
       {:ok, activity} =
         Provenance.create_activity(%{
           activity_type: "transcription",
@@ -101,7 +106,10 @@ defmodule Meadow.Indexing.V2.EncodingTest do
 
       doc = subject |> Document.encode(2)
 
-      assert doc |> get_in([:ai_involved]) == false
+      assert doc |> get_in([:ai_involved]) == %{
+               descriptive_metadata: false,
+               file_set_annotations: true
+             }
     end
 
     test "indexes a work with AI provenance without bulk mapping errors", %{work: subject} do
@@ -140,7 +148,10 @@ defmodule Meadow.Indexing.V2.EncodingTest do
       assert get_in(source, ["ai_provenance", "descriptive_metadata.description", "origin"]) ==
                "ai_generated"
 
-      assert get_in(source, ["ai_involved"]) == true
+      assert get_in(source, ["ai_involved"]) == %{
+               "descriptive_metadata" => true,
+               "file_set_annotations" => false
+             }
     end
 
     test "work encodes nav_place", %{work: subject} do

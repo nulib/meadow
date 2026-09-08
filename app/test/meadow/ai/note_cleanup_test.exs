@@ -32,12 +32,13 @@ defmodule Meadow.AI.NoteCleanupTest do
       assert %{count: 0, work_ids: []} = NoteCleanup.candidates()
     end
 
-    test "does not select a work whose only note is a transcription note" do
-      work_fixture(%{
-        descriptive_metadata: %{title: "Transcription only", notes: [@transcription_note]}
-      })
+    test "finds a work whose only note is a transcription note" do
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{title: "Transcription only", notes: [@transcription_note]}
+        })
 
-      assert %{count: 0, work_ids: []} = NoteCleanup.candidates()
+      assert NoteCleanup.candidates() == %{count: 1, work_ids: [work.id]}
     end
 
     test "does not select a work whose only note is a curator note" do
@@ -69,32 +70,41 @@ defmodule Meadow.AI.NoteCleanupTest do
                Works.get_work!(work.id).descriptive_metadata.notes
     end
 
-    test "does not touch a work whose only note is a transcription note" do
+    test "removes a work's only note when it is a transcription note" do
       work =
         work_fixture(%{
           descriptive_metadata: %{title: "Transcription only", notes: [@transcription_note]}
         })
 
-      assert %{works_updated: 0, notes_removed: 0} = NoteCleanup.run(dry_run: false)
+      assert %{works_updated: 1, notes_removed: 1} = NoteCleanup.run(dry_run: false)
 
-      assert [%{note: note_text, type: %{id: "LOCAL_NOTE"}}] =
-               Works.get_work!(work.id).descriptive_metadata.notes
-
-      assert note_text =~ "Transcription generated"
+      assert Works.get_work!(work.id).descriptive_metadata.notes == []
     end
 
-    test "removes only the AI note when it appears alongside a transcription note" do
+    test "removes both the AI note and the transcription note on the same work" do
       work =
         work_fixture(%{
           descriptive_metadata: %{title: "Mixed AI", notes: [@ai_note, @transcription_note]}
         })
 
+      assert %{works_updated: 1, notes_removed: 2} = NoteCleanup.run(dry_run: false)
+
+      assert Works.get_work!(work.id).descriptive_metadata.notes == []
+    end
+
+    test "removes a transcription note but keeps a curator note on the same work" do
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{
+            title: "Transcription and curator",
+            notes: [@transcription_note, @curator_note]
+          }
+        })
+
       assert %{works_updated: 1, notes_removed: 1} = NoteCleanup.run(dry_run: false)
 
-      assert [%{note: note_text, type: %{id: "LOCAL_NOTE"}}] =
+      assert [%{note: "Curator wrote this.", type: %{id: "GENERAL_NOTE"}}] =
                Works.get_work!(work.id).descriptive_metadata.notes
-
-      assert note_text =~ "Transcription generated"
     end
 
     test "dry_run: true (the default) changes nothing" do

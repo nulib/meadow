@@ -40,7 +40,7 @@ defmodule Meadow.Indexing.V2.Work do
       genre: encode_field(work.descriptive_metadata.genre),
       id: work.id,
       ai_provenance: Provenance.summary_map(ai_provenance),
-      ai_involved: Provenance.ai_involved?(ai_provenance, work.id),
+      ai_involved: Provenance.ai_involvement(ai_provenance, work.id),
       identifier: work.descriptive_metadata.identifier,
       iiif_manifest: manifest_id(work),
       indexed_at: NaiveDateTime.utc_now(),

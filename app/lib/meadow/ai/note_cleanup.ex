@@ -1,18 +1,17 @@
 defmodule Meadow.AI.NoteCleanup do
   @moduledoc """
-  One-off cleanup for the free-text AI metadata disclosure note previously
-  written by `MeadowWeb.MCP.Tools.ApplyWorkMetadata` and
-  `MeadowWeb.MCP.Tools.UpdatePlanChange` (`"Some metadata created with the
-  assistance of AI (model) on YYYY-MM-DD"`). Those tools no longer write this
-  note — the disclosure has moved to the front end, driven by
-  `Meadow.AI.Provenance` — so this module removes the historical ones from
-  works that still carry them.
+  One-off cleanup for the free-text AI disclosure notes previously written by:
 
-  Deliberately does not touch the differently-worded transcription note
-  written by `Meadow.Data.FileSets.add_transcription_note/1`
-  (`"Transcription generated for <label> by AI..."`). The two note texts share
-  no prefix, so the matcher below can't confuse them; whether transcriptions
-  get an equivalent cleanup is a separate, not-yet-decided question.
+    * `MeadowWeb.MCP.Tools.ApplyWorkMetadata` and
+      `MeadowWeb.MCP.Tools.UpdatePlanChange` (`"Some metadata created with the
+      assistance of AI (model) on YYYY-MM-DD"`) for AI-assisted descriptive
+      metadata.
+    * `Meadow.Data.FileSets` (`"Transcription generated for <label> by AI..."`)
+      when an AI transcription completes.
+
+  Neither is written anymore — the disclosure has moved to the front end,
+  driven by `Meadow.AI.Provenance` — so this module removes the historical
+  ones from works that still carry them.
 
   Intended to be run once, by hand, from Livebook or `iex -S mix`, after the
   code change that stops writing the note has deployed — it is not wired into
@@ -44,19 +43,26 @@ defmodule Meadow.AI.NoteCleanup do
 
   require Logger
 
-  # Mirrors the prefix `MeadowWeb.MCP.Tools.ApplyWorkMetadata` and
-  # `MeadowWeb.MCP.Tools.UpdatePlanChange` used to write.
-  @ai_note_prefix "Some metadata created with the assistance of AI"
+  # Mirrors the prefixes `MeadowWeb.MCP.Tools.ApplyWorkMetadata` /
+  # `MeadowWeb.MCP.Tools.UpdatePlanChange` and `Meadow.Data.FileSets` used to
+  # write, for the descriptive-metadata note and the transcription note
+  # respectively. The two note texts share no prefix, so this list can't
+  # confuse them with each other or with a curator-authored note.
+  @ai_note_prefixes [
+    "Some metadata created with the assistance of AI",
+    "Transcription generated for"
+  ]
   @note_type_id "LOCAL_NOTE"
   @default_batch_size 100
 
   @doc """
   Read-only. Groups every note whose text mentions "AI" — deliberately broader
   than the exact matcher `run/1` uses — with an occurrence count, so wording
-  variants can be reviewed before anything is deleted. The note text was at
-  one point produced by the LLM itself from a prompt instruction rather than a
-  hardcoded string, so production wording may not exactly match
-  `@ai_note_prefix`. Run this first, before `candidates/0` or `run/1`.
+  variants can be reviewed before anything is deleted. The descriptive-metadata
+  note text was at one point produced by the LLM itself from a prompt
+  instruction rather than a hardcoded string, so production wording may not
+  exactly match `@ai_note_prefixes`. Run this first, before `candidates/0` or
+  `run/1`.
   """
   def audit do
     %Postgrex.Result{rows: rows} =
@@ -83,9 +89,10 @@ defmodule Meadow.AI.NoteCleanup do
   end
 
   @doc """
-  Remove the AI metadata disclosure note from every work that has one,
-  preserving every other note on the work. Defaults to `dry_run: true` so a
-  bare call is always safe; pass `dry_run: false` to actually write.
+  Remove the AI disclosure notes (descriptive-metadata and transcription)
+  from every work that has one, preserving every other note on the work.
+  Defaults to `dry_run: true` so a bare call is always safe; pass
+  `dry_run: false` to actually write.
 
   Options:
     * `:dry_run` — when true (the default), counts what would change without
@@ -127,16 +134,18 @@ defmodule Meadow.AI.NoteCleanup do
   end
 
   defp candidate_query do
+    prefixes = Enum.map(@ai_note_prefixes, &"#{&1}%")
+
     from(w in Work,
       where:
         fragment(
           "jsonb_typeof(?->'notes') = 'array' AND EXISTS (\
              SELECT 1 FROM jsonb_array_elements(?->'notes') n \
-             WHERE n->>'note' LIKE ? AND n->'type'->>'id' = ?\
+             WHERE n->>'note' LIKE ANY(?) AND n->'type'->>'id' = ?\
            )",
           w.descriptive_metadata,
           w.descriptive_metadata,
-          ^"#{@ai_note_prefix}%",
+          ^prefixes,
           ^@note_type_id
         )
     )
@@ -145,16 +154,18 @@ defmodule Meadow.AI.NoteCleanup do
   defp process_batch(ids, dry_run) do
     ids
     |> Enum.map(&Works.get_work!/1)
-    |> Enum.reduce({0, 0}, fn work, {updated_acc, removed_acc} ->
-      case strip_ai_notes(work) do
-        :unchanged ->
-          {updated_acc, removed_acc}
+    |> Enum.reduce({0, 0}, &process_work(&1, &2, dry_run))
+  end
 
-        {:changed, kept_notes, removed_count} ->
-          unless dry_run, do: update_notes!(work, kept_notes)
-          {updated_acc + 1, removed_acc + removed_count}
-      end
-    end)
+  defp process_work(work, {updated_acc, removed_acc}, dry_run) do
+    case strip_ai_notes(work) do
+      :unchanged ->
+        {updated_acc, removed_acc}
+
+      {:changed, kept_notes, removed_count} ->
+        unless dry_run, do: update_notes!(work, kept_notes)
+        {updated_acc + 1, removed_acc + removed_count}
+    end
   end
 
   defp strip_ai_notes(%Work{descriptive_metadata: %{notes: notes}}) do
@@ -165,15 +176,14 @@ defmodule Meadow.AI.NoteCleanup do
   end
 
   defp ai_note?(%{note: note, type: %{id: @note_type_id}}) when is_binary(note) do
-    String.starts_with?(note, @ai_note_prefix)
+    Enum.any?(@ai_note_prefixes, &String.starts_with?(note, &1))
   end
 
   defp ai_note?(_note), do: false
 
   # Existing notes arrive as `%NoteEntry{}` structs with an already-loaded
   # (plain map) `type`; strip the struct wrapper so the retained list round-
-  # trips through `Works.update_work/2` the same way `add_transcription_note/1`
-  # does for the same reason.
+  # trips through `Works.update_work/2` cleanly.
   defp note_to_map(%_{} = struct), do: Map.from_struct(struct)
   defp note_to_map(map) when is_map(map), do: map
 

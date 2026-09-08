@@ -298,10 +298,7 @@ defmodule Meadow.Data.FileSetAnnotationsTest do
 
         fresh_work = Meadow.Data.Works.get_work!(work.id)
 
-        assert [%{note: note_text, type: %{id: "LOCAL_NOTE"}}] =
-                 fresh_work.descriptive_metadata.notes
-
-        assert note_text =~ "Transcription generated for Page 1 by AI"
+        assert fresh_work.descriptive_metadata.notes == []
       end
     end
 
