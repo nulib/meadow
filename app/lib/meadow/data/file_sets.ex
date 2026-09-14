@@ -1007,16 +1007,28 @@ defmodule Meadow.Data.FileSets do
       opts = Enum.into(opts, %{})
       attrs = Map.merge(%{content: content}, Map.take(opts, [:language]))
 
-      with {:ok, updated} <- update_annotation(annotation, attrs) do
+      # The save and its AI provenance are recorded in one transaction, so an
+      # AI-generated annotation never persists an edit without recording it.
+      Repo.transaction(fn ->
+        save_annotation_content(annotation, attrs, content, Map.get(opts, :actor))
+      end)
+    end
+  end
+
+  defp save_annotation_content(annotation, attrs, content, actor) do
+    case update_annotation(annotation, attrs) do
+      {:ok, updated} ->
         # Record a direct human edit of AI-generated annotation content (e.g. an
         # AI transcription edited in the Access Files modal) so the provenance
         # origin reflects human mediation ("AI + human edited") instead of
         # silently staying "AI generated". No-op for annotations without AI
         # provenance or when the content is unchanged. Uses the in-memory
         # annotation, which still carries the prior content + ai_activity_id.
-        Provenance.record_annotation_manual_edit(annotation, content, Map.get(opts, :actor))
-        {:ok, updated}
-      end
+        Provenance.record_annotation_manual_edit(annotation, content, actor)
+        updated
+
+      {:error, changeset} ->
+        Repo.rollback(changeset)
     end
   end
 
@@ -1037,14 +1049,16 @@ defmodule Meadow.Data.FileSets do
 
     with %FileSetAnnotation{} = annotation <-
            get_annotation(annotation_id) || {:error, :not_found} do
-      case Provenance.record_annotation_human_attestation(
-             annotation,
-             Map.get(opts, :actor),
-             reason: Map.get(opts, :reason)
-           ) do
-        :ok -> {:ok, annotation}
-        {:error, reason} -> {:error, reason}
-      end
+      Repo.transaction(fn ->
+        attest_annotation(annotation, Map.get(opts, :actor), Map.get(opts, :reason))
+      end)
+    end
+  end
+
+  defp attest_annotation(annotation, actor, reason) do
+    case Provenance.record_annotation_human_attestation(annotation, actor, reason: reason) do
+      :ok -> annotation
+      {:error, error} -> Repo.rollback(error)
     end
   end
 

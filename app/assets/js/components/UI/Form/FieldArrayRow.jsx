@@ -27,6 +27,18 @@ function FieldArrayRow({
 
   return (
     <li className="field" data-testid="field-array-row">
+      {/* Round-trip the item's stable id so an in-place edit preserves its
+          identity (and per-item provenance) — registered explicitly, like
+          Note/RelatedURL, rather than relying on unregistered form state. */}
+      {item.id && (
+        <input
+          type="hidden"
+          name={`${itemName}.id`}
+          {...register(`${itemName}.id`)}
+          value={item.id}
+          data-testid="input-field-array-id"
+        />
+      )}
       <div className="is-flex">
         {isTextarea ? (
           <textarea

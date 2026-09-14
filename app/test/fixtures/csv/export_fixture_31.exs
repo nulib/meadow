@@ -6,7 +6,7 @@
   box_number: "1",
   caption: "Caption",
   catalog_key: "Catalog Key",
-  citation: "",
+  citation: "Citation",
   contributor:
     "pbl:http://id.loc.gov/authorities/names/n83175996 | vac:http://id.loc.gov/authorities/names/n85153068 | lil:http://id.loc.gov/authorities/names/n50053919 | aut:http://id.loc.gov/authorities/names/no2011087251 | mrb:http://id.loc.gov/authorities/names/no2011087251 | stl:http://id.loc.gov/authorities/names/n85153068",
   creator:

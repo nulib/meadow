@@ -29,12 +29,12 @@ end
 
 alias Meadow.Data.Schemas.{CodedTerm, Collection, ControlledMetadataEntry,
   FileSetAnnotation, FileSetCoreMetadata, FileSetStructuralMetadata, FileSet,
-  NoteEntry, RelatedURLEntry, WorkAdministrativeMetadata, WorkDescriptiveMetadata,
+  NoteEntry, RelatedURLEntry, ValueEntry, WorkAdministrativeMetadata, WorkDescriptiveMetadata,
   Work}
 
 defimpl Jason.Encoder, for: [CodedTerm, Collection, ControlledMetadataEntry,
   FileSetAnnotation, FileSetCoreMetadata, FileSetStructuralMetadata, FileSet,
-  NoteEntry, RelatedURLEntry, WorkAdministrativeMetadata, WorkDescriptiveMetadata,
+  NoteEntry, RelatedURLEntry, ValueEntry, WorkAdministrativeMetadata, WorkDescriptiveMetadata,
   Work] do
 
     def encode(struct, opts) do
@@ -46,7 +46,7 @@ end
 
 defimpl JSON.Encoder, for: [CodedTerm, Collection, ControlledMetadataEntry,
   FileSetAnnotation, FileSetCoreMetadata, FileSetStructuralMetadata, FileSet,
-  NoteEntry, RelatedURLEntry, WorkAdministrativeMetadata, WorkDescriptiveMetadata,
+  NoteEntry, RelatedURLEntry, ValueEntry, WorkAdministrativeMetadata, WorkDescriptiveMetadata,
   Work] do
 
     def encode(struct, encoder) do

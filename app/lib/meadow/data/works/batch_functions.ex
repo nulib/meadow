@@ -37,6 +37,11 @@ defmodule Meadow.Data.Works.BatchFunctions do
           Merge map of values into #{unquote(schema)}
           """
           def merge_metadata_values(query, unquote(schema), values, mode) do
+            # Normalize at this write boundary so every caller (planner, batch
+            # update) gets well-formed identified ValueEntry data without having
+            # to remember to normalize first.
+            values = normalize_merge_values(unquote(schema), values)
+
             from query,
               update: [
                 set: [
@@ -60,6 +65,14 @@ defmodule Meadow.Data.Works.BatchFunctions do
 
         defp simplify_term(%{role: role, term: %{id: id}}), do: %{role: role, term: id}
         defp simplify_term(term), do: term
+
+        # Repeating free-text descriptive fields are stored as identified
+        # ValueEntry objects; this direct-jsonb merge bypasses the changeset, so
+        # normalize here. Administrative metadata has no such fields.
+        defp normalize_merge_values(:descriptive_metadata, values),
+          do: Meadow.Data.Schemas.WorkDescriptiveMetadata.jsonb_value_entries(values)
+
+        defp normalize_merge_values(_schema, values), do: values
       end
 
     [simplify_functions | batch_functions]

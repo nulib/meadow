@@ -108,6 +108,42 @@ describe("PlanPanelChangesDiff", () => {
     expect(mockToArray).toHaveBeenCalledTimes(1);
   });
 
+  test("renders repeating free-text ValueEntry items as value text, not raw JSON", () => {
+    mockToRows
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([
+        {
+          id: "replace-alternate_title",
+          method: "replace",
+          path: "descriptive_metadata.alternate_title",
+          label: "Alternate Title",
+          value: [
+            {
+              id: "7e9533ca-417e-4fe4-ad8d-a5513989730f",
+              value: "Evanston Township Map, Cook Co., IL",
+            },
+            {
+              id: "c455c65f-4e6c-44a7-84c2-d5e68a910314",
+              value: "에반스턴 타운십 지도",
+            },
+          ],
+          controlled: false,
+        },
+      ]);
+
+    render(<PlanPanelChangesDiff proposedChanges={baseProposed} />);
+
+    expect(
+      screen.getByText("Evanston Township Map, Cook Co., IL"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("에반스턴 타운십 지도")).toBeInTheDocument();
+    // The internal ValueEntry id must not leak into the rendered text.
+    expect(
+      screen.queryByText(/7e9533ca-417e-4fe4-ad8d-a5513989730f/),
+    ).not.toBeInTheDocument();
+  });
+
   test("preview badge reflects a recorded human edit of an AI suggestion", () => {
     mockUseQuery.mockReturnValue({
       data: {

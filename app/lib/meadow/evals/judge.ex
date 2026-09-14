@@ -2,6 +2,7 @@ defmodule Meadow.Evals.Judge do
   @moduledoc "LLM-as-judge semantic scoring for eval trials via AWS Bedrock Converse."
 
   alias Meadow.Config
+  alias Meadow.Data.Schemas.ValueEntry
   alias Meadow.HTTP
   alias Meadow.Utils.DCAPI
   require Logger
@@ -242,14 +243,19 @@ defmodule Meadow.Evals.Judge do
 
   defp parse_score(_), do: nil
 
-  defp extract_description(map) when is_map(map) do
+  @doc false
+  # Public for tests, like build_request_body/2.
+  def extract_description(map) when is_map(map) do
     (Map.get(map, "description") || Map.get(map, :description) || "")
     |> List.wrap()
+    # Tolerate identified `{id, value}` items (ground truth snapshotted between
+    # the ValueEntry conversion and its flattening fix) alongside bare strings.
+    |> ValueEntry.values()
     |> Enum.join(" ")
     |> String.trim()
   end
 
-  defp extract_description(_), do: ""
+  def extract_description(_), do: ""
 
   defp extract_subjects(map) when is_map(map) do
     (Map.get(map, "subjects") || Map.get(map, :subjects) || [])

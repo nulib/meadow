@@ -1,5 +1,6 @@
 import {
   prepFieldArrayItemsForPost,
+  prepValueEntryItemsForPost,
   prepEDTFforPost,
   prepNotes,
   prepRelatedUrl,
@@ -117,7 +118,7 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
     plainTextArray: (data) =>
       change.path.endsWith("date_created")
         ? prepEDTFforPost(data.values)
-        : prepFieldArrayItemsForPost(data.values),
+        : prepValueEntryItemsForPost(data.values),
 
     coded: (data) => {
       const selectedId = data.value;
@@ -163,12 +164,18 @@ const EditDiffRowForm = ({ change, isOpen, onSave, onCancel }) => {
   const getDefaultValues = () => {
     if (!change) return {};
     if (fieldType.isPlainTextArray) {
-      // UIFormFieldArray expects array of { metadataItem: "value" }
-      // date_created may come back from DB as [{ edtf, humanized }] - unwrap to string
+      // UIFormFieldArray expects array of { metadataItem: "value" }.
+      // date_created comes back as [{ edtf, humanized }] - unwrap to the edtf
+      // string; repeating free-text items are { id, value } - carry the id so a
+      // reviewer's edit preserves the item's identity.
       return {
-        values: change.value.map((v) => ({
-          metadataItem: typeof v === "object" && v.edtf ? v.edtf : v,
-        })),
+        values: change.value.map((v) => {
+          if (v && typeof v === "object") {
+            if (v.edtf) return { metadataItem: v.edtf };
+            return { metadataItem: v.value, id: v.id };
+          }
+          return { metadataItem: v };
+        }),
       };
     } else if (fieldType.isCoded) {
       // Coded terms: just use the id (URL)

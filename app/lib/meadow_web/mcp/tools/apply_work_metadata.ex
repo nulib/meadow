@@ -69,6 +69,9 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadata do
         updated_work =
           case Works.update_work(work, %{
                  descriptive_metadata: %{
+                   # This is a new work item. Let the work changeset mint its id
+                   # at the ownership boundary, then record that stored item
+                   # verbatim in provenance below.
                    description: [description],
                    subject: subject_attrs,
                    notes: [
@@ -82,6 +85,8 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadata do
             {:ok, updated_work} -> updated_work
             {:error, changeset} -> Repo.rollback(changeset)
           end
+
+        [description_entry] = updated_work.descriptive_metadata.description
 
         activity =
           %{
@@ -116,7 +121,14 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadata do
           activity,
           "Work",
           work_id,
-          operations,
+          %{
+            replace: %{
+              descriptive_metadata: %{
+                description: [description_entry],
+                subject: subject_attrs
+              }
+            }
+          },
           origin: "ai_generated",
           status: "applied",
           event_type: "applied",

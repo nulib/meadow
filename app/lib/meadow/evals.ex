@@ -4,6 +4,7 @@ defmodule Meadow.Evals do
   import Ecto.Query
   alias Meadow.{Config, Repo}
   alias Meadow.Data.{Schemas.Work, Works}
+  alias Meadow.Data.Schemas.ValueEntry
 
   alias Meadow.Evals.Schemas.{
     EvalPromptVersion,
@@ -341,7 +342,10 @@ defmodule Meadow.Evals do
     work = Works.get_work!(work_id)
     dm = work.descriptive_metadata
     subjects = snapshot_subjects(dm.subject || [])
-    descriptions = dm.description || []
+    # Flatten identified ValueEntry items to bare strings: ground truth is a
+    # value snapshot, and the judge compares plain text (internal per-item ids
+    # have no business being stored or scored).
+    descriptions = ValueEntry.values(dm.description)
 
     if descriptions == [] and length(subjects) < 3 do
       nil

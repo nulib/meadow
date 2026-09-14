@@ -18,9 +18,12 @@ const UIFormBatchFieldArray = ({
   ...passedInProps
 }) => {
   const { control } = useFormContext();
+  // Non-default keyName so react-hook-form's internal row key never masquerades
+  // as an item `id` (batch rows are always new values and must carry none).
   const { fields, append, remove } = useFieldArray({
     control,
     name,
+    keyName: "rhfFieldId",
   });
   const [isDelete, setIsDelete] = React.useState();
 
@@ -47,7 +50,7 @@ const UIFormBatchFieldArray = ({
         {fields.map((item, index) => {
           return (
             <UIFormFieldArrayRow
-              key={item.id}
+              key={item.rhfFieldId}
               handleRemoveClick={handleRemoveClick}
               item={item}
               index={index}

@@ -38,6 +38,37 @@ defmodule Meadow.EvalsTest do
     end
   end
 
+  describe "create_eval_set_from_query/2" do
+    test "snapshots identified free-text descriptions as plain strings" do
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{title: "T", description: ["Desc one", "Desc two"]}
+        })
+
+      Meadow.Data.Indexer.reindex_all()
+
+      {:ok, query} =
+        Evals.create_eval_query(%{
+          name: "test-query-#{System.unique_integer()}",
+          query_json: %{"query" => %{"ids" => %{"values" => [work.id]}}},
+          author: "test"
+        })
+
+      assert {:ok, set, 0} =
+               Evals.create_eval_set_from_query(query, %{
+                 name: "test-set-#{System.unique_integer()}",
+                 author: "test"
+               })
+
+      [member] = Repo.all(from(m in EvalSetMember, where: m.eval_set_id == ^set.id))
+
+      # Ground truth must hold the bare values, not `{id, value}` maps: the judge
+      # compares plain text, and internal per-item ids must not leak into stored
+      # snapshots.
+      assert member.ground_truth["description"] == ["Desc one", "Desc two"]
+    end
+  end
+
   describe "delete_run/1" do
     test "deletes a run and cascades trials and scores" do
       {run, trials} = setup_run_with_trial()

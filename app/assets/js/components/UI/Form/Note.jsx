@@ -60,6 +60,16 @@ const UIFormNote = ({
                       {item.note}
                       {item.type && `, ${item.type.label}`}
                     </p>
+                    {/* Round-trip the note's stable id so editing preserves its
+                        identity (and per-item provenance) instead of replacing it. */}
+                    {item.id && (
+                      <input
+                        type="hidden"
+                        name={`${itemName}.id`}
+                        {...register(`${itemName}.id`)}
+                        value={item.id}
+                      />
+                    )}
                     <input
                       type="hidden"
                       name={`${itemName}.note`}
