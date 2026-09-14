@@ -8,10 +8,9 @@ defmodule Meadow.Data.Works do
   alias Meadow.Config
   alias Meadow.AWS.S3
   alias Meadow.Data.FileSets
-  alias Meadow.Data.Schemas.{FileSet, Work}
+  alias Meadow.Data.Schemas.{ControlledMetadataEntry, FileSet, Work, WorkDescriptiveMetadata}
+  alias Meadow.Data.Works.MetadataWriter
   alias Meadow.Repo
-
-  use Meadow.Data.Works.BatchFunctions
 
   require Logger
 
@@ -26,10 +25,21 @@ defmodule Meadow.Data.Works do
   """
   def list_works do
     Work
+    |> with_metadata()
     |> preload([:ingest_sheet, :project])
     |> Repo.all()
     |> add_representative_image()
   end
+
+  @doc """
+  Adds the descriptive/administrative metadata preloads to a Work query
+  """
+  def with_metadata(queryable \\ Work), do: preload(queryable, ^Work.metadata_preloads())
+
+  @doc """
+  Preloads the descriptive/administrative metadata on a work (or list of works)
+  """
+  def preload_metadata(work_or_works), do: Repo.preload(work_or_works, Work.metadata_preloads())
 
   @doc """
   Returns a list of works matching the given `criteria`.
@@ -42,6 +52,7 @@ defmodule Meadow.Data.Works do
   def list_works(criteria) do
     criteria
     |> work_query()
+    |> with_metadata()
     |> preload([:ingest_sheet, :project])
     |> Repo.all()
     |> add_representative_image()
@@ -70,20 +81,19 @@ defmodule Meadow.Data.Works do
         from(p in query, order_by: [{^order, :id}])
 
       {:visibility, visibility}, query ->
-        from(w in query, where: fragment("visibility -> 'id' = ?", ^visibility))
+        from(w in query, where: w.visibility == ^visibility)
 
       {:work_type, work_type}, query ->
-        from(w in query, where: fragment("work_type -> 'id' = ?", ^work_type))
+        from(w in query, where: w.work_type == ^work_type)
     end)
   end
 
   defp filter_with(filters, query) do
     Enum.reduce(filters, query, fn
       {:matching, term}, query ->
-        map = %{"title" => term}
-
         from(q in query,
-          where: fragment("descriptive_metadata @> ?::jsonb", ^map)
+          join: d in assoc(q, :descriptive_metadata),
+          where: d.title == ^term
         )
     end)
   end
@@ -104,6 +114,7 @@ defmodule Meadow.Data.Works do
   """
   def get_work!(id) do
     Work
+    |> with_metadata()
     |> preload([:ingest_sheet, :project])
     |> Repo.get!(id)
     |> add_representative_image()
@@ -111,6 +122,7 @@ defmodule Meadow.Data.Works do
 
   def get_work(id) do
     Work
+    |> with_metadata()
     |> preload([:ingest_sheet, :project])
     |> Repo.get(id)
     |> add_representative_image()
@@ -128,6 +140,7 @@ defmodule Meadow.Data.Works do
   """
   def get_work_by_accession_number!(accession_number) do
     Work
+    |> with_metadata()
     |> preload([:ingest_sheet, :project])
     |> Repo.get_by!(accession_number: accession_number)
     |> add_representative_image()
@@ -149,14 +162,13 @@ defmodule Meadow.Data.Works do
   end
 
   def get_access_files(work_id) do
-    map = %{"id" => "A"}
-
     Repo.all(
       from(f in FileSet,
         where: f.work_id == ^work_id,
-        where: fragment("role @> ?::jsonb", ^map),
+        where: f.role == "A",
         order_by: :rank,
-        limit: 1
+        limit: 1,
+        preload: ^FileSet.metadata_preloads()
       )
     )
   end
@@ -166,11 +178,12 @@ defmodule Meadow.Data.Works do
   """
   def with_file_sets(id) do
     Work
+    |> with_metadata()
     |> Repo.get!(id)
     |> Repo.preload([
       :ingest_sheet,
       :project,
-      file_sets: from(FileSet, order_by: [asc: :role, asc: :rank])
+      file_sets: {from(FileSet, order_by: [asc: :role, asc: :rank]), FileSet.metadata_preloads()}
     ])
     |> add_representative_image()
   end
@@ -179,18 +192,17 @@ defmodule Meadow.Data.Works do
 
   """
   def with_file_sets(id, role) do
-    map = %{"id" => role}
-
     Work
+    |> with_metadata()
     |> Repo.get!(id)
     |> Repo.preload([
       :ingest_sheet,
       :project,
       file_sets:
-        from(f in FileSet,
-          where: fragment("role @> ?::jsonb", ^map),
-          order_by: [asc: :role, asc: :rank]
-        )
+        {from(f in FileSet,
+           where: f.role == ^role,
+           order_by: [asc: :role, asc: :rank]
+         ), FileSet.metadata_preloads()}
     ])
     |> add_representative_image()
   end
@@ -202,6 +214,7 @@ defmodule Meadow.Data.Works do
   """
   def with_sheet(id) do
     Work
+    |> with_metadata()
     |> preload(:ingest_sheet)
     |> Repo.get!(id)
     |> add_representative_image()
@@ -343,6 +356,7 @@ defmodule Meadow.Data.Works do
   """
   def get_works_by_collection(collection_id) do
     from(w in Work, where: w.collection_id == ^collection_id)
+    |> with_metadata()
     |> Repo.all()
     |> add_representative_image()
   end
@@ -362,11 +376,11 @@ defmodule Meadow.Data.Works do
 
   """
   def get_works_by_title(title) do
-    map = %{"title" => title}
-
-    from(Work,
-      where: fragment("descriptive_metadata @> ?::jsonb", ^map)
+    from(w in Work,
+      join: d in assoc(w, :descriptive_metadata),
+      where: d.title == ^title
     )
+    |> with_metadata()
     |> Repo.all()
     |> add_representative_image()
   end
@@ -399,47 +413,47 @@ defmodule Meadow.Data.Works do
   """
   def set_representative_image(
         %Work{work_type: %{id: "VIDEO"}} = work,
-        %FileSet{id: _id, role: %{id: "A"}, derivatives: %{"poster" => _poster}} = file_set
+        %FileSet{role: %{id: "A"}} = file_set
       ) do
-    work
-    |> Repo.preload(:representative_file_set)
-    |> Work.update_changeset()
-    |> put_assoc(:representative_file_set, file_set)
-    |> Repo.update()
-    |> add_representative_image()
+    if FileSets.derivative?(file_set, "poster") do
+      work
+      |> Repo.preload(:representative_file_set)
+      |> Work.update_changeset()
+      |> put_assoc(:representative_file_set, file_set)
+      |> Repo.update()
+      |> add_representative_image()
+    else
+      {:ok, work}
+    end
   end
 
-  def set_representative_image(%Work{work_type: %{id: "VIDEO"}} = work, %FileSet{
-        id: _id,
-        role: %{id: "A"}
-      }),
-      do: {:ok, work}
-
-  def set_representative_image(work, %FileSet{
-        id: _id,
-        role: %{id: "X"},
-        derivatives: %{"copy" => _copy}
-      }),
-      do: {:ok, work}
+  def set_representative_image(work, %FileSet{role: %{id: "X"}} = file_set) do
+    if FileSets.derivative?(file_set, "copy"),
+      do: {:ok, work},
+      else: set_representative_file_set(work, file_set)
+  end
 
   def set_representative_image(%Work{} = work, file_set_id) when is_binary(file_set_id) do
     set_representative_image(work, FileSets.get_file_set!(file_set_id))
   end
 
-  def set_representative_image(%Work{} = work, %FileSet{id: _id} = file_set) do
-    work
-    |> Repo.preload(:representative_file_set)
-    |> Work.update_changeset()
-    |> put_assoc(:representative_file_set, file_set)
-    |> Repo.update()
-    |> add_representative_image()
-  end
+  def set_representative_image(%Work{} = work, %FileSet{id: _id} = file_set),
+    do: set_representative_file_set(work, file_set)
 
   def set_representative_image(%Work{} = work, nil) do
     work
     |> Repo.preload(:representative_file_set)
     |> Work.update_changeset()
     |> put_assoc(:representative_file_set, nil)
+    |> Repo.update()
+    |> add_representative_image()
+  end
+
+  defp set_representative_file_set(work, file_set) do
+    work
+    |> Repo.preload(:representative_file_set)
+    |> Work.update_changeset()
+    |> put_assoc(:representative_file_set, file_set)
     |> Repo.update()
     |> add_representative_image()
   end
@@ -525,18 +539,20 @@ defmodule Meadow.Data.Works do
   def add_representative_image(x), do: x
 
   defp placeholder_url(%Work{work_type: %{id: id}}) when id in ["AUDIO", "VIDEO"],
-    do:
-      FileSets.representative_image_url_for(%FileSet{
-        derivatives: %{"pyramid_tiff" => nil},
-        id: "00000000-0000-0000-0000-000000000002"
-      })
+    do: FileSets.iiif_image_url("00000000-0000-0000-0000-000000000002")
 
-  defp placeholder_url(_),
-    do:
-      FileSets.representative_image_url_for(%FileSet{
-        derivatives: %{"pyramid_tiff" => nil},
-        id: "00000000-0000-0000-0000-000000000001"
-      })
+  defp placeholder_url(_), do: FileSets.iiif_image_url("00000000-0000-0000-0000-000000000001")
+
+  @doc """
+  Plain string values of a repeating descriptive field (flat public shape)
+  """
+  def descriptive_values(%Work{descriptive_metadata: %WorkDescriptiveMetadata{} = md}, field),
+    do: WorkDescriptiveMetadata.values(md, field)
+
+  def descriptive_values(_, _), do: []
+
+  defdelegate merge_metadata(work_ids, values, mode), to: MetadataWriter, as: :merge
+  defdelegate replace_controlled_values(work_ids, field, remove, add), to: MetadataWriter
 
   @doc """
   Set :updated_at
@@ -569,14 +585,12 @@ defmodule Meadow.Data.Works do
   defp ensure_file_set_list_complete({:error, msg}, _, _, _), do: {:error, msg}
 
   defp ensure_file_set_list_complete(:ok, work_id, role_id, file_set_ids) do
-    map = %{"id" => role_id}
-
     work =
       from(w in Work,
         join: f in assoc(w, :file_sets),
         where: w.id == ^work_id,
-        where: fragment("role @> ?::jsonb", ^map),
-        preload: [file_sets: f]
+        where: f.role == ^role_id,
+        preload: [file_sets: {f, ^FileSet.metadata_preloads()}]
       )
       |> Repo.one()
 
@@ -646,17 +660,17 @@ defmodule Meadow.Data.Works do
   end
 
   def works_by_term(term_id, field_name \\ nil) do
-    base_condition = dynamic([_, t], t.term == ^term_id)
+    base_condition = dynamic([_, t], type(t.term, :string) == ^term_id)
 
     condition =
       if field_name do
-        dynamic([_, t], ^base_condition and t.field_name == ^to_string(field_name))
+        dynamic([_, t], ^base_condition and t.field == ^to_string(field_name))
       else
         base_condition
       end
 
     from(w in Work,
-      join: t in "work_terms",
+      join: t in ControlledMetadataEntry,
       on: w.id == t.work_id,
       where: ^condition
     )
@@ -670,6 +684,7 @@ defmodule Meadow.Data.Works do
     works_by_term(term_id, field_name)
     |> distinct(true)
     |> select([w], w)
+    |> with_metadata()
     |> Repo.all()
     |> add_representative_image()
   end
@@ -680,7 +695,7 @@ defmodule Meadow.Data.Works do
   """
   def get_term_placements(term_id) do
     works_by_term(term_id)
-    |> select([w, t], %{work_id: w.id, field_name: t.field_name})
+    |> select([w, t], %{work_id: w.id, field_name: t.field})
     |> Repo.all()
   end
 end

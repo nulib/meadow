@@ -1,5 +1,6 @@
 defmodule Meadow.Data.PlannerTest do
   use Meadow.AuthorityCase
+  alias Meadow.Data.Works
   use Meadow.DataCase
 
   alias Meadow.AI.Provenance
@@ -880,11 +881,12 @@ defmodule Meadow.Data.PlannerTest do
   end
 
   test "handles exception applying plan", %{plan: plan, work: work} do
+    # A controlled term the authority cannot resolve fails when the change is applied
     {:ok, change} =
       Planner.create_plan_change(%{
         plan_id: plan.id,
         work_id: work.id,
-        replace: %{descriptive_metadata: %{title: ["Updated"]}}
+        add: %{descriptive_metadata: %{genre: [%{term: "mock1:unknown"}]}}
       })
 
     Planner.approve_plan_change(change)
@@ -892,7 +894,7 @@ defmodule Meadow.Data.PlannerTest do
 
     assert {:ok, error_plan} = Planner.apply_plan(plan)
     assert error_plan.status == :error
-    assert error_plan.error |> String.contains?(~s(cannot load `[\\"Updated\\"]` as type :string))
+    assert error_plan.error |> String.contains?("invalid value for genre")
   end
 
   test "rolls back apply provenance when work update fails", %{plan: plan, work: work} do
@@ -904,24 +906,27 @@ defmodule Meadow.Data.PlannerTest do
         status: "completed"
       })
 
+    operations = %{add: %{descriptive_metadata: %{genre: [%{term: "mock1:unknown"}]}}}
+
     Provenance.record_targets_for_operations(
       activity,
       "Work",
       work.id,
-      %{replace: %{descriptive_metadata: %{title: ["Updated"]}}},
+      operations,
       origin: "ai_generated",
       status: "reviewed",
       event_type: "approved"
     )
 
     {:ok, change} =
-      Planner.create_plan_change(%{
-        plan_id: plan.id,
-        work_id: work.id,
-        replace: %{descriptive_metadata: %{title: ["Updated"]}},
-        status: :approved,
-        ai_activity_id: activity.id
-      })
+      Planner.create_plan_change(
+        Map.merge(operations, %{
+          plan_id: plan.id,
+          work_id: work.id,
+          status: :approved,
+          ai_activity_id: activity.id
+        })
+      )
 
     Planner.approve_plan_change(change)
     {:ok, plan} = Planner.approve_plan(plan)
@@ -974,7 +979,7 @@ defmodule Meadow.Data.PlannerTest do
       assert {:ok, completed_change} = Planner.apply_plan_change(change)
       assert completed_change.status == :completed
 
-      updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+      updated_work = Works.get_work!(work.id)
       assert updated_work.descriptive_metadata.title == "New Title"
 
       # The fixture work already has a (human-authored) title, so applying the
@@ -1003,7 +1008,7 @@ defmodule Meadow.Data.PlannerTest do
         })
 
       # Reload to get the full structure as saved in DB
-      work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+      work = Works.get_work!(work.id)
       [subj_to_delete | _] = work.descriptive_metadata.subject
 
       # Create a plan change to delete one subject
@@ -1030,7 +1035,7 @@ defmodule Meadow.Data.PlannerTest do
       assert completed_change.status == :completed
 
       # Verify the subject was deleted
-      updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+      updated_work = Works.get_work!(work.id)
 
       assert length(updated_work.descriptive_metadata.subject) == 1
 
@@ -1053,7 +1058,7 @@ defmodule Meadow.Data.PlannerTest do
       assert {:ok, completed_change} = Planner.apply_plan_change(change)
       assert completed_change.status == :completed
 
-      updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+      updated_work = Works.get_work!(work.id)
 
       assert [%{edtf: "1896-11-10", humanized: humanized}] =
                updated_work.descriptive_metadata.date_created
@@ -1075,7 +1080,7 @@ defmodule Meadow.Data.PlannerTest do
       assert {:ok, completed_change} = Planner.apply_plan_change(change)
       assert completed_change.status == :completed
 
-      updated_work = Repo.get!(Meadow.Data.Schemas.Work, work.id)
+      updated_work = Works.get_work!(work.id)
 
       assert updated_work.descriptive_metadata.title == "Updated Title"
     end
@@ -1172,8 +1177,8 @@ defmodule Meadow.Data.PlannerTest do
         })
 
       # 3. Reload works to get full DB structure
-      work_a = Repo.get!(Meadow.Data.Schemas.Work, work_a.id)
-      work_b = Repo.get!(Meadow.Data.Schemas.Work, work_b.id)
+      work_a = Works.get_work!(work_a.id)
+      work_b = Works.get_work!(work_b.id)
 
       # Find the subjects to delete by ID and convert to maps matching JSONB storage
       [_keep, subj_a_2, subj_a_3] = work_a.descriptive_metadata.subject
@@ -1220,13 +1225,13 @@ defmodule Meadow.Data.PlannerTest do
       assert completed_plan.status == :completed
 
       # 7. Verify changes were completed
-      updated_work_a = Repo.get!(Meadow.Data.Schemas.Work, work_a.id)
+      updated_work_a = Works.get_work!(work_a.id)
       assert length(updated_work_a.descriptive_metadata.subject) == 1
       [remaining_a] = updated_work_a.descriptive_metadata.subject
       assert remaining_a.term.id == "mock1:result1"
       assert remaining_a.term.label == "First Result"
 
-      updated_work_b = Repo.get!(Meadow.Data.Schemas.Work, work_b.id)
+      updated_work_b = Works.get_work!(work_b.id)
       assert length(updated_work_b.descriptive_metadata.subject) == 1
       [remaining_b] = updated_work_b.descriptive_metadata.subject
       assert remaining_b.term.id == "mock1:result1"

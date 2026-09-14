@@ -1,6 +1,7 @@
 defmodule Meadow.Data.Schemas.JSONEncodersTest do
   use Meadow.DataCase
 
+  alias Meadow.Data.Schemas.FileSet
   alias Meadow.Data.Works
   alias Meadow.Repo
 
@@ -48,6 +49,33 @@ defmodule Meadow.Data.Schemas.JSONEncodersTest do
       assert decoded["file_sets"] |> length() == work.file_sets |> length()
       # Loaded associations without proper encoders should be encoded as nil
       assert decoded["project"] == nil
+    end
+
+    test "JSON encoding of FileSet derivatives and extracted metadata", %{work: work} do
+      file_set =
+        file_set_fixture(%{
+          work_id: work.id,
+          derivatives: %{"pyramid_tiff" => "s3://pyramids/test-pyramid.tif"},
+          extracted_metadata: %{
+            "exif" => %{
+              "tool" => "exif",
+              "tool_version" => "1.0",
+              "value" => %{"ImageWidth" => 100, "ImageHeight" => 200}
+            }
+          }
+        })
+
+      work = Works.get_work!(work.id) |> Repo.preload(file_sets: FileSet.metadata_preloads())
+
+      decoded = work |> JSON.encode!() |> JSON.decode!()
+      [encoded_file_set] = decoded["file_sets"]
+
+      assert encoded_file_set["id"] == file_set.id
+      assert encoded_file_set["derivatives"] == %{"pyramid_tiff" => "s3://pyramids/test-pyramid.tif"}
+
+      assert get_in(encoded_file_set, ["extracted_metadata", "exif", "value", "ImageWidth"]) == 100
+
+      assert get_in(encoded_file_set, ["extracted_metadata", "exif", "tool_version"]) == "1.0"
     end
   end
 

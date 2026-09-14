@@ -5,7 +5,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadata do
   """
   alias Meadow.Config
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Utils.{Lambda, StructMap}
+  alias Meadow.Utils.Lambda
 
   use Meadow.Pipeline.Actions.Common
 
@@ -16,11 +16,9 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadata do
   def actiondoc, do: "Extract media metadata from FileSet"
 
   def already_complete?(file_set, _) do
-    with existing_metadata <-
-           file_set
-           |> StructMap.deep_struct_to_map()
-           |> get_in([:extracted_metadata, "mediainfo"]) do
-      not (is_nil(existing_metadata) or Enum.empty?(existing_metadata))
+    case FileSets.extracted_tool(file_set, "mediainfo") do
+      nil -> false
+      %{entries: entries} -> not Enum.empty?(entries)
     end
   end
 
@@ -50,10 +48,7 @@ defmodule Meadow.Pipeline.Actions.ExtractMediaMetadata do
 
   def handle_result({:ok, metadata}, file_set) do
     extracted_metadata =
-      case file_set.extracted_metadata do
-        nil -> %{mediainfo: metadata}
-        map -> Map.delete(map, "mediainfo") |> Map.put(:mediainfo, metadata)
-      end
+      file_set |> FileSets.extracted_metadata_map() |> Map.put("mediainfo", metadata)
 
     FileSets.update_file_set(file_set, %{extracted_metadata: extracted_metadata})
     ActionStates.set_state!(file_set, __MODULE__, "ok")

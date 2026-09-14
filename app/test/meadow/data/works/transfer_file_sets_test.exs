@@ -1,5 +1,6 @@
 defmodule Meadow.Data.Works.TransferFileSetsTest do
   use Meadow.AuthorityCase
+  alias Meadow.Data.Schemas.MetadataValue
   use Meadow.DataCase
   use Meadow.S3Case
   use Meadow.IndexCase
@@ -391,8 +392,15 @@ defmodule Meadow.Data.Works.TransferFileSetsTest do
       assert new_work.published == false
       assert new_work.visibility.id == "RESTRICTED"
       assert new_work.descriptive_metadata.title == "Sample Work Title"
-      assert new_work.descriptive_metadata.description == ["Work description"]
-      assert new_work.administrative_metadata.project_name == ["Project name"]
+
+      assert MetadataValue.values(new_work.descriptive_metadata.description) == [
+               "Work description"
+             ]
+
+      assert MetadataValue.values(new_work.administrative_metadata.project_name) == [
+               "Project name"
+             ]
+
       assert new_work.administrative_metadata.library_unit.id == "MUSIC_LIBRARY"
     end
 

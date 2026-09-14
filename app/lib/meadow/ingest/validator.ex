@@ -8,6 +8,7 @@ defmodule Meadow.Ingest.Validator do
   alias Meadow.Data.{CodedTerms, FileSets, Works}
   alias Meadow.Ingest.{Rows, Sheets}
   alias Meadow.Ingest.Schemas.{Row, Sheet}
+  alias Meadow.Ingest.Schemas.RowField
   alias Meadow.Repo
   alias Meadow.Utils.{AWS, MapList, MIME, Truth}
   alias NimbleCSV.RFC4180, as: CSV
@@ -131,7 +132,7 @@ defmodule Meadow.Ingest.Validator do
           _ -> v
         end
 
-      [%Row.Field{header: k, value: v} | acc]
+      [%{header: k, value: v} | acc]
     end)
     |> Enum.reverse()
   end
@@ -158,12 +159,43 @@ defmodule Meadow.Ingest.Validator do
         }
       end)
       |> Enum.chunk_every(5_000)
-      |> Enum.each(fn chunk ->
-        Repo.insert_all(Row, chunk,
-          on_conflict: {:replace_all_except, [:id]},
-          conflict_target: [:sheet_id, :row]
-        )
-      end)
+      |> Enum.each(&insert_row_chunk/1)
+    end)
+  end
+
+  # Rows are upserted by (sheet, row number); their header/value pairs are
+  # rewritten so a reloaded sheet never keeps stale fields
+  defp insert_row_chunk(chunk) do
+    {row_fields, rows} = Enum.map(chunk, &Map.pop!(&1, :fields)) |> Enum.unzip()
+
+    {_, returned} =
+      Repo.insert_all(Row, rows,
+        on_conflict: {:replace_all_except, [:id]},
+        conflict_target: [:sheet_id, :row],
+        returning: [:id]
+      )
+
+    row_ids = Enum.map(returned, & &1.id)
+    from(f in RowField, where: f.row_id in ^row_ids) |> Repo.delete_all()
+
+    row_ids
+    |> Enum.zip(row_fields)
+    |> Enum.flat_map(&field_rows/1)
+    |> Enum.chunk_every(5_000)
+    |> Enum.each(&Repo.insert_all(RowField, &1))
+  end
+
+  defp field_rows({row_id, fields}) do
+    fields
+    |> Enum.with_index()
+    |> Enum.map(fn {%{header: header, value: value}, position} ->
+      %{
+        id: Ecto.UUID.generate(),
+        row_id: row_id,
+        position: position,
+        header: header,
+        value: value
+      }
     end)
   end
 
@@ -494,7 +526,7 @@ defmodule Meadow.Ingest.Validator do
   end
 
   defp validate_row(%Row{state: "pending"} = row, context) do
-    reducer = fn %Row.Field{header: field_name, value: value}, acc ->
+    reducer = fn %{header: field_name, value: value}, acc ->
       case validate_value(row, {field_name, value}, context) do
         :ok -> acc
         {:error, field, error} -> [%{field: field, message: "#{field}: #{error}"} | acc]

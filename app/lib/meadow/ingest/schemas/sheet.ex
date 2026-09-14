@@ -4,12 +4,15 @@ defmodule Meadow.Ingest.Schemas.Sheet do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  alias Meadow.Data.Schemas.MultiValued
+  alias Meadow.Ingest.Schemas.SheetState
   alias Meadow.Repo
 
+  # Stage states, in the order they are preloaded (by name)
   @default_state [
     %{name: "file", state: "pending"},
-    %{name: "rows", state: "pending"},
-    %{name: "overall", state: "pending"}
+    %{name: "overall", state: "pending"},
+    %{name: "rows", state: "pending"}
   ]
 
   @statuses ~w(uploaded file_fail row_fail valid generating_preview awaiting_approval approved completed completed_error deleted)
@@ -27,9 +30,10 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     field :ai_preview, {:array, :map}, default: []
     field :file_errors, {:array, :string}, default: []
 
-    embeds_many :state, State, primary_key: {:name, :string, []} do
-      field :state, :string
-    end
+    has_many :state, SheetState,
+      foreign_key: :sheet_id,
+      preload_order: [asc: :name],
+      on_replace: :delete
 
     belongs_to :project, Meadow.Ingest.Schemas.Project
     has_many :ingest_sheet_rows, Meadow.Ingest.Schemas.Row
@@ -41,10 +45,14 @@ defmodule Meadow.Ingest.Schemas.Sheet do
 
   @doc false
   def changeset(ingest_sheet, attrs) do
+    ingest_sheet = preload_state(ingest_sheet)
+
     attrs =
-      if ingest_sheet.state in [nil, []],
-        do: Map.put_new(attrs, :state, @default_state),
-        else: attrs
+      case ingest_sheet.state do
+        %Ecto.Association.NotLoaded{} -> Map.put_new(attrs, :state, @default_state)
+        empty when empty in [nil, []] -> Map.put_new(attrs, :state, @default_state)
+        _ -> attrs
+      end
 
     ingest_sheet
     |> cast(attrs, [
@@ -59,7 +67,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
       :ai_preview,
       :updated_at
     ])
-    |> cast_embed(:state, with: &state_changeset/2)
+    |> cast_state()
     |> cast_assoc(:works)
     |> validate_required([:title, :filename, :project_id])
     |> assoc_constraint(:project)
@@ -73,10 +81,23 @@ defmodule Meadow.Ingest.Schemas.Sheet do
     |> validate_status()
   end
 
-  def state_changeset(ingest_sheet, attrs) do
-    ingest_sheet
-    |> cast(attrs, [:name, :state])
-  end
+  # Stage rows are matched by name so a state update keeps the same rows
+  defp cast_state(changeset),
+    do:
+      MultiValued.cast_entries(changeset, :state,
+        with: &SheetState.changeset/3,
+        key: &Map.get(&1, :name)
+      )
+
+  @doc "Preload the state rows of a persisted sheet if they are not loaded yet"
+  def preload_state(
+        %__MODULE__{__meta__: %{state: :loaded}, state: %Ecto.Association.NotLoaded{}} = sheet
+      ),
+      do: Repo.preload(sheet, :state)
+
+  def preload_state(sheet), do: sheet
+
+  def preloads, do: [:state]
 
   def file_errors_changeset(ingest_sheet, attrs) do
     ingest_sheet
@@ -109,7 +130,9 @@ defmodule Meadow.Ingest.Schemas.Sheet do
   end
 
   def find_state(ingest_sheet, key \\ "overall") do
-    ingest_sheet.state
+    ingest_sheet
+    |> preload_state()
+    |> Map.get(:state)
     |> Enum.reduce_while(nil, fn state, result ->
       case state.name do
         ^key -> {:halt, state.state}

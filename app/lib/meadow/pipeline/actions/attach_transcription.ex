@@ -62,13 +62,10 @@ defmodule Meadow.Pipeline.Actions.AttachTranscription do
     end
   end
 
-  defp get_transcription_file(file_set) do
-    Map.get(file_set, :derivatives, %{})
-    |> Map.get("transcription_file")
-  end
+  defp get_transcription_file(file_set), do: FileSets.derivative(file_set, "transcription_file")
 
   defp remove_transcription_file(file_set) do
-    derivatives = Map.get(file_set, :derivatives, %{}) |> Map.delete("transcription_file")
+    derivatives = FileSets.derivatives_map(file_set) |> Map.delete("transcription_file")
     FileSets.update_file_set(file_set, %{derivatives: derivatives})
   end
 end

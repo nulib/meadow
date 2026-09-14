@@ -18,7 +18,11 @@ defmodule MeadowWeb.MCP.Tools.GetWork do
 
   @impl true
   def execute(%{work_id: work_id}, frame) do
-    case Works.get_work(work_id) |> Repo.preload([:file_sets, :collection]) do
+    case Works.get_work(work_id)
+         |> Repo.preload([
+           :collection,
+           file_sets: Meadow.Data.Schemas.FileSet.metadata_preloads()
+         ]) do
       nil -> {:error, MCPError.resource(:not_found, %{work_id: work_id}), frame}
       work -> {:reply, Response.tool() |> Response.structured(work), frame}
     end

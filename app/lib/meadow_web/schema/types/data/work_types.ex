@@ -4,6 +4,8 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   """
   use Absinthe.Schema.Notation
+  import MeadowWeb.Schema.MetadataFields
+  alias Meadow.Data.Schemas.{NavPlaceEntry, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
 
   import Absinthe.Resolution.Helpers, only: [dataloader: 1]
   alias Meadow.Data
@@ -208,84 +210,78 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "`controlled_fields` represents all controlled descriptive metadata fields on a work."
   object :controlled_fields do
-    field(:contributor, list_of(:controlled_metadata_entry))
-
-    field(:creator, list_of(:controlled_metadata_entry)) do
-      deprecate("Creator field is deprecated")
-    end
-
-    field(:genre, list_of(:controlled_metadata_entry))
-    field(:language, list_of(:controlled_metadata_entry))
-
-    field(:location, list_of(:controlled_metadata_entry)) do
-      deprecate("Location field is deprecated")
-    end
+    metadata_fields(WorkDescriptiveMetadata, :controlled, list_of(:controlled_metadata_entry),
+      deprecate: [
+        creator: "Creator field is deprecated",
+        location: "Location field is deprecated"
+      ]
+    )
 
     field(:notes, list_of(:note_entry))
     field(:related_url, list_of(:related_url_entry))
-    field(:style_period, list_of(:controlled_metadata_entry))
-    field(:subject, list_of(:controlled_metadata_entry))
-    field(:technique, list_of(:controlled_metadata_entry))
+  end
+
+  @desc "One value of a repeating free-text metadata field, with its stable id"
+  object :metadata_value do
+    field(:id, non_null(:id))
+    field(:value, non_null(:string))
+  end
+
+  @desc "Input for one value of a repeating free-text field. Echo `id` to keep an existing value's identity; omit it for new values (unchanged values are matched by text)."
+  input_object :metadata_value_input do
+    field(:id, :id)
+    field(:value, non_null(:string))
   end
 
   @desc "`uncontrolled_descriptive_fields` represents all uncontrolled descriptive metadata fields."
   object :uncontrolled_descriptive_fields do
-    field(:abstract, list_of(:string))
-    field(:alternate_title, list_of(:string))
-    field(:box_name, list_of(:string))
-    field(:box_number, list_of(:string))
-    field(:caption, list_of(:string))
-    field(:catalog_key, list_of(:string))
-    field(:cultural_context, list_of(:string))
-    field(:description, list_of(:string))
-    field(:folder_name, list_of(:string))
-    field(:folder_number, list_of(:string))
-    field(:identifier, list_of(:string))
-    field(:keywords, list_of(:string))
-    field(:legacy_identifier, list_of(:string))
-    field(:terms_of_use, :string)
-    field(:physical_description_material, list_of(:string))
-    field(:physical_description_size, list_of(:string))
-    field(:provenance, list_of(:string))
+    metadata_fields(WorkDescriptiveMetadata, :values, list_of(:metadata_value),
+      except: [:citation],
+      deprecate: [publisher: "Publisher field is deprecated"]
+    )
 
-    field(:publisher, list_of(:string)) do
-      deprecate("Publisher field is deprecated")
-    end
+    metadata_fields(WorkDescriptiveMetadata, :string, :string)
+  end
 
-    field(:related_material, list_of(:string))
-    field(:rights_holder, list_of(:string))
-    field(:scope_and_contents, list_of(:string))
-    field(:series, list_of(:string))
-    field(:source, list_of(:string))
-    field(:table_of_contents, list_of(:string))
-    field(:title, :string)
+  @desc "Input for uncontrolled descriptive metadata fields"
+  input_object :uncontrolled_descriptive_fields_input do
+    metadata_fields(WorkDescriptiveMetadata, :values, list_of(:metadata_value_input),
+      except: [:citation]
+    )
+
+    metadata_fields(WorkDescriptiveMetadata, :string, :string)
   end
 
   @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object."
   object :work_descriptive_metadata do
-    field(:citation, list_of(:string))
+    field(:citation, list_of(:metadata_value))
     field(:date_created, list_of(:edtf_date_entry))
-    field(:license, :coded_term)
-    field(:nav_place, :json)
-    field(:rights_statement, :coded_term)
+    metadata_fields(WorkDescriptiveMetadata, :coded, :coded_term)
+
+    field(:nav_place, :json) do
+      resolve(fn metadata, _, _ ->
+        {:ok, metadata |> Map.get(:nav_place) |> List.wrap() |> Enum.map(&NavPlaceEntry.to_map/1)}
+      end)
+    end
+
     import_fields(:uncontrolled_descriptive_fields)
     import_fields(:controlled_fields)
   end
 
   object :uncontrolled_administrative_fields do
-    field(:project_name, list_of(:string))
-    field(:project_desc, list_of(:string))
-    field(:project_proposer, list_of(:string))
-    field(:project_manager, list_of(:string))
-    field(:project_task_number, list_of(:string))
-    field(:project_cycle, :string)
+    metadata_fields(WorkAdministrativeMetadata, :values, list_of(:metadata_value))
+    metadata_fields(WorkAdministrativeMetadata, :string, :string)
+  end
+
+  @desc "Input for uncontrolled administrative metadata fields"
+  input_object :uncontrolled_administrative_fields_input do
+    metadata_fields(WorkAdministrativeMetadata, :values, list_of(:metadata_value_input))
+    metadata_fields(WorkAdministrativeMetadata, :string, :string)
   end
 
   @desc "`work_administrative_metadata` represents all administrative metadata associated with a work object. It is stored in a single json field."
   object :work_administrative_metadata do
-    field(:library_unit, :coded_term)
-    field(:preservation_level, :coded_term)
-    field(:status, :coded_term)
+    metadata_fields(WorkAdministrativeMetadata, :coded, :coded_term)
 
     import_fields(:uncontrolled_administrative_fields)
   end
@@ -336,35 +332,30 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "Input fields for works administrative metadata"
   input_object :work_administrative_metadata_input do
-    field(:library_unit, :coded_term_input)
-    field(:preservation_level, :coded_term_input)
-    field(:status, :coded_term_input)
+    metadata_fields(WorkAdministrativeMetadata, :coded, :coded_term_input)
 
-    import_fields(:uncontrolled_administrative_fields)
+    import_fields(:uncontrolled_administrative_fields_input)
   end
 
   @desc "Input fields for works descriptive metadata"
   input_object :work_descriptive_metadata_input do
     field(:date_created, list_of(:edtf_date_input))
-    field(:license, :coded_term_input)
+    metadata_fields(WorkDescriptiveMetadata, :coded, :coded_term_input)
     field(:nav_place, :json)
     field(:notes, list_of(:note_entry_input))
-    field(:rights_statement, :coded_term_input)
     field(:related_url, list_of(:related_url_entry_input))
+    field(:citation, list_of(:metadata_value_input))
     import_fields(:controlled_fields_input)
-    import_fields(:uncontrolled_descriptive_fields)
+    import_fields(:uncontrolled_descriptive_fields_input)
   end
 
   @desc "`controlled_fields_input` controlled fields that can be updated on a work object"
   input_object :controlled_fields_input do
-    field(:contributor, list_of(:controlled_metadata_entry_input))
-    field(:creator, list_of(:controlled_metadata_entry_input))
-    field(:genre, list_of(:controlled_metadata_entry_input))
-    field(:language, list_of(:controlled_metadata_entry_input))
-    field(:location, list_of(:controlled_metadata_entry_input))
-    field(:subject, list_of(:controlled_metadata_entry_input))
-    field(:style_period, list_of(:controlled_metadata_entry_input))
-    field(:technique, list_of(:controlled_metadata_entry_input))
+    metadata_fields(
+      WorkDescriptiveMetadata,
+      :controlled,
+      list_of(:controlled_metadata_entry_input)
+    )
   end
 
   @desc "Complete work definition for creating a new work during file set transfer"

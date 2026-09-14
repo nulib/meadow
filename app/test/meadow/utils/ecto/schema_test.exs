@@ -19,10 +19,10 @@ defmodule Meadow.Utils.Ecto.SchemaTest do
 
     test "handles top-level CodedTerm fields with correct scheme", %{subject: subject} do
       assert subject.visibility == %{
-        id: "(valid id for scheme `visibility`)",
-        label: "(valid label for scheme `visibility`)",
-        scheme: "visibility"
-      }
+               id: "(valid id for scheme `visibility`)",
+               label: "(valid label for scheme `visibility`)",
+               scheme: "visibility"
+             }
     end
 
     test "handles DateTime fields", %{subject: subject} do
@@ -40,46 +40,55 @@ defmodule Meadow.Utils.Ecto.SchemaTest do
 
     test "handles CodedTerm fields with correct scheme in embedded schemas", %{subject: subject} do
       assert subject.descriptive_metadata.license == %{
-        id: "(valid id for scheme `license`)",
-        label: "(valid label for scheme `license`)",
-        scheme: "license"
-      }
+               id: "(valid id for scheme `license`)",
+               label: "(valid label for scheme `license`)",
+               scheme: "license"
+             }
     end
 
     test "handles single- and multi-value fields in embedded schemas", %{subject: subject} do
       assert subject.descriptive_metadata.title == "string"
-      assert subject.descriptive_metadata.alternate_title == ["string"]
+      assert subject.descriptive_metadata.alternate_title == [%{id: "UUID", value: "string"}]
     end
 
-    test "handles multi-valued controlled term without role in embedded schemas", %{subject: subject} do
-      assert subject.descriptive_metadata.language == [%{term: %{id: "URI", label: "string"}, role: nil}]
+    test "handles multi-valued controlled term without role in embedded schemas", %{
+      subject: subject
+    } do
+      assert subject.descriptive_metadata.language == [
+               %{id: "UUID", term: %{id: "URI", label: "string"}, role: nil}
+             ]
     end
 
     test "handles multi-valued controlled term with role in embedded schemas", %{subject: subject} do
       assert subject.descriptive_metadata.subject == [
-        %{
-          term: %{id: "URI", label: "string"},
-          role: %{
-            id: "(valid id for scheme `subject_role`)",
-            label: "(valid label for scheme `subject_role`)",
-            scheme: "subject_role"
-          }
-        }
-      ]
+               %{
+                 id: "UUID",
+                 term: %{id: "URI", label: "string"},
+                 role: %{
+                   id: "(valid id for scheme `subject_role`)",
+                   label: "(valid label for scheme `subject_role`)",
+                   scheme: "subject_role"
+                 }
+               }
+             ]
     end
 
     test "handles EDTF date fields in embedded schemas", %{subject: subject} do
-      assert subject.descriptive_metadata.date_created == ["valid EDTF date string"]
+      assert subject.descriptive_metadata.date_created == [
+               %{id: "UUID", edtf: "valid EDTF date string"}
+             ]
     end
   end
 
   describe "unroll(Work) with read_only option" do
     test "omits specified fields at the top level" do
       result = Schema.unroll(Work, read_only: [:administrative_metadata, :visibility])
+
       Map.get(result, :administrative_metadata)
       |> Enum.each(fn {_, value} ->
         assert value == "READ_ONLY"
       end)
+
       assert Map.get(result, :visibility) == "READ_ONLY"
       assert Map.has_key?(result, :id)
     end

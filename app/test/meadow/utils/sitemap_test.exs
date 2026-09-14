@@ -7,11 +7,12 @@ defmodule Meadow.Utils.SitemapTest do
 
   @bucket @upload_bucket
   @expected_files ["sitemap.xml.gz", "sitemap-00001.xml.gz"]
+  @generated_files ["sitemap.xml" | @expected_files]
 
   describe "generate/0" do
     setup do
       on_exit(fn ->
-        @expected_files
+        @generated_files
         |> Enum.each(&delete_object(@bucket, &1))
       end)
     end

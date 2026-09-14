@@ -50,20 +50,34 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
              accession_number: [%{error: "can't be blank", value: ""}],
              administrative_metadata: %{
                preservation_level: [
-                 %{error: "is an invalid coded term for scheme PRESERVATION_LEVEL", value: ~s'"nope"'}
+                 %{
+                   error: "is an invalid coded term for scheme PRESERVATION_LEVEL",
+                   value: ~s'"nope"'
+                 }
                ]
              },
              descriptive_metadata: %{
                contributor: [
                  %{
-                   term: [%{error: "is an unknown identifier", value: ~s'"missing_id_authority:123"'}],
+                   term: [
+                     %{error: "is an unknown identifier", value: ~s'"missing_id_authority:123"'}
+                   ],
                    role: [
-                     %{error: "is an invalid coded term for scheme MARC_RELATOR", value: ~s'"nop"'}
+                     %{
+                       error: "is an invalid coded term for scheme MARC_RELATOR",
+                       value: ~s'"nop"'
+                     }
                    ]
                  }
                ],
-               date_created: [%{error: "is invalid", value: ~s'["1899", "bad_date"]'}],
-               genre: [%{term: [%{error: "is from an unknown authority", value: ~s'"wrong"'}]}, %{}],
+               date_created: [
+                 %{},
+                 %{edtf: [%{error: "is not a valid EDTF date", value: ~s'"bad_date"'}]}
+               ],
+               genre: [
+                 %{term: [%{error: "is from an unknown authority", value: ~s'"wrong"'}]},
+                 %{}
+               ],
                subject: [
                  %{
                    role: [
@@ -76,15 +90,10 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
                ]
              }
            }
-
-    # NOTE: The test for date_created not the desired behavior. Each entry in the
-    # array should validate separately the way embeds_many fields do. THe correct
-    # expected value would be":
-    # date_created: [%{}, %{edtf: %{error: "is invalid", value: "bad_date"}}]
   end
 
-  def assert_all_equal(a, b) when is_list(a), do: assert MapSet.new(a) == MapSet.new(b)
-  def assert_all_equal(a, b), do: assert a == b
+  def assert_all_equal(a, b) when is_list(a), do: assert(MapSet.new(a) == MapSet.new(b))
+  def assert_all_equal(a, b), do: assert(a == b)
 
   test "formats errors for human readability", %{changeset: changeset} do
     fields_to_flatten = [:administrative_metadata, :descriptive_metadata]
@@ -97,7 +106,7 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
         ~s'"nop" is an invalid coded term for scheme MARC_RELATOR',
         ~s'"missing_id_authority:123" is an unknown identifier'
       ],
-      "date_created" => ~s'["1899", "bad_date"] is invalid',
+      "date_created#2" => [~s'"bad_date" is not a valid EDTF date'],
       "genre#1" => [~s'"wrong" is from an unknown authority'],
       "preservation_level" => ~s'"nope" is an invalid coded term for scheme PRESERVATION_LEVEL',
       "subject" => [~s'"wrong_coded_term_id" is an invalid coded term for scheme SUBJECT_ROLE']
@@ -112,11 +121,6 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
     for {k, _} <- expected do
       assert Map.has_key?(actual, k)
     end
-
-    # NOTE: The test for date_created not the desired behavior. Each entry in the
-    # array should validate separately the way embeds_many fields do. THe correct
-    # expected value would be":
-    # "date_created#2" => "bad_date is invalid"
   end
 
   test "ignores nils" do
