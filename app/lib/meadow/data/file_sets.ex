@@ -11,7 +11,7 @@ defmodule Meadow.Data.FileSets do
   alias Meadow.AI.Provenance
   alias Meadow.AWS.S3
   alias Meadow.Config
-  alias Meadow.Data.{Transcriber, Works}
+  alias Meadow.Data.Transcriber
   alias Meadow.Data.Schemas.{FileSet, FileSetAnnotation}
   alias Meadow.Notification
   alias Meadow.Pipeline.Actions.GeneratePosterImage
@@ -634,7 +634,6 @@ defmodule Meadow.Data.FileSets do
       # The transcription itself is already saved; recording its audit trail is
       # best-effort and must not undo the generated content.
       record_completed_transcription_provenance_best_effort(updated_annotation, transcription)
-      add_transcription_note(annotation)
     end
 
     result
@@ -737,42 +736,6 @@ defmodule Meadow.Data.FileSets do
 
         if not is_nil(work_id),
           do: Notification.publish(annotation, work_file_set_annotation: work_id)
-
-      _ ->
-        :ok
-    end
-  end
-
-  defp add_transcription_note(%{file_set_id: file_set_id, model: model}) do
-    case Repo.get(FileSet, file_set_id) |> Repo.preload(:work) do
-      %FileSet{work: work, core_metadata: %{label: label}} when not is_nil(work) ->
-        today = Date.utc_today() |> Date.to_iso8601()
-
-        note_text =
-          case model do
-            nil -> "Transcription generated for #{label} by AI on #{today}"
-            model_id -> "Transcription generated for #{label} by AI (#{model_id}) on #{today}"
-          end
-
-        new_note = %{
-          note: note_text,
-          type: %{id: "LOCAL_NOTE", scheme: "note_type", label: "Local Note"}
-        }
-
-        existing_notes =
-          (get_in(work, [Access.key(:descriptive_metadata), Access.key(:notes)]) || [])
-          |> Enum.map(fn
-            %_{} = struct -> Map.from_struct(struct)
-            map when is_map(map) -> map
-          end)
-
-        updated_metadata = %{
-          descriptive_metadata: %{
-            notes: existing_notes ++ [new_note]
-          }
-        }
-
-        Works.update_work(work, updated_metadata)
 
       _ ->
         :ok

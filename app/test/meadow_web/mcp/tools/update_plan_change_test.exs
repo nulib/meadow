@@ -52,7 +52,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
              ] = Provenance.work_summary(plan_change.work_id)
     end
 
-    test "injects an AI disclosure note into the plan change metadata", %{
+    test "does not inject an AI disclosure note into the plan change metadata", %{
       plan_change: plan_change
     } do
       params = %{
@@ -70,13 +70,10 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChangeTest do
 
       result = Jason.decode!(response)
 
-      assert [%{"note" => note_text, "type" => %{"id" => "LOCAL_NOTE"}}] =
-               get_in(result, ["add", "descriptive_metadata", "notes"])
+      refute get_in(result, ["add", "descriptive_metadata", "notes"])
+      refute get_in(result, ["replace", "descriptive_metadata", "notes"])
 
-      assert note_text =~ "Some metadata created with the assistance of AI"
-
-      # The disclosure note is persisted with the change (and applied to the
-      # work) but is not itself tracked as an AI-generated provenance target.
+      # Provenance is still recorded, independent of the (removed) note.
       assert [%{field_path: "descriptive_metadata.title"}] =
                Provenance.work_summary(plan_change.work_id)
     end
