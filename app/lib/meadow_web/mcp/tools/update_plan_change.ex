@@ -76,8 +76,8 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   alias Anubis.Server.Response
   alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment, Planner}
-  alias Meadow.Data.Schemas.{Work, WorkDescriptiveMetadata}
-  alias Meadow.Data.Types
+  alias Meadow.Data.Schemas.{DateCreatedEntry, WorkDescriptiveMetadata}
+  alias Meadow.Data.Works
   alias Meadow.Repo
   require Logger
 
@@ -209,7 +209,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
   # as the activity's source. A missing work just skips the source rather than
   # failing the change.
   defp record_work_source(activity, work_id) do
-    case Repo.get(Work, work_id) do
+    case Works.get_work(work_id) do
       nil -> :ok
       work -> Provenance.add_source(activity, Provenance.work_source_attrs(work))
     end
@@ -230,7 +230,7 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
       # existing content is recorded as modifying human content rather than
       # attributing that content to the AI.
       prior_values =
-        case Repo.get(Work, change.work_id) do
+        case Works.get_work(change.work_id) do
           nil -> %{}
           work -> Provenance.prior_values_for_operations(work, attrs)
         end
@@ -1125,32 +1125,34 @@ defmodule MeadowWeb.MCP.Tools.UpdatePlanChange do
     ]
   end
 
-  defp editable_descriptive_schema_fields, do: WorkDescriptiveMetadata.permitted()
-  defp editable_descriptive_embed_fields, do: WorkDescriptiveMetadata.__schema__(:embeds)
+  defp editable_descriptive_schema_fields,
+    do:
+      WorkDescriptiveMetadata.permitted() ++
+        WorkDescriptiveMetadata.__metadata__(:fields, :values)
 
-  defp controlled_fields, do: editable_descriptive_embed_fields() -- nested_coded_fields()
+  defp editable_descriptive_embed_fields,
+    do:
+      WorkDescriptiveMetadata.__metadata__(:fields, :controlled) ++
+        WorkDescriptiveMetadata.__metadata__(:fields, :entries)
 
-  defp coded_fields do
-    editable_descriptive_schema_fields()
-    |> Enum.filter(&(WorkDescriptiveMetadata.__schema__(:type, &1) == Types.CodedTerm))
-  end
+  defp controlled_fields, do: WorkDescriptiveMetadata.__metadata__(:fields, :controlled)
+
+  defp coded_fields, do: WorkDescriptiveMetadata.__metadata__(:fields, :coded)
 
   defp replace_only_fields do
     coded_fields() ++ single_value_string_fields()
   end
 
-  defp single_value_string_fields do
-    editable_descriptive_schema_fields()
-    |> Enum.filter(&(WorkDescriptiveMetadata.__schema__(:type, &1) == :string))
-  end
+  defp single_value_string_fields, do: WorkDescriptiveMetadata.__metadata__(:fields, :string)
 
-  defp date_fields do
-    editable_descriptive_schema_fields()
-    |> Enum.filter(&(WorkDescriptiveMetadata.__schema__(:type, &1) == {:array, Types.EDTFDate}))
-  end
+  defp date_fields,
+    do: WorkDescriptiveMetadata.__metadata__(:fields, {:entries, DateCreatedEntry})
 
   defp role_required_fields do
-    ~w(subject contributor)a
+    Enum.filter(
+      controlled_fields(),
+      &WorkDescriptiveMetadata.__metadata__(:options, &1)[:role_required]
+    )
   end
 
   defp nested_coded_fields do

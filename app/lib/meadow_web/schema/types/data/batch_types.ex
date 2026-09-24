@@ -4,6 +4,8 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
 
   """
   use Absinthe.Schema.Notation
+  import MeadowWeb.Schema.MetadataFields
+  alias Meadow.Data.Schemas.{WorkAdministrativeMetadata, WorkDescriptiveMetadata}
   alias MeadowWeb.Resolvers.Data.Batches
   alias MeadowWeb.Schema.Middleware
 
@@ -103,57 +105,27 @@ defmodule MeadowWeb.Schema.Data.BatchTypes do
 
   @desc "Input fields available for batch replace operations on works descriptive metadata"
   input_object :batch_replace_descriptive_metadata_input do
-    field(:license, :coded_term_input)
-    field(:rights_statement, :coded_term_input)
-    field(:terms_of_use, :string)
-    field(:title, :string)
+    metadata_fields(WorkDescriptiveMetadata, :coded, :coded_term_input)
+    metadata_fields(WorkDescriptiveMetadata, :string, :string)
     import_fields(:batch_editable_multi_valued_descriptive_metadata_input)
   end
 
   @desc "Input fields available for batch replace operations on works administrative metadata"
   input_object :batch_replace_administrative_metadata_input do
-    field(:library_unit, :coded_term_input)
-    field(:preservation_level, :coded_term_input)
-    field(:status, :coded_term_input)
-    field(:project_cycle, :string)
+    metadata_fields(WorkAdministrativeMetadata, :coded, :coded_term_input)
+    metadata_fields(WorkAdministrativeMetadata, :string, :string)
     import_fields(:batch_editable_multi_valued_administrative_metadata_input)
   end
 
   input_object :batch_editable_multi_valued_descriptive_metadata_input do
-    field(:abstract, list_of(:string))
-    field(:alternate_title, list_of(:string))
-    field(:box_name, list_of(:string))
-    field(:box_number, list_of(:string))
-    field(:caption, list_of(:string))
-    field(:catalog_key, list_of(:string))
-    field(:cultural_context, list_of(:string))
+    metadata_fields(WorkDescriptiveMetadata, :values, list_of(:string), except: [:citation])
     field(:date_created, list_of(:edtf_date_input))
-    field(:description, list_of(:string))
-    field(:folder_name, list_of(:string))
-    field(:folder_number, list_of(:string))
-    field(:identifier, list_of(:string))
-    field(:keywords, list_of(:string))
-    field(:legacy_identifier, list_of(:string))
     field(:notes, list_of(:note_entry_input))
-    field(:physical_description_material, list_of(:string))
-    field(:physical_description_size, list_of(:string))
-    field(:provenance, list_of(:string))
-    field(:publisher, list_of(:string))
-    field(:related_material, list_of(:string))
     field(:related_url, list_of(:related_url_entry_input))
-    field(:rights_holder, list_of(:string))
-    field(:scope_and_contents, list_of(:string))
-    field(:series, list_of(:string))
-    field(:source, list_of(:string))
-    field(:table_of_contents, list_of(:string))
   end
 
   input_object :batch_editable_multi_valued_administrative_metadata_input do
-    field(:project_name, list_of(:string))
-    field(:project_desc, list_of(:string))
-    field(:project_proposer, list_of(:string))
-    field(:project_manager, list_of(:string))
-    field(:project_task_number, list_of(:string))
+    metadata_fields(WorkAdministrativeMetadata, :values, list_of(:string))
   end
 
   @desc "Batch status values"

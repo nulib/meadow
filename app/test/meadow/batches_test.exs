@@ -1,8 +1,8 @@
 defmodule Meadow.BatchesTest do
   use Meadow.DataCase
+  alias Meadow.Data.Schemas.MetadataValue
   use Meadow.IndexCase
 
-  alias Ecto.Adapters.SQL
   alias Meadow.Batches
   alias Meadow.Data.{Indexer, Works}
   alias Meadow.Data.Schemas.Work
@@ -205,10 +205,18 @@ defmodule Meadow.BatchesTest do
       Works.list_works()
       |> Enum.each(fn work ->
         assert work.descriptive_metadata.alternate_title |> length() == 2
-        assert work.descriptive_metadata.box_name == ["Michael Jordan", "His Airness"]
-        assert work.descriptive_metadata.box_number == []
 
-        assert work.descriptive_metadata.date_created == [
+        assert MetadataValue.values(work.descriptive_metadata.box_name) == [
+                 "Michael Jordan",
+                 "His Airness"
+               ]
+
+        assert MetadataValue.values(work.descriptive_metadata.box_number) == []
+
+        assert Enum.map(
+                 work.descriptive_metadata.date_created,
+                 &Map.take(&1, [:edtf, :humanized])
+               ) == [
                  %{edtf: "1009", humanized: "1009"},
                  %{edtf: "100X", humanized: "1000s"},
                  %{edtf: "1968%", humanized: "circa 1968?"}
@@ -239,17 +247,21 @@ defmodule Meadow.BatchesTest do
 
       assert {:ok, batch} = Batches.create_batch(attrs)
 
-      Repo
-      |> SQL.query!(
-        "UPDATE works SET descriptive_metadata = descriptive_metadata - 'cultural_context'"
-      )
-
+      # None of the fixture works has any cultural_context rows yet, which is the
+      # relational equivalent of the field missing from the old jsonb map
       assert({:ok, _result} = Batches.process_batch(batch))
 
       Works.list_works()
       |> Enum.each(fn work ->
-        assert work.descriptive_metadata.cultural_context == ["Some Context", "Some More Context"]
-        assert work.descriptive_metadata.box_name == ["Michael Jordan", "His Airness"]
+        assert MetadataValue.values(work.descriptive_metadata.cultural_context) == [
+                 "Some Context",
+                 "Some More Context"
+               ]
+
+        assert MetadataValue.values(work.descriptive_metadata.box_name) == [
+                 "Michael Jordan",
+                 "His Airness"
+               ]
       end)
     end
 

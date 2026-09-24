@@ -3,7 +3,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { GET_WORK, UPDATE_WORK } from "@js/components/Work/work.gql.js";
 
 import { IconEdit } from "@js/components/Icon";
-import { PROJECT_METADATA } from "@js/services/metadata";
+import { PROJECT_METADATA, metadataValueText } from "@js/services/metadata";
 import PropTypes from "prop-types";
 import React from "react";
 import UIFormField from "@js/components/UI/Form/Field";
@@ -46,14 +46,16 @@ const WorkTabsAdministrative = ({ work }) => {
       awaitRefetchQueries: true,
     });
 
-  const {
-    projectCycle,
-    projectDesc,
-    projectManager,
-    projectName,
-    projectProposer,
-    projectTaskNumber,
-  } = administrativeMetadata;
+  const { projectCycle } = administrativeMetadata;
+
+  // Repeating project fields arrive as { id, value } rows; this tab edits and
+  // displays them as single text values
+  const texts = (values = []) => values.map(metadataValueText);
+  const projectDesc = texts(administrativeMetadata.projectDesc);
+  const projectManager = texts(administrativeMetadata.projectManager);
+  const projectName = texts(administrativeMetadata.projectName);
+  const projectProposer = texts(administrativeMetadata.projectProposer);
+  const projectTaskNumber = texts(administrativeMetadata.projectTaskNumber);
 
   const onSubmit = (data) => {
     const currentFormValues = methods.getValues();
@@ -82,9 +84,10 @@ const WorkTabsAdministrative = ({ work }) => {
     };
 
     for (let term of PROJECT_METADATA) {
-      workUpdateInput.administrativeMetadata[term.name] = [
-        currentFormValues[term.name],
-      ];
+      const value = currentFormValues[term.name];
+      workUpdateInput.administrativeMetadata[term.name] = value
+        ? [{ value }]
+        : [];
     }
 
     updateWork({

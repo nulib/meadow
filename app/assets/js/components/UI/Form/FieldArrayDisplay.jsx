@@ -6,6 +6,7 @@ import {
   OriginBadge,
 } from "@js/components/AIProvenance/Badges";
 import { ItemAttestation } from "@js/components/AIProvenance/ItemAttestationControl";
+import { metadataValueText } from "@js/services/metadata";
 
 const UIFormFieldArrayDisplay = ({
   isFacetLink,
@@ -38,10 +39,13 @@ const UIFormFieldArrayDisplay = ({
           <strong>{label}</strong>
         </p>
         <ul data-testid="field-array-item-list">
-          {values.map((value, i) => {
+          {values.map((rawValue, i) => {
+            // Work metadata values arrive as { id, value } rows; provenance
+            // (and facet links) are keyed by the text
+            const value = metadataValueText(rawValue);
             const origin = originByValue[value];
             return (
-              <li key={i}>
+              <li key={rawValue?.id || i}>
                 {isFacetLink ? (
                   <a
                     onClick={() =>

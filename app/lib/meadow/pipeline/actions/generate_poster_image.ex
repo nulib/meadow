@@ -15,11 +15,21 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
 
   def already_complete?(_, _), do: false
 
-  def process(
-        %FileSet{poster_offset: poster_offset, derivatives: %{"playlist" => location}} = file_set,
-        _
-      )
-      when is_binary(location) and is_integer(poster_offset) do
+  def process(%FileSet{poster_offset: poster_offset} = file_set, attributes)
+      when is_integer(poster_offset) do
+    case FileSets.derivative(file_set, "playlist") do
+      location when is_binary(location) -> generate(file_set, location, poster_offset)
+      _ -> process(%{file_set | poster_offset: nil}, attributes)
+    end
+  end
+
+  def process(%FileSet{} = file_set, _) do
+    Logger.error("FileSet #{file_set.id} has no value for playlist or poster_offset")
+
+    {:error, "FileSet #{file_set.id} has no value for playlist or poster_offset"}
+  end
+
+  defp generate(file_set, location, poster_offset) do
     Logger.info(
       "Generating poster image for FileSet #{file_set.id}, with playlist: #{location} and offset: #{poster_offset}"
     )
@@ -35,12 +45,6 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImage do
       generate_poster(location, destination, poster_offset)
       |> handle_generate_poster_result(file_set, destination)
     end
-  end
-
-  def process(%FileSet{} = file_set, _) do
-    Logger.error("FileSet #{file_set.id} has no value for playlist or poster_offset")
-
-    {:error, "FileSet #{file_set.id} has no value for playlist or poster_offset"}
   end
 
   defp handle_generate_poster_result({:ok, destination}, file_set, _original_destination) do

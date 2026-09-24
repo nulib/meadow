@@ -107,9 +107,9 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
       assert(ActionStates.ok?(file_set_id, ExtractExifMetadata))
 
       file_set = FileSets.get_file_set!(file_set_id)
-      assert file_set.extracted_metadata |> is_map()
+      assert FileSets.extracted_metadata_map(file_set) |> is_map()
 
-      with subject <- file_set.extracted_metadata |> Map.get("exif") do
+      with subject <- FileSets.extracted_metadata_map(file_set) |> Map.get("exif") do
         assert Map.get(subject, "tool") == @tool_name
         assert Map.get(subject, "tool_version")
         assert_maps_equal(Map.get(subject, "value"), @exif, @keys)
@@ -128,7 +128,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
 
       file_set = FileSets.get_file_set!(file_set_id)
 
-      case file_set.extracted_metadata do
+      case FileSets.extracted_metadata_map(file_set) do
         nil ->
           assert true
 
@@ -220,11 +220,13 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
 
     test "key collision", %{exif_file_set_id: file_set_id} do
       with file_set <- FileSets.get_file_set!(file_set_id) do
-        extracted_metadata = put_in(file_set.extracted_metadata, ["exif", "value"], "bogus")
+        extracted_metadata =
+          put_in(FileSets.extracted_metadata_map(file_set), ["exif", "value"], "bogus")
+
         FileSets.update_file_set(file_set, %{extracted_metadata: extracted_metadata})
       end
 
-      with %{extracted_metadata: subject} <- FileSets.get_file_set!(file_set_id) do
+      with subject <- FileSets.get_file_set!(file_set_id) |> FileSets.extracted_metadata_map() do
         assert get_in(subject, ["exif", "value"]) == "bogus"
       end
 
@@ -232,7 +234,7 @@ defmodule Meadow.Pipeline.Actions.ExtractExifMetadataTest do
                send_test_message(ExtractExifMetadata, %{file_set_id: file_set_id}, %{})
 
       FileSets.get_file_set!(file_set_id)
-      |> Map.get(:extracted_metadata)
+      |> FileSets.extracted_metadata_map()
       |> get_in(["exif", "value"])
       |> assert_maps_equal(@exif, @keys)
     end
