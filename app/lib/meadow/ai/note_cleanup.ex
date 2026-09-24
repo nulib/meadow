@@ -70,7 +70,7 @@ defmodule Meadow.AI.NoteCleanup do
       SELECT n->>'note' AS note_text, n->'type'->>'id' AS type_id, count(*) AS occurrences
       FROM works w, jsonb_array_elements(w.descriptive_metadata->'notes') n
       WHERE jsonb_typeof(w.descriptive_metadata->'notes') = 'array'
-        AND n->>'note' ILIKE '%AI%'
+        AND n->>'note' ~* '\\yAI\\y'
       GROUP BY 1, 2
       ORDER BY 3 DESC
       """)
