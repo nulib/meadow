@@ -34,5 +34,9 @@
   {
     "id": "PRITZKER_LEGAL_RESEARCH_CENTER",
     "label": "Pritzker Legal Research Center"
+  },
+  {
+    "id": "GALTER_HEALTH_SCIENCES_LIBRARY",
+    "label": "Galter Health Sciences Library"
   }
 ]
