@@ -66,7 +66,7 @@ defmodule Meadow.MixProject do
       {:aws_signature, "~> 0.4"},
       {:briefly, "~> 0.5"},
       {:broadway_dashboard, "~> 0.4"},
-      {:broadway_sqs, "~> 0.7"},
+      {:broadway_sqs, "~> 1.0"},
       {:cachex, "~> 4.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dataloader, "~> 2.0"},
