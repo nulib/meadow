@@ -169,6 +169,114 @@ defmodule Meadow.BatchesTest do
       assert is_nil(batch.works_updated)
     end
 
+    test "process_batch/1 append preserves existing item ids and mints ids for added values", %{
+      works: works
+    } do
+      # The batch path writes jsonb directly (no changeset), so this guards the
+      # invariant per-item provenance depends on: an untouched item keeps its id
+      # through a batch append, and appended values arrive already identified.
+      original_ids =
+        Map.new(works, fn work ->
+          {work.id, Enum.map(work.descriptive_metadata.box_name, & &1.id)}
+        end)
+
+      attrs = %{
+        query: ~s'{"query":{"match_all":{}}}',
+        type: "update",
+        user: "user123",
+        add: Jason.encode!(%{descriptive_metadata: %{box_name: ["His Airness"]}}),
+        replace: Jason.encode!(%{})
+      }
+
+      {:ok, batch} = Batches.create_batch(attrs)
+      assert {:ok, _result} = Batches.process_batch(batch)
+
+      Enum.each(works, fn work ->
+        updated = Works.get_work!(work.id)
+        [kept, added] = updated.descriptive_metadata.box_name
+
+        assert kept.value == "Michael Jordan"
+        assert [kept.id] == Map.fetch!(original_ids, work.id)
+
+        assert added.value == "His Airness"
+        assert {:ok, _} = Ecto.UUID.cast(added.id)
+      end)
+
+      added_ids =
+        Enum.map(works, fn work ->
+          [_kept, added] = Works.get_work!(work.id).descriptive_metadata.box_name
+          added.id
+        end)
+
+      assert length(Enum.uniq(added_ids)) == length(works)
+    end
+
+    test "process_batch/1 replace preserves each work's ids for unchanged items", %{
+      works: works
+    } do
+      # Every work has box_name ["Michael Jordan"], each with its own stable id.
+      # Replacing the field with ["Michael Jordan", "His Airness"] must keep each
+      # work's *own* id for the unchanged value — per-work rehydration, not one
+      # shared minting for the whole batch — and mint fresh ids for the new value.
+      original_ids =
+        Map.new(works, fn work ->
+          {work.id, work.descriptive_metadata.box_name |> List.first() |> Map.get(:id)}
+        end)
+
+      attrs = %{
+        query: ~s'{"query":{"match_all":{}}}',
+        type: "update",
+        user: "user123",
+        add: Jason.encode!(%{}),
+        replace:
+          Jason.encode!(%{
+            descriptive_metadata: %{box_name: ["Michael Jordan", "His Airness"]}
+          })
+      }
+
+      {:ok, batch} = Batches.create_batch(attrs)
+      assert {:ok, _result} = Batches.process_batch(batch)
+
+      Enum.each(works, fn work ->
+        [kept, added] = Works.get_work!(work.id).descriptive_metadata.box_name
+
+        assert kept.value == "Michael Jordan"
+        assert kept.id == Map.fetch!(original_ids, work.id)
+
+        assert added.value == "His Airness"
+        assert {:ok, _} = Ecto.UUID.cast(added.id)
+      end)
+    end
+
+    test "create_batch/1 rejects a supplied item id before selecting destination works", %{
+      works: works
+    } do
+      [source | _] = works
+      [source_item] = source.descriptive_metadata.box_name
+
+      attrs = %{
+        query: ~s'{"query":{"match_all":{}}}',
+        type: "update",
+        user: "user123",
+        add: Jason.encode!(%{}),
+        replace:
+          Jason.encode!(%{
+            descriptive_metadata: %{
+              box_name: [%{id: source_item.id, value: "Copied identity"}]
+            }
+          })
+      }
+
+      assert {:error, changeset} = Batches.create_batch(attrs)
+      assert {message, _opts} = changeset.errors[:replace]
+      assert message =~ "does not belong to this field"
+
+      Enum.each(works, fn work ->
+        assert [%{value: "Michael Jordan"}] =
+                 Works.get_work!(work.id).descriptive_metadata.box_name
+      end)
+    end
+
     test "process_batch/1 handles uncontrolled fields" do
       query = ~s'{"query":{"match_all":{}}}'
       type = "update"
@@ -205,7 +313,10 @@ defmodule Meadow.BatchesTest do
       Works.list_works()
       |> Enum.each(fn work ->
         assert work.descriptive_metadata.alternate_title |> length() == 2
-        assert work.descriptive_metadata.box_name == ["Michael Jordan", "His Airness"]
+
+        assert Enum.map(work.descriptive_metadata.box_name, & &1.value) ==
+                 ["Michael Jordan", "His Airness"]
+
         assert work.descriptive_metadata.box_number == []
 
         assert work.descriptive_metadata.date_created == [
@@ -248,8 +359,11 @@ defmodule Meadow.BatchesTest do
 
       Works.list_works()
       |> Enum.each(fn work ->
-        assert work.descriptive_metadata.cultural_context == ["Some Context", "Some More Context"]
-        assert work.descriptive_metadata.box_name == ["Michael Jordan", "His Airness"]
+        assert Enum.map(work.descriptive_metadata.cultural_context, & &1.value) ==
+                 ["Some Context", "Some More Context"]
+
+        assert Enum.map(work.descriptive_metadata.box_name, & &1.value) ==
+                 ["Michael Jordan", "His Airness"]
       end)
     end
 

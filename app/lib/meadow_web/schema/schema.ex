@@ -6,6 +6,7 @@ defmodule MeadowWeb.Schema do
   use Absinthe.Schema
   import_types(Absinthe.Type.Custom)
   import_types(MeadowWeb.Schema.Types.Json)
+  import_types(MeadowWeb.Schema.Types.ValueEntryScalar)
 
   alias Meadow.{Data, Ingest, Repo}
   alias Meadow.Data.Schemas.FileSet

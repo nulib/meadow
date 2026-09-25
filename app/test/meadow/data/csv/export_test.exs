@@ -4,9 +4,13 @@ defmodule Meadow.Data.CSV.ExportTest do
 
   alias Meadow.Arks
   alias Meadow.Data.{CSV.Export, Indexer, Works}
+  alias Meadow.Data.Schemas.{ValueEntry, WorkDescriptiveMetadata}
   alias NimbleCSV.RFC4180, as: CSV
 
   import Assertions
+  import Meadow.Data.CSV.Utils, only: [split_multivalued_field: 1]
+
+  @value_entry_fields WorkDescriptiveMetadata.value_entry_fields()
 
   @query %{query: %{match_all: %{}}}
   @sample_record exs_fixture("test/fixtures/csv/export_fixture_31.exs")
@@ -53,10 +57,27 @@ defmodule Meadow.Data.CSV.ExportTest do
     assert Enum.member?(header, "ark")
     assert Map.get(sample_record, "ark") |> String.starts_with?("ark:/")
 
+    sample_work =
+      Enum.find(Works.list_works(), &(&1.accession_number == @sample_record[:accession_number]))
+
     @sample_record
     |> Enum.each(fn {field, expected_value} ->
       assert Enum.member?(header, to_string(field))
-      assert Map.get(sample_record, to_string(field)) == expected_value
+      actual = Map.get(sample_record, to_string(field))
+
+      if field in @value_entry_fields do
+        # Identified free-text cells export each item as `id:value`: the values
+        # are the fixture's, and each id is the stable id of the work's own
+        # entry (pulled from the database, not the flattened search index).
+        items = actual |> split_multivalued_field() |> Enum.map(&ValueEntry.from_string/1)
+
+        assert Enum.map(items, & &1.value) == split_multivalued_field(expected_value)
+
+        assert Enum.map(items, & &1.id) ==
+                 sample_work.descriptive_metadata |> Map.fetch!(field) |> Enum.map(& &1.id)
+      else
+        assert actual == expected_value
+      end
     end)
   end
 end

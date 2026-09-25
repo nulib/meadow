@@ -64,6 +64,16 @@ const UIFormRelatedURL = ({
                       {item.url}
                       {item.label && `, ${item.label.label}`}
                     </p>
+                    {/* Round-trip the entry's stable id so editing preserves its
+                        identity instead of replacing it. */}
+                    {item.id && (
+                      <input
+                        type="hidden"
+                        name={`${itemName}.id`}
+                        {...register(`${itemName}.id`)}
+                        value={item.id}
+                      />
+                    )}
                     <input
                       type="hidden"
                       name={`${itemName}.url`}

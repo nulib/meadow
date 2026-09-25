@@ -36,6 +36,7 @@ defmodule MeadowWeb.MCP.Tools.GetPlanChanges do
   alias Anubis.MCP.Error, as: MCPError
   alias Anubis.Server.Response
   alias Meadow.Data.Planner
+  alias Meadow.Data.Schemas.WorkDescriptiveMetadata
   alias Meadow.Repo
   require Logger
 
@@ -64,7 +65,8 @@ defmodule MeadowWeb.MCP.Tools.GetPlanChanges do
 
     case Planner.get_plan(plan_id) do
       nil ->
-        {:error, MCPError.protocol(:invalid_params, %{error: "Plan not found", plan_id: plan_id}), frame}
+        {:error, MCPError.protocol(:invalid_params, %{error: "Plan not found", plan_id: plan_id}),
+         frame}
 
       _plan ->
         changes =
@@ -90,9 +92,9 @@ defmodule MeadowWeb.MCP.Tools.GetPlanChanges do
       id: change.id,
       plan_id: change.plan_id,
       work_id: change.work_id,
-      add: change.add,
-      delete: change.delete,
-      replace: change.replace,
+      add: flatten_operation(change.add),
+      delete: flatten_operation(change.delete),
+      replace: flatten_operation(change.replace),
       status: change.status,
       user: change.user,
       notes: change.notes,
@@ -103,6 +105,22 @@ defmodule MeadowWeb.MCP.Tools.GetPlanChanges do
       plan: serialize_plan(change.plan)
     }
   end
+
+  # Echo the plan operations to the agent with repeating free-text fields as bare
+  # strings, so it never sees (or re-proposes) the internal ValueEntry ids and
+  # doesn't mistake them for controlled terms.
+  defp flatten_operation(op) when is_map(op) do
+    Map.new(op, fn
+      {key, value}
+      when key in ["descriptive_metadata", :descriptive_metadata] and is_map(value) ->
+        {key, WorkDescriptiveMetadata.flatten_value_entries_map(value)}
+
+      pair ->
+        pair
+    end)
+  end
+
+  defp flatten_operation(op), do: op
 
   defp serialize_plan(plan) do
     %{

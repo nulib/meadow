@@ -105,6 +105,10 @@ defmodule MeadowWeb.Resolvers.Data.Plans do
   end
 
   defp do_update_plan_change(plan_change, attrs, user) do
+    # Normalize once up front so provenance and persistence key on the same item
+    # ids (a reviewer's edit preserves each item's id; the changeset boundary
+    # would otherwise only normalize at persistence, after provenance is recorded).
+    attrs = Planner.normalize_value_entry_operations(attrs)
     Provenance.record_plan_manual_edit(plan_change, attrs, user.username)
 
     case Planner.update_plan_change(plan_change, attrs) do

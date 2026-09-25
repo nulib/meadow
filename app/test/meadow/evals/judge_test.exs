@@ -64,6 +64,29 @@ defmodule Meadow.Evals.JudgeTest do
     end
   end
 
+  describe "extract_description/1" do
+    test "joins bare-string descriptions" do
+      assert Judge.extract_description(%{"description" => ["One", "Two"]}) == "One Two"
+      assert Judge.extract_description(%{description: ["One"]}) == "One"
+    end
+
+    test "tolerates identified {id, value} items alongside bare strings" do
+      ground_truth = %{
+        "description" => [
+          %{"id" => Ecto.UUID.generate(), "value" => "Stamped"},
+          "Bare"
+        ]
+      }
+
+      assert Judge.extract_description(ground_truth) == "Stamped Bare"
+    end
+
+    test "returns an empty string for missing or non-map input" do
+      assert Judge.extract_description(%{}) == ""
+      assert Judge.extract_description(nil) == ""
+    end
+  end
+
   describe "extract_scores/1" do
     test "maps tool input onto trial judge fields" do
       input = %{

@@ -354,6 +354,7 @@ export type IngestSheetStatus =
 
 /** Note input */
 export type NoteEntryInput = {
+  id?: string | number | null | undefined;
   note?: string | null | undefined;
   type?: CodedTermInput | null | undefined;
 };
@@ -375,6 +376,7 @@ export type PlanStatus =
 
 /** Related URL input */
 export type RelatedUrlEntryInput = {
+  id?: string | number | null | undefined;
   label?: CodedTermInput | null | undefined;
   url?: string | null | undefined;
 };
@@ -411,6 +413,18 @@ export type UserRole =
   | "SUPERUSER"
   /** user */
   | "USER";
+
+/**
+ * Identified free-text metadata value for input. Echo `id` back to preserve an
+ * item's identity (and its per-item provenance) across an edit; omit `id` for a
+ * new value and the server mints one. The matching output type is the
+ * `ValueEntry` scalar — a scalar can't accept object input in GraphQL, so input
+ * uses this dedicated input object.
+ */
+export type ValueEntryInput = {
+  id?: string | number | null | undefined;
+  value: string;
+};
 
 /** Input fields for works administrative metadata */
 export type WorkAdministrativeMetadataInput = {
@@ -449,12 +463,12 @@ export type WorkAttributesInput = {
 
 /** Input fields for works descriptive metadata */
 export type WorkDescriptiveMetadataInput = {
-  abstract?: Array<string | null | undefined> | null | undefined;
-  alternateTitle?: Array<string | null | undefined> | null | undefined;
-  boxName?: Array<string | null | undefined> | null | undefined;
-  boxNumber?: Array<string | null | undefined> | null | undefined;
-  caption?: Array<string | null | undefined> | null | undefined;
-  catalogKey?: Array<string | null | undefined> | null | undefined;
+  abstract?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  alternateTitle?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  boxName?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  boxNumber?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  caption?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  catalogKey?: Array<ValueEntryInput | null | undefined> | null | undefined;
   contributor?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
@@ -463,22 +477,28 @@ export type WorkDescriptiveMetadataInput = {
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
     | undefined;
-  culturalContext?: Array<string | null | undefined> | null | undefined;
+  culturalContext?:
+    | Array<ValueEntryInput | null | undefined>
+    | null
+    | undefined;
   dateCreated?: Array<EdtfDateInput | null | undefined> | null | undefined;
-  description?: Array<string | null | undefined> | null | undefined;
-  folderName?: Array<string | null | undefined> | null | undefined;
-  folderNumber?: Array<string | null | undefined> | null | undefined;
+  description?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  folderName?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  folderNumber?: Array<ValueEntryInput | null | undefined> | null | undefined;
   genre?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
     | undefined;
-  identifier?: Array<string | null | undefined> | null | undefined;
-  keywords?: Array<string | null | undefined> | null | undefined;
+  identifier?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  keywords?: Array<ValueEntryInput | null | undefined> | null | undefined;
   language?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
     | undefined;
-  legacyIdentifier?: Array<string | null | undefined> | null | undefined;
+  legacyIdentifier?:
+    | Array<ValueEntryInput | null | undefined>
+    | null
+    | undefined;
   license?: CodedTermInput | null | undefined;
   location?:
     | Array<ControlledMetadataEntryInput | null | undefined>
@@ -487,21 +507,31 @@ export type WorkDescriptiveMetadataInput = {
   navPlace?: unknown;
   notes?: Array<NoteEntryInput | null | undefined> | null | undefined;
   physicalDescriptionMaterial?:
-    | Array<string | null | undefined>
+    | Array<ValueEntryInput | null | undefined>
     | null
     | undefined;
-  physicalDescriptionSize?: Array<string | null | undefined> | null | undefined;
-  provenance?: Array<string | null | undefined> | null | undefined;
-  relatedMaterial?: Array<string | null | undefined> | null | undefined;
+  physicalDescriptionSize?:
+    | Array<ValueEntryInput | null | undefined>
+    | null
+    | undefined;
+  provenance?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  publisher?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  relatedMaterial?:
+    | Array<ValueEntryInput | null | undefined>
+    | null
+    | undefined;
   relatedUrl?:
     | Array<RelatedUrlEntryInput | null | undefined>
     | null
     | undefined;
-  rightsHolder?: Array<string | null | undefined> | null | undefined;
+  rightsHolder?: Array<ValueEntryInput | null | undefined> | null | undefined;
   rightsStatement?: CodedTermInput | null | undefined;
-  scopeAndContents?: Array<string | null | undefined> | null | undefined;
-  series?: Array<string | null | undefined> | null | undefined;
-  source?: Array<string | null | undefined> | null | undefined;
+  scopeAndContents?:
+    | Array<ValueEntryInput | null | undefined>
+    | null
+    | undefined;
+  series?: Array<ValueEntryInput | null | undefined> | null | undefined;
+  source?: Array<ValueEntryInput | null | undefined> | null | undefined;
   stylePeriod?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
@@ -510,7 +540,10 @@ export type WorkDescriptiveMetadataInput = {
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
     | undefined;
-  tableOfContents?: Array<string | null | undefined> | null | undefined;
+  tableOfContents?:
+    | Array<ValueEntryInput | null | undefined>
+    | null
+    | undefined;
   technique?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
@@ -1490,7 +1523,7 @@ export type IngestSheetWorksQuery = {
     updatedAt: unknown;
     descriptiveMetadata: {
       title: string | null;
-      description: Array<string | null> | null;
+      description: Array<unknown> | null;
     } | null;
     fileSets: Array<{
       id: string;
@@ -2171,29 +2204,29 @@ export type WorkQueryQuery = {
     } | null;
     collection: { id: string | null; title: string | null } | null;
     descriptiveMetadata: {
-      abstract: Array<string | null> | null;
-      alternateTitle: Array<string | null> | null;
-      boxName: Array<string | null> | null;
-      boxNumber: Array<string | null> | null;
-      caption: Array<string | null> | null;
-      catalogKey: Array<string | null> | null;
-      culturalContext: Array<string | null> | null;
-      description: Array<string | null> | null;
-      folderName: Array<string | null> | null;
-      folderNumber: Array<string | null> | null;
-      identifier: Array<string | null> | null;
-      keywords: Array<string | null> | null;
-      legacyIdentifier: Array<string | null> | null;
-      physicalDescriptionMaterial: Array<string | null> | null;
-      physicalDescriptionSize: Array<string | null> | null;
-      provenance: Array<string | null> | null;
-      publisher: Array<string | null> | null;
-      relatedMaterial: Array<string | null> | null;
-      rightsHolder: Array<string | null> | null;
-      scopeAndContents: Array<string | null> | null;
-      series: Array<string | null> | null;
-      source: Array<string | null> | null;
-      tableOfContents: Array<string | null> | null;
+      abstract: Array<unknown> | null;
+      alternateTitle: Array<unknown> | null;
+      boxName: Array<unknown> | null;
+      boxNumber: Array<unknown> | null;
+      caption: Array<unknown> | null;
+      catalogKey: Array<unknown> | null;
+      culturalContext: Array<unknown> | null;
+      description: Array<unknown> | null;
+      folderName: Array<unknown> | null;
+      folderNumber: Array<unknown> | null;
+      identifier: Array<unknown> | null;
+      keywords: Array<unknown> | null;
+      legacyIdentifier: Array<unknown> | null;
+      physicalDescriptionMaterial: Array<unknown> | null;
+      physicalDescriptionSize: Array<unknown> | null;
+      provenance: Array<unknown> | null;
+      publisher: Array<unknown> | null;
+      relatedMaterial: Array<unknown> | null;
+      rightsHolder: Array<unknown> | null;
+      scopeAndContents: Array<unknown> | null;
+      series: Array<unknown> | null;
+      source: Array<unknown> | null;
+      tableOfContents: Array<unknown> | null;
       termsOfUse: string | null;
       title: string | null;
       contributor: Array<{
@@ -2222,6 +2255,7 @@ export type WorkQueryQuery = {
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
       notes: Array<{
+        id: string | null;
         note: string | null;
         type: {
           id: string | null;
@@ -2230,6 +2264,7 @@ export type WorkQueryQuery = {
         } | null;
       } | null> | null;
       relatedUrl: Array<{
+        id: string | null;
         url: string | null;
         label: {
           id: string | null;
@@ -2317,7 +2352,7 @@ export type WorksQueryQuery = {
     updatedAt: unknown;
     descriptiveMetadata: {
       title: string | null;
-      description: Array<string | null> | null;
+      description: Array<unknown> | null;
     } | null;
     fileSets: Array<{
       id: string;
@@ -2444,8 +2479,8 @@ export type UpdateWorkMutation = {
     } | null;
     collection: { title: string | null; id: string | null } | null;
     descriptiveMetadata: {
-      culturalContext: Array<string | null> | null;
-      description: Array<string | null> | null;
+      culturalContext: Array<unknown> | null;
+      description: Array<unknown> | null;
       title: string | null;
       termsOfUse: string | null;
       contributor: Array<{
@@ -10883,6 +10918,10 @@ export const WorkQueryDocument = {
                           selections: [
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "note" },
                             },
                             {
@@ -10937,6 +10976,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "url" },

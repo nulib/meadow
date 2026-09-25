@@ -100,8 +100,17 @@ const buildNormalizedItem = (path, item) => {
     };
   }
 
-  // Text arrays and generic items
-  const str = String(item ?? "");
+  // Text arrays and generic items. Repeating free-text items are `{ id, value }`
+  // objects on both sides of the diff; key and render on the value (the id is
+  // surfaced separately via `provenanceItemId` for the per-item origin badge).
+  // Keying on the value — not the id — is deliberate: a proposal's items are
+  // minted fresh ids at the plan boundary, so id equality can't pair a proposed
+  // item with the matching current item; value equality can. The trade-off is
+  // that duplicate values share one key and diff as a single item (set
+  // semantics) — a display nuance only, never wrong attribution.
+  const value =
+    item && typeof item === "object" && "value" in item ? item.value : item;
+  const str = String(value ?? "");
   return { key: str, display: str };
 };
 

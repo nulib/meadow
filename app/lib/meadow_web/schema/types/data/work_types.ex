@@ -230,40 +230,40 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
 
   @desc "`uncontrolled_descriptive_fields` represents all uncontrolled descriptive metadata fields."
   object :uncontrolled_descriptive_fields do
-    field(:abstract, list_of(:string))
-    field(:alternate_title, list_of(:string))
-    field(:box_name, list_of(:string))
-    field(:box_number, list_of(:string))
-    field(:caption, list_of(:string))
-    field(:catalog_key, list_of(:string))
-    field(:cultural_context, list_of(:string))
-    field(:description, list_of(:string))
-    field(:folder_name, list_of(:string))
-    field(:folder_number, list_of(:string))
-    field(:identifier, list_of(:string))
-    field(:keywords, list_of(:string))
-    field(:legacy_identifier, list_of(:string))
+    field(:abstract, list_of(:value_entry))
+    field(:alternate_title, list_of(:value_entry))
+    field(:box_name, list_of(:value_entry))
+    field(:box_number, list_of(:value_entry))
+    field(:caption, list_of(:value_entry))
+    field(:catalog_key, list_of(:value_entry))
+    field(:cultural_context, list_of(:value_entry))
+    field(:description, list_of(:value_entry))
+    field(:folder_name, list_of(:value_entry))
+    field(:folder_number, list_of(:value_entry))
+    field(:identifier, list_of(:value_entry))
+    field(:keywords, list_of(:value_entry))
+    field(:legacy_identifier, list_of(:value_entry))
     field(:terms_of_use, :string)
-    field(:physical_description_material, list_of(:string))
-    field(:physical_description_size, list_of(:string))
-    field(:provenance, list_of(:string))
+    field(:physical_description_material, list_of(:value_entry))
+    field(:physical_description_size, list_of(:value_entry))
+    field(:provenance, list_of(:value_entry))
 
-    field(:publisher, list_of(:string)) do
+    field(:publisher, list_of(:value_entry)) do
       deprecate("Publisher field is deprecated")
     end
 
-    field(:related_material, list_of(:string))
-    field(:rights_holder, list_of(:string))
-    field(:scope_and_contents, list_of(:string))
-    field(:series, list_of(:string))
-    field(:source, list_of(:string))
-    field(:table_of_contents, list_of(:string))
+    field(:related_material, list_of(:value_entry))
+    field(:rights_holder, list_of(:value_entry))
+    field(:scope_and_contents, list_of(:value_entry))
+    field(:series, list_of(:value_entry))
+    field(:source, list_of(:value_entry))
+    field(:table_of_contents, list_of(:value_entry))
     field(:title, :string)
   end
 
   @desc "`work_descriptive_metadata` represents all descriptive metadata associated with a work object."
   object :work_descriptive_metadata do
-    field(:citation, list_of(:string))
+    field(:citation, list_of(:value_entry))
     field(:date_created, list_of(:edtf_date_entry))
     field(:license, :coded_term)
     field(:nav_place, :json)
@@ -343,6 +343,47 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     import_fields(:uncontrolled_administrative_fields)
   end
 
+  @desc """
+  Identified free-text metadata value for input. Echo `id` back to preserve an
+  item's identity (and its per-item provenance) across an edit; omit `id` for a
+  new value and the server mints one. The matching output type is the
+  `ValueEntry` scalar — a scalar can't accept object input in GraphQL, so input
+  uses this dedicated input object.
+  """
+  input_object :value_entry_input do
+    field(:id, :id)
+    field(:value, non_null(:string))
+  end
+
+  @desc "Input fields for the uncontrolled descriptive metadata fields (mirrors `uncontrolled_descriptive_fields`)."
+  input_object :uncontrolled_descriptive_fields_input do
+    field(:abstract, list_of(:value_entry_input))
+    field(:alternate_title, list_of(:value_entry_input))
+    field(:box_name, list_of(:value_entry_input))
+    field(:box_number, list_of(:value_entry_input))
+    field(:caption, list_of(:value_entry_input))
+    field(:catalog_key, list_of(:value_entry_input))
+    field(:cultural_context, list_of(:value_entry_input))
+    field(:description, list_of(:value_entry_input))
+    field(:folder_name, list_of(:value_entry_input))
+    field(:folder_number, list_of(:value_entry_input))
+    field(:identifier, list_of(:value_entry_input))
+    field(:keywords, list_of(:value_entry_input))
+    field(:legacy_identifier, list_of(:value_entry_input))
+    field(:terms_of_use, :string)
+    field(:physical_description_material, list_of(:value_entry_input))
+    field(:physical_description_size, list_of(:value_entry_input))
+    field(:provenance, list_of(:value_entry_input))
+    field(:publisher, list_of(:value_entry_input))
+    field(:related_material, list_of(:value_entry_input))
+    field(:rights_holder, list_of(:value_entry_input))
+    field(:scope_and_contents, list_of(:value_entry_input))
+    field(:series, list_of(:value_entry_input))
+    field(:source, list_of(:value_entry_input))
+    field(:table_of_contents, list_of(:value_entry_input))
+    field(:title, :string)
+  end
+
   @desc "Input fields for works descriptive metadata"
   input_object :work_descriptive_metadata_input do
     field(:date_created, list_of(:edtf_date_input))
@@ -352,7 +393,7 @@ defmodule MeadowWeb.Schema.Data.WorkTypes do
     field(:rights_statement, :coded_term_input)
     field(:related_url, list_of(:related_url_entry_input))
     import_fields(:controlled_fields_input)
-    import_fields(:uncontrolled_descriptive_fields)
+    import_fields(:uncontrolled_descriptive_fields_input)
   end
 
   @desc "`controlled_fields_input` controlled fields that can be updated on a work object"

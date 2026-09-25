@@ -4,13 +4,23 @@ defmodule Meadow.Data.CSV.Export do
   """
 
   alias Meadow.Data.Schemas.{Work, WorkAdministrativeMetadata, WorkDescriptiveMetadata}
+  alias Meadow.Data.Schemas.ValueEntry
+  alias Meadow.Repo
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.Scroll
   alias NimbleCSV.RFC4180, as: CSV
 
+  import Ecto.Query, only: [from: 2]
   import Meadow.Data.CSV.Utils
 
   require Logger
+
+  # Works per database round trip when overlaying identified free-text entries
+  # onto the indexed hits.
+  @overlay_chunk_size 200
+
+  @value_entry_field_names WorkDescriptiveMetadata.value_entry_fields()
+                           |> MapSet.new(&Atom.to_string/1)
 
   @top_level_fields [
     ["id"],
@@ -131,20 +141,65 @@ defmodule Meadow.Data.CSV.Export do
   def generate_rows(query) do
     query
     |> Scroll.results(SearchConfig.alias_for(Work, 2))
-    |> Stream.map(&to_row/1)
+    |> Stream.chunk_every(@overlay_chunk_size)
+    |> Stream.flat_map(&rows_with_identified_entries/1)
     |> CSV.dump_to_stream()
   end
 
-  defp to_row(hit) do
+  # The search index deliberately flattens identified free-text entries to bare
+  # strings — that shape is public API. The CSV metadata-update round trip needs
+  # each item's stable id, so overlay those fields from the works table (the
+  # source of truth for identity) one chunk of hits at a time, and export each
+  # item as `id:value`. A hit with no database row (e.g. deleted since indexing)
+  # falls back to the indexed bare strings.
+  defp rows_with_identified_entries(hits) do
+    identified = identified_entries(Enum.map(hits, &Map.get(&1, "_id")))
+
+    Enum.map(hits, fn hit ->
+      to_row(hit, Map.get(identified, Map.get(hit, "_id"), %{}))
+    end)
+  end
+
+  defp identified_entries(work_ids) do
+    from(w in "works",
+      where: w.id in type(^work_ids, {:array, Ecto.UUID}),
+      select: {type(w.id, Ecto.UUID), w.descriptive_metadata}
+    )
+    |> Repo.all()
+    |> Map.new()
+  end
+
+  defp to_row(hit, identified) do
     fields()
     |> Enum.map(fn field_path ->
-      field_content(field_path, hit)
+      field_content(field_path, hit, identified)
     end)
   rescue
     e ->
       Logger.error("Error generating CSV row #{get_in(hit, ["_id"])}: #{inspect(e)}")
       error_row(hit)
   end
+
+  defp field_content(field_path, hit, identified) do
+    case identified_field_entries(field_path, identified) do
+      {:ok, entries} ->
+        entries
+        |> Enum.map(&ValueEntry.to_csv_string/1)
+        |> Enum.reject(&is_nil/1)
+        |> combine_multivalued_field()
+
+      :error ->
+        field_content(field_path, hit)
+    end
+  end
+
+  defp identified_field_entries([field], identified) when is_map(identified) do
+    if MapSet.member?(@value_entry_field_names, field) and is_map_key(identified, field),
+      do: {:ok, List.wrap(Map.get(identified, field))},
+      else: :error
+  end
+
+  defp identified_field_entries(_field_path, _identified), do: :error
 
   defp error_row(hit) do
     nils = fields() |> Enum.drop(2) |> Enum.map(fn _ -> nil end)

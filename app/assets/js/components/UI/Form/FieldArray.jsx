@@ -18,9 +18,13 @@ const UIFormFieldArray = ({
   ...passedInProps
 }) => {
   const { control } = useFormContext();
+  // Use a non-default keyName so react-hook-form's internal row key does not
+  // collide with (and clobber) each item's own stable `id`, which must survive
+  // the edit so per-item provenance identity is preserved.
   const { fields, append, remove } = useFieldArray({
     control,
     name,
+    keyName: "rhfFieldId",
   });
 
   function handleAddClick() {
@@ -42,7 +46,7 @@ const UIFormFieldArray = ({
         {fields.map((item, index) => {
           return (
             <UIFormFieldArrayRow
-              key={item.id}
+              key={item.rhfFieldId}
               handleRemoveClick={handleRemoveClick}
               item={item}
               index={index}

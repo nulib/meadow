@@ -587,6 +587,20 @@ export function prepFieldArrayItemsForPost(
 }
 
 /**
+ * Convert a repeating free-text field's form items into ValueEntry input for a
+ * work update, preserving each item's stable id so identity survives the edit.
+ * New items (no id) are sent as `{ value }` and the backend mints an id. The
+ * `ValueEntryInput` GraphQL input object accepts either shape.
+ */
+export function prepValueEntryItemsForPost(
+  items: Array<{ metadataItem: string; id?: string }> = [],
+) {
+  return items.map(({ metadataItem, id }) =>
+    id ? { id, value: metadataItem } : { value: metadataItem },
+  );
+}
+
+/**
  * Convert coded term select options to include scheme
  * @param {Array} codeListsData Array of object entries
  * @param {String} codedTerm String representing codedTermScheme
@@ -643,12 +657,16 @@ export function prepFacetKey(
  */
 export function prepNotes(
   items: Array<{
+    id?: string;
     note: string;
     typeId: string;
   }> = [],
 ) {
   try {
+    // Carry an existing entry's id through so an edit preserves the note's stable
+    // identity; a new entry has no id and the backend mints one.
     return items.map((item) => ({
+      ...(item.id ? { id: item.id } : {}),
       note: item.note,
       type: {
         scheme: "NOTE_TYPE",
@@ -666,12 +684,16 @@ export function prepNotes(
  */
 export function prepRelatedUrl(
   items: Array<{
+    id?: string;
     url: string;
     labelId: string;
   }> = [],
 ) {
   try {
+    // Carry an existing entry's id through so an edit preserves its stable
+    // identity; a new entry has no id and the backend mints one.
     return items.map((item) => ({
+      ...(item.id ? { id: item.id } : {}),
       url: item.url,
       label: {
         scheme: "RELATED_URL",
@@ -821,5 +843,11 @@ export function splitFacetKey(key: string) {
 }
 
 export function convertFieldArrayValToHookFormVal(value: any) {
+  // Repeating free-text values arrive from the API as `{ id, value }` objects;
+  // carry the id through the form so an edit preserves it. Legacy/plain string
+  // values (e.g. collection fields) pass straight through.
+  if (value && typeof value === "object") {
+    return { metadataItem: value.value, id: value.id };
+  }
   return { metadataItem: value };
 }
