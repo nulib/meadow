@@ -32,7 +32,7 @@ set -euo pipefail
 REPO="${GITHUB_REPOSITORY}"
 CURRENT_TAG="${CURRENT_TAG:-v${MEADOW_VERSION}}"
 PREVIOUS_TAG="${PREVIOUS_TAG:-}"
-MODEL_ID="us.anthropic.claude-sonnet-4-6"
+MODEL_ID="us.anthropic.claude-opus-5"
 DRAFT_RELEASE="${DRAFT_RELEASE:-false}"
 DRY_RUN="${DRY_RUN:-false}"
 
