@@ -113,8 +113,7 @@ defmodule Meadow.Data.Planner.Operations do
   defp encode(_kind, nil, base), do: Map.put(base, :value_kind, "null")
 
   defp encode(:string, value, base),
-    do:
-      Map.merge(base, %{value_kind: "string", value_text: to_string(value)})
+    do: Map.merge(base, %{value_kind: "string", value_text: text_value(value)})
 
   defp encode(:boolean, value, base),
     do: Map.merge(base, %{value_kind: "boolean", value_text: to_string(value)})
@@ -156,7 +155,13 @@ defmodule Meadow.Data.Planner.Operations do
   end
 
   defp encode(_kind, value, base),
-    do: Map.merge(base, %{value_kind: "string", value_text: to_string(value)})
+    do: Map.merge(base, %{value_kind: "string", value_text: text_value(value)})
+
+  # Proposals recorded while repeating free text was a row per value hold
+  # `{id, value}` objects rather than bare strings. The text is what the
+  # proposal meant, and this backfill cannot rewrite documents already on disk.
+  defp text_value(%{} = map), do: map |> map_value(:value) |> to_string()
+  defp text_value(value), do: to_string(value)
 
   defp coded(nil), do: %{}
   defp coded(id) when is_binary(id), do: %{coded_id: id}
