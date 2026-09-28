@@ -12,7 +12,7 @@ defmodule Mix.Tasks.NulAuthorities.Clear do
   @shortdoc @moduledoc
   def run(_) do
     System.put_env("MEADOW_PROCESSES", "none")
-    Application.ensure_all_started(:hackney)
+    Application.ensure_all_started(:req)
     Mix.Task.run("app.start")
     Logger.configure(level: :info)
 
@@ -61,7 +61,7 @@ defmodule Mix.Tasks.NulAuthorities.Retrieve do
         Logger.error("ELASTICSEARCH_URL missing")
 
       base_url ->
-        Application.ensure_all_started(:hackney)
+        Application.ensure_all_started(:req)
         Mix.Task.run("app.start")
         Logger.configure(level: :info)
         import!(base_url, key)
@@ -161,7 +161,7 @@ defmodule Mix.Tasks.NulAuthorities.Import do
 
   def run([filename]) do
     System.put_env("MEADOW_PROCESSES", "none")
-    Application.ensure_all_started(:hackney)
+    Application.ensure_all_started(:req)
     Mix.Task.run("app.start")
 
     Logger.info("Looking for CSV in bucket: #{Config.upload_bucket()}, key: #{filename}")
@@ -215,7 +215,7 @@ defmodule Mix.Tasks.NulAuthorities.Export do
 
   def run([key]) do
     System.put_env("MEADOW_PROCESSES", "none")
-    Application.ensure_all_started(:hackney)
+    Application.ensure_all_started(:req)
     Mix.Task.run("app.start")
 
     data =
