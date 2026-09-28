@@ -6,7 +6,7 @@ import sharp from "sharp";
 const MAX_DIMENSION = 15000;
 const TILE_SIZE = 256;
 
-const createPyramidTiff = async (source, dest) => {
+const createPyramidTiff = async (source, dest, opts = {}) => {
   console.log(`Creating pyramid from ${source}`);
   const inputStream = await streamFromS3(source);
 
@@ -53,7 +53,7 @@ const createPyramidTiff = async (source, dest) => {
       }
     }
   ];
-  data = await addContentCredentials(data, "edit", actions, { parentLocation: source, mimeType: "image/tiff" });
+  data = await addContentCredentials(data, "edit", actions, { parentLocation: source, mimeType: "image/tiff", title: opts.title });
 
   console.log(`Saving to ${dest}`);
   const { width, height, pages } = await sharp(data).metadata();
