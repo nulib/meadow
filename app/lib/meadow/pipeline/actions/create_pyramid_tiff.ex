@@ -50,7 +50,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     Lambda.invoke(Config.lambda_config(:tiff), %{source: source, target: target, title: title}, timeout: @timeout)
   end
 
-  defp create_pyramid_tiff(source, _target) do
+  defp create_pyramid_tiff(source, _target, _title) do
     Logger.error("Invalid location: #{source}")
     {:error, "Invalid location: #{source}"}
   end

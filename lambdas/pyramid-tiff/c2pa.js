@@ -79,17 +79,24 @@ const addContentCredentials = async (data, intent, actions, opts) => {
     }
   }
 
-  const result = await signAsset({
-    asset: Buffer.from(data),
-    mimeType,
-    title,
-    intent,
-    actions: actions || [],
-    parent,
-    output: manifestOnly ? "sidecar" : "embedded",
-    credentials: { certificate, key, tsaUrl }
-  });
-  return manifestOnly ? result.manifest : result.asset;
+  try {
+    const result = await signAsset({
+      asset: data,
+      mimeType,
+      title,
+      intent,
+      actions: actions || [],
+      parent,
+      output: manifestOnly ? "sidecar" : "embedded",
+      credentials: { certificate, key, tsaUrl }
+    });
+    
+    return manifestOnly ? result.manifest : result.asset;
+  } catch (err) {
+    console.error(`Failed to sign asset: ${err.message}`);
+    console.error(`Returning ${manifestOnly ? "empty manifest" : "unsigned asset"}.`);
+    return manifestOnly ? Buffer.from("") : data;
+  }
 };
 
 /** A Reader for `source`, using its sidecar manifest if it has one. */
