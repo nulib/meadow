@@ -39,11 +39,13 @@ defmodule Meadow.Utils.ChangesetErrors do
             {:type, type} when is_atom(type) ->
               to_string(type)
 
-            other ->
-              if String.Chars.impl_for(value) do
-                to_string(value)
+            _ ->
+              # Lists implement String.Chars (as charlists), but to_string/1
+              # raises on lists like [:accession_number]
+              if is_list(value) or is_nil(String.Chars.impl_for(value)) do
+                inspect(value)
               else
-                inspect(other)
+                to_string(value)
               end
           end
         rescue
