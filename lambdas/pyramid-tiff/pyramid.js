@@ -1,5 +1,5 @@
 import { addContentCredentials } from "./c2pa.js";
-import { bufferFromS3, streamFromS3, uploadToS3 } from "./s3Utils.js";
+import { streamFromS3, uploadToS3 } from "./s3Utils.js";
 import concat from "concat-stream";
 import sharp from "sharp";
 
@@ -38,21 +38,49 @@ const createPyramidTiff = async (source, dest, opts = {}) => {
     inputStream.pipe(transformStream).pipe(concat(resolve));
   });
 
-  const actions = [
-    {
-      action: "c2pa.transcoded",
+  const preMetadata = await transformStream.metadata();
+  const postMetadata = await sharp(data).metadata();
+  
+  const actions = [];
+
+  if (preMetadata.hasAlpha && !postMetadata.hasAlpha) {
+    actions.push({
+      action: "c2pa.edited",
       softwareAgent: "Meadow (https://github.com/nulib/meadow)",
       parameters: {
-        outputFormat: "image/tiff",
-        description: [
-          "Alpha channel removed",
-          `Scaled to fit within ${MAX_DIMENSION}×${MAX_DIMENSION}px (without enlargement)`,
-          "Auto-rotated to EXIF orientation 1",
-          `Tiled pyramidal TIFF, tile size ${TILE_SIZE}×${TILE_SIZE}px, JPEG compression quality 75`
-        ].join("; ")
+        description: "Alpha channel removed"
       }
+    });
+  }
+
+  if (preMetadata.width > MAX_DIMENSION || preMetadata.height > MAX_DIMENSION) {
+    actions.push({
+      action: "c2pa.resized",
+      softwareAgent: "Meadow (https://github.com/nulib/meadow)",
+      parameters: {
+        description: `Resized to ${postMetadata.width}×${postMetadata.height}px`
+      }
+    });
+  }
+
+  if (preMetadata.orientation && preMetadata.orientation !== postMetadata.orientation) {
+    actions.push({
+      action: "c2pa.orientation",
+      softwareAgent: "Meadow (https://github.com/nulib/meadow)",
+      parameters: {
+        description: `Auto-rotated to EXIF orientation ${postMetadata.orientation}`
+      }
+    });
+  }
+
+  actions.push({
+    action: "c2pa.transcoded",
+    softwareAgent: "Meadow (https://github.com/nulib/meadow)",
+    parameters: {
+      description: `Tiled pyramidal TIFF, tile size ${TILE_SIZE}×${TILE_SIZE}px, JPEG compression quality 75`
     }
-  ];
+  });
+
   data = await addContentCredentials(data, "edit", actions, { parentLocation: source, mimeType: "image/tiff", title: opts.title });
 
   console.log(`Saving to ${dest}`);
