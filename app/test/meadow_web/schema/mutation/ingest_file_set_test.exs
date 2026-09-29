@@ -33,6 +33,36 @@ defmodule MeadowWeb.Schema.Mutation.IngestFileSetTest do
     assert result.data["ingestFileSet"]
   end
 
+  @tag s3: [@fixture]
+  test "ingestFileSet mutation returns an error for a duplicate accession number" do
+    work = work_fixture()
+    file_set_fixture(%{accession_number: "99999"})
+
+    {:ok, result} =
+      query_gql(
+        variables: %{
+          "accession_number" => "99999",
+          "role" => %{"id" => "A", "scheme" => "FILE_SET_ROLE"},
+          "work_id" => work.id,
+          "coreMetadata" => %{
+            "description" => "Something",
+            "original_filename" => "file.tif",
+            "location" => "s3://#{@bucket}/#{@key}"
+          }
+        },
+        context: gql_context()
+      )
+
+    assert %{
+             errors: [
+               %{
+                 message: "Could not create file set",
+                 details: %{"accession_number" => ~s'"99999" has already been taken'}
+               }
+             ]
+           } = result
+  end
+
   describe "authorization" do
     @tag s3: [@fixture]
     test "viewers are not authorized to ingest file sets" do
