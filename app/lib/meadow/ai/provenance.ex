@@ -1150,6 +1150,7 @@ defmodule Meadow.AI.Provenance do
         status: target.status,
         activity_id: activity.id,
         activity_type: activity.activity_type,
+        activity_work_id: activity.work_id,
         ai_use_type: activity.ai_use_type,
         access_mode: activity.access_mode,
         reversibility: activity.reversibility,
@@ -1175,34 +1176,82 @@ defmodule Meadow.AI.Provenance do
   def work_summary_map(work_id) do
     work_id
     |> work_summary()
-    |> Map.new(fn summary ->
-      {summary_map_key(summary),
+    |> summary_map()
+  end
+
+  @doc """
+  Build the `field_path`-keyed display map from a summary already computed by
+  `work_summary/1` or `target_summary/2`, without re-running the underlying
+  query. Split out of `work_summary_map/1` so index-time callers that also need
+  `ai_involved?/2` can compute the summary once and derive both values from it.
+  """
+  def summary_map(summary) do
+    Map.new(summary, fn entry ->
+      {summary_map_key(entry),
        %{
-         origin: summary.origin,
-         operation: summary.operation,
-         human_oversight_level: summary.human_oversight_level,
-         activity_id: summary.activity_id,
-         target_type: summary.target_type,
-         target_id: summary.target_id,
-         status: summary.status,
-         activity_type: summary.activity_type,
-         ai_use_type: summary.ai_use_type,
-         access_mode: summary.access_mode,
-         reversibility: summary.reversibility,
-         model: summary.model,
-         model_provider: summary.model_provider,
-         model_version: summary.model_version,
-         model_type: summary.model_type,
-         generated_at: summary.generated_at,
-         reviewer: summary.reviewer,
-         applied_at: summary.applied_at,
-         source_count: summary.source_count,
-         citation_completeness: summary.citation_completeness,
-         premis: summary.premis,
-         c2pa: summary.c2pa
+         origin: entry.origin,
+         operation: entry.operation,
+         human_oversight_level: entry.human_oversight_level,
+         activity_id: entry.activity_id,
+         target_type: entry.target_type,
+         target_id: entry.target_id,
+         status: entry.status,
+         activity_type: entry.activity_type,
+         ai_use_type: entry.ai_use_type,
+         access_mode: entry.access_mode,
+         reversibility: entry.reversibility,
+         model: entry.model,
+         model_provider: entry.model_provider,
+         model_version: entry.model_version,
+         model_type: entry.model_type,
+         generated_at: entry.generated_at,
+         reviewer: entry.reviewer,
+         applied_at: entry.applied_at,
+         source_count: entry.source_count,
+         citation_completeness: entry.citation_completeness,
+         premis: entry.premis,
+         c2pa: entry.c2pa
        }}
     end)
   end
+
+  @doc """
+  A work's AI involvement, broken out by kind, so a single index field can say
+  *which* kind of AI touch a work carries rather than collapsing them into one
+  boolean. Takes a summary already computed by `work_summary/1` so index-time
+  callers don't run the underlying query twice.
+
+    * `descriptive_metadata` — the work's own metadata (`target_type == "Work"`)
+      currently carries applied AI provenance.
+    * `file_set_annotations` — one of the work's file sets carries an applied
+      AI-generated annotation (e.g. a transcription), recorded as a
+      `FileSetAnnotation` target whose activity is scoped to this work.
+
+  Both checks require the target to be `applied` with an AI-involved origin,
+  and both are scoped to this work specifically: `target_id`/`activity_work_id`
+  guard against a work that was used only as AI source material for a
+  *different* work's change being flagged here. See `applied_ai_targets/1` for
+  the equivalent query-driven check used elsewhere in this module.
+  """
+  def ai_involvement(summary, work_id) do
+    work_id = to_string(work_id)
+
+    %{
+      descriptive_metadata: Enum.any?(summary, &work_target_ai?(&1, work_id)),
+      file_set_annotations: Enum.any?(summary, &annotation_target_ai?(&1, work_id))
+    }
+  end
+
+  defp work_target_ai?(entry, work_id),
+    do: entry.target_type == "Work" and entry.target_id == work_id and applied_ai?(entry)
+
+  defp annotation_target_ai?(entry, work_id) do
+    entry.target_type == "FileSetAnnotation" and
+      to_string(entry.activity_work_id) == work_id and applied_ai?(entry)
+  end
+
+  defp applied_ai?(entry),
+    do: entry.status == "applied" and entry.origin in @ai_involved_origins
 
   def target_summary(target_type, target_id) do
     target_type
@@ -1227,6 +1276,7 @@ defmodule Meadow.AI.Provenance do
         status: target.status,
         activity_id: activity.id,
         activity_type: activity.activity_type,
+        activity_work_id: activity.work_id,
         ai_use_type: activity.ai_use_type,
         access_mode: activity.access_mode,
         reversibility: activity.reversibility,
