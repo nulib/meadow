@@ -20,7 +20,7 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     source = file_set.core_metadata.location
     target = FileSets.pyramid_uri_for(file_set)
 
-    case create_pyramid_tiff(source, target) do
+    case create_pyramid_tiff(source, target, file_set.core_metadata.label) do
       {:ok, dest} ->
         Repo.transaction(fn ->
           derivatives = FileSets.add_derivative(file_set, :pyramid_tiff, dest)
@@ -46,11 +46,11 @@ defmodule Meadow.Pipeline.Actions.CreatePyramidTiff do
     err in RuntimeError -> {:error, err}
   end
 
-  defp create_pyramid_tiff("s3://" <> _ = source, target) do
-    Lambda.invoke(Config.lambda_config(:tiff), %{source: source, target: target}, timeout: @timeout)
+  defp create_pyramid_tiff("s3://" <> _ = source, target, title) do
+    Lambda.invoke(Config.lambda_config(:tiff), %{source: source, target: target, title: title}, timeout: @timeout)
   end
 
-  defp create_pyramid_tiff(source, _target) do
+  defp create_pyramid_tiff(source, _target, _title) do
     Logger.error("Invalid location: #{source}")
     {:error, "Invalid location: #{source}"}
   end

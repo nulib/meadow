@@ -3,136 +3,114 @@ import {
   SecretsManagerClient,
   GetSecretValueCommand
 } from "@aws-sdk/client-secrets-manager";
-import {
-  Builder,
-  LocalSigner,
-  Reader,
-  createVerifySettings
-} from "@contentauth/c2pa-node";
+import { loadC2paNode, signAsset } from "@nulib/c2pa-signing";
 
-const getc2paSigningCert = async () => {
-  try {
-    const secretName = `${process.env.SECRETS_PATH}/config/c2pa_cert`;
-    const secretsClient = new SecretsManagerClient({});
-    const command = new GetSecretValueCommand({ SecretId: secretName });
-    const response = await secretsClient.send(command);
-    return JSON.parse(response.SecretString);
-  } catch (err) {
-    if (err.name === "ResourceNotFoundException") {
-      console.error("C2PA signing certificate not found. Skipping signing of content credentials.");
+let credentials;
+
+// Fetched once per container rather than per invocation.
+const getSigningCredentials = () => {
+  credentials ??= (async () => {
+    try {
+      const secretName = `${process.env.SECRETS_PATH}/config/c2pa_cert`;
+      const secretsClient = new SecretsManagerClient({});
+      const response = await secretsClient.send(new GetSecretValueCommand({ SecretId: secretName }));
+      const { certificate, key, tsa_url } = JSON.parse(response.SecretString);
+      return { certificate, key, tsaUrl: tsa_url };
+    } catch (err) {
+      if (err.name === "ResourceNotFoundException") {
+        console.error("C2PA signing certificate not found. Skipping signing of content credentials.");
+      }
+      credentials = undefined; // retry on the next invocation
+      return {};
     }
-    return {};
-  }
+  })();
+  return credentials;
 };
 
-const getActiveReaderFromSidecar = async (source) => {
-  const sidecarLocation = `${source}.c2pa`;
+const exists = async (location) => {
   try {
-    await headObject(sidecarLocation);
-    await headObject(source);
+    await headObject(location);
+    return true;
   } catch (err) {
-    if (err.name === "NotFound") return null;
+    if (err.name === "NotFound") return false;
     throw err;
   }
-
-  const { buffer: manifestData } = await bufferFromS3(sidecarLocation);
-  const { buffer, contentType: mimeType } = await bufferFromS3(source);
-  const sidecarReader = await Reader.fromManifestDataAndAsset(manifestData, {
-    buffer,
-    mimeType
-  });
-  const manifest = sidecarReader.getActive();
-
-  const rebuilder = Builder.withJson(
-    manifest,
-    createVerifySettings({ verifyAfterSign: false, verifyTrust: false })
-  );
-  if (manifest?.thumbnail) {
-    const { buffer: thumbBuffer } = await sidecarReader.resourceToAsset(
-      manifest.thumbnail.identifier,
-      { buffer: null }
-    );
-    await rebuilder.addResource(manifest.thumbnail.identifier, {
-      buffer: thumbBuffer,
-      mimeType: manifest.thumbnail.format
-    });
-  }
-
-  const { certificate: cert, key } = await getc2paSigningCert();
-  const signer = LocalSigner.newSigner(
-    Buffer.from(cert),
-    Buffer.from(key),
-    "es256"
-  );
-  const output = { buffer: null };
-  rebuilder.sign(signer, { buffer, mimeType }, output);
-
-  const reader = await Reader.fromAsset({ buffer: output.buffer, mimeType });
-  return { reader, buffer: output.buffer, mimeType };
 };
 
-const getActiveReaderFromSource = async (source) => {
-  const { buffer, contentType } = await bufferFromS3(source);
-  const reader = await Reader.fromAsset({ buffer, mimeType: contentType });
-  return { reader, buffer, mimeType: contentType };
-}
+// Preservation files carry their content credentials in a sidecar manifest at
+// `<location>.c2pa`. Returns null if the parent has no sidecar.
+const getParent = async (location) => {
+  const sidecarLocation = `${location}.c2pa`;
+  if (!(await exists(sidecarLocation))) return null;
 
-const getActiveReader = async (source) => {
-  return await getActiveReaderFromSidecar(source) || await getActiveReaderFromSource(source);
-}
+  const [{ buffer: manifest }, { buffer: asset, contentType: mimeType }] = await Promise.all([
+    bufferFromS3(sidecarLocation),
+    bufferFromS3(location)
+  ]);
+  return {
+    asset: Buffer.from(asset),
+    mimeType,
+    manifest: Buffer.from(manifest),
+    title: new URL(location).pathname.split("/").pop()
+  };
+};
 
+/**
+ * Signs `data`, returning the signed asset -- or, with `manifestOnly`, a
+ * sidecar manifest for the unchanged asset.
+ *
+ * With `parentLocation`, the manifest chains to that parent via its sidecar.
+ * A parent without a sidecar has no provenance to carry forward, so `data` is
+ * returned unsigned (with a warning) rather than signed with an unverifiable
+ * ingredient.
+ */
 const addContentCredentials = async (data, intent, actions, opts) => {
-  const { parentLocation, manifestOnly, mimeType } = opts || {};
-  const { certificate: cert, key } = await getc2paSigningCert();
-  if (!cert || !key) return data;
+  const { parentLocation, manifestOnly, mimeType, title } = opts || {};
+  const { certificate, key, tsaUrl } = await getSigningCredentials();
+  console.info(`Signing with certificate: ${certificate ? "present" : "missing"}, key: ${key ? "present" : "missing"}, tsaUrl: ${tsaUrl || "missing"}`);
+  if (!certificate || !key) return data;
 
-  const builder = Builder.new();
-  builder.setIntent(intent);
-
+  let parent;
   if (parentLocation) {
-    const { reader, buffer, mimeType } = await getActiveReader(parentLocation);
-    try {
-      await builder.addIngredientFromReader(reader);
-    } catch (err) {
-      if (!reader || err.message.includes("ingredient file not found")) {
-        console.warn(`addIngredientFromReader failed for ${parentLocation} , adding ingredient from buffer instead`);
-        const manifest = reader?.getActive();
-        
-        const ingredientContent = {
-          title: manifest?.title || new URL(parentLocation).pathname.split("/").pop(),
-          format: manifest?.format || mimeType,
-          instance_id: manifest?.instance_id,
-          relationship: "parentOf"
-        };
-
-        await builder.addIngredient(JSON.stringify(ingredientContent), { buffer, mimeType });
-      } else {
-        throw err;
-      }
+    parent = await getParent(parentLocation);
+    if (!parent) {
+      console.warn(`No C2PA sidecar found for ${parentLocation}; returning content without content credentials.`);
+      return data;
     }
   }
 
-  builder.addAssertion(
-    "c2pa.actions",
-    {
-      actions: actions || []
-    },
-    "Cbor"
-  );
-
-  const signer = LocalSigner.newSigner(
-    Buffer.from(cert),
-    Buffer.from(key),
-    "es256"
-  );
-
-  const output = { buffer: null };
-
-  if (manifestOnly) {
-    builder.noEmbed = true;
+  try {
+    const result = await signAsset({
+      asset: data,
+      mimeType,
+      title,
+      intent,
+      actions: actions || [],
+      parent,
+      output: manifestOnly ? "sidecar" : "embedded",
+      credentials: { certificate, key, tsaUrl }
+    });
+    
+    return manifestOnly ? result.manifest : result.asset;
+  } catch (err) {
+    console.error(`Failed to sign asset: ${err.message}`);
+    console.error(`Returning ${manifestOnly ? "empty manifest" : "unsigned asset"}.`);
+    return manifestOnly ? Buffer.from("") : data;
   }
-  const manifestData = await builder.sign(signer, { buffer: data, mimeType: mimeType }, output);
-  return manifestOnly ? manifestData : output.buffer;
+};
+
+/** A Reader for `source`, using its sidecar manifest if it has one. */
+const getActiveReader = async (source) => {
+  const { Reader } = await loadC2paNode();
+  const parent = await getParent(source);
+  if (parent) {
+    const { asset: buffer, mimeType, manifest } = parent;
+    const reader = await Reader.fromManifestDataAndAsset(manifest, { buffer, mimeType });
+    return { reader, buffer, mimeType };
+  }
+  const { buffer, contentType: mimeType } = await bufferFromS3(source);
+  const reader = await Reader.fromAsset({ buffer: Buffer.from(buffer), mimeType });
+  return { reader, buffer, mimeType };
 };
 
 export { addContentCredentials, getActiveReader };
