@@ -3,7 +3,7 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
   use Meadow.DataCase
 
   alias Meadow.Data.ControlledTerms
-  alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Schemas.{FileSet, Work}
   alias Meadow.Utils.ChangesetErrors
 
   setup do
@@ -135,6 +135,33 @@ defmodule Meadow.Utils.ChangesetErrorsTest do
     assert %{"accession_number" => ["is missing"], "extra_field" => ["is unknown"]}
            |> ChangesetErrors.humanize_errors() ==
              %{"accession_number" => "is missing", "extra_field" => "is unknown"}
+  end
+
+  test "handles errors with list options" do
+    %{accession_number: accession_number} = file_set_fixture()
+
+    changeset =
+      FileSet.changeset(
+        %FileSet{},
+        file_set_fixture_attrs(%{accession_number: accession_number})
+      )
+
+    assert ChangesetErrors.humanize_errors(changeset) == %{
+             "accession_number" => ~s'"#{accession_number}" has already been taken'
+           }
+  end
+
+  test "interpolates list options into error messages" do
+    changeset =
+      %Work{}
+      |> Ecto.Changeset.cast(%{}, [])
+      |> Ecto.Changeset.add_error(:accession_number, "conflicts with %{fields}",
+        fields: [:accession_number, :role]
+      )
+
+    assert ChangesetErrors.humanize_errors(changeset) == %{
+             "accession_number" => "conflicts with [:accession_number, :role]"
+           }
   end
 
   test "handles changesets without errors" do

@@ -32,6 +32,18 @@ defmodule Meadow.Data.PipelineTest do
     }
   }
 
+  describe "pipeline configuration" do
+    test "Meadow.Config.Pipeline.configuration_for/1 returns the correct configuration" do
+      action = Meadow.Pipeline.Actions.IngestFileSet
+      config = Meadow.Config.Pipeline.configuration_for(action)
+
+      assert is_list(config)
+      assert Keyword.has_key?(config, :producer)
+      assert Keyword.has_key?(config, :processors)
+      assert get_in(config, [:producer, :config, :region]) == Meadow.AWS.region()
+    end
+  end
+
   describe "ingesting file set" do
     @describetag s3: [@s3_fixture]
 
