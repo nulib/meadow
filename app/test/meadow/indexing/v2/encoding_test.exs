@@ -77,6 +77,16 @@ defmodule Meadow.Indexing.V2.EncodingTest do
                descriptive_metadata: true,
                file_set_annotations: false
              }
+
+      assert %{
+               premis: %{premis_version: "3.0", events: [_ | _]},
+               c2pa: %{standard: "C2PA", actions: [_ | _]}
+             } = doc |> get_in([:ai_provenance_exports])
+    end
+
+    test "work without AI provenance encodes no provenance exports", %{work: subject} do
+      doc = subject |> Document.encode(2)
+      assert doc |> get_in([:ai_provenance_exports]) |> is_nil()
     end
 
     test "work's ai_involved reflects only file_set_annotations when its only AI target is a transcription",
@@ -131,7 +141,8 @@ defmodule Meadow.Indexing.V2.EncodingTest do
             operation: "replace",
             proposed_value: ["Description"],
             origin: "ai_generated",
-            status: "applied"
+            status: "applied",
+            actor: "staff-member"
           },
           "applied"
         )
@@ -147,6 +158,12 @@ defmodule Meadow.Indexing.V2.EncodingTest do
 
       assert get_in(source, ["ai_provenance", "descriptive_metadata.description", "origin"]) ==
                "ai_generated"
+
+      assert get_in(source, ["ai_provenance_exports", "c2pa", "standard"]) == "C2PA"
+
+      # The index is public: nothing in the document may name a staff member.
+      refute Jason.encode!(source) =~ "staff-member"
+      assert get_in(source, ["ai_provenance_exports", "premis", "premis_version"]) == "3.0"
 
       assert get_in(source, ["ai_involved"]) == %{
                "descriptive_metadata" => true,
