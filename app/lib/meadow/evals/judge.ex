@@ -6,7 +6,7 @@ defmodule Meadow.Evals.Judge do
   alias Meadow.Utils.DCAPI
   require Logger
 
-  @default_model "us.anthropic.claude-sonnet-4-6"
+  @default_model "us.anthropic.claude-opus-5"
   @max_tokens 1024
   @tool_name "submit_evaluation"
   # Guards against a runaway rationale.
@@ -112,7 +112,7 @@ defmodule Meadow.Evals.Judge do
       "system" => [%{"text" => @judge_system_prompt |> String.trim()}],
       "messages" => [%{"role" => "user", "content" => message_content(prompt, image)}],
       "toolConfig" => tool_config(),
-      "inferenceConfig" => %{"maxTokens" => @max_tokens, "temperature" => 0}
+      "inferenceConfig" => %{"maxTokens" => @max_tokens}
     }
   end
 
