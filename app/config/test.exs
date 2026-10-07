@@ -24,17 +24,6 @@ config :aws_credentials,
   aws_secret_access_key: ~c"fake",
   aws_default_region: ~c"us-east-1"
 
-# BroadwaySQS only. See the note in config/config.exs.
-config :ex_aws,
-  access_key_id: "fake",
-  secret_access_key: "fake",
-  region: "us-east-1"
-
-config :ex_aws, :sqs,
-  scheme: "https://",
-  host: "localhost.localstack.cloud",
-  port: 4566
-
 # Print only warnings and errors during test
 config :logger, level: :info
 config :logger, :console, format: {Meadow.TestLogHandler, :format}

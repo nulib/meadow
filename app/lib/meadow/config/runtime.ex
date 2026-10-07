@@ -16,8 +16,7 @@ defmodule Meadow.Config.Runtime do
 
     initialize_prefix()
     clear_cache!()
-    # :ex_aws is started for BroadwaySQS only; Meadow uses :aws_credentials + aws-elixir.
-    [:hackney, :ex_aws, :aws_credentials] |> Enum.each(&Application.ensure_all_started/1)
+    [:aws_credentials, :req] |> Enum.each(&Application.ensure_all_started/1)
 
     dc_base =
       get_secret(
@@ -56,11 +55,6 @@ defmodule Meadow.Config.Runtime do
       ],
       connection_pool: Meadow.FinchPool,
       geonames_username: get_secret(:meadow, ["geonames", "username"])
-
-    Logger.info("Configuring hackney")
-
-    config :hackney,
-      max_connections: environment_int("HACKNEY_MAX_CONNECTIONS", 1000)
 
     Logger.info("Configuring honeybadger")
 
@@ -441,12 +435,6 @@ defmodule Meadow.Config.Runtime do
     end
 
     Meadow.Config.Pipeline.configure!()
-
-    # BroadwaySQS only. See the note in config/config.exs.
-    config :ex_aws,
-      req_opts: [
-        finch: [name: Meadow.FinchPool]
-      ]
 
     :ok
   end
