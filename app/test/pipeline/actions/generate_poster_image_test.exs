@@ -70,7 +70,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       end
 
       assert(
-        FileSets.get_file_set!(file_set.id).derivatives["poster"] ==
+        FileSets.derivative(FileSets.get_file_set!(file_set.id), "poster") ==
           FileSets.poster_uri_for(file_set)
       )
     end
@@ -124,7 +124,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
 
       assert(!object_exists?(FileSets.poster_uri_for(file_set)))
 
-      assert is_nil(FileSets.get_file_set!(file_set.id).derivatives["poster"])
+      assert is_nil(FileSets.derivative(FileSets.get_file_set!(file_set.id), "poster"))
     end
   end
 
@@ -160,7 +160,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
       assert(object_exists?(FileSets.poster_uri_for(file_set)))
 
       assert(
-        FileSets.get_file_set!(file_set.id).derivatives["poster"] ==
+        FileSets.derivative(FileSets.get_file_set!(file_set.id), "poster") ==
           FileSets.poster_uri_for(file_set)
       )
     end
@@ -196,7 +196,7 @@ defmodule Meadow.Pipeline.Actions.GeneratePosterImageTest do
                send_test_message(GeneratePosterImage, %{file_set_id: file_set.id}, %{})
 
       assert(!object_exists?(FileSets.poster_uri_for(file_set)))
-      assert is_nil(FileSets.get_file_set!(file_set.id).derivatives["poster"])
+      assert is_nil(FileSets.derivative(FileSets.get_file_set!(file_set.id), "poster"))
     end
   end
 end

@@ -5303,7 +5303,7 @@
           "possibleTypes": null
         },
         {
-          "description": "Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs",
+          "description": "Controlled Vocab input, term required, label is looked up on the backend. Provide role for compound vocabs. An entry is identified by its term and role, so there is no id to echo.",
           "enumValues": null,
           "fields": null,
           "inputFields": [
@@ -6615,6 +6615,18 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "representativeImageUrl",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               }
             },
@@ -9799,6 +9811,33 @@
                 {
                   "defaultValue": null,
                   "description": null,
+                  "name": "id",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": "Delete an eval run (only when not pending/running)",
+              "isDeprecated": false,
+              "name": "deleteEvalRun",
+              "type": {
+                "kind": "OBJECT",
+                "name": "EvalRun",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
                   "name": "fileSetId",
                   "type": {
                     "kind": "NON_NULL",
@@ -11432,6 +11471,18 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
               "name": "note",
               "type": {
                 "kind": "SCALAR",
@@ -11463,6 +11514,16 @@
           "enumValues": null,
           "fields": null,
           "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
             {
               "defaultValue": null,
               "description": null,
@@ -13759,6 +13820,18 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
               "name": "label",
               "type": {
                 "kind": "OBJECT",
@@ -13790,6 +13863,16 @@
           "enumValues": null,
           "fields": null,
           "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
             {
               "defaultValue": null,
               "description": null,
@@ -16169,6 +16252,20 @@
               "defaultValue": null,
               "description": null,
               "name": "catalogKey",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "citation",
               "type": {
                 "kind": "LIST",
                 "name": null,

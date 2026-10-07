@@ -263,7 +263,7 @@ export type CodedTermInput = {
   scheme?: CodeListScheme | null | undefined;
 };
 
-/** Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs */
+/** Controlled Vocab input, term required, label is looked up on the backend. Provide role for compound vocabs. An entry is identified by its term and role, so there is no id to echo. */
 export type ControlledMetadataEntryInput = {
   role?: CodedTermInput | null | undefined;
   term: string | number;
@@ -354,6 +354,7 @@ export type IngestSheetStatus =
 
 /** Note input */
 export type NoteEntryInput = {
+  id?: string | number | null | undefined;
   note?: string | null | undefined;
   type?: CodedTermInput | null | undefined;
 };
@@ -375,6 +376,7 @@ export type PlanStatus =
 
 /** Related URL input */
 export type RelatedUrlEntryInput = {
+  id?: string | number | null | undefined;
   label?: CodedTermInput | null | undefined;
   url?: string | null | undefined;
 };
@@ -455,6 +457,7 @@ export type WorkDescriptiveMetadataInput = {
   boxNumber?: Array<string | null | undefined> | null | undefined;
   caption?: Array<string | null | undefined> | null | undefined;
   catalogKey?: Array<string | null | undefined> | null | undefined;
+  citation?: Array<string | null | undefined> | null | undefined;
   contributor?:
     | Array<ControlledMetadataEntryInput | null | undefined>
     | null
@@ -849,6 +852,7 @@ export type GetEvalRunQuery = {
         workId: string;
         accessionNumber: string | null;
         groundTruth: unknown;
+        representativeImageUrl: string | null;
       } | null> | null;
     } | null;
     promptVersion: {
@@ -1009,6 +1013,12 @@ export type CancelEvalRunMutationVariables = Exact<{
 export type CancelEvalRunMutation = {
   cancelEvalRun: { id: string; status: EvalRunStatus | null } | null;
 };
+
+export type DeleteEvalRunMutationVariables = Exact<{
+  id: string | number;
+}>;
+
+export type DeleteEvalRunMutation = { deleteEvalRun: { id: string } | null };
 
 export type ScoreEvalTrialMutationVariables = Exact<{
   id: string | number;
@@ -2222,6 +2232,7 @@ export type WorkQueryQuery = {
         term: { id: string | null; label: string | null } | null;
       } | null> | null;
       notes: Array<{
+        id: string | null;
         note: string | null;
         type: {
           id: string | null;
@@ -2230,6 +2241,7 @@ export type WorkQueryQuery = {
         } | null;
       } | null> | null;
       relatedUrl: Array<{
+        id: string | null;
         url: string | null;
         label: {
           id: string | null;
@@ -4100,6 +4112,13 @@ export const GetEvalRunDocument = {
                               kind: "Field",
                               name: { kind: "Name", value: "groundTruth" },
                             },
+                            {
+                              kind: "Field",
+                              name: {
+                                kind: "Name",
+                                value: "representativeImageUrl",
+                              },
+                            },
                           ],
                         },
                       },
@@ -5016,6 +5035,54 @@ export const CancelEvalRunDocument = {
 } as unknown as DocumentNode<
   CancelEvalRunMutation,
   CancelEvalRunMutationVariables
+>;
+export const DeleteEvalRunDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteEvalRun" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "id" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteEvalRun" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "id" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "id" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "id" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteEvalRunMutation,
+  DeleteEvalRunMutationVariables
 >;
 export const ScoreEvalTrialDocument = {
   kind: "Document",
@@ -10883,6 +10950,10 @@ export const WorkQueryDocument = {
                           selections: [
                             {
                               kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
+                            {
+                              kind: "Field",
                               name: { kind: "Name", value: "note" },
                             },
                             {
@@ -10937,6 +11008,10 @@ export const WorkQueryDocument = {
                         selectionSet: {
                           kind: "SelectionSet",
                           selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "id" },
+                            },
                             {
                               kind: "Field",
                               name: { kind: "Name", value: "url" },

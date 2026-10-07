@@ -4,7 +4,14 @@ defmodule Meadow.Indexing.V2.Work do
   """
 
   alias Meadow.Data.FileSets
-  alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
+
+  alias Meadow.Data.Schemas.{
+    ControlledMetadataEntry,
+    NavPlaceEntry,
+    NoteEntry,
+    RelatedURLEntry
+  }
+
   alias Meadow.AI.Provenance
   alias Meadow.Search.Config
 
@@ -55,7 +62,8 @@ defmodule Meadow.Indexing.V2.Work do
       modified_date: work.updated_at,
       notes: encode_field(work.descriptive_metadata.notes),
       nav_place: encode_nav_place(work.descriptive_metadata.nav_place),
-      physical_description_material: work.descriptive_metadata.physical_description_material,
+      physical_description_material:
+        work.descriptive_metadata.physical_description_material,
       physical_description_size: work.descriptive_metadata.physical_description_size,
       preservation_level: encode_label(work.administrative_metadata.preservation_level),
       project: encode_project(work.administrative_metadata),
@@ -175,7 +183,7 @@ defmodule Meadow.Indexing.V2.Work do
 
   def encode_nav_place(nil), do: nil
 
-  def encode_nav_place(places) when is_list(places), do: places
+  def encode_nav_place(places) when is_list(places), do: Enum.map(places, &NavPlaceEntry.to_map/1)
 
   def encode_nav_place(_), do: nil
 
@@ -193,6 +201,7 @@ defmodule Meadow.Indexing.V2.Work do
       task_number: List.first(admin_metadata.project_task_number)
     }
   end
+
 
   def file_sets(work) do
     Enum.flat_map(["A", "P", "S", "X"], fn role ->

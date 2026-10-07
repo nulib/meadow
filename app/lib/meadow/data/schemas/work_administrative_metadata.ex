@@ -1,41 +1,29 @@
 defmodule Meadow.Data.Schemas.WorkAdministrativeMetadata do
   @moduledoc """
-  Administrative metadata embedded in Work records.
+  Administrative metadata for a Work. Everything lives on the
+  `work_administrative_metadata` row (one per work): coded terms and
+  `project_cycle` as columns, the repeating `project_*` fields as `text[]`.
+
+  Fields are declared in CSV export header order; see
+  `Meadow.Data.Schemas.MetadataSchema` for what each kind generates.
   """
 
-  import Ecto.Changeset
-  use Ecto.Schema
-  alias Meadow.Data.Types
+  use Meadow.Data.Schemas.MetadataSchema,
+    table: "work_administrative_metadata",
+    section: "administrative"
 
-  @timestamps_opts [type: :utc_datetime_usec]
-  embedded_schema do
-    field :library_unit, Types.CodedTerm
-    field :preservation_level, Types.CodedTerm
-    field :project_name, {:array, :string}, default: []
-    field :project_desc, {:array, :string}, default: []
-    field :project_proposer, {:array, :string}, default: []
-    field :project_manager, {:array, :string}, default: []
-    field :project_task_number, {:array, :string}, default: []
-    field :project_cycle, :string
-    field :status, Types.CodedTerm
+  metadata do
+    coded(:library_unit)
+    coded(:preservation_level)
 
-    timestamps()
+    values(:project_name)
+    values(:project_desc)
+    values(:project_proposer)
+    values(:project_manager)
+    values(:project_task_number)
+
+    string(:project_cycle)
+
+    coded(:status)
   end
-
-  def changeset(metadata, params) do
-    metadata
-    |> cast(params, [
-      :library_unit,
-      :preservation_level,
-      :project_name,
-      :project_desc,
-      :project_proposer,
-      :project_manager,
-      :project_task_number,
-      :project_cycle,
-      :status
-    ])
-  end
-
-  def field_names, do: __schema__(:fields) -- [:id, :inserted_at, :updated_at]
 end

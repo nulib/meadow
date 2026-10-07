@@ -38,7 +38,11 @@ defmodule MeadowWeb.MCP.Tools.ApplyWorkMetadataTest do
       assert {:reply, _response, _frame} = ApplyWorkMetadata.execute(args, frame)
 
       fresh = Meadow.Data.Works.get_work!(work.id)
-      assert fresh.descriptive_metadata.description == ["A test description."]
+
+      assert fresh.descriptive_metadata.description == [
+               "A test description."
+             ]
+
       assert fresh.descriptive_metadata.notes == []
 
       assert [

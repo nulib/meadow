@@ -20,6 +20,7 @@ defmodule Meadow.Utils.ExtractedMetadata do
   def transform(other), do: other
 
   defp transform_data("", _), do: %{}
+  defp transform_data(data, _) when data == %{}, do: %{}
 
   defp transform_data(data, transformer) do
     with value <- Map.get(data, "value") do

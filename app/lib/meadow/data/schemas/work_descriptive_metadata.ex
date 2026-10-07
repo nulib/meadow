@@ -1,123 +1,73 @@
 defmodule Meadow.Data.Schemas.WorkDescriptiveMetadata do
   @moduledoc """
-  Descriptive metadata embedded in Work records.
+  Descriptive metadata for a Work.
+
+  Everything except controlled terms, notes and related URLs lives on the
+  `work_descriptive_metadata` row (one per work, keyed by `work_id`): scalars
+  and coded terms as columns, repeating free text and EDTF dates as `text[]`,
+  and places as an embedded jsonb list. Controlled terms
+  (`work_controlled_entries`), notes (`work_notes`) and related URLs
+  (`work_related_urls`) are child rows, because each is either queried
+  relationally or carries a foreign key to `coded_terms`.
+
+  Fields are declared in CSV export header order; see
+  `Meadow.Data.Schemas.MetadataSchema` for what each kind generates.
   """
 
-  import Ecto.Changeset
-  use Ecto.Schema
-  alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
-  alias Meadow.Data.Types
+  use Meadow.Data.Schemas.MetadataSchema,
+    table: "work_descriptive_metadata",
+    section: "descriptive"
 
-  # {field_name, repeating}
-  @fields [
-    {:abstract, true},
-    {:alternate_title, true},
-    {:box_name, true},
-    {:box_number, true},
-    {:caption, true},
-    {:catalog_key, true},
-    {:citation, true},
-    {:cultural_context, true},
-    {:description, true},
-    {:folder_name, true},
-    {:folder_number, true},
-    {:identifier, true},
-    {:keywords, true},
-    {:legacy_identifier, true},
-    {:terms_of_use, false},
-    {:physical_description_material, true},
-    {:physical_description_size, true},
-    {:provenance, true},
-    {:publisher, true},
-    {:related_material, true},
-    {:rights_holder, true},
-    {:scope_and_contents, true},
-    {:series, true},
-    {:source, true},
-    {:table_of_contents, true},
-    {:title, false}
-  ]
+  alias Meadow.Data.Schemas.{NoteEntry, RelatedURLEntry}
 
-  @map_fields [
-    :nav_place
-  ]
+  metadata do
+    values(:abstract)
+    values(:alternate_title)
+    values(:box_name)
+    values(:box_number)
+    values(:caption)
+    values(:catalog_key)
+    values(:citation)
+    values(:cultural_context)
+    values(:description)
+    values(:folder_name)
+    values(:folder_number)
+    values(:identifier)
+    values(:keywords)
+    values(:legacy_identifier)
 
-  @coded_fields [
-    :license,
-    :rights_statement
-  ]
+    string(:terms_of_use)
 
-  @controlled_fields [
-    :contributor,
-    :creator,
-    :genre,
-    :language,
-    :location,
-    :style_period,
-    :subject,
-    :technique
-  ]
+    values(:physical_description_material)
+    values(:physical_description_size)
+    values(:provenance)
+    values(:publisher)
+    values(:related_material)
+    values(:rights_holder)
+    values(:scope_and_contents)
+    values(:series)
+    values(:source)
+    values(:table_of_contents)
 
-  @edtf_fields [
-    :date_created
-  ]
+    string(:title)
 
-  @timestamps_opts [type: :utc_datetime_usec]
-  embedded_schema do
-    @fields
-    |> Enum.each(fn
-      {f, true} -> field f, {:array, :string}, default: []
-      {f, false} -> field f, :string
-    end)
+    places(:nav_place)
 
-    @map_fields
-    |> Enum.each(fn f ->
-      field f, {:array, :map}, default: []
-    end)
+    coded(:license)
+    coded(:rights_statement)
 
-    @coded_fields
-    |> Enum.each(fn f ->
-      field f, Types.CodedTerm
-    end)
+    controlled(:contributor, role_required: true)
+    controlled(:creator)
+    controlled(:genre)
+    controlled(:language)
+    controlled(:location)
+    controlled(:style_period)
+    controlled(:subject, role_required: true)
+    controlled(:technique)
 
-    @controlled_fields
-    |> Enum.each(fn f ->
-      embeds_many(f, ControlledMetadataEntry, on_replace: :delete)
-    end)
+    dates(:date_created)
 
-    @edtf_fields
-    |> Enum.each(fn f ->
-      field f, {:array, Types.EDTFDate}, default: []
-    end)
-
-    embeds_many(:notes, NoteEntry, on_replace: :delete)
-    embeds_many(:related_url, RelatedURLEntry, on_replace: :delete)
-
-    timestamps()
+    entries(:notes, NoteEntry)
+    entries(:related_url, RelatedURLEntry)
   end
-
-  def changeset(metadata, params) do
-    changeset =
-      metadata
-      |> cast(params, permitted())
-      |> cast_embed(:notes)
-      |> cast_embed(:related_url)
-
-    @controlled_fields
-    |> Enum.reduce(changeset, fn
-      :subject, acc ->
-        cast_embed(acc, :subject, with: &ControlledMetadataEntry.changeset_with_role/2)
-
-      :contributor, acc ->
-        cast_embed(acc, :contributor, with: &ControlledMetadataEntry.changeset_with_role/2)
-
-      field, acc ->
-        cast_embed(acc, field)
-    end)
-  end
-
-  def permitted, do: @coded_fields ++ scalar_fields() ++ @map_fields ++ @edtf_fields
-
-  defp scalar_fields, do: @fields |> Enum.map(fn {name, _} -> name end)
-  def field_names, do: __schema__(:fields) -- [:id, :inserted_at, :updated_at]
 end

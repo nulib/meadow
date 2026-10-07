@@ -276,7 +276,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
         |> Multi.run("provenance", fn _repo, _ -> {:error, :provenance_failed} end)
 
       assert {:error, "provenance", :provenance_failed, _} = Repo.transaction(multi)
-      assert Repo.get!(Work, work.id).descriptive_metadata.title == original_title
+      assert Works.get_work!(work.id).descriptive_metadata.title == original_title
     end
 
     test "record_ai_provenance converts recording failures into an error tuple",
@@ -436,15 +436,21 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                %{errors: %{"id" => ~s'"NOT_A_UUID" is not a valid UUID'}, row: 13},
                %{
                  errors: %{
-                   "date_created" => ~s'[%{edtf: "bad_date"}, %{edtf: "201?"}] is invalid'
+                   "date_created#1" => [~s'"bad_date" is not a valid EDTF date']
                  },
                  row: 14
                },
-               %{errors: %{"id" => ~s'"0bde5432-0b7b-4f80-98fb-5f7ceff98dee" not found'}, row: 18},
+               %{
+                 errors: %{"id" => ~s'"0bde5432-0b7b-4f80-98fb-5f7ceff98dee" not found'},
+                 row: 18
+               },
                %{errors: %{"subject#3" => ["can't be blank"]}, row: 21},
                %{errors: %{"published" => ~s'"flase" is invalid'}, row: 26},
                %{errors: %{"id" => "is required"}, row: 28},
-               %{errors: %{"accession_number" => ~s'"MISMATCHED_ACCESSION" does not match'}, row: 37}
+               %{
+                 errors: %{"accession_number" => ~s'"MISMATCHED_ACCESSION" does not match'},
+                 row: 37
+               }
              ]
     end
   end

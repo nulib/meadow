@@ -58,7 +58,7 @@ defmodule Meadow.Data.Planner do
   alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment}
   alias Meadow.Data.Schemas.{Plan, PlanChange}
-  alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Schemas.{Work, WorkDescriptiveMetadata}
   alias Meadow.Data.Works
   alias Meadow.Repo
   alias Meadow.Utils.{Atoms, ChangesetErrors, StructMap}
@@ -72,7 +72,7 @@ defmodule Meadow.Data.Planner do
       [%Plan{}, ...]
   """
   def list_plans do
-    Repo.all(Plan)
+    Plan |> Repo.all() |> load_plan_changes()
   end
 
   @doc """
@@ -91,6 +91,7 @@ defmodule Meadow.Data.Planner do
     criteria
     |> plan_query()
     |> Repo.all()
+    |> load_plan_changes()
   end
 
   @doc """
@@ -135,6 +136,7 @@ defmodule Meadow.Data.Planner do
   def get_plan!(id, opts \\ []) do
     get_plan_query(id, opts)
     |> Repo.one!()
+    |> load_plan_changes()
   end
 
   @doc """
@@ -153,6 +155,7 @@ defmodule Meadow.Data.Planner do
   def get_plan(id, opts \\ []) do
     get_plan_query(id, opts)
     |> Repo.one()
+    |> load_plan_changes()
   end
 
   @doc """
@@ -186,7 +189,7 @@ defmodule Meadow.Data.Planner do
         query
       end
 
-    Repo.all(query)
+    query |> Repo.all() |> load_plan_changes()
   end
 
   @doc """
@@ -207,7 +210,7 @@ defmodule Meadow.Data.Planner do
         query
       end
 
-    Repo.all(query)
+    query |> Repo.all() |> load_plan_changes()
   end
 
   @doc """
@@ -491,6 +494,7 @@ defmodule Meadow.Data.Planner do
   def list_plan_changes(plan_id) when is_binary(plan_id) do
     from(c in PlanChange, where: c.plan_id == ^plan_id, order_by: [asc: :inserted_at])
     |> Repo.all()
+    |> PlanChange.load_operations()
   end
 
   @doc """
@@ -529,6 +533,7 @@ defmodule Meadow.Data.Planner do
     |> plan_change_query()
     |> order_by([c], asc: c.inserted_at)
     |> Repo.all()
+    |> PlanChange.load_operations()
   end
 
   @doc """
@@ -569,7 +574,7 @@ defmodule Meadow.Data.Planner do
       %PlanChange{}
   """
   def get_plan_change!(id) do
-    Repo.get!(PlanChange, id)
+    Repo.get!(PlanChange, id) |> PlanChange.load_operations()
   end
 
   @doc """
@@ -586,7 +591,7 @@ defmodule Meadow.Data.Planner do
       nil
   """
   def get_plan_change(id) do
-    Repo.get(PlanChange, id)
+    Repo.get(PlanChange, id) |> PlanChange.load_operations()
   end
 
   def get_plan_changes_by_work(%Plan{id: plan_id}, work_id),
@@ -599,6 +604,7 @@ defmodule Meadow.Data.Planner do
       when is_binary(plan_id) and is_binary(work_id) do
     from(c in PlanChange, where: c.plan_id == ^plan_id and c.work_id == ^work_id)
     |> Repo.all()
+    |> PlanChange.load_operations()
   end
 
   @doc """
@@ -842,6 +848,7 @@ defmodule Meadow.Data.Planner do
       where: ^change_fragment(:not_empty)
     )
     |> Repo.all()
+    |> PlanChange.load_operations()
   end
 
   @doc """
@@ -996,6 +1003,7 @@ defmodule Meadow.Data.Planner do
       order_by: [asc: :inserted_at]
     )
     |> Repo.all()
+    |> PlanChange.load_operations()
   end
 
   defp validate_has_changes([]), do: {:error, "No approved changes to apply"}
@@ -1157,7 +1165,9 @@ defmodule Meadow.Data.Planner do
 
     Logger.debug("Validated #{length(valid_work_ids)} work IDs exist in database")
 
-    # Create PlanChange records with empty add/delete/replace maps
+    # Create PlanChange records with no operations yet. The add/delete/replace
+    # maps are virtual (backed by plan_change_operations rows), so they are
+    # not part of the insert; an empty plan change simply has no rows.
     entries =
       Enum.map(valid_work_ids, fn work_id ->
         Logger.debug("Creating PlanChange for work #{work_id} in plan #{plan_id}")
@@ -1165,7 +1175,6 @@ defmodule Meadow.Data.Planner do
         %{
           plan_id: plan_id,
           work_id: work_id,
-          add: %{},
           status: :pending,
           inserted_at: DateTime.utc_now(),
           updated_at: DateTime.utc_now()
@@ -1175,14 +1184,17 @@ defmodule Meadow.Data.Planner do
     {count, inserted_changes} = Repo.insert_all(PlanChange, entries, returning: true)
     Logger.debug("Created #{count} PlanChanges for plan #{plan_id}")
 
-    # Broadcast each created plan change
+    # Broadcast each created plan change with empty operation maps so
+    # subscribers see the same shape as a loaded change
     Enum.each(inserted_changes, fn plan_change ->
-      broadcast_plan_change_update(plan_change, "created")
+      plan_change
+      |> Map.merge(%{add: %{}, delete: %{}, replace: %{}, operations: []})
+      |> broadcast_plan_change_update("created")
     end)
   end
 
   defp apply_change_to_work(%PlanChange{work_id: work_id} = plan_change) do
-    case Repo.get(Work, work_id) do
+    case Works.get_work(work_id) do
       nil ->
         {:error, "Work not found"}
 
@@ -1192,7 +1204,7 @@ defmodule Meadow.Data.Planner do
   end
 
   defp prior_values_for_change(%PlanChange{work_id: work_id} = change) do
-    case Repo.get(Work, work_id) do
+    case Works.get_work(work_id) do
       nil -> %{}
       work -> Provenance.prior_values_for_change(work, change)
     end
@@ -1211,12 +1223,12 @@ defmodule Meadow.Data.Planner do
       apply_uncontrolled_field_operations(work, add, replace)
 
       # Reload the work to get the updated state
-      Repo.get!(Work, work.id)
+      Works.get_work!(work.id)
     end)
   end
 
-  @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
-  @coded_fields ~w(license rights_statement)a
+  @controlled_fields WorkDescriptiveMetadata.__metadata__(:fields, :controlled)
+  @coded_fields WorkDescriptiveMetadata.__metadata__(:fields, :coded)
   @single_valued_fields ~w(title)
 
   defp apply_controlled_field_operations(work, delete, add) do
@@ -1240,14 +1252,7 @@ defmodule Meadow.Data.Planner do
     require Logger
     Logger.debug("Applying controlled field operation for #{field}")
 
-    from(w in Work, where: w.id == ^work_id)
-    |> Works.replace_controlled_value(
-      :descriptive_metadata,
-      to_string(field),
-      delete_values,
-      add_values
-    )
-    |> Repo.update_all([])
+    Works.replace_controlled_values([work_id], field, delete_values, add_values)
   end
 
   defp prepare_controlled_field_list(nil), do: []
@@ -1353,14 +1358,7 @@ defmodule Meadow.Data.Planner do
 
     # Always use replace mode for coded fields to avoid creating arrays
     if map_size(coded_fields_metadata) > 0 do
-      from(w in Work, where: w.id == ^work_id)
-      |> Works.merge_metadata_values(
-        :descriptive_metadata,
-        coded_fields_metadata,
-        :replace
-      )
-      |> Works.merge_updated_at()
-      |> Repo.update_all([])
+      Works.merge_metadata([work_id], %{descriptive_metadata: coded_fields_metadata}, :replace)
     end
 
     work_id
@@ -1384,14 +1382,7 @@ defmodule Meadow.Data.Planner do
 
     # Always use replace mode for single-valued fields to avoid creating arrays
     if map_size(single_valued_metadata) > 0 do
-      from(w in Work, where: w.id == ^work_id)
-      |> Works.merge_metadata_values(
-        :descriptive_metadata,
-        single_valued_metadata,
-        :replace
-      )
-      |> Works.merge_updated_at()
-      |> Repo.update_all([])
+      Works.merge_metadata([work_id], %{descriptive_metadata: single_valued_metadata}, :replace)
     end
 
     work_id
@@ -1427,19 +1418,14 @@ defmodule Meadow.Data.Planner do
       |> Enum.into(%{})
 
     if map_size(mergeable_descriptive_metadata) + map_size(mergeable_administrative_metadata) > 0 do
-      from(w in Work, where: w.id == ^work_id)
-      |> Works.merge_metadata_values(
-        :descriptive_metadata,
-        mergeable_descriptive_metadata,
+      Works.merge_metadata(
+        [work_id],
+        %{
+          descriptive_metadata: mergeable_descriptive_metadata,
+          administrative_metadata: mergeable_administrative_metadata
+        },
         mode
       )
-      |> Works.merge_metadata_values(
-        :administrative_metadata,
-        mergeable_administrative_metadata,
-        mode
-      )
-      |> Works.merge_updated_at()
-      |> Repo.update_all([])
     end
 
     work_id
@@ -1508,7 +1494,7 @@ defmodule Meadow.Data.Planner do
 
   defp maybe_reload_plan(plan) do
     if Ecto.assoc_loaded?(plan.plan_changes) do
-      Repo.preload(plan, :plan_changes)
+      plan |> Repo.preload(:plan_changes) |> load_plan_changes()
     else
       plan
     end
@@ -1523,6 +1509,15 @@ defmodule Meadow.Data.Planner do
 
   defp preload_plan_changes(query, _), do: query
 
+  # Populate the operation maps of a plan's preloaded changes
+  defp load_plan_changes(nil), do: nil
+  defp load_plan_changes(plans) when is_list(plans), do: Enum.map(plans, &load_plan_changes/1)
+
+  defp load_plan_changes(%Plan{plan_changes: changes} = plan) when is_list(changes),
+    do: %{plan | plan_changes: PlanChange.load_operations(changes)}
+
+  defp load_plan_changes(plan), do: plan
+
   defp validate_plan_changes(%Plan{id: plan_id}) do
     try do
       changes =
@@ -1532,6 +1527,7 @@ defmodule Meadow.Data.Planner do
           where: ^change_fragment(:not_empty)
         )
         |> Repo.all()
+        |> PlanChange.load_operations()
 
       invalid_changes = Enum.filter(changes, &has_invalid_coded_terms?/1)
 
@@ -1597,41 +1593,11 @@ defmodule Meadow.Data.Planner do
   defp change_fragment(true), do: change_fragment(:not_empty)
   defp change_fragment(false), do: change_fragment(:empty)
 
-  defp change_fragment(:empty) do
-    dynamic(
-      [c],
-      fragment(
-        """
-          (?.add IS NULL OR ?.add = jsonb_build_object())
-          AND (?.delete IS NULL OR ?.delete = jsonb_build_object())
-          AND (?.replace IS NULL OR ?.replace = jsonb_build_object())
-        """,
-        c,
-        c,
-        c,
-        c,
-        c,
-        c
-      )
-    )
-  end
+  # A change "has changes" when it has at least one operation row
+  defp change_fragment(:empty), do: dynamic([c], c.id not in subquery(changed_ids()))
+  defp change_fragment(:not_empty), do: dynamic([c], c.id in subquery(changed_ids()))
 
-  defp change_fragment(:not_empty) do
-    dynamic(
-      [c],
-      fragment(
-        """
-          (?.add IS NOT NULL AND ?.add != jsonb_build_object())
-          OR (?.delete IS NOT NULL AND ?.delete != jsonb_build_object())
-          OR (?.replace IS NOT NULL AND ?.replace != jsonb_build_object())
-        """,
-        c,
-        c,
-        c,
-        c,
-        c,
-        c
-      )
-    )
-  end
+  defp changed_ids,
+    do:
+      from(o in Meadow.Data.Schemas.PlanChangeOperation, select: o.plan_change_id, distinct: true)
 end

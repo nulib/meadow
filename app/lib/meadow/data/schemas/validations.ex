@@ -4,32 +4,43 @@ defmodule Meadow.Data.Schemas.Validations do
   validations
   """
 
-  @doc """
-  If a `cast_embed()` will result in a `nil` value (either on create or
-  update), set it to an empty embedded struct instead
-  """
   import Ecto.Changeset
+  alias Ecto.Association.NotLoaded
 
-  def prepare_embed(%Ecto.Changeset{data: data, params: params} = change, field)
+  @doc """
+  Make sure a one-to-one metadata association always has a row: if the parent
+  has no current row and the params do not mention the association (or set it
+  to nil), inject empty params so `cast_assoc` builds one.
+  """
+  def prepare_assoc(%Ecto.Changeset{data: data, params: params} = change, field)
       when is_atom(field) do
-    with f <- to_string(field),
-         current <- Enum.find([field, f], &Map.get(data, &1)) do
-      value =
-        cond do
-          Map.has_key?(params, f) and is_nil(Map.get(params, f)) -> empty_struct(data, field)
-          Map.has_key?(params, f) -> Map.get(params, f)
-          is_nil(current) -> empty_struct(data, field)
-          true -> nil
-        end
+    f = to_string(field)
 
-      case value do
-        nil ->
-          change
+    if needs_empty_params?(fetch_param(params, field, f), current_value(data, field)) do
+      %{change | params: params |> Map.delete(field) |> Map.put(f, %{})}
+    else
+      change
+    end
+  end
 
-        value ->
-          params = Map.put(params, f, value)
-          Map.put(change, :params, params)
-      end
+  # nil params or no params with no current row: build an empty row
+  defp needs_empty_params?({:ok, nil}, _current), do: true
+  defp needs_empty_params?({:ok, _params}, _current), do: false
+  defp needs_empty_params?(:error, nil), do: true
+  defp needs_empty_params?(:error, _current), do: false
+
+  defp fetch_param(params, field, f) do
+    cond do
+      Map.has_key?(params, f) -> {:ok, Map.get(params, f)}
+      Map.has_key?(params, field) -> {:ok, Map.get(params, field)}
+      true -> :error
+    end
+  end
+
+  defp current_value(data, field) do
+    case Map.get(data, field) do
+      %NotLoaded{} -> nil
+      value -> value
     end
   end
 
@@ -39,15 +50,5 @@ defmodule Meadow.Data.Schemas.Validations do
         do: [],
         else: [{field, "cannot have leading or trailing spaces"}]
     end)
-  end
-
-  defp empty_struct(data, field) do
-    field_spec =
-      case data.__struct__.__schema__(:type, field) do
-        {:parameterized, _type, f} -> f
-        {:parameterized, {_type, f}} -> f
-      end
-
-    field_spec.related.__struct__() |> Map.from_struct()
   end
 end

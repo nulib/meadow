@@ -55,7 +55,8 @@ defmodule Meadow.Pipeline.Actions.CreateDerivativeCopy do
     with src_location <- file_set.core_metadata.location,
          %{host: src_bucket, path: "/" <> src_key} <- URI.parse(src_location),
          %{host: dest_bucket, path: "/" <> dest_key} <- URI.parse(dest_location),
-         s3_metadata <- file_set.core_metadata.digests |> Enum.into([]) do
+         digests <- Meadow.Data.Schemas.FileSetCoreMetadata.digests(file_set.core_metadata) || %{},
+         s3_metadata <- Enum.into(digests, []) do
       Logger.info(
         "Making derivitive copy of source: #{src_location}, destination:  #{dest_location}"
       )
@@ -67,7 +68,7 @@ defmodule Meadow.Pipeline.Actions.CreateDerivativeCopy do
         end
 
       tagging =
-        file_set.core_metadata.digests
+        digests
         |> Enum.map_join("&", fn {tag, value} -> ["computed-#{tag}", value] |> Enum.join("=") end)
 
       case AWS.copy_object(
