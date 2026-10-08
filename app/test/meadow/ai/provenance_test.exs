@@ -2,7 +2,7 @@ defmodule Meadow.AI.ProvenanceTest do
   use Meadow.DataCase
 
   alias Meadow.AI.Provenance
-  alias Meadow.AI.Provenance.Export.{C2PAReadiness, PREMIS, UVA}
+  alias Meadow.AI.Provenance.Export.{C2PA, C2PAReadiness, PREMIS, UVA}
 
   describe "activities" do
     test "creates activities, sources, targets, and events" do
@@ -172,6 +172,253 @@ defmodule Meadow.AI.ProvenanceTest do
       assert %{citation_completeness: "complete"} = UVA.work(work.id)
       assert %{objects: [_ | _], events: [_ | _]} = PREMIS.work(work.id)
       assert %{ready: true, activities: [%{targets: [%{ready: true}]}]} = C2PAReadiness.work(work.id)
+    end
+
+    test "exports a C2PA projection normalized to the specification" do
+      work = work_fixture()
+      source_work = work_fixture()
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_direct_apply",
+          model: "test-model",
+          model_provider: "test-provider",
+          model_version: "v1",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      {:ok, _source} =
+        Provenance.add_source(activity, %{
+          collection_title: "Test Collection",
+          item_id: source_work.id,
+          item_type: "Work",
+          work_id: source_work.id,
+          holding_organization: "Northwestern University Libraries",
+          access_link: "https://dc.example/items/#{source_work.id}"
+        })
+
+      {:ok, _restricted} =
+        Provenance.add_source(activity, %{
+          item_id: "restricted-item",
+          item_type: "FileSet",
+          restricted: true,
+          access_link: "https://dc.example/items/restricted"
+        })
+
+      {:ok, description} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: work.id,
+            field_path: "descriptive_metadata.description",
+            operation: "replace",
+            proposed_value: ["Description"],
+            origin: "ai_generated",
+            status: "applied",
+            digital_source_type_uri: Provenance.trained_source_type()
+          },
+          "applied"
+        )
+
+      {:ok, _event} =
+        Provenance.add_event(description, %{
+          event_type: "human_edited",
+          actor: "staff-member",
+          occurred_at: DateTime.add(DateTime.utc_now(), 60, :second)
+        })
+
+      {:ok, _deleted} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: work.id,
+            field_path: "descriptive_metadata.abstract",
+            operation: "delete",
+            origin: "ai_generated",
+            status: "applied",
+            c2pa_action: "c2pa.removed"
+          },
+          "applied"
+        )
+
+      # Neither a pending proposal nor another object's target is part of this
+      # work's record.
+      for attrs <- [
+            %{target_id: work.id, field_path: "descriptive_metadata.title", status: "proposed"},
+            %{
+              target_type: "FileSetAnnotation",
+              target_id: Ecto.UUID.generate(),
+              field_path: "file_set_annotations.content",
+              status: "applied"
+            }
+          ] do
+        {:ok, _} =
+          Provenance.record_target(
+            activity,
+            Map.merge(
+              %{
+                target_type: "Work",
+                operation: "replace",
+                proposed_value: ["Value"],
+                origin: "ai_generated",
+                digital_source_type_uri: Provenance.trained_source_type()
+              },
+              attrs
+            ),
+            if(attrs.status == "applied", do: "applied", else: "proposed")
+          )
+      end
+
+      export = C2PA.work(work.id)
+      ingredient_id = "work:#{source_work.id}"
+
+      assert %{standard: "C2PA", spec_version: "2.4"} = export
+
+      assert export.digital_source_type ==
+               "http://cv.iptc.org/newscodes/digitalsourcetype/compositeWithTrainedAlgorithmicMedia"
+
+      actions =
+        Enum.sort_by(
+          export.actions,
+          &{&1.parameters["edu.northwestern.library.fieldPath"], &1.when}
+        )
+      assert [deleted, applied, edited] = actions
+
+      assert %{
+               action: "c2pa.edited",
+               digitalSourceType:
+                 "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia",
+               softwareAgent: %{name: "test-model", version: "v1"},
+               parameters: %{
+                 "ingredientIds" => ingredient_ids,
+                 "edu.northwestern.library.fieldPath" => "descriptive_metadata.description",
+                 "edu.northwestern.library.eventType" => "applied"
+               }
+             } = applied
+
+      assert ingredient_id in ingredient_ids
+
+      assert %{
+               action: "c2pa.edited",
+               digitalSourceType: "http://cv.iptc.org/newscodes/digitalsourcetype/humanEdits",
+               softwareAgent: %{name: "Meadow"}
+             } = edited
+
+      refute Map.has_key?(edited.parameters, "ingredientIds")
+
+      assert %{action: "c2pa.deleted"} = deleted
+      refute Map.has_key?(deleted, :digitalSourceType)
+
+      assert [
+               %{
+                 modelType: "c2pa.types.model",
+                 modelName: "test-model",
+                 modelIdentifier: "test-provider:v1",
+                 contentProfile: %{humanOversightLevel: "prompt_guided"}
+               }
+             ] = export.ai_disclosures
+
+      assert [restricted, ingredient] = Enum.sort_by(export.ingredients, & &1.id)
+
+      assert %{
+               id: ^ingredient_id,
+               relationship: "inputTo",
+               informationalURI: "https://dc.example/items/" <> _
+             } = ingredient
+
+      assert ingredient.instanceID == "urn:uuid:#{source_work.id}"
+      assert %{id: "fileset:restricted-item"} = restricted
+      refute Map.has_key?(restricted, :informationalURI)
+
+      # The projection has to survive the trip through the index as JSON.
+      assert {:ok, _} = Jason.encode(export)
+    end
+
+    test "public projections never name a staff member" do
+      work = work_fixture()
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          model: "test-model",
+          initiated_by: "staff-initiator",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      {:ok, target} =
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: work.id,
+            field_path: "descriptive_metadata.description",
+            operation: "replace",
+            proposed_value: ["Description"],
+            origin: "ai_generated",
+            status: "applied",
+            actor: "staff-applier",
+            digital_source_type_uri: Provenance.trained_source_type()
+          },
+          "applied"
+        )
+
+      {:ok, _event} =
+        Provenance.add_event(target, %{
+          event_type: "approved",
+          actor: "staff-reviewer",
+          notes: "Checked against the finding aid by staff-reviewer"
+        })
+
+      # Meadow itself keeps the full record.
+      internal = PREMIS.work(work.id)
+      assert Enum.any?(internal.agents, &(&1.name == "staff-reviewer"))
+      assert [%{reviewer: "staff-reviewer"}] = Provenance.work_summary(work.id)
+
+      activities = Provenance.list_activities(work_id: work.id)
+      premis = PREMIS.work(work.id, activities, public: true)
+
+      assert Enum.any?(premis.agents, &(&1.name == "test-model"))
+
+      assert [
+               %{
+                 identifier: %{type: "role", value: "staff"},
+                 name: "Northwestern University Libraries staff"
+               }
+             ] = Enum.filter(premis.agents, &(&1.type == "human"))
+
+      # A reviewed field is still credited, collectively.
+      assert %{
+               "descriptive_metadata.description" => %{
+                 reviewer: "Northwestern University Libraries staff"
+               }
+             } = Provenance.work_summary_map(work.id)
+
+      assert premis.events
+             |> Enum.flat_map(& &1.linking_agents)
+             |> Enum.any?(&(&1.agent_identifier == %{type: "role", value: "staff"}))
+
+      public =
+        Jason.encode!(%{
+          premis: premis,
+          c2pa: C2PA.work(work.id, activities),
+          work: Provenance.work_summary_map(work.id),
+          target: Provenance.target_summary_map("Work", work.id)
+        })
+
+      for name <- ~w(staff-initiator staff-applier staff-reviewer) do
+        refute public =~ name
+      end
+    end
+
+    test "C2PA projection makes no AI claim for a work without applied AI content" do
+      work = work_fixture()
+
+      assert %{digital_source_type: nil, actions: [], ai_disclosures: [], ingredients: []} =
+               C2PA.work(work.id)
     end
   end
 

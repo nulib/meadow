@@ -6,6 +6,7 @@ defmodule Meadow.Indexing.V2.Work do
   alias Meadow.Data.FileSets
   alias Meadow.Data.Schemas.{ControlledMetadataEntry, NoteEntry, RelatedURLEntry}
   alias Meadow.AI.Provenance
+  alias Meadow.AI.Provenance.Export
   alias Meadow.Search.Config
 
   def encode(work) do
@@ -41,6 +42,7 @@ defmodule Meadow.Indexing.V2.Work do
       id: work.id,
       ai_provenance: Provenance.summary_map(ai_provenance),
       ai_involved: Provenance.ai_involvement(ai_provenance, work.id),
+      ai_provenance_exports: provenance_exports(work.id),
       identifier: work.descriptive_metadata.identifier,
       iiif_manifest: manifest_id(work),
       indexed_at: NaiveDateTime.utc_now(),
@@ -83,6 +85,22 @@ defmodule Meadow.Indexing.V2.Work do
     }
     |> Meadow.Utils.Map.nillify_empty()
     |> prepare_embedding_field()
+  end
+
+  # Standards-shaped projections of the work's AI provenance for dc-api-v2 to
+  # publish (`?as=premis`) or sign (`?as=c2pa`). Stored but not searchable.
+  # The index is public, so neither projection may name a staff member.
+  defp provenance_exports(work_id) do
+    case Provenance.list_activities(work_id: work_id) do
+      [] ->
+        nil
+
+      activities ->
+        %{
+          premis: Export.PREMIS.work(work_id, activities, public: true),
+          c2pa: Export.C2PA.work(work_id, activities)
+        }
+    end
   end
 
   defp prepare_embedding_field(map) do

@@ -8,15 +8,33 @@ defmodule Meadow.AI.Provenance.Export.PREMIS do
 
   alias Meadow.AI.Provenance
 
-  def work(work_id) do
-    activities = Provenance.list_activities(work_id: work_id)
+  # Stands in for every person in a public projection: PREMIS events keep an
+  # agent to link to, but who on staff acted stays in Meadow.
+  @staff_agent %{
+    identifier: %{type: "role", value: "staff"},
+    type: "human",
+    name: Provenance.staff_label(),
+    version: nil
+  }
+
+  def work(work_id), do: work(work_id, Provenance.list_activities(work_id: work_id))
+
+  @doc """
+  Build the projection from activities that have already been loaded, so
+  index-time callers can share one query across exports.
+
+  With `public: true` the projection is safe to publish: people are replaced by
+  a single anonymous staff agent, and reviewers' free-text notes are left out.
+  """
+  def work(work_id, activities, opts \\ []) do
+    public? = Keyword.get(opts, :public, false)
 
     %{
       premis_version: "3.0",
       scope: %{work_id: work_id},
       objects: activities |> Enum.flat_map(&objects/1) |> uniq_by_id(),
-      events: activities |> Enum.flat_map(&events/1),
-      agents: activities |> Enum.flat_map(&agents/1) |> uniq_by_id(),
+      events: activities |> Enum.flat_map(&events(&1, public?)),
+      agents: activities |> Enum.flat_map(&agents(&1, public?)) |> uniq_by_id(),
       rights: activities |> Enum.map(&rights_statement/1) |> Enum.reject(&is_nil/1)
     }
   end
@@ -54,7 +72,7 @@ defmodule Meadow.AI.Provenance.Export.PREMIS do
     source_objects ++ target_objects
   end
 
-  defp events(activity) do
+  defp events(activity, public?) do
     Enum.flat_map(activity.targets || [], fn target ->
       Enum.map(target.events || [], fn event ->
         %{
@@ -62,16 +80,16 @@ defmodule Meadow.AI.Provenance.Export.PREMIS do
           type: event.premis_event_type || event.event_type,
           date_time: event.occurred_at,
           outcome: event.outcome,
-          outcome_detail: event.outcome_detail || event.notes,
+          outcome_detail: event.outcome_detail || unless(public?, do: event.notes),
           activity_id: activity.id,
           target: object_identifier(target.object_identifier_type, target.object_identifier_value || target.target_id),
-          linking_agents: linking_agents(event)
+          linking_agents: linking_agents(event, public?)
         }
       end)
     end)
   end
 
-  defp agents(activity) do
+  defp agents(activity, public?) do
     activity_agents =
       [
         agent("software", activity.system_name, "system", activity.system_version),
@@ -86,31 +104,49 @@ defmodule Meadow.AI.Provenance.Export.PREMIS do
         (event.agent_links || [])
         |> Enum.map(& &1.agent)
         |> Enum.reject(&is_nil/1)
-        |> Enum.map(fn agent ->
-          %{
-            identifier: object_identifier(agent.identifier_type || agent.agent_type, agent.identifier_value || agent.id),
-            type: agent.agent_type,
-            name: agent.name,
-            version: agent.version
-          }
-        end)
+        |> Enum.map(&agent_entry(&1, public?))
       end)
 
     activity_agents ++ event_agents
   end
 
-  defp linking_agents(event) do
+  defp agent_entry(agent, public?) do
+    if public? and person?(agent) do
+      @staff_agent
+    else
+      %{
+        identifier: agent_identifier(agent),
+        type: agent.agent_type,
+        name: agent.name,
+        version: agent.version
+      }
+    end
+  end
+
+  defp linking_agents(event, public?) do
     Enum.map(event.agent_links || [], fn link ->
       %{
         role: link.role,
         agent_identifier:
-          object_identifier(
-            link.agent && (link.agent.identifier_type || link.agent.agent_type),
-            link.agent && (link.agent.identifier_value || link.agent.id)
-          )
+          cond do
+            is_nil(link.agent) -> nil
+            public? and person?(link.agent) -> @staff_agent.identifier
+            true -> agent_identifier(link.agent)
+          end
       }
     end)
   end
+
+  defp agent_identifier(agent) do
+    object_identifier(
+      agent.identifier_type || agent.agent_type,
+      agent.identifier_value || agent.id
+    )
+  end
+
+  # Anything not positively known to be software is treated as a person.
+  defp person?(agent),
+    do: agent.agent_type not in ~w(organization software model service signer)
 
   defp rights_statement(%{retention_policy: nil}), do: nil
 
