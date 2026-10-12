@@ -51,6 +51,7 @@ defmodule Meadow.Config.Runtime do
         Authoritex.LOC.Languages,
         Authoritex.LOC.Names,
         Authoritex.LOC.SubjectHeadings,
+        Authoritex.MeSH,
         NUL.Authority
       ],
       connection_pool: Meadow.FinchPool,
