@@ -72,6 +72,10 @@
     "label": "Library of Congress Subject Headings"
   },
   {
+    "id": "mesh",
+    "label": "NLM Medical Subject Headings (MeSH)"
+  },
+  {
     "id": "nul-authority",
     "label": "Northwestern University Libraries local authority"
   }
