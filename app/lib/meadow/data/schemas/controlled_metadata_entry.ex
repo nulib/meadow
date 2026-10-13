@@ -28,7 +28,7 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
 
   def changeset(metadata, params, position \\ nil) do
     metadata
-    |> cast(params, [:role, :term])
+    |> cast(params, [:field, :term])
     |> put_position(position)
     |> validate_required([:field, :term])
     |> unique_constraint([:field, :term], name: :work_controlled_entries_natural_key, message: "already exists")
@@ -36,7 +36,7 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
 
   def changeset_with_role(metadata, params, position \\ nil) do
     metadata
-    |> cast(params, [:role, :term])
+    |> cast(params, [:field, :term, :role])
     |> put_position(position)
     |> validate_required([:field, :term, :role])
     |> unique_constraint([:field, :term, :role], name: :work_controlled_entries_natural_key, message: "already exists")

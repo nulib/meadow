@@ -7,24 +7,28 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntryTest do
 
   @valid_attrs %{
     object_id: Ecto.UUID.generate(),
+    field: "contributor",
     role: %{id: "aut", scheme: "marc_relator"},
     term: %{id: "mock1:result1"}
   }
 
   @invalid_attrs %{
     object_id: Ecto.UUID.generate(),
+    field: "contributor",
     role: %{id: "aut", scheme: "marc_relator"},
     term: %{id: "wrong"}
   }
 
   @valid_subject_attributes %{
     object_id: Ecto.UUID.generate(),
+    field: "subject",
     role: %{id: "TOPICAL", scheme: "subject_role"},
     term: %{id: "mock1:result1"}
   }
 
   @invalid_subject_attributes %{
     object_id: Ecto.UUID.generate(),
+    field: "subject",
     term: %{id: "mock1:result1"}
   }
 
