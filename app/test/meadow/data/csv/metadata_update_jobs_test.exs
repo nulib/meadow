@@ -13,6 +13,33 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
   alias Meadow.Search.Document
   alias Meadow.Utils.Stream, as: StreamUtil
 
+  # Authorities that resolve the fixture's misspelled id.lock.gov term but fail
+  # in ways Authoritex.Mock can't simulate
+  defmodule BadResponseAuthority do
+    @moduledoc false
+    def code, do: "bad-response"
+    def description, do: "Returns a non-string error, like FAST's empty records"
+    def can_resolve?(id), do: String.starts_with?(id, "http://id.lock.gov/")
+    def fetch(_id), do: {:error, {:bad_response, "OTHER PROBLEM"}}
+    def search(_query, _max \\ 5), do: {:ok, []}
+  end
+
+  defmodule CrashingAuthority do
+    @moduledoc false
+    def code, do: "crashing"
+    def description, do: "Exits, like a stalled HTTP connection pool"
+    def can_resolve?(id), do: String.starts_with?(id, "http://id.lock.gov/")
+    def fetch(_id), do: exit(:timeout)
+    def search(_query, _max \\ 5), do: {:ok, []}
+  end
+
+  defp prepend_authority(authority) do
+    original = Application.get_env(:authoritex, :authorities)
+    Application.put_env(:authoritex, :authorities, [authority | original])
+    on_exit(fn -> Application.put_env(:authoritex, :authorities, original) end)
+    :ok
+  end
+
   setup %{source_url: source_url} do
     with filename <- Path.basename(source_url) do
       {:ok,
@@ -394,6 +421,54 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobsTest do
                  row: 0
                }
              ]
+    end
+  end
+
+  describe "controlled term with an unexpected error from the authority" do
+    @describetag source: "test/fixtures/csv/sheets/invalid_terms.csv"
+
+    setup do
+      prepend_authority(__MODULE__.BadResponseAuthority)
+    end
+
+    test "apply_job/1 reports the error instead of crashing", %{create_result: result} do
+      assert {:ok, job} = result
+      assert {:error, "validation", %{errors: errors}} = MetadataUpdateJobs.apply_job(job)
+
+      assert %{status: "invalid", active: false} = MetadataUpdateJobs.get_job(job.id)
+
+      assert errors == [
+               %{
+                 errors: %{
+                   "http://id.loc.gov/authorities/subjects/sh85070610 TOPICAL:http://id.loc.gov/authorities/subjects/sh85076671" =>
+                     "is from an unknown authority",
+                   "http://id.loc.gov/authorities/names/blahblah" =>
+                     "is from an unknown authority",
+                   "http://id.lock.gov/authorities/names/n79091588" =>
+                     ~s'failed validation because: {:bad_response, "OTHER PROBLEM"}'
+                 },
+                 row: 0
+               }
+             ]
+    end
+  end
+
+  describe "crash during validation" do
+    @describetag source: "test/fixtures/csv/sheets/invalid_terms.csv"
+
+    setup do
+      prepend_authority(__MODULE__.CrashingAuthority)
+    end
+
+    test "apply_job/1 marks the job invalid instead of leaving it validating",
+         %{create_result: result} do
+      assert {:ok, job} = result
+
+      assert {:error, "validation", %{errors: [%{row: 0, errors: %{source: [message]}}]}} =
+               MetadataUpdateJobs.apply_job(job)
+
+      assert message =~ ~r/^could not be validated: \*\* \(exit\)/
+      assert %{status: "invalid", active: false} = MetadataUpdateJobs.get_job(job.id)
     end
   end
 
