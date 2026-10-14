@@ -1,10 +1,13 @@
+locals {
+  meadow_certificate_name = join(".", compact([var.certificate_name, trimsuffix(data.aws_route53_zone.app_zone.name, ".")]))
+}
 resource "aws_ecs_cluster" "meadow" {
   name = var.stack_name
   tags = var.tags
 }
 
 data "aws_acm_certificate" "meadow_cert" {
-  domain = "${var.certificate_name}.${trimsuffix(data.aws_route53_zone.app_zone.name, ".")}"
+  domain = local.meadow_certificate_name
 }
 
 data "aws_caller_identity" "current" {}
