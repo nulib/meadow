@@ -25,7 +25,7 @@ variable "db_pool_size" {
 
 variable "certificate_name" {
   type    = string
-  default = "*"
+  default = ""
 }
 
 variable "digital_collections_bucket" {
