@@ -35,7 +35,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
 
     try do
       file_set.core_metadata.location
-      |> copy_hashes_from_s3()
+      |> gather_info_from_s3()
       |> handle_result(file_set)
     rescue
       Meadow.TimeoutError ->
@@ -48,9 +48,15 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
     end
   end
 
-  defp copy_hashes_from_s3(url) do
+  defp gather_info_from_s3(url) do
     %{host: bucket, path: "/" <> key} = URI.parse(url)
 
+    digests = copy_hashes_from_s3(bucket, key)
+    file_size = S3.head_object!(bucket, key).content_length
+    %{digests: digests, file_size: file_size}
+  end
+
+  defp copy_hashes_from_s3(bucket, key) do
     S3.get_object_tagging!(bucket, key)
     |> extract_tags()
     |> Enum.reject(&is_nil/1)
@@ -76,10 +82,8 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigests do
     [result | extract_tags(tags)]
   end
 
-  def handle_result(hashes, _) when map_size(hashes) == 0, do: :ok
-
-  def handle_result(hashes, file_set) do
-    FileSets.update_file_set(file_set, %{core_metadata: %{digests: hashes}})
+  def handle_result(metadata, file_set) do
+    FileSets.update_file_set(file_set, %{core_metadata: metadata})
     ActionStates.set_state!(file_set, __MODULE__, "ok")
     :ok
   end

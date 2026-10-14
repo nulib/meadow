@@ -107,6 +107,7 @@ defmodule Meadow.MixProject do
       {:req, "~> 0.7.3"},
       {:retry, "~> 0.19"},
       {:sitemapper, "~> 0.10"},
+      {:stream_gzip, "~> 0.4.2"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},

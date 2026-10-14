@@ -21,6 +21,7 @@ defmodule Meadow.Indexing.V2.FileSet do
       description: file_set.core_metadata.description,
       download_url: FileSets.download_uri_for(file_set),
       extracted_metadata: extracted_metadata(file_set.extracted_metadata),
+      file_size: file_set.core_metadata.file_size,
       group_with: file_set.group_with,
       id: file_set.id,
       image_caption: file_set.core_metadata.image_caption,
