@@ -91,3 +91,70 @@ defmodule Mix.Tasks.Meadow.Buckets.Seed do
     end
   end
 end
+
+defmodule Mix.Tasks.Meadow.Buckets.Inventory do
+  @shortdoc "Generate an S3-Inventory-style CSV for a bucket"
+  @moduledoc """
+  Usage: mix bucket.inventory BUCKET [OUTPUT.csv]
+  """
+  use Mix.Task
+
+  alias NimbleCSV.RFC4180, as: CSV
+
+  @headers ~w(Bucket Key Size LastModifiedDate StorageClass IsMultipartUploaded
+              ReplicationStatus IntelligentTieringAccessTier)
+
+  @impl Mix.Task
+  def run(args) do
+    Mix.Task.run("app.start")
+
+    {bucket, out_path} =
+      case args do
+        [bucket] -> {bucket, "#{bucket}-inventory.csv"}
+        [bucket, path] -> {bucket, path}
+        _ -> Mix.raise("Usage: mix bucket.inventory BUCKET [OUTPUT.csv]")
+      end
+
+    client = Meadow.AWS.client(:s3)
+
+    count =
+      File.open!(out_path, [:write, :utf8], fn file ->
+        IO.write(file, CSV.dump_to_iodata([@headers]))
+        write_pages(client, bucket, file, nil, 0)
+      end)
+
+    Mix.shell().info("Wrote #{count} rows to #{out_path}")
+  end
+
+  defp write_pages(client, bucket, file, token, count) do
+    {:ok, body, _resp} = AWS.S3.list_objects_v2(client, bucket, token)
+    result = body["ListBucketResult"]
+
+    rows = result |> Map.get("Contents") |> List.wrap() |> Enum.map(&row(bucket, &1))
+    IO.write(file, CSV.dump_to_iodata(rows))
+    count = count + length(rows)
+
+    Mix.shell().info("#{count} objects...")
+
+    if result["IsTruncated"] == "true" do
+      write_pages(client, bucket, file, result["NextContinuationToken"], count)
+    else
+      count
+    end
+  end
+
+  defp row(bucket, obj) do
+    [
+      bucket,
+      # S3 Inventory URL-encodes keys
+      URI.encode(obj["Key"], &(URI.char_unreserved?(&1) or &1 == ?/)),
+      to_string(obj["Size"]),
+      obj["LastModified"],
+      obj["StorageClass"] || "STANDARD",
+      # Multipart ETags look like "<md5>-<partcount>"
+      obj["ETag"] |> String.trim("\"") |> String.contains?("-") |> to_string(),
+      "COMPLETED",
+      "DEEP_ARCHIVE"
+    ]
+  end
+end
