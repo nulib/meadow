@@ -220,6 +220,7 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
   @desc "`file_set_core_metadata` represents all metadata associated with a file set object. It is stored in a single json field."
   object :file_set_core_metadata do
     field(:alt_text, :string)
+    field(:file_size, :integer)
     field(:image_caption, :string)
     field(:location, :string)
     field(:label, :string)

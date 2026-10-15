@@ -12,6 +12,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   alias Meadow.Utils.Stream, as: StreamUtil
 
   import Ecto.Query, warn: false
+  require Logger
 
   @chunk_size 500
   @runnable_states ~w(pending valid)
@@ -59,6 +60,21 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
     |> Repo.update!()
   end
 
+  # Anything that escapes validation would crash the update driver and leave
+  # the job stuck in "validating", so report it as a validation error instead.
+  defp safe_validate_source(source) do
+    validate_source(source)
+  catch
+    kind, reason ->
+      Logger.error(
+        "Unexpected error validating #{source}: " <>
+          Exception.format(kind, reason, __STACKTRACE__)
+      )
+
+      message = Exception.format_banner(kind, reason, __STACKTRACE__)
+      {:error, [%{row: 0, errors: %{source: ["could not be validated: #{message}"]}}]}
+  end
+
   defp validate_source(source) do
     validate_source(StreamUtil.exists?(source), source)
   end
@@ -91,7 +107,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
 
     {:ok, job} =
       with_locked_job(job, fn ->
-        case validate_source(job.source) do
+        case safe_validate_source(job.source) do
           {:ok, rows} ->
             update_job(job, %{status: "valid", rows: length(rows)})
 
@@ -284,7 +300,7 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
       |> Enum.map(fn
         {term, {:error, 404}} -> {term, "is an unknown term"}
         {term, {:error, :unknown_authority}} -> {term, "is from an unknown authority"}
-        {term, {:error, reason}} -> {term, "failed validation because: #{reason}"}
+        {term, {:error, reason}} -> {term, "failed validation because: #{format_reason(reason)}"}
       end)
       |> Enum.into(%{})
 
@@ -292,6 +308,11 @@ defmodule Meadow.Data.CSV.MetadataUpdateJobs do
   end
 
   defp validate_terms(other), do: other
+
+  defp format_reason(reason) when is_binary(reason) or is_atom(reason) or is_number(reason),
+    do: to_string(reason)
+
+  defp format_reason(reason), do: inspect(reason)
 
   defp validate_rows({import_stream, errors}) when errors == [] do
     changesets =

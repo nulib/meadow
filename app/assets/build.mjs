@@ -95,7 +95,7 @@ const scssPlugin = {
       const watchFiles = loadedUrls
         .filter((url) => url.protocol === "file:")
         .map((url) => fileURLToPath(url));
-      // esbuild then inlines @imports (e.g. leaflet's CSS) and url() assets.
+      // esbuild then inlines @imports (e.g. maplibre-gl's CSS) and url() assets.
       return {
         contents: css,
         loader: "css",

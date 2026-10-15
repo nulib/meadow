@@ -9,6 +9,7 @@ defmodule Meadow.Data.Schemas.FileSetCoreMetadata do
   @timestamps_opts [type: :utc_datetime_usec]
   embedded_schema do
     field :location
+    field :file_size, :integer
     field :original_filename
     field :description
     field :label
@@ -26,6 +27,7 @@ defmodule Meadow.Data.Schemas.FileSetCoreMetadata do
       :alt_text,
       :description,
       :digests,
+      :file_size,
       :image_caption,
       :label,
       :location,
