@@ -32,7 +32,7 @@
     "@nulib/design-system": "^1.6.2",
     "@nulib/use-markdown": "^0.2.3",
     "@radix-ui/react-dialog": "^1.1.16",
-    "@samvera/clover-iiif": "^3.11.0",
+    "@samvera/clover-iiif": "3.17.0",
     "@samvera/image-downloader": "^1.1.6",
     "bulma": "^0.9.4",
     "bulma-checkradio": "^2.1.3",
