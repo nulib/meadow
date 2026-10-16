@@ -2,8 +2,12 @@ defmodule Meadow.Repo.Migrations.DropJsonbMetadataColumns do
   @moduledoc """
   Final step of the jsonb-to-relational cutover: drop the jsonb columns whose
   data now lives in relational tables (see the migrations that created
-  `work_descriptive_metadata`, `file_set_core_metadata`,
-  `ingest_sheet_row_fields` and `plan_change_operations`, and ADR 32).
+  `work_descriptive_metadata`, `file_set_core_metadata` and
+  `ingest_sheet_row_fields`, and ADR 32).
+
+  Plan changes keep their jsonb (`plan_changes.add`/`delete`/`replace`): they
+  are working state for the planner rather than primary data, and nothing
+  queries inside them.
 
   Forward-only: `down/0` re-adds the columns empty so older migrations can
   still be rolled back structurally, but the jsonb data is gone.
@@ -22,12 +26,7 @@ defmodule Meadow.Repo.Migrations.DropJsonbMetadataColumns do
     {:file_sets, :derivatives, :map},
     {:ingest_sheet_rows, :fields, :jsonb},
     {:ingest_sheet_rows, :errors, :jsonb},
-    {:ingest_sheets, :state, :jsonb},
-    {:plan_changes, :add, :jsonb},
-    {:plan_changes, :delete, :jsonb},
-    {:plan_changes, :replace, :jsonb},
-    # never mapped by any schema
-    {:plan_changes, :changeset, :jsonb}
+    {:ingest_sheets, :state, :jsonb}
   ]
 
   def up do
