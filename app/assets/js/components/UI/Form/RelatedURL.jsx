@@ -66,6 +66,12 @@ const UIFormRelatedURL = ({
                     </p>
                     <input
                       type="hidden"
+                      name={`${itemName}.id`}
+                      {...register(`${itemName}.id`)}
+                      value={item.id || ""}
+                    />
+                    <input
+                      type="hidden"
                       name={`${itemName}.url`}
                       {...register(`${itemName}.url`)}
                       value={item.url}

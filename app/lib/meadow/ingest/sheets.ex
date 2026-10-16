@@ -119,6 +119,7 @@ defmodule Meadow.Ingest.Sheets do
   """
   def get_ingest_sheet_by_title(title) do
     from(s in Sheet, where: s.title == ^title)
+    |> with_state()
     |> Repo.one()
   end
 
@@ -134,6 +135,7 @@ defmodule Meadow.Ingest.Sheets do
   def list_ingest_sheets(project) do
     Sheet
     |> where([ingest_sheet], ingest_sheet.project_id == ^project.id)
+    |> with_state()
     |> Repo.all()
   end
 
@@ -145,6 +147,7 @@ defmodule Meadow.Ingest.Sheets do
   """
   def list_all_ingest_sheets do
     Sheet
+    |> with_state()
     |> Repo.all()
   end
 
@@ -164,6 +167,7 @@ defmodule Meadow.Ingest.Sheets do
   """
   def get_ingest_sheet!(id) do
     Sheet
+    |> with_state()
     |> Repo.get!(id)
   end
 
@@ -174,7 +178,7 @@ defmodule Meadow.Ingest.Sheets do
   def get_ingest_sheet_with_project!(id) do
     Sheet
     |> where([ingest_sheet], ingest_sheet.id == ^id)
-    |> preload(:project)
+    |> preload([:project, :state])
     |> Repo.one()
   end
 
@@ -210,10 +214,8 @@ defmodule Meadow.Ingest.Sheets do
       ]
   """
   def get_sheet_validation_state(id) do
-    Sheet
-    |> select([sheet], sheet.state)
-    |> where([sheet], sheet.id == ^id)
-    |> Repo.one()
+    from(s in Meadow.Ingest.Schemas.SheetState, where: s.sheet_id == ^id, order_by: s.name)
+    |> Repo.all()
   end
 
   @doc """
@@ -256,7 +258,7 @@ defmodule Meadow.Ingest.Sheets do
       get_sheet_validation_state(ingest_sheet.id)
       |> MapList.merge(:name, :state, updates)
       |> Enum.map(fn
-        %Sheet.State{} = m -> Map.from_struct(m)
+        %Meadow.Ingest.Schemas.SheetState{name: name, state: state} -> %{name: name, state: state}
         other -> other
       end)
 
@@ -373,20 +375,20 @@ defmodule Meadow.Ingest.Sheets do
     |> Repo.aggregate(:count)
   end
 
-  def appended_file_set_count(%Sheet{} = ingest_sheet), do: appended_file_set_count(ingest_sheet.id)
+  def appended_file_set_count(%Sheet{} = ingest_sheet),
+    do: appended_file_set_count(ingest_sheet.id)
 
   def appended_file_set_count(sheet_id) do
     from(r in Row,
+      as: :row,
       where: r.sheet_id == ^sheet_id,
       where:
-        fragment(
-          """
-          EXISTS (
-            SELECT 1 FROM jsonb_array_elements(fields) AS f
-            WHERE f->>'header' = 'add_to_existing'
-            AND lower(f->>'value') IN ('true', 'yes', '1', 'on')
+        exists(
+          from(f in Meadow.Ingest.Schemas.RowField,
+            where: f.row_id == parent_as(:row).id,
+            where: f.header == "add_to_existing",
+            where: fragment("lower(?)", f.value) in ["true", "yes", "1", "on"]
           )
-          """
         )
     )
     |> Repo.aggregate(:count)
@@ -400,8 +402,8 @@ defmodule Meadow.Ingest.Sheets do
         where: entry.outcome in ["error", "skipped"],
         select: %{
           row_number: row.row,
+          row_id: row.id,
           accession_number: row.file_set_accession_number,
-          fields: row.fields,
           id: entry.object_id,
           action: entry.action,
           outcome: entry.outcome,
@@ -414,8 +416,8 @@ defmodule Meadow.Ingest.Sheets do
         where: entry.outcome in ["error", "skipped"],
         select: %{
           row_number: row.row,
+          row_id: row.id,
           accession_number: row.file_set_accession_number,
-          fields: row.fields,
           id: entry.object_id,
           action: entry.action,
           outcome: entry.outcome,
@@ -425,20 +427,35 @@ defmodule Meadow.Ingest.Sheets do
 
     query = from(row_errors, union_all: ^file_set_errors)
 
-    from(q in subquery(query), order_by: q.row_number)
-    |> Repo.all()
-    |> Enum.map(fn error_row ->
+    error_rows = from(q in subquery(query), order_by: q.row_number) |> Repo.all()
+    fields_by_row = row_fields(Enum.map(error_rows, & &1.row_id))
+
+    Enum.map(error_rows, fn error_row ->
       Map.merge(
         error_row,
-        error_row.fields
-        |> Enum.map(fn field ->
-          {field.header |> String.to_atom(), field.value}
-        end)
+        fields_by_row
+        |> Map.get(error_row.row_id, [])
+        |> Enum.map(fn field -> {field.header |> String.to_atom(), field.value} end)
         |> Enum.into(%{})
       )
-      |> Map.delete(:fields)
+      |> Map.delete(:row_id)
     end)
   end
+
+  # header/value pairs for a set of rows, keyed by row id and in column order
+  defp row_fields([]), do: %{}
+
+  defp row_fields(row_ids) do
+    from(f in Meadow.Ingest.Schemas.RowField,
+      where: f.row_id in ^row_ids,
+      order_by: [asc: f.row_id, asc: f.position]
+    )
+    |> Repo.all()
+    |> Enum.group_by(& &1.row_id)
+  end
+
+  @doc "Adds the state preload to an ingest sheet query"
+  def with_state(queryable \\ Sheet), do: preload(queryable, :state)
 
   def sheet_has_errors_query(sheet_id) do
     row_errors =
@@ -500,6 +517,7 @@ defmodule Meadow.Ingest.Sheets do
   def list_ingest_sheets_by_status(status) do
     with status_string <- to_string(status) do
       from(s in Sheet, where: s.status == ^status_string)
+      |> with_state()
       |> Repo.all()
     end
   end
@@ -510,11 +528,13 @@ defmodule Meadow.Ingest.Sheets do
     from(s in Sheet,
       where: s.updated_at >= ^since
     )
+    |> with_state()
     |> Repo.all()
   end
 
   def update_completed_sheets do
     from(s in Sheet, where: s.status == "approved")
+    |> with_state()
     |> Repo.all()
     |> Enum.each(&check_sheet_for_completeness/1)
   end

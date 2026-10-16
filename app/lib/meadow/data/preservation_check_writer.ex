@@ -151,7 +151,7 @@ defmodule Meadow.Data.PreservationCheckWriter do
 
   defp check_files(file_set, work_type) do
     %{
-      :digests => file_set.core_metadata |> Map.get(:digests),
+      :digests => Meadow.Data.Schemas.FileSetCoreMetadata.digests(file_set.core_metadata),
       :preservation => validate_preservation_file(file_set.core_metadata.location),
       :pyramid => validate_pyramid_present(file_set, work_type)
     }

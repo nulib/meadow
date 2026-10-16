@@ -58,7 +58,7 @@ defmodule Meadow.Data.Planner do
   alias Meadow.AI.Provenance
   alias Meadow.Data.{CodedTerms, Enrichment}
   alias Meadow.Data.Schemas.{Plan, PlanChange}
-  alias Meadow.Data.Schemas.Work
+  alias Meadow.Data.Schemas.{Work, WorkDescriptiveMetadata}
   alias Meadow.Data.Works
   alias Meadow.Repo
   alias Meadow.Utils.{Atoms, ChangesetErrors, StructMap}
@@ -1182,7 +1182,7 @@ defmodule Meadow.Data.Planner do
   end
 
   defp apply_change_to_work(%PlanChange{work_id: work_id} = plan_change) do
-    case Repo.get(Work, work_id) do
+    case Works.get_work(work_id) do
       nil ->
         {:error, "Work not found"}
 
@@ -1192,7 +1192,7 @@ defmodule Meadow.Data.Planner do
   end
 
   defp prior_values_for_change(%PlanChange{work_id: work_id} = change) do
-    case Repo.get(Work, work_id) do
+    case Works.get_work(work_id) do
       nil -> %{}
       work -> Provenance.prior_values_for_change(work, change)
     end
@@ -1211,12 +1211,12 @@ defmodule Meadow.Data.Planner do
       apply_uncontrolled_field_operations(work, add, replace)
 
       # Reload the work to get the updated state
-      Repo.get!(Work, work.id)
+      Works.get_work!(work.id)
     end)
   end
 
-  @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
-  @coded_fields ~w(license rights_statement)a
+  @controlled_fields WorkDescriptiveMetadata.__metadata__(:fields, :controlled)
+  @coded_fields WorkDescriptiveMetadata.__metadata__(:fields, :coded)
   @single_valued_fields ~w(title)
 
   defp apply_controlled_field_operations(work, delete, add) do
@@ -1240,14 +1240,7 @@ defmodule Meadow.Data.Planner do
     require Logger
     Logger.debug("Applying controlled field operation for #{field}")
 
-    from(w in Work, where: w.id == ^work_id)
-    |> Works.replace_controlled_value(
-      :descriptive_metadata,
-      to_string(field),
-      delete_values,
-      add_values
-    )
-    |> Repo.update_all([])
+    Works.replace_controlled_values([work_id], field, delete_values, add_values)
   end
 
   defp prepare_controlled_field_list(nil), do: []
@@ -1353,14 +1346,7 @@ defmodule Meadow.Data.Planner do
 
     # Always use replace mode for coded fields to avoid creating arrays
     if map_size(coded_fields_metadata) > 0 do
-      from(w in Work, where: w.id == ^work_id)
-      |> Works.merge_metadata_values(
-        :descriptive_metadata,
-        coded_fields_metadata,
-        :replace
-      )
-      |> Works.merge_updated_at()
-      |> Repo.update_all([])
+      Works.merge_metadata([work_id], %{descriptive_metadata: coded_fields_metadata}, :replace)
     end
 
     work_id
@@ -1384,14 +1370,7 @@ defmodule Meadow.Data.Planner do
 
     # Always use replace mode for single-valued fields to avoid creating arrays
     if map_size(single_valued_metadata) > 0 do
-      from(w in Work, where: w.id == ^work_id)
-      |> Works.merge_metadata_values(
-        :descriptive_metadata,
-        single_valued_metadata,
-        :replace
-      )
-      |> Works.merge_updated_at()
-      |> Repo.update_all([])
+      Works.merge_metadata([work_id], %{descriptive_metadata: single_valued_metadata}, :replace)
     end
 
     work_id
@@ -1427,19 +1406,14 @@ defmodule Meadow.Data.Planner do
       |> Enum.into(%{})
 
     if map_size(mergeable_descriptive_metadata) + map_size(mergeable_administrative_metadata) > 0 do
-      from(w in Work, where: w.id == ^work_id)
-      |> Works.merge_metadata_values(
-        :descriptive_metadata,
-        mergeable_descriptive_metadata,
+      Works.merge_metadata(
+        [work_id],
+        %{
+          descriptive_metadata: mergeable_descriptive_metadata,
+          administrative_metadata: mergeable_administrative_metadata
+        },
         mode
       )
-      |> Works.merge_metadata_values(
-        :administrative_metadata,
-        mergeable_administrative_metadata,
-        mode
-      )
-      |> Works.merge_updated_at()
-      |> Repo.update_all([])
     end
 
     work_id

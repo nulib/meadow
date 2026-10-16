@@ -148,6 +148,8 @@ defmodule Meadow.Arks do
   end
 
   def ark_attributes(work, attrs) do
+    work = Meadow.Data.Schemas.Work.preload_metadata(work)
+
     Keyword.merge(
       [
         ark: work.ark,

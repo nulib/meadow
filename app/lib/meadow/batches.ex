@@ -5,14 +5,14 @@ defmodule Meadow.Batches do
 
   import Ecto.Query, warn: false
   alias Meadow.Data.{Indexer, Works}
-  alias Meadow.Data.Schemas.{Batch, Work}
+  alias Meadow.Data.Schemas.{Batch, Work, WorkDescriptiveMetadata}
   alias Meadow.Repo
   alias Meadow.Search.Config, as: SearchConfig
   alias Meadow.Search.HTTP
 
   require Logger
 
-  @controlled_fields ~w(contributor creator genre language location style_period subject technique)a
+  @controlled_fields WorkDescriptiveMetadata.__metadata__(:fields, :controlled)
 
   @doc """
   Creates a batch.
@@ -283,14 +283,7 @@ defmodule Meadow.Batches do
 
     Logger.debug("Batch updating controlled fields")
 
-    from(w in Work, where: w.id in ^work_ids)
-    |> Works.replace_controlled_value(
-      :descriptive_metadata,
-      to_string(field),
-      delete,
-      add
-    )
-    |> Repo.update_all([])
+    Works.replace_controlled_values(work_ids, field, delete, add)
 
     work_ids
   end
@@ -334,7 +327,6 @@ defmodule Meadow.Batches do
       |> Map.get(:descriptive_metadata, %{})
       |> Enum.filter(fn {key, _} -> key not in @controlled_fields end)
       |> Enum.into(%{})
-      |> humanize_date_created()
 
     mergeable_administrative_metadata =
       new_values
@@ -342,38 +334,18 @@ defmodule Meadow.Batches do
       |> Enum.into(%{})
 
     if map_size(mergeable_descriptive_metadata) + map_size(mergeable_administrative_metadata) > 0 do
-      from(w in Work, where: w.id in ^work_ids)
-      |> Works.merge_metadata_values(:descriptive_metadata, mergeable_descriptive_metadata, mode)
-      |> Works.merge_metadata_values(
-        :administrative_metadata,
-        mergeable_administrative_metadata,
+      Works.merge_metadata(
+        work_ids,
+        %{
+          descriptive_metadata: mergeable_descriptive_metadata,
+          administrative_metadata: mergeable_administrative_metadata
+        },
         mode
       )
-      |> Works.merge_updated_at()
-      |> Repo.update_all([])
     end
 
     work_ids
   end
-
-  defp humanize_date_created(%{date_created: date_created} = descriptive_metadata) do
-    new_dates =
-      Enum.map(date_created, fn d ->
-        edtf = Map.get(d, :edtf)
-
-        case EDTF.humanize(edtf, validate: false) do
-          {:error, error} ->
-            raise error
-
-          result ->
-            %{edtf: edtf, humanized: result}
-        end
-      end)
-
-    Map.replace!(descriptive_metadata, :date_created, new_dates)
-  end
-
-  defp humanize_date_created(descriptive_metadata), do: descriptive_metadata
 
   defp update_top_level_field(work_ids, _field, :not_present), do: work_ids
 
@@ -537,6 +509,7 @@ defmodule Meadow.Batches do
 
   defp load_works(work_ids) do
     from(w in Work, where: w.id in ^work_ids)
+    |> Works.with_metadata()
     |> Repo.all()
   end
 
