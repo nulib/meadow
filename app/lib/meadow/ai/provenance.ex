@@ -16,6 +16,10 @@ defmodule Meadow.AI.Provenance do
   @default_retention_policy "retain_internal"
   @holding_organization "Northwestern University Libraries"
 
+  # How a person is named wherever provenance is published: staff are credited
+  # collectively, and who did what stays in Meadow.
+  @staff_label "#{@holding_organization} staff"
+
   # IPTC digitalSourceType vocabulary. `trainedAlgorithmicMedia` means the value
   # was produced purely by a generative model; `algorithmicallyEnhanced` means a
   # pre-existing (human/legacy) value was modified by AI. We pick between them at
@@ -23,6 +27,7 @@ defmodule Meadow.AI.Provenance do
   @trained_source_type "https://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"
   @enhanced_source_type "https://cv.iptc.org/newscodes/digitalsourcetype/algorithmicallyEnhanced"
 
+  def staff_label, do: @staff_label
   def trained_source_type, do: @trained_source_type
   def enhanced_source_type, do: @enhanced_source_type
 
@@ -1184,6 +1189,9 @@ defmodule Meadow.AI.Provenance do
   `work_summary/1` or `target_summary/2`, without re-running the underlying
   query. Split out of `work_summary_map/1` so index-time callers that also need
   `ai_involved?/2` can compute the summary once and derive both values from it.
+
+  The map is what gets indexed, and the index is public, so a `reviewer` is
+  credited as `staff_label/0` rather than by name.
   """
   def summary_map(summary) do
     Map.new(summary, fn entry ->
@@ -1205,7 +1213,7 @@ defmodule Meadow.AI.Provenance do
          model_version: entry.model_version,
          model_type: entry.model_type,
          generated_at: entry.generated_at,
-         reviewer: entry.reviewer,
+         reviewer: public_reviewer(entry.reviewer),
          applied_at: entry.applied_at,
          source_count: entry.source_count,
          citation_completeness: entry.citation_completeness,
@@ -1299,6 +1307,7 @@ defmodule Meadow.AI.Provenance do
     |> Enum.sort_by(&{&1.target_type, &1.target_id, &1.field_path})
   end
 
+  # Indexed, like `summary_map/1`, so its `reviewer` is credited the same way.
   def target_summary_map(target_type, target_id) do
     target_type
     |> target_summary(target_id)
@@ -1321,7 +1330,7 @@ defmodule Meadow.AI.Provenance do
          model_version: summary.model_version,
          model_type: summary.model_type,
          generated_at: summary.generated_at,
-         reviewer: summary.reviewer,
+         reviewer: public_reviewer(summary.reviewer),
          applied_at: summary.applied_at,
          latest_event_type: summary.latest_event_type,
          source_count: summary.source_count,
@@ -1887,6 +1896,9 @@ defmodule Meadow.AI.Provenance do
           present?(target.human_oversight_level)
     }
   end
+
+  defp public_reviewer(nil), do: nil
+  defp public_reviewer(_reviewer), do: @staff_label
 
   defp event_field(nil, _key), do: nil
   defp event_field(event, key), do: Map.get(event, key)
