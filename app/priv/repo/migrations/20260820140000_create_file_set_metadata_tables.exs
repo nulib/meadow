@@ -47,6 +47,7 @@ defmodule Meadow.Repo.Migrations.CreateFileSetMetadataTables do
 
       add(:location, :text, null: false)
       add(:original_filename, :text, null: false)
+      add(:file_size, :bigint)
       add(:description, :text)
       add(:label, :text)
       add(:alt_text, :text)
@@ -127,11 +128,12 @@ defmodule Meadow.Repo.Migrations.CreateFileSetMetadataTables do
 
     execute("""
     INSERT INTO file_set_core_metadata
-      (file_set_id, location, original_filename, description, label, alt_text, image_caption, mime_type,
+      (file_set_id, location, original_filename, file_size, description, label, alt_text, image_caption, mime_type,
        digest_md5, digest_sha1, digest_sha256, inserted_at, updated_at)
     SELECT fs.id,
            COALESCE(fs.core_metadata->>'location', ''),
            COALESCE(fs.core_metadata->>'original_filename', ''),
+           (fs.core_metadata->>'file_size')::bigint,
            fs.core_metadata->>'description',
            fs.core_metadata->>'label',
            fs.core_metadata->>'alt_text',
