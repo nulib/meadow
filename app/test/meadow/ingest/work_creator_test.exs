@@ -107,10 +107,16 @@ defmodule Meadow.Ingest.WorkCreatorTest do
       sheet = ingest_sheet_rows_fixture("test/fixtures/ingest_sheet_add_to_existing.csv")
 
       sheet
-      |> Sheets.change_ingest_sheet_validation_state!(%{file: "pass", rows: "pass", overall: "pass"})
+      |> Sheets.change_ingest_sheet_validation_state!(%{
+        file: "pass",
+        rows: "pass",
+        overall: "pass"
+      })
       |> Repo.preload(:ingest_sheet_rows)
       |> Map.get(:ingest_sheet_rows)
-      |> Enum.each(fn row -> Meadow.Ingest.Rows.change_ingest_sheet_row_validation_state(row, "pass") end)
+      |> Enum.each(fn row ->
+        Meadow.Ingest.Rows.change_ingest_sheet_row_validation_state(row, "pass")
+      end)
 
       {:ok, ingest_sheet: sheet}
     end
@@ -150,10 +156,16 @@ defmodule Meadow.Ingest.WorkCreatorTest do
       sheet = ingest_sheet_rows_fixture("test/fixtures/ingest_sheet_transcription.csv")
 
       sheet
-      |> Sheets.change_ingest_sheet_validation_state!(%{file: "pass", rows: "pass", overall: "pass"})
+      |> Sheets.change_ingest_sheet_validation_state!(%{
+        file: "pass",
+        rows: "pass",
+        overall: "pass"
+      })
       |> Repo.preload(:ingest_sheet_rows)
       |> Map.get(:ingest_sheet_rows)
-      |> Enum.each(fn row -> Meadow.Ingest.Rows.change_ingest_sheet_row_validation_state(row, "pass") end)
+      |> Enum.each(fn row ->
+        Meadow.Ingest.Rows.change_ingest_sheet_row_validation_state(row, "pass")
+      end)
 
       {:ok, ingest_sheet: sheet}
     end
@@ -177,6 +189,7 @@ defmodule Meadow.Ingest.WorkCreatorTest do
         empty_bucket(@ingest_bucket)
         empty_bucket(@derivatives_bucket)
       end)
+
       {:ok, ingest_sheet: sheet_with_project}
     end
 
@@ -198,7 +211,8 @@ defmodule Meadow.Ingest.WorkCreatorTest do
         |> Enum.find(fn fs -> String.ends_with?(fs.accession_number, "Donohue_001_01555") end)
 
       # Verify transcription location was attached to file set record
-      assert file_set.derivatives |> Map.get("transcription_file") == "s3://#{@ingest_bucket}/#{sheet.project.folder}/#{@transcription_fixture}"
+      assert FileSets.derivative(file_set, "transcription_file") ==
+               "s3://#{@ingest_bucket}/#{sheet.project.folder}/#{@transcription_fixture}"
     end
   end
 end

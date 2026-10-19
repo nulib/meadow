@@ -101,17 +101,19 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "NoteEntry"
   object :note_entry do
+    field :id, :id
     field :note, :string
     field :type, :coded_term
   end
 
   @desc "RelatedURLEntry"
   object :related_url_entry do
+    field :id, :id
     field :url, :string
     field :label, :coded_term
   end
 
-  @desc "Controlled Vocab input, id required, label is looked up on the backend. Provide role for compound vocabs"
+  @desc "Controlled Vocab input, term required, label is looked up on the backend. Provide role for compound vocabs. An entry is identified by its term and role, so there is no id to echo."
   input_object :controlled_metadata_entry_input do
     field :term, non_null(:id)
     field :role, :coded_term_input
@@ -130,12 +132,14 @@ defmodule MeadowWeb.Schema.Data.ControlledTermTypes do
 
   @desc "Note input"
   input_object :note_entry_input do
+    field :id, :id
     field :note, :string
     field :type, :coded_term_input
   end
 
   @desc "Related URL input"
   input_object :related_url_entry_input do
+    field :id, :id
     field :url, :string
     field :label, :coded_term_input
   end

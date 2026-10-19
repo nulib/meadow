@@ -1719,4 +1719,98 @@ defmodule Meadow.AI.ProvenanceTest do
              }
     end
   end
+
+  describe "per-item attestation across several activities" do
+    setup do
+      work =
+        work_fixture(%{
+          descriptive_metadata: %{description: ["older item", "newer item"]}
+        })
+
+      # Two activities touch the same field, as an auto-edit followed by a later
+      # one does. Each proposes its own item.
+      for {proposed, label} <- [{"older item", "older"}, {"newer item", "newer"}] do
+        {:ok, activity} =
+          Provenance.create_activity(%{
+            activity_type: "metadata_direct_apply",
+            model: "test-model-#{label}",
+            work_id: work.id,
+            status: "completed"
+          })
+
+        {:ok, _target} =
+          Provenance.record_target(
+            activity,
+            %{
+              target_type: "Work",
+              target_id: work.id,
+              field_path: "descriptive_metadata.description",
+              operation: "add",
+              proposed_value: [proposed],
+              origin: "ai_generated",
+              status: "applied"
+            },
+            "applied"
+          )
+      end
+
+      %{work: work}
+    end
+
+    test "both items are shown as AI generated", %{work: work} do
+      entry =
+        Provenance.work_summary(work.id)
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.description"))
+
+      ids = Enum.map(entry.item_provenance, & &1.id)
+      assert "older item" in ids
+      assert "newer item" in ids
+    end
+
+    # Regression: attestation used to collapse a field's targets to the most
+    # recent one, so an item proposed by an earlier activity looked as though it
+    # had no AI lineage and could not be attested.
+    test "an item from the older activity can be attested", %{work: work} do
+      assert {:ok, ["descriptive_metadata.description"]} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.description"],
+                 "bmq449",
+                 item_ids: ["older item"]
+               )
+
+      entry =
+        Provenance.work_summary(work.id)
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.description"))
+
+      older = Enum.find(entry.item_provenance, &(&1.id == "older item"))
+      newer = Enum.find(entry.item_provenance, &(&1.id == "newer item"))
+
+      assert older.origin == "human_attested_after_ai"
+      assert newer.origin == "ai_generated"
+    end
+
+    test "an item from the newer activity can still be attested", %{work: work} do
+      assert {:ok, _} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.description"],
+                 "bmq449",
+                 item_ids: ["newer item"]
+               )
+    end
+
+    test "an item with no AI lineage is still rejected", %{work: work} do
+      assert {:error, [{"descriptive_metadata.description", :no_ai_provenance}]} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.description"],
+                 "bmq449",
+                 item_ids: ["never proposed by anything"]
+               )
+    end
+  end
 end

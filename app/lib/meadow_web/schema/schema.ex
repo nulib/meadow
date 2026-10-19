@@ -126,10 +126,11 @@ defmodule MeadowWeb.Schema do
   end
 
   defp ordered_file_set_source do
+    metadata_preloads = FileSet.metadata_preloads()
     Dataloader.Ecto.new(Repo,
       query: fn
-        FileSet, _ -> from(f in FileSet, order_by: f.rank)
-        queryable, _ -> queryable
+        FileSet, _ -> from(f in FileSet, order_by: f.rank, preload: ^metadata_preloads)
+        queryable, _ -> from(queryable, preload: ^metadata_preloads)
       end
     )
   end

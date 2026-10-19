@@ -605,6 +605,8 @@ defmodule Meadow.AI.Provenance do
 
   defp each_changed_ai_field(work_before, work_after, opts, fun) do
     except = Keyword.get(opts, :except, [])
+    work_before = preload_work_metadata(work_before)
+    work_after = preload_work_metadata(work_after)
 
     work_before.id
     |> applied_ai_targets()
@@ -656,11 +658,10 @@ defmodule Meadow.AI.Provenance do
   def record_work_human_attestation(work_before, work_after, field_paths, actor, opts) do
     reason = Keyword.get(opts, :reason)
     item_ids = Keyword.get(opts, :item_ids)
+    work_before = preload_work_metadata(work_before)
+    work_after = preload_work_metadata(work_after)
 
-    targets_by_path =
-      work_before.id
-      |> applied_ai_targets()
-      |> Map.new(&{&1.field_path, &1})
+    targets_by_path = applied_ai_targets_by_path(work_before.id)
 
     {ok, errors} =
       Enum.reduce(field_paths, {[], []}, fn field_path, {ok, errors} ->
@@ -684,15 +685,17 @@ defmodule Meadow.AI.Provenance do
     item_ids = Keyword.get(opts, :item_ids)
 
     case Map.get(targets_by_path, field_path) do
-      %Target{} = target ->
+      [_ | _] = targets ->
         before_value = field_value(work_before, field_path)
         after_value = field_value(work_after, field_path)
 
         result =
           if present_item_ids?(item_ids) do
-            attest_items_for_target(target, before_value, after_value, item_ids, actor, reason)
+            attest_items_across_targets(targets, before_value, after_value, item_ids, actor, reason)
           else
-            attest_human_authored_for_target(target, before_value, after_value, actor, reason)
+            targets
+            |> Enum.max_by(&summary_sort_key/1)
+            |> attest_human_authored_for_target(before_value, after_value, actor, reason)
           end
 
         case result do
@@ -771,6 +774,43 @@ defmodule Meadow.AI.Provenance do
       _invalid ->
         {:error, :no_ai_provenance}
     end
+  end
+
+  defp attest_items_across_targets(targets, before_value, after_value, item_ids, actor, reason) do
+    owners = item_owner_targets(targets)
+
+    case Enum.reject(item_ids, &Map.has_key?(owners, &1)) do
+      [] ->
+        item_ids
+        |> Enum.group_by(&Map.fetch!(owners, &1))
+        |> record_all_item_attestations(before_value, after_value, actor, reason)
+
+      _invalid ->
+        {:error, :no_ai_provenance}
+    end
+  end
+
+  defp record_all_item_attestations(targets, before_value, after_value, actor, reason) do
+    Enum.reduce_while(targets, :ok, fn {target, ids}, _acc ->
+      case record_item_attestations(target, before_value, after_value, ids, actor, reason) do
+        :ok -> {:cont, :ok}
+        other -> {:halt, other}
+      end
+    end)
+  end
+
+  # Which target owns each item's attribution, using the same precedence as
+  # `merge_item_provenance/1`: oldest target first, so a later target's claim on
+  # the same item overwrites an earlier one.
+  defp item_owner_targets(targets) do
+    targets
+    |> Enum.sort_by(&summary_sort_key/1)
+    |> Enum.flat_map(fn target ->
+      target
+      |> ai_item_provenance(target.events || [])
+      |> Enum.map(&{&1.id, target})
+    end)
+    |> Map.new()
   end
 
   # Append one per-item `human_attested` event per requested id, atomically (same
@@ -967,6 +1007,23 @@ defmodule Meadow.AI.Provenance do
     |> repo.all()
   end
 
+  # Every applied AI target for a work, grouped by field path and *not* reduced
+  # to one per field. A field's value can be touched by several activities, and
+  # each item's provenance belongs to whichever target proposed it, so
+  # attestation has to see them all — collapsing to the most recent target (as
+  # `applied_ai_targets/1` does for a field-level view) makes items from an
+  # earlier activity look like they have no AI provenance.
+  defp applied_ai_targets_by_path(work_id) do
+    from(t in Target,
+      where: t.target_type == "Work" and t.target_id == ^to_string(work_id),
+      where: t.status == "applied",
+      preload: [events: [agent_links: :agent]]
+    )
+    |> Repo.all()
+    |> Enum.filter(&(&1.origin in @ai_involved_origins))
+    |> Enum.group_by(& &1.field_path)
+  end
+
   defp applied_ai_targets(work_id) do
     from(t in Target,
       where: t.target_type == "Work" and t.target_id == ^to_string(work_id),
@@ -1027,7 +1084,9 @@ defmodule Meadow.AI.Provenance do
 
   defp finalize_apply_target!(target, origin, operation, prior_value) do
     snapshot =
-      if present_value?(prior_value), do: %{source_value_snapshot: wrap_value(prior_value)}, else: %{}
+      if present_value?(prior_value),
+        do: %{source_value_snapshot: wrap_value(prior_value)},
+        else: %{}
 
     attrs =
       if modification?(origin, operation, prior_value) do
@@ -1066,6 +1125,8 @@ defmodule Meadow.AI.Provenance do
   targets before a plan change exists.
   """
   def prior_values_for_operations(work, operations) do
+    work = preload_work_metadata(work)
+
     operations
     |> operation_targets("Work", work.id)
     |> Map.new(fn %{field_path: field_path} -> {field_path, field_value(work, field_path)} end)
@@ -1074,6 +1135,8 @@ defmodule Meadow.AI.Provenance do
   # Field paths are either two-segment ("descriptive_metadata.description") or
   # single-segment top-level work fields ("published", "visibility",
   # "collection_id" — the uncontrolled field operations the planner supports).
+  # Values are recorded in their public shape: repeating free-text fields are
+  # plain strings (the same shape plan proposals and the search index use).
   defp field_value(work, field_path) do
     case String.split(field_path, ".", parts: 2) do
       [field] ->
@@ -1086,12 +1149,23 @@ defmodule Meadow.AI.Provenance do
         with section_atom when not is_nil(section_atom) <- safe_existing_atom(section),
              field_atom when not is_nil(field_atom) <- safe_existing_atom(field),
              %{} = section_value <- Map.get(work, section_atom) do
-          Map.get(section_value, field_atom)
+          section_value |> Map.get(field_atom) |> public_value()
         else
           _ -> nil
         end
     end
   end
+
+  # Preload metadata rows only when the work still carries real (or not yet
+  # loaded) associations; callers may hand in snapshots with other values
+  defp preload_work_metadata(%Work{descriptive_metadata: d, administrative_metadata: a} = work)
+       when is_struct(d) and is_struct(a),
+       do: Work.preload_metadata(work)
+
+  defp preload_work_metadata(work), do: work
+
+  defp public_value(%Ecto.Association.NotLoaded{}), do: nil
+  defp public_value(value), do: value
 
   defp safe_existing_atom(string) do
     String.to_existing_atom(string)
@@ -1778,7 +1852,10 @@ defmodule Meadow.AI.Provenance do
   defp put_object_identifier(attrs) do
     attrs
     |> Map.put_new(:object_identifier_type, "Meadow")
-    |> Map.put_new(:object_identifier_value, map_value(attrs, :target_id) || map_value(attrs, :item_id))
+    |> Map.put_new(
+      :object_identifier_value,
+      map_value(attrs, :target_id) || map_value(attrs, :item_id)
+    )
   end
 
   defp source_object_category(attrs) do

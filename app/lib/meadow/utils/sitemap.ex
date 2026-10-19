@@ -77,7 +77,7 @@ defmodule Meadow.Utils.Sitemap do
   end
 
   defp work_urls do
-    from(w in Work, where: w.visibility["id"] == ^"OPEN" and w.published)
+    from(w in Work, where: w.visibility == "OPEN" and w.published)
     |> Repo.stream()
     |> Stream.map(fn %{id: id, updated_at: updated_at} ->
       %Sitemapper.URL{

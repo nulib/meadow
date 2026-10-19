@@ -51,7 +51,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
     assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
 
     file_set = FileSets.get_file_set!(file_set_id)
-    assert(file_set.core_metadata.digests == %{"md5" => @md5})
+    assert(file_set.core_metadata.digest_md5 == @md5)
     assert(file_set.core_metadata.file_size == File.stat!(@content).size)
   end
 
@@ -102,7 +102,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
 
           assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
           file_set = FileSets.get_file_set!(file_set_id)
-          assert(file_set.core_metadata.digests == %{"md5" => @md5})
+          assert(file_set.core_metadata.digest_md5 == @md5)
           assert(file_set.core_metadata.file_size == File.stat!(@content).size)
         end)
 
@@ -119,7 +119,7 @@ defmodule Meadow.Pipeline.Actions.GenerateFileSetDigestsTest do
 
           assert(ActionStates.ok?(file_set_id, GenerateFileSetDigests))
           file_set = FileSets.get_file_set!(file_set_id)
-          assert(file_set.core_metadata.digests == %{"md5" => "old_md5"})
+          assert(file_set.core_metadata.digest_md5 == "old_md5")
           assert(file_set.core_metadata.file_size == 12_345)
         end)
 
