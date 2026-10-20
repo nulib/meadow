@@ -23,7 +23,7 @@ if System.get_env("AWS_LOCALSTACK", "false") == "true" do
   config :meadow, :aws,
     services:
       Map.new(
-        [:logs, :mediaconvert, :s3, :secretsmanager, :sns, :sqs],
+        [:cloudwatch, :logs, :mediaconvert, :s3, :secretsmanager, :sns, :sqs],
         &{&1, [proto: "https", endpoint: "localhost.localstack.cloud", port: 4566]}
       )
 

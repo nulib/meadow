@@ -6,6 +6,10 @@ defmodule Meadow.Config.Runtime.Prod do
   def configure! do
     import Meadow.Config.Helper
 
+    config :meadow, metrics: [
+        publisher: Meadow.Metrics.CloudWatch
+      ]
+
     config :meadow, MeadowWeb.Endpoint,
       environment: :prod,
       environment_prefix: nil,

@@ -68,6 +68,13 @@ defmodule Meadow.Application do
       Meadow.Repo.wait_for_connection()
     end
 
+    # Before any child starts: a non-production node about to publish live CloudWatch
+    # metrics has to be confirmed. This is deliberately here rather than in
+    # Meadow.Telemetry.init/1, because start_children/1 starts children through
+    # DynamicSupervisor.start_child/2 -- a GenServer.call with a five second timeout,
+    # inside a retry loop -- and a prompt there would time out and re-ask on each retry.
+    Meadow.Metrics.Confirmation.confirm!()
+
     start_children()
 
     :telemetry.attach(
@@ -77,12 +84,20 @@ defmodule Meadow.Application do
       nil
     )
 
+    :telemetry.attach(
+      "absinthe-timing-handler",
+      [:absinthe, :execute, :operation, :stop],
+      &Meadow.Telemetry.GraphQL.handle_absinthe_timing_event/4,
+      nil
+    )
+
     result
   end
 
   def children do
     [
       {Phoenix.PubSub, [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]},
+      Meadow.Metrics,
       Meadow.Telemetry,
       {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ] ++ Children.specs()

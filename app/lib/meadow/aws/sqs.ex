@@ -13,6 +13,23 @@ defmodule Meadow.AWS.SQS do
   alias Meadow.AWS.Response
 
   @doc """
+  Get queue attributes by name or URL.
+  """
+  def queue_attributes(url, attributes \\ ["All"])
+
+  def queue_attributes("http" <> _ = url, attributes) do
+    Meadow.AWS.client(:sqs)
+    |> AWS.SQS.get_queue_attributes(%{"QueueUrl" => url, "AttributeNames" => attributes})
+    |> Response.unwrap(&Map.get(&1, "Attributes"))
+  end
+
+  def queue_attributes(queue_name, attributes) do
+    with {:ok, url} <- queue_url(queue_name) do
+      queue_attributes(url, attributes)
+    end
+  end
+
+  @doc """
   Look up a queue's URL by name.
   """
   def queue_url(queue_name) do

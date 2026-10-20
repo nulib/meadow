@@ -11,6 +11,7 @@ defmodule Meadow.Pipeline.Action do
   alias Meadow.Ingest.{Progress, Rows}
   alias Meadow.Pipeline.Dispatcher
   alias Meadow.Repo
+  alias Meadow.Telemetry.Handlers
 
   import Ecto.Query
 
@@ -46,8 +47,9 @@ defmodule Meadow.Pipeline.Action do
   end
 
   def handle_message(action, %Message{data: {data, attrs}} = message) do
-    with_log_metadata action: action |> Module.split() |> List.last(),
-                      id: Map.get(data, :file_set_id) do
+    action_name = action |> Module.split() |> List.last()
+
+    with_log_metadata action: action_name, id: Map.get(data, :file_set_id) do
       {_status, data, attrs} = process(action, data, attrs) |> update_context(action)
 
       message
@@ -248,10 +250,39 @@ defmodule Meadow.Pipeline.Action do
     process(action, data, attrs, false)
   end
 
-  defp process(action, %{id: file_set_id}, _, true),
-    do: Logger.warning("Skipping #{action} for #{file_set_id} - already complete")
+  defp process(action, %{id: file_set_id} = data, _, true) do
+    Logger.warning("Skipping #{action} for #{file_set_id} - already complete")
 
-  defp process(action, data, attrs, _), do: action.process(data, attrs)
+    :telemetry.execute(
+      [:meadow, :pipeline, :action, :skip],
+      %{count: 1},
+      span_metadata(action, data)
+    )
+  end
+
+  # The span wraps only the action's own `process/2`. Everything else `process/3` does --
+  # the precheck, the already-complete lookups, the progress update -- is pipeline
+  # bookkeeping rather than the work being measured, and the skip path above never gets
+  # here, so skipped actions don't enter the duration histogram as near-zero samples.
+  defp process(action, data, attrs, _) do
+    metadata = span_metadata(action, data)
+
+    :telemetry.span([:meadow, :pipeline, :action], metadata, fn ->
+      with result <- action.process(data, attrs) do
+        {result, Map.put(metadata, :outcome, outcome(result))}
+      end
+    end)
+  end
+
+  defp span_metadata(action, data) do
+    data
+    |> Handlers.file_set_dimensions()
+    |> Map.put(:action, action)
+  end
+
+  defp outcome({:error, _}), do: "error"
+  defp outcome(status) when is_atom(status), do: to_string(status)
+  defp outcome(_), do: "unknown"
 
   # Check whether the action is already complete for the FileSet
 

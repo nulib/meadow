@@ -248,6 +248,12 @@ defmodule Meadow.Config.Runtime do
 
     config :meadow,
       # TODO: REPLACE WITH DC API SECRET
+      metrics: [
+        actions:
+          ~w(AttachTranscription CopyFileToPreservation CreateDerivativeCopy CreatePyramidTiff CreateTranscodeJob
+             ExtractExifMetadata ExtractMediaMetadata ExtractMimeType GenerateAIMetadata GenerateFileSetDigests
+             GeneratePosterImage TranscodeComplete)
+      ],
       dc_api: [
         v2: %{
           "api_token_secret" => get_secret(:dcapi, ["api_token_secret"]),
