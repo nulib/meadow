@@ -16,13 +16,30 @@ defmodule Meadow.Pipeline.Actions.CreateTranscodeJob do
     ActionStates.ok?(file_set.id, __MODULE__)
   end
 
+  @doc """
+  Submit the transcode job.
+
+  The start time rides along in `UserMetadata`, which MediaConvert echoes back in the job
+  state change event, so `TranscodeComplete` can measure the transcode without Meadow
+  holding any state between the two. Wall clock rather than monotonic time: the two ends
+  are minutes to hours apart and very likely on different nodes, and monotonic time is
+  only comparable within one VM instance.
+
+  `UserMetadata` is capped at 10 key-value pairs, and `attributes` is merged in whole, so
+  this is close to the ceiling for an ingest sheet transcode. If it starts getting
+  dropped, send only the keys the downstream action needs instead of all of `attributes`.
+  """
   def process(file_set, attributes) do
     ActionStates.set_state!(file_set, __MODULE__, "started")
 
     source = file_set.core_metadata.location
     destination = FileSets.streaming_uri_for(file_set)
     mime_type = file_set.core_metadata.mime_type
-    user_metadata = Map.put(attributes, :file_set_id, file_set.id)
+
+    user_metadata =
+      attributes
+      |> Map.put(:file_set_id, file_set.id)
+      |> Map.put(:transcode_started_at, to_string(System.os_time(:millisecond)))
 
     case transcode(user_metadata, mime_type, source, destination) do
       {:ok, job_id} ->
