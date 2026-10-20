@@ -206,6 +206,24 @@ describe("prepNotes()", () => {
     ];
     expect(results).toEqual(expectedResults);
   });
+
+  it("passes through the id of an existing note so it is updated in place", () => {
+    let results = metadata.prepNotes([
+      { id: "existing-note-id", note: "edited note", typeId: "GENERAL_NOTE" },
+      { id: "", note: "new note", typeId: "GENERAL_NOTE" },
+    ]);
+    expect(results).toEqual([
+      {
+        id: "existing-note-id",
+        note: "edited note",
+        type: { scheme: "NOTE_TYPE", id: "GENERAL_NOTE" },
+      },
+      {
+        note: "new note",
+        type: { scheme: "NOTE_TYPE", id: "GENERAL_NOTE" },
+      },
+    ]);
+  });
 });
 
 describe("prepRelatedUrl()", () => {
