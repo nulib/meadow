@@ -119,8 +119,10 @@ defmodule Meadow.Repo.Migrations.CreateFileSetMetadataTables do
       )
     )
 
+    # Entries are only ever read by the document they belong to; nothing filters
+    # or orders by `path`, so indexing it would cost writes on the largest table
+    # in the schema (one row per node of every tool document) and buy nothing.
     create(index(:file_set_extracted_metadata_entries, [:extracted_metadata_id]))
-    create(index(:file_set_extracted_metadata_entries, [:path]))
   end
 
   defp backfill do
