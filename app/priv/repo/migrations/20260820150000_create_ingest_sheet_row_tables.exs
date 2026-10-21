@@ -24,7 +24,19 @@ defmodule Meadow.Repo.Migrations.CreateIngestSheetRowTables do
     end
 
     create(index(:ingest_sheet_row_fields, [:row_id, :position]))
-    create(index(:ingest_sheet_row_fields, [:header, :value]))
+
+    # A row field's value is an arbitrary spreadsheet cell, so indexing every
+    # header's value put unbounded text in a btree, which rejects an entry over
+    # roughly 2704 bytes. The only lookup by value is
+    # `Meadow.Ingest.Rows.get_rows_by_work_accession_number/2`, whose header is
+    # a literal and whose values are short, so index just that header. Every
+    # other read of these rows is scoped by `row_id` and uses the index above.
+    create(
+      index(:ingest_sheet_row_fields, [:value],
+        where: "header = 'work_accession_number'",
+        name: :ingest_sheet_row_fields_work_accession_number_index
+      )
+    )
 
     create table(:ingest_sheet_row_errors, primary_key: false) do
       add(:id, :uuid, primary_key: true, default: fragment("gen_random_uuid()"))
