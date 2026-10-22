@@ -18,6 +18,7 @@ defmodule Meadow.Ingest.Schemas.Row do
     field :row, :integer
     field :state, :string, default: "pending"
     field :file_set_accession_number, :string
+    belongs_to :file_set, Meadow.Data.Schemas.FileSet, foreign_key: :file_set_id
 
     has_many :errors, RowError,
       foreign_key: :row_id,

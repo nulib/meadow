@@ -71,6 +71,14 @@ defmodule MeadowWeb.Schema.Data.FileSetTypes do
       resolve(&Resolvers.Data.delete_file_set/3)
     end
 
+    @desc "Retry a failed ingest pipeline for a FileSet"
+    field :retry_file_set_pipeline, :file_set do
+      arg(:file_set_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Manager")
+      resolve(&Resolvers.Data.retry_file_set_pipeline/3)
+    end
+
     @desc "Transcribe a FileSet using AI"
     field :transcribe_file_set, :file_set_annotation do
       arg(:file_set_id, non_null(:id))

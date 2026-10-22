@@ -40,6 +40,7 @@ const IngestSheet = ({ ingestSheetData, subscribeToIngestSheetUpdates }) => {
         <>
           <IngestSheetCompleted
             sheetId={ingestSheetData.id}
+            status={status}
             title={title}
             aiCostActual={aiCostActual}
             aiCostEstimate={aiCostEstimate}

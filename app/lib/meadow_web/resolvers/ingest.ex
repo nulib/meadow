@@ -78,6 +78,18 @@ defmodule MeadowWeb.Resolvers.Ingest do
     {:ok, %{validations: [%{id: "sheet", object: %{errors: [], status: "pending"}}]}}
   end
 
+  def retry_ingest_sheet(_, %{sheet_id: sheet_id}, _) do
+    sheet = Sheets.get_ingest_sheet!(sheet_id)
+
+    case Sheets.retry_failed_file_sets(sheet) do
+      {:ok, []} ->
+        {:error, message: "Ingest sheet #{sheet_id} has no failed file sets to retry"}
+
+      {:ok, _retried} ->
+        {:ok, Sheets.get_ingest_sheet!(sheet_id)}
+    end
+  end
+
   def validate_ingest_sheet(_, %{sheet_id: sheet_id} = _args, %{context: %{current_user: user}}) do
     sheet = Sheets.get_ingest_sheet!(sheet_id)
 

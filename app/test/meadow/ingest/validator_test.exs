@@ -143,7 +143,7 @@ defmodule Meadow.Ingest.ValidatorTest do
       ingest_sheet = Validator.validate(context.sheet.id)
 
       assert(ingest_sheet.status == "row_fail")
-      %{ingest_sheet_rows: rows} = Repo.preload(ingest_sheet, :ingest_sheet_rows)
+      %{ingest_sheet_rows: rows} = Repo.preload(ingest_sheet, ingest_sheet_rows: :errors)
 
       assert Enum.filter(rows, fn row -> not Enum.empty?(row.errors) end)
              |> length() == 4
@@ -161,7 +161,7 @@ defmodule Meadow.Ingest.ValidatorTest do
     @tag sheet: "ingest_sheet_duplicate_accession.csv"
     test "fails with duplicate accession_number", context do
       assert(Validator.result(context.sheet.id) == "fail")
-      ingest_sheet = Validator.validate(context.sheet.id) |> Repo.preload(:ingest_sheet_rows)
+      ingest_sheet = Validator.validate(context.sheet.id) |> Repo.preload(ingest_sheet_rows: :errors)
 
       assert(ingest_sheet.status == "row_fail")
 

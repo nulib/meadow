@@ -6,6 +6,7 @@ defmodule Meadow.Ingest.Sheets do
   alias Meadow.Data.Schemas.{ActionState, FileSet, Work}
   alias Meadow.Data.Works
   alias Meadow.Ingest.Schemas.{Progress, Project, Row, Sheet}
+  alias Meadow.Pipeline
   alias Meadow.Repo
   alias Meadow.Utils.MapList
 
@@ -453,6 +454,63 @@ defmodule Meadow.Ingest.Sheets do
     |> Repo.all()
     |> Enum.group_by(& &1.row_id)
   end
+
+  @doc """
+  Retries every failed file set in an ingest sheet.
+
+  Each file set is handed to `Meadow.Pipeline.retry/1`, which clears its failed
+  action states and restarts it from the action that failed. A sheet that had
+  already been closed out is reopened so it gets re-evaluated for completeness
+  once the retried file sets finish.
+
+  Returns `{:ok, file_set_ids}` listing the file sets that were actually
+  restarted.
+  """
+  def retry_failed_file_sets(%Sheet{} = sheet) do
+    retried =
+      sheet.id
+      |> failed_file_set_ids()
+      |> Enum.filter(&match?({:ok, _action}, Pipeline.retry(&1)))
+
+    Logger.info("Retrying #{length(retried)} failed file sets in ingest sheet #{sheet.id}")
+
+    # Reopening after the retries, not before: `Pipeline.retry/1` resets each
+    # row's failed progress entries to "pending" on its way through, so by the
+    # time the sheet is back to "approved" there's nothing left for
+    # `check_sheet_for_completeness/1` to immediately close it out on.
+    reopen(sheet)
+
+    {:ok, retried}
+  end
+
+  @doc """
+  The ids of every file set in an ingest sheet with at least one failed action
+  state, in sheet row order.
+  """
+  def failed_file_set_ids(sheet_id) do
+    # The row number rides along in the select because `SELECT DISTINCT` can only
+    # order by columns it selects; one file set belongs to one row, so the pair is
+    # as distinct as the id alone.
+    from(a in ActionState,
+      join: f in FileSet,
+      on: f.id == a.object_id,
+      join: r in Row,
+      on: r.file_set_id == f.id,
+      where: r.sheet_id == ^sheet_id and a.outcome == "error",
+      order_by: [asc: r.row],
+      distinct: true,
+      select: {r.row, f.id}
+    )
+    |> Repo.all()
+    |> Enum.map(&elem(&1, 1))
+  end
+
+  # A sheet that's still "approved" is mid-ingest and stays that way; one that
+  # has already been marked complete goes back so the progress sweep picks it up.
+  defp reopen(%Sheet{status: status} = sheet) when status in ["completed", "completed_error"],
+    do: update_ingest_sheet_status(sheet, "approved")
+
+  defp reopen(%Sheet{} = sheet), do: {:ok, sheet}
 
   @doc "Adds the state preload to an ingest sheet query"
   def with_state(queryable \\ Sheet), do: preload(queryable, :state)

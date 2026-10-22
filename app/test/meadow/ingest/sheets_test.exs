@@ -1,9 +1,16 @@
 defmodule Meadow.Ingest.SheetsTest do
   use Meadow.DataCase
 
-  alias Meadow.Data.Works
+  alias Meadow.Data.{ActionStates, Works}
   alias Meadow.Ingest.{Progress, Rows, Sheets}
   alias Meadow.Ingest.Schemas.Sheet
+
+  alias Meadow.Pipeline.Actions.{
+    CopyFileToPreservation,
+    ExtractMimeType,
+    IngestFileSet,
+    InitializeDispatch
+  }
 
   describe "ingest_sheets" do
     @valid_attrs %{
@@ -152,10 +159,19 @@ defmodule Meadow.Ingest.SheetsTest do
     test "file_set_count/1" do
       project = project_fixture()
       ingest_sheet = ingest_sheet_fixture(Map.put(@valid_attrs, :project_id, project.id))
-      work_1 = work_with_file_sets_fixture(Faker.random_between(1, 5), %{ingest_sheet_id: ingest_sheet.id})
-      work_2 = work_with_file_sets_fixture(Faker.random_between(1, 3), %{ingest_sheet_id: ingest_sheet.id})
 
-      assert Sheets.file_set_count(ingest_sheet) == length(work_1.file_sets) + length(work_2.file_sets)
+      work_1 =
+        work_with_file_sets_fixture(Faker.random_between(1, 5), %{
+          ingest_sheet_id: ingest_sheet.id
+        })
+
+      work_2 =
+        work_with_file_sets_fixture(Faker.random_between(1, 3), %{
+          ingest_sheet_id: ingest_sheet.id
+        })
+
+      assert Sheets.file_set_count(ingest_sheet) ==
+               length(work_1.file_sets) + length(work_2.file_sets)
 
       Works.delete_work(work_1)
 
@@ -206,5 +222,131 @@ defmodule Meadow.Ingest.SheetsTest do
         assert sheet.updated_at == ingest_sheet.updated_at
       end
     end
+  end
+
+  describe "retry_failed_file_sets/1" do
+    setup do
+      sheet = ingest_sheet_rows_fixture("test/fixtures/ingest_sheet.csv")
+      rows = Rows.list_ingest_sheet_rows(sheet: sheet) |> Enum.take(3)
+
+      work =
+        work_fixture(%{
+          work_type: %{id: "IMAGE", scheme: "work_type"},
+          ingest_sheet_id: sheet.id
+        })
+
+      file_sets =
+        Enum.map(rows, fn row ->
+          file_set =
+            file_set_fixture(%{
+              accession_number: row.file_set_accession_number,
+              role: %{id: "A", scheme: "FILE_SET_ROLE"},
+              core_metadata: %{
+                location: "s3://test-ingest/retry/test.tif",
+                original_filename: "test.tif",
+                mime_type: "image/tiff"
+              },
+              work_id: work.id
+            })
+
+          {:ok, _row} = Rows.associate_file_set_with_row(row, file_set)
+          Progress.initialize_entry(row, true)
+          file_set
+        end)
+
+      {:ok, sheet: sheet, rows: rows, file_sets: file_sets}
+    end
+
+    test "retries only the file sets that failed", %{sheet: sheet, file_sets: file_sets} do
+      [failed_one, succeeded, failed_two] = file_sets
+
+      Enum.each([failed_one, failed_two], &fail_file_set/1)
+      succeed_file_set(succeeded)
+
+      assert {:ok, retried} = Sheets.retry_failed_file_sets(sheet)
+
+      assert Enum.sort(retried) == Enum.sort([failed_one.id, failed_two.id])
+      refute Enum.member?(retried, succeeded.id)
+    end
+
+    test "clears the failed action states it retried", %{sheet: sheet, file_sets: file_sets} do
+      [failed, _, _] = file_sets
+      fail_file_set(failed)
+
+      assert {:ok, [_ | _]} = Sheets.retry_failed_file_sets(sheet)
+
+      refute ActionStates.error?(failed.id)
+      assert ActionStates.ok?(failed.id, IngestFileSet)
+
+      assert ActionStates.get_latest_state(failed.id, CopyFileToPreservation)
+             |> Map.get(:outcome) == "waiting"
+    end
+
+    test "reopens a sheet that had already been closed out", %{
+      sheet: sheet,
+      file_sets: file_sets
+    } do
+      [failed, _, _] = file_sets
+      fail_file_set(failed)
+      {:ok, sheet} = Sheets.update_ingest_sheet_status(sheet, "completed_error")
+
+      assert {:ok, [_ | _]} = Sheets.retry_failed_file_sets(sheet)
+
+      assert Sheets.get_ingest_sheet!(sheet.id) |> Map.get(:status) == "approved"
+    end
+
+    test "leaves an in-flight sheet's status alone", %{sheet: sheet, file_sets: file_sets} do
+      [failed, _, _] = file_sets
+      fail_file_set(failed)
+      {:ok, sheet} = Sheets.update_ingest_sheet_status(sheet, "approved")
+
+      assert {:ok, [_ | _]} = Sheets.retry_failed_file_sets(sheet)
+
+      assert Sheets.get_ingest_sheet!(sheet.id) |> Map.get(:status) == "approved"
+    end
+
+    test "returns an empty list when nothing has failed", %{
+      sheet: sheet,
+      file_sets: file_sets
+    } do
+      Enum.each(file_sets, &succeed_file_set/1)
+
+      assert {:ok, []} = Sheets.retry_failed_file_sets(sheet)
+    end
+  end
+
+  describe "failed_file_set_ids/1" do
+    test "ignores file sets belonging to other sheets" do
+      other_sheet = ingest_sheet_rows_fixture("test/fixtures/ingest_sheet.csv")
+      [row | _] = Rows.list_ingest_sheet_rows(sheet: other_sheet)
+
+      file_set =
+        file_set_fixture(%{
+          accession_number: row.file_set_accession_number,
+          role: %{id: "A", scheme: "FILE_SET_ROLE"}
+        })
+
+      {:ok, _row} = Rows.associate_file_set_with_row(row, file_set)
+      ActionStates.set_state!(file_set, IngestFileSet, "error", "nope")
+
+      sheet = ingest_sheet_rows_fixture("test/fixtures/ingest_sheet.csv")
+
+      assert Sheets.failed_file_set_ids(sheet.id) == []
+      assert Sheets.failed_file_set_ids(other_sheet.id) == [file_set.id]
+    end
+  end
+
+  # A file set that got partway through the pipeline and then failed.
+  defp fail_file_set(file_set) do
+    ActionStates.set_state!(file_set, IngestFileSet, "ok")
+    ActionStates.set_state!(file_set, ExtractMimeType, "ok")
+    ActionStates.set_state!(file_set, InitializeDispatch, "ok")
+    ActionStates.set_state!(file_set, CopyFileToPreservation, "error", "it broke")
+  end
+
+  defp succeed_file_set(file_set) do
+    ActionStates.set_state!(file_set, IngestFileSet, "ok")
+    ActionStates.set_state!(file_set, ExtractMimeType, "ok")
+    ActionStates.set_state!(file_set, InitializeDispatch, "ok")
   end
 end

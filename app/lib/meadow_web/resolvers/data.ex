@@ -362,6 +362,19 @@ defmodule MeadowWeb.Resolvers.Data do
     {:ok, S3Utils.list_ingest_bucket_objects()}
   end
 
+  def retry_file_set_pipeline(_, %{file_set_id: file_set_id}, _) do
+    case Pipeline.retry(file_set_id) do
+      {:ok, _action} ->
+        {:ok, FileSets.get_file_set!(file_set_id)}
+
+      {:error, :not_found} ->
+        {:error, message: "FileSet #{file_set_id} not found"}
+
+      {:error, :no_failures} ->
+        {:error, message: "FileSet #{file_set_id} has no failed actions to retry"}
+    end
+  end
+
   def replace_file_set(_, %{id: id} = params, _) do
     file_set = FileSets.get_file_set!(id)
 
