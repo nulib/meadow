@@ -1,0 +1,7 @@
+mutation($sheetId: ID!) {
+  retryIngestSheet(sheetId: $sheetId) {
+    id
+    title
+    status
+  }
+}

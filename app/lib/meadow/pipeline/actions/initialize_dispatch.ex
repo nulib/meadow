@@ -7,8 +7,9 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatch do
   * ExtractMimeType
   """
   alias Meadow.Data.{ActionStates, FileSets}
-  alias Meadow.Ingest.{Progress, Rows}
+  alias Meadow.Ingest.Progress
   alias Meadow.Pipeline.Dispatcher
+  alias Meadow.Repo
 
   use Meadow.Pipeline.Actions.Common
 
@@ -54,10 +55,8 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatch do
 
   defp fixup_progress(%{work: work}, _attributes) when is_nil(work), do: :noop
 
-  defp fixup_progress(%{work_id: _work_id, work: %{ingest_sheet_id: ingest_sheet_id}} = file_set, attributes) do
-    sheet_id = Map.get(attributes, :ingest_sheet) || ingest_sheet_id
-
-    case Rows.get_row_by_file_set_accession_number(sheet_id, file_set.accession_number) do
+  defp fixup_progress(%{work_id: _work_id} = file_set, attributes) do
+    case Repo.preload(file_set, :ingest_sheet_row) |> Map.get(:ingest_sheet_row) do
       nil -> :noop
       row -> Progress.update_entries(row, Dispatcher.not_my_actions(file_set, attributes), "ok")
     end

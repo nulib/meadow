@@ -51,7 +51,8 @@ defmodule Meadow.Data.Schemas.FileSet do
     has_many(:action_states, ActionState,
       references: :id,
       foreign_key: :object_id,
-      on_delete: :delete_all
+      on_delete: :delete_all,
+      preload_order: [asc: :inserted_at]
     )
 
     has_many(:annotations, FileSetAnnotation,
@@ -64,6 +65,8 @@ defmodule Meadow.Data.Schemas.FileSet do
       foreign_key: :group_with,
       type: Ecto.UUID
     )
+
+    has_one(:ingest_sheet_row, Meadow.Ingest.Schemas.Row, foreign_key: :file_set_id)
   end
 
   defp changeset_params do

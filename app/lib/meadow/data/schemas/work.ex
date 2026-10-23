@@ -45,7 +45,7 @@ defmodule Meadow.Data.Schemas.Work do
     has_one(:descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update)
     has_one(:administrative_metadata, WorkAdministrativeMetadata, on_replace: :update)
 
-    has_many(:file_sets, FileSet)
+    has_many(:file_sets, FileSet, preload_order: [asc: :rank])
 
     has_many(:action_states, ActionState,
       references: :id,

@@ -72,6 +72,14 @@ defmodule Meadow.Ingest.Rows do
   end
 
   @doc """
+  Associate a file set with a row
+  """
+  def associate_file_set_with_row(row, file_set) do
+    Ecto.Changeset.cast(row, %{file_set_id: file_set.id}, [:file_set_id])
+    |> Repo.update()
+  end
+
+  @doc """
   Returns the list of ingest_sheet_rows matching a set of criteria.
 
   ## Examples

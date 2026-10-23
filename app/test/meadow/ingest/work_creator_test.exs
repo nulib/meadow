@@ -65,6 +65,21 @@ defmodule Meadow.Ingest.WorkCreatorTest do
                  |> Map.get(:file_sets)
                  |> List.first()
                  |> Map.get(:structural_metadata)
+
+        row_file_set_id_map =
+          Repo.preload(sheet, :ingest_sheet_rows)
+          |> Map.get(:ingest_sheet_rows)
+          |> Enum.map(& {&1.file_set_accession_number, &1.file_set_id})
+          |> Enum.into(%{})
+
+        file_set_id_map =
+          works
+          |> Repo.preload(:file_sets)
+          |> Enum.flat_map(& &1.file_sets)
+          |> Enum.map(& {&1.accession_number, &1.id})
+          |> Enum.into(%{})
+
+        assert row_file_set_id_map == file_set_id_map
       end
     end
 
