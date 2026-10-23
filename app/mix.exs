@@ -110,6 +110,8 @@ defmodule Meadow.MixProject do
       {:stream_gzip, "~> 0.4.2"},
       {:sweet_xml, "~> 0.6"},
       {:telemetry_metrics, "~> 1.0"},
+      {:telemetry_metrics_cloudwatch,
+       github: "nulib/telemetry_metrics_cloudwatch", branch: "req-client"},
       {:telemetry_poller, "~> 1.0"},
       {:tzdata, github: "lau/tzdata"},
       {:uuid, "~> 1.1"},

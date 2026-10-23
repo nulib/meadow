@@ -12,7 +12,7 @@ IO.puts("Using localstack services for tests")
 config :meadow, :aws,
   services:
     Map.new(
-      [:lambda, :logs, :mediaconvert, :s3, :secretsmanager, :sns, :sqs],
+      [:cloudwatch, :lambda, :logs, :mediaconvert, :s3, :secretsmanager, :sns, :sqs],
       &{&1, [proto: "https", endpoint: "localhost.localstack.cloud", port: 4566]}
     )
 

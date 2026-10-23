@@ -77,12 +77,20 @@ defmodule Meadow.Application do
       nil
     )
 
+    :telemetry.attach(
+      "absinthe-timing-handler",
+      [:absinthe, :execute, :operation, :stop],
+      &Meadow.Telemetry.GraphQL.handle_absinthe_timing_event/4,
+      nil
+    )
+
     result
   end
 
   def children do
     [
       {Phoenix.PubSub, [name: Meadow.PubSub, adapter: Phoenix.PubSub.PG2]},
+      Meadow.Metrics,
       Meadow.Telemetry,
       {Registry, keys: :unique, name: Meadow.TaskRegistry}
     ] ++ Children.specs()

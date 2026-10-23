@@ -139,6 +139,20 @@ data "aws_iam_policy_document" "meadow_role_permissions" {
       "arn:aws:bedrock:*:*:application-inference-profile/*"
     ]
   }
+
+  statement {
+    sid       = "metrics"
+    effect    = "Allow"
+    actions   = [
+      "cloudwatch:PutMetricData"
+    ]
+    resources = ["*"]
+    condition {
+      test        = "StringEquals"
+      variable    = "cloudwatch:namespace"
+      values      = ["Meadow"]
+    }
+  }
 }
 
 resource "aws_security_group" "meadow_load_balancer" {
