@@ -139,6 +139,30 @@ dependency they did not have before. Canonical records are the source of truth;
 the human-readable AI disclosure notes are retained alongside them for display
 and continuity.
 
+## Amendment (2026-10-01): C2PA projection and signing
+
+With a C2PA signing certificate in hand, C2PA support moves past readiness:
+
+- `Export.C2PA` projects a work's AI provenance into the *content* of a C2PA
+  2.4 manifest for its metadata record: `c2pa.actions.v2` entries, AI
+  disclosures (`c2pa.ai-disclosure`), and `inputTo` ingredients for the source
+  items. It is still not a manifest. A manifest is bound to the exact bytes of
+  an asset, so it is minted by whoever serializes the record: dc-api-v2 signs
+  on request (`GET /works/{id}?as=c2pa`), the same way iiif-processor signs
+  image derivatives on the fly.
+- The stored annotations are left as written and normalized in the projection,
+  where they differ from the specification: `c2pa.removed` (which means a
+  `componentOf` ingredient was removed) becomes `c2pa.deleted`; adding a value
+  is a `c2pa.edited`, since a manifest has a single `c2pa.created` for the
+  asset as a whole; IPTC `digitalSourceType` terms use their `http://` URIs;
+  and our oversight levels map onto the specification's enumeration
+  (`prompt_guided`, `human_validated`).
+- The work index document carries the PREMIS and C2PA projections as
+  `ai_provenance_exports` (stored, not searchable) so dc-api-v2 can publish
+  them (`?as=premis`) without access to the provenance tables.
+
+`Export.C2PAReadiness` remains as an internal completeness report.
+
 ## References
 
 - [The University of Virginia Archival AI Protocol, v1.1][uva]

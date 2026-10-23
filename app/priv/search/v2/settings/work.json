@@ -71,6 +71,10 @@
         "type": "object",
         "enabled": false
       },
+      "ai_provenance_exports": {
+        "type": "object",
+        "enabled": false
+      },
       "ai_involved": {
         "properties": {
           "descriptive_metadata": {
