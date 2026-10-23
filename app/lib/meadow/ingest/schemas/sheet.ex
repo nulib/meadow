@@ -36,7 +36,7 @@ defmodule Meadow.Ingest.Schemas.Sheet do
       on_replace: :delete
 
     belongs_to :project, Meadow.Ingest.Schemas.Project
-    has_many :ingest_sheet_rows, Meadow.Ingest.Schemas.Row
+    has_many :ingest_sheet_rows, Meadow.Ingest.Schemas.Row, preload_order: [asc: :row]
 
     has_many :works, Meadow.Data.Schemas.Work, foreign_key: :ingest_sheet_id
 

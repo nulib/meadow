@@ -74,5 +74,12 @@ defmodule Meadow.Ingest.RowsTest do
         assert row.file_set_accession_number == "#{prefix}_Donohue_001_01"
       end
     end
+
+    test "associate_file_set_with_row/2", %{sheet: sheet} do
+      [row|_] = sheet.ingest_sheet_rows
+      file_set = file_set_fixture(accession_number: row.file_set_accession_number)
+      {:ok, row} = Rows.associate_file_set_with_row(row, file_set)
+      assert row.file_set_id == file_set.id
+    end
   end
 end

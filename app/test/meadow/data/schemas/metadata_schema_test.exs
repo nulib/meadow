@@ -363,6 +363,33 @@ defmodule Meadow.Data.Schemas.MetadataSchemaTest do
 
       refute third_id == second_id
     end
+
+    test "a note re-sent with its id and edited text is updated in place" do
+      work = work_fixture()
+
+      {:ok, _} =
+        work.id
+        |> loaded_metadata()
+        |> WorkDescriptiveMetadata.changeset(%{
+          notes: [%{note: "original note", type: %{id: "GENERAL_NOTE", scheme: "note_type"}}]
+        })
+        |> Repo.update()
+
+      assert [%NoteEntry{id: note_id, note: "original note"}] = loaded_metadata(work.id).notes
+
+      {:ok, _} =
+        work.id
+        |> loaded_metadata()
+        |> WorkDescriptiveMetadata.changeset(%{
+          notes: [
+            %{id: note_id, note: "edited note", type: %{id: "LOCAL_NOTE", scheme: "note_type"}}
+          ]
+        })
+        |> Repo.update()
+
+      assert [%NoteEntry{id: ^note_id, note: "edited note", type: %{id: "LOCAL_NOTE"}}] =
+               loaded_metadata(work.id).notes
+    end
   end
 
   defp loaded_metadata(work_id) do

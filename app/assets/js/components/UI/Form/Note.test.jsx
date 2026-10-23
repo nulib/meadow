@@ -4,6 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import UIFormNote from "./Note";
 import { notesSchemeMock } from "../../Work/controlledVocabulary.gql.mock";
 import { renderWithReactHookForm } from "../../../services/testing-helpers";
+import { prepNotes } from "../../../services/metadata";
 import userEvent from "@testing-library/user-event";
 
 const props = {
@@ -34,21 +35,28 @@ describe("Note controlled metadata form component", () => {
   });
 
   describe("standard component behavior", () => {
+    let reactHookFormMethods;
+
     beforeEach(() => {
-      renderWithReactHookForm(<UIFormNote {...props} />, {
-        defaultValues: {
-          notes: [
-            {
-              note: "A sample general note",
-              type: {
-                id: "GENERAL_NOTE",
-                label: "General note",
-                scheme: "NOTE_TYPE",
+      ({ reactHookFormMethods } = renderWithReactHookForm(
+        <UIFormNote {...props} />,
+        {
+          defaultValues: {
+            notes: [
+              {
+                id: "existing-note-id",
+                note: "A sample general note",
+                type: {
+                  id: "GENERAL_NOTE",
+                  label: "General note",
+                  scheme: "NOTE_TYPE",
+                },
               },
-            },
-          ],
+            ],
+          },
+          toPassBack: ["getValues"],
         },
-      });
+      ));
     });
 
     it("renders component and an add button", () => {
@@ -56,18 +64,38 @@ describe("Note controlled metadata form component", () => {
       expect(screen.getByTestId("button-add-field-array-row"));
     });
 
-    it("renders existing note values", () => {
-      expect(screen.getAllByTestId("note-existing-value")).toHaveLength(1);
-      expect(screen.getByText("A sample general note, General note"));
+    it("renders existing note values as editable form elements", () => {
+      expect(screen.getAllByTestId("note-form-item")).toHaveLength(1);
+      expect(screen.getByTestId("note-input")).toHaveValue(
+        "A sample general note",
+      );
+      expect(screen.getByTestId("note-select")).toHaveValue("GENERAL_NOTE");
+    });
+
+    it("keeps an existing note's id when its text and type are edited", () => {
+      fireEvent.change(screen.getByTestId("note-input"), {
+        target: { value: "An edited note" },
+      });
+      fireEvent.change(screen.getByTestId("note-select"), {
+        target: { value: "BIOGRAPHICAL_HISTORICAL_NOTE" },
+      });
+
+      expect(prepNotes(reactHookFormMethods.getValues().notes)).toEqual([
+        {
+          id: "existing-note-id",
+          note: "An edited note",
+          type: { scheme: "NOTE_TYPE", id: "BIOGRAPHICAL_HISTORICAL_NOTE" },
+        },
+      ]);
     });
 
     it("renders form elements when adding a new note value", () => {
       const addButton = screen.getByTestId("button-add-field-array-row");
       fireEvent.click(addButton);
       fireEvent.click(addButton);
-      expect(screen.getAllByTestId("note-form-item")).toHaveLength(2);
-      expect(screen.getAllByTestId("note-input")).toHaveLength(2);
-      expect(screen.getAllByTestId("note-select")).toHaveLength(2);
+      expect(screen.getAllByTestId("note-form-item")).toHaveLength(3);
+      expect(screen.getAllByTestId("note-input")).toHaveLength(3);
+      expect(screen.getAllByTestId("note-select")).toHaveLength(3);
     });
 
     it("renders delete button, removes note on click", () => {
@@ -77,11 +105,11 @@ describe("Note controlled metadata form component", () => {
       fireEvent.click(addButton);
       fireEvent.click(addButton);
 
-      expect(screen.getAllByTestId("note-form-item")).toHaveLength(4);
+      expect(screen.getAllByTestId("note-form-item")).toHaveLength(5);
 
       const removeButtons = screen.getAllByTestId("button-note-remove");
-      fireEvent.click(removeButtons[3]);
-      expect(screen.getAllByTestId("note-form-item")).toHaveLength(3);
+      fireEvent.click(removeButtons[4]);
+      expect(screen.getAllByTestId("note-form-item")).toHaveLength(4);
     });
   });
 
@@ -91,17 +119,17 @@ describe("Note controlled metadata form component", () => {
    *
    * Root cause: `useFieldArray` rebuilds the `fields` snapshot from current form values
    * on every `append()`. A previously-filled row has `item.typeId` populated in the
-   * new snapshot, which switches it from the editable path to the hidden-input path.
-   * The hidden `typeId` input was written as `value={item.type ? item.type.id : ""}`.
-   * Because form-entered rows have only a `typeId` string (no `type` object), the
-   * value collapsed to `""`, erasing the selection and causing required validation to
-   * fail on submit.
+   * new snapshot, which used to switch it from the editable path to a hidden-input
+   * path whose `typeId` value collapsed to `""`, erasing the selection and causing
+   * required validation to fail on submit.
    *
-   * Fix: `value={item.type ? item.type.id : item.typeId}` — falls back to the string.
+   * Every row is now editable (#5842), so each row keeps its own inputs and values
+   * no matter how many rows are added after it.
    */
   describe("regression: 3+ entries caused save failure (#5825)", () => {
     it("saves without an error banner when 3 rows are added and filled sequentially", async () => {
       const user = userEvent.setup();
+      let submittedNotes;
 
       // Use a real form so handleSubmit/validation runs end-to-end.
       const TestForm = () => {
@@ -110,7 +138,9 @@ describe("Note controlled metadata form component", () => {
           <FormProvider {...methods}>
             <form
               data-testid="test-form"
-              onSubmit={methods.handleSubmit(() => {})}
+              onSubmit={methods.handleSubmit((data) => {
+                submittedNotes = data.notes;
+              })}
             >
               <UIFormNote {...props} />
               <button type="submit" data-testid="submit-btn">
@@ -124,7 +154,6 @@ describe("Note controlled metadata form component", () => {
 
       // --- Row 1 ---
       await user.click(screen.getByTestId("button-add-field-array-row"));
-      // Row 1 is new (typeId="") → editable path.
       fireEvent.change(screen.getAllByTestId("note-input")[0], {
         target: { value: "First note text" },
       });
@@ -133,37 +162,53 @@ describe("Note controlled metadata form component", () => {
       });
 
       // --- Row 2 ---
-      // append() rebuilds fields; row 1 now has typeId="GENERAL_NOTE" in the snapshot
-      // → switches to the hidden-input path. Row 2 is new → editable path.
+      // append() rebuilds fields; row 1 stays editable alongside the new row 2.
       await user.click(screen.getByTestId("button-add-field-array-row"));
-      // Only row 2's inputs are visible now (row 1 is in hidden-input path).
-      fireEvent.change(screen.getAllByTestId("note-input")[0], {
+      fireEvent.change(screen.getAllByTestId("note-input")[1], {
         target: { value: "Second note text" },
       });
-      fireEvent.change(screen.getAllByTestId("note-select")[0], {
+      fireEvent.change(screen.getAllByTestId("note-select")[1], {
         target: { value: "BIOGRAPHICAL_HISTORICAL_NOTE" },
       });
 
       // --- Row 3 ---
-      // append() rebuilds again; rows 1 & 2 switch to hidden-input path.
-      // Before the fix, these hidden inputs wrote value="" for form-entered rows,
-      // silently erasing the selections and causing required validation to fail.
       await user.click(screen.getByTestId("button-add-field-array-row"));
-      // Only row 3's inputs are visible now.
-      fireEvent.change(screen.getAllByTestId("note-input")[0], {
+      fireEvent.change(screen.getAllByTestId("note-input")[2], {
         target: { value: "Third note text" },
       });
-      fireEvent.change(screen.getAllByTestId("note-select")[0], {
+      fireEvent.change(screen.getAllByTestId("note-select")[2], {
         target: { value: "GENERAL_NOTE" },
       });
 
-      // Submit and confirm no error banner appears.
+      // Earlier rows keep their selections after later rows are added.
+      expect(screen.getAllByTestId("note-select")[0]).toHaveValue(
+        "GENERAL_NOTE",
+      );
+      expect(screen.getAllByTestId("note-select")[1]).toHaveValue(
+        "BIOGRAPHICAL_HISTORICAL_NOTE",
+      );
+
+      // Submit and confirm no error banner appears and every row is submitted.
       await user.click(screen.getByTestId("submit-btn"));
 
       await waitFor(() => {
         expect(
           screen.queryByText(/An issue has occured within/),
         ).not.toBeInTheDocument();
+        expect(prepNotes(submittedNotes)).toEqual([
+          {
+            note: "First note text",
+            type: { scheme: "NOTE_TYPE", id: "GENERAL_NOTE" },
+          },
+          {
+            note: "Second note text",
+            type: { scheme: "NOTE_TYPE", id: "BIOGRAPHICAL_HISTORICAL_NOTE" },
+          },
+          {
+            note: "Third note text",
+            type: { scheme: "NOTE_TYPE", id: "GENERAL_NOTE" },
+          },
+        ]);
       });
     });
   });

@@ -169,6 +169,7 @@ defmodule Meadow.Ingest.WorkCreator do
       work = set_work_image(work, file_set_rows)
       Progress.update_entry(List.first(file_set_rows), "CreateWork", "ok")
       ActionStates.set_state!(work, "Create Work", "ok")
+      attach_filesets_to_rows(work.file_sets, file_set_rows)
       send_work_to_pipeline(ingest_sheet, work, file_set_rows)
     end
 
@@ -238,6 +239,7 @@ defmodule Meadow.Ingest.WorkCreator do
         work = set_work_image(work, file_set_rows)
         Progress.update_entry(List.first(file_set_rows), "CreateWork", "ok")
         ActionStates.set_state!(work, "Create Work", "ok")
+        attach_filesets_to_rows(new_file_sets, file_set_rows)
         send_filesets_to_pipeline(ingest_sheet, new_file_sets, file_set_rows)
         work
 
@@ -363,6 +365,14 @@ defmodule Meadow.Ingest.WorkCreator do
     errors
     |> Enum.map(fn {field, {message, _opts}} ->
       [to_string(field), message] |> Enum.join(": ")
+    end)
+  end
+
+  defp attach_filesets_to_rows(file_sets, rows) do
+    Enum.sort_by(rows, &(Row.field_value(&1, :file_accession_number)))
+    |> Enum.zip(Enum.sort_by(file_sets, &(&1.accession_number)))
+    |> Enum.each(fn {row, file_set} ->
+      Rows.associate_file_set_with_row(row, file_set)
     end)
   end
 end

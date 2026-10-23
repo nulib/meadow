@@ -30,7 +30,7 @@ defmodule Meadow.Ingest do
       as: :file_set,
       join: r in Row,
       as: :row,
-      on: r.file_set_accession_number == f.accession_number,
+      on: r.file_set_id == f.id,
       where: r.sheet_id == ^ingest_sheet.id
     )
   end
