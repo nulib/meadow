@@ -102,7 +102,8 @@ defmodule Meadow.Config.Runtime.Dev do
 
     config :ueberauth, Ueberauth.Strategy.NuSSO,
       callback_port: 3001,
-      ssl_port: 3001
+      ssl_port: 3001,
+      require_mfa: false
 
     config :libcluster,
       topologies: [
