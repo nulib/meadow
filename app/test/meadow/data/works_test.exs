@@ -7,6 +7,7 @@ defmodule Meadow.Data.WorksTest do
   alias Meadow.Data.{FileSets, Works}
   alias Meadow.Data.Schemas.Work
   alias Meadow.Repo
+  alias Meadow.Utils.ChangesetErrors
 
   describe "queries" do
     @valid_attrs %{
@@ -498,6 +499,36 @@ defmodule Meadow.Data.WorksTest do
           assert is_nil(value.role)
         end
       end
+    end
+
+    test "update_work/2 with a duplicate controlled entry names the duplicated term" do
+      assert {:ok, %Work{} = work} = Works.create_work(@valid)
+
+      assert {:error, changeset} =
+               Works.update_work(work, %{
+                 descriptive_metadata: %{
+                   subject: [
+                     %{term: "mock1:result1", role: %{id: "TOPICAL", scheme: "subject_role"}},
+                     %{term: "mock1:result2", role: %{id: "TOPICAL", scheme: "subject_role"}},
+                     %{term: "mock1:result1", role: %{id: "TOPICAL", scheme: "subject_role"}}
+                   ]
+                 }
+               })
+
+      assert ChangesetErrors.humanize_errors(changeset, flatten: [:descriptive_metadata]) == %{
+               "subject#3" => [~s'"First Result" (Topical) is listed more than once']
+             }
+
+      assert {:error, changeset} =
+               Works.update_work(work, %{
+                 descriptive_metadata: %{
+                   genre: [%{term: "mock1:result2"}, %{term: "mock1:result2"}]
+                 }
+               })
+
+      assert ChangesetErrors.humanize_errors(changeset, flatten: [:descriptive_metadata]) == %{
+               "genre#2" => [~s'"Second Result" is listed more than once']
+             }
     end
   end
 

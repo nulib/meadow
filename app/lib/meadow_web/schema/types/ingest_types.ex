@@ -132,6 +132,14 @@ defmodule MeadowWeb.Schema.IngestTypes do
       resolve(&Resolvers.Ingest.delete_ingest_sheet/3)
     end
 
+    @desc "Retry all failed file sets in an Ingest Sheet"
+    field :retry_ingest_sheet, :ingest_sheet do
+      arg(:sheet_id, non_null(:id))
+      middleware(Middleware.Authenticate)
+      middleware(Middleware.Authorize, "Manager")
+      resolve(&Resolvers.Ingest.retry_ingest_sheet/3)
+    end
+
     @desc "Kick off Validation of an Ingest Sheet"
     field :validate_ingest_sheet, :status_message do
       arg(:sheet_id, non_null(:id))

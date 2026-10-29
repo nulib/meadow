@@ -190,6 +190,26 @@ defmodule Meadow.Ingest.Progress do
     do: update_entry(Rows.get_row(row_id), action, status)
 
   @doc """
+  Resets every failed progress entry for a row to `pending`, so that a retried
+  pipeline run shows up as outstanding work on the sheet. Entries that already
+  succeeded are left alone.
+
+  Returns the list of reset `Progress` structs.
+  """
+  def reset_failed_entries(%Row{} = row), do: reset_failed_entries(row.id)
+
+  def reset_failed_entries(row_id) do
+    {_count, result} =
+      from(p in Progress,
+        where: p.row_id == ^row_id and p.status == "error",
+        select: p
+      )
+      |> Repo.update_all(set: [status: "pending", updated_at: DateTime.utc_now()])
+
+    result
+  end
+
+  @doc """
   Get the total number of actions for an ingest sheet
   """
   def action_count(sheet) do

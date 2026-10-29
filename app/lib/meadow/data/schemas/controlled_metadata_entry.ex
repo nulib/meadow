@@ -31,7 +31,7 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
     |> cast(params, [:field, :term])
     |> put_position(position)
     |> validate_required([:field, :term])
-    |> unique_constraint([:field, :term], name: :work_controlled_entries_natural_key, message: "already exists")
+    |> unique_natural_key([:field, :term])
   end
 
   def changeset_with_role(metadata, params, position \\ nil) do
@@ -39,11 +39,33 @@ defmodule Meadow.Data.Schemas.ControlledMetadataEntry do
     |> cast(params, [:field, :term, :role])
     |> put_position(position)
     |> validate_required([:field, :term, :role])
-    |> unique_constraint([:field, :term, :role], name: :work_controlled_entries_natural_key, message: "already exists")
+    |> unique_natural_key([:field, :term, :role])
   end
 
   defp put_position(changeset, nil), do: changeset
   defp put_position(changeset, position), do: put_change(changeset, :position, position)
+
+  # The error is keyed by list position (e.g. `subject#40`), so the message
+  # names the duplicated term (and role) to make it recognizable
+  defp unique_natural_key(changeset, fields) do
+    unique_constraint(changeset, fields,
+      name: :work_controlled_entries_natural_key,
+      message: "#{describe_entry(changeset)} is listed more than once"
+    )
+  end
+
+  defp describe_entry(changeset) do
+    term = changeset |> get_field(:term) |> display_label() |> inspect()
+
+    case get_field(changeset, :role) do
+      nil -> term
+      role -> "#{term} (#{display_label(role)})"
+    end
+  end
+
+  defp display_label(%{label: label}) when is_binary(label) and label != "", do: label
+  defp display_label(%{id: id}), do: id
+  defp display_label(value), do: value
 
   @doc "Natural identity of an entry or entry params: `{term_id, role_id}`"
   def natural_key(entry) do

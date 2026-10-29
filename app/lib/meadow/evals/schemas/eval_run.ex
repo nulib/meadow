@@ -26,7 +26,7 @@ defmodule Meadow.Evals.Schemas.EvalRun do
       references: :id
     )
 
-    has_many(:eval_trials, EvalTrial, foreign_key: :eval_run_id)
+    has_many(:eval_trials, EvalTrial, foreign_key: :eval_run_id, preload_order: [asc: :trial_index])
 
     timestamps()
   end

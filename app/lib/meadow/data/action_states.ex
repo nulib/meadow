@@ -115,6 +115,23 @@ defmodule Meadow.Data.ActionStates do
     |> set_state!(action, outcome, notes)
   end
 
+  @doc """
+  Resets every failed action state for an object to `waiting`, clearing the
+  failure notes and leaving successful (`ok`/`n/a`) states alone.
+
+  Returns the list of reset `ActionState` structs.
+  """
+  def reset_failed_states(object_id) do
+    {_count, states} =
+      from(a in ActionState,
+        where: a.object_id == ^object_id and a.outcome == "error",
+        select: a
+      )
+      |> Repo.update_all(set: [outcome: "waiting", notes: nil, updated_at: DateTime.utc_now()])
+
+    states
+  end
+
   def abort_remaining_waiting_actions(object_id) do
     from(a in ActionState,
       where: a.object_id == ^object_id and a.outcome == "waiting"

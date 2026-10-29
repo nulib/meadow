@@ -72,7 +72,7 @@ defmodule Meadow.Config.Runtime.Dev do
 
     config :meadow,
       iiif_server_url: Path.join(get_secret(:iiif, ["v3"]), prefix()),
-      iiif_manifest_url_deprecated: Path.join(get_secret(:iiif, ["base"]), "public/")
+      iiif_manifest_url_deprecated: "https://#{prefix()}-pyramids.s3.amazonaws.com/public/"
 
     config :meadow, Meadow.Scheduler,
       jobs: [
@@ -102,7 +102,8 @@ defmodule Meadow.Config.Runtime.Dev do
 
     config :ueberauth, Ueberauth.Strategy.NuSSO,
       callback_port: 3001,
-      ssl_port: 3001
+      ssl_port: 3001,
+      require_mfa: false
 
     config :libcluster,
       topologies: [

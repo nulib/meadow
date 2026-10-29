@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import { useQuery } from "@apollo/client/react";
 import PropTypes from "prop-types";
@@ -16,6 +16,7 @@ import { ActionHeadline, Skeleton } from "@js/components/UI/UI";
 
 const IngestSheetCompleted = ({
   sheetId,
+  status,
   title,
   aiCostActual,
   aiCostEstimate,
@@ -25,6 +26,7 @@ const IngestSheetCompleted = ({
     loading: worksLoading,
     error: worksError,
     data: worksData,
+    refetch: refetchWorks,
   } = useQuery(INGEST_SHEET_WORKS, {
     variables: { id: sheetId, limit: 10 },
     fetchPolicy: "network-only",
@@ -33,14 +35,36 @@ const IngestSheetCompleted = ({
     loading: errorsLoading,
     error: errorsError,
     data: errorsData,
-  } = useQuery(INGEST_SHEET_COMPLETED_ERRORS, { variables: { id: sheetId } });
+    refetch: refetchErrors,
+  } = useQuery(INGEST_SHEET_COMPLETED_ERRORS, {
+    variables: { id: sheetId },
+    fetchPolicy: "network-only",
+  });
   const {
     loading: workCountLoading,
     error: workCountError,
     data: workCountData,
+    refetch: refetchWorkCount,
   } = useQuery(INGEST_SHEET_WORK_COUNT, {
     variables: { id: sheetId },
+    fetchPolicy: "network-only",
   });
+
+  // Retrying failed file sets sends the sheet back through APPROVED and on to a
+  // fresh COMPLETED/COMPLETED_ERROR, so the errors and counts gathered the first
+  // time it finished no longer describe it. None of these queries' variables
+  // change along the way, so nothing refetches on its own — ask explicitly
+  // whenever the status moves.
+  const renderedStatus = useRef(status);
+
+  useEffect(() => {
+    if (renderedStatus.current === status) return;
+    renderedStatus.current = status;
+
+    refetchWorks();
+    refetchErrors();
+    refetchWorkCount();
+  }, [status]);
 
   if (worksLoading || errorsLoading || workCountLoading)
     return <Skeleton rows={10} />;
@@ -69,13 +93,13 @@ const IngestSheetCompleted = ({
 
   return (
     <>
-      {aiCostActual && (
+      {aiCostActual > 0 && (
         <div className="box">
           <div className="notification is-info">
             <h2 className="title is-5">AI Ingest Cost</h2>
             <p>
               Actual cost: <strong>${aiCostActual.toFixed(4)}</strong>
-              {aiCostEstimate && (
+              {aiCostEstimate > 0 && (
                 <> (estimated: ${aiCostEstimate.toFixed(2)})</>
               )}
             </p>
@@ -170,6 +194,7 @@ const IngestSheetCompleted = ({
 
 IngestSheetCompleted.propTypes = {
   sheetId: PropTypes.string,
+  status: PropTypes.string,
   title: PropTypes.string,
   aiCostActual: PropTypes.number,
   aiCostEstimate: PropTypes.number,

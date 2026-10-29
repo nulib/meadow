@@ -13,7 +13,7 @@ defmodule Meadow.Ingest.Schemas.Project do
     field :title, :string
     field :folder, :string
 
-    has_many :ingest_sheets, Meadow.Ingest.Schemas.Sheet
+    has_many :ingest_sheets, Meadow.Ingest.Schemas.Sheet, preload_order: [desc: :inserted_at]
 
     timestamps()
   end

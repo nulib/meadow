@@ -83,6 +83,7 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
           work_id: work.id
         })
 
+      {:ok, row} = Rows.associate_file_set_with_row(row, file_set)
       {:ok, %{row: row, file_set: file_set}}
     end
 
@@ -139,6 +140,7 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
           work_id: work.id
         })
 
+      {:ok, row} = Rows.associate_file_set_with_row(row, file_set)
       {:ok, %{row: row, file_set: file_set, sheet: sheet}}
     end
 
@@ -206,6 +208,7 @@ defmodule Meadow.Pipeline.Actions.InitializeDispatchTest do
           work_id: work.id
         })
 
+      {:ok, row} = Rows.associate_file_set_with_row(row, file_set)
       {:ok, %{row: row, file_set: file_set}}
     end
 

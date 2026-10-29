@@ -1,0 +1,7 @@
+#import "./FileSetFields.frag.gql"
+
+mutation($fileSetId: ID!) {
+  retryFileSetPipeline(fileSetId: $fileSetId) {
+    ...FileSetFields
+  }
+}
