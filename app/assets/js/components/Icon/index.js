@@ -35,7 +35,13 @@ import IconProjects from "@js/components/Icon/Projects";
 import IconReplace from "@js/components/Icon/Replace";
 import IconSearch from "@js/components/Icon/Search";
 import IconSort from "@js/components/Icon/Sort";
+import IconSortAlphaDown from "@js/components/Icon/SortAlphaDown";
+import IconSortAlphaDownAlt from "@js/components/Icon/SortAlphaDownAlt";
+import IconSortAmountDown from "@js/components/Icon/SortAmountDown";
+import IconSortAmountDownAlt from "@js/components/Icon/SortAmountDownAlt";
 import IconSortDown from "@js/components/Icon/SortDown";
+import IconSortNumericDown from "@js/components/Icon/SortNumericDown";
+import IconSortNumericDownAlt from "@js/components/Icon/SortNumericDownAlt";
 import IconSortUp from "@js/components/Icon/SortUp";
 import IconTrashCan from "@js/components/Icon/TrashCan";
 import IconUpload from "@js/components/Icon/Upload";
@@ -82,7 +88,13 @@ export {
   IconReplace,
   IconSearch,
   IconSort,
+  IconSortAlphaDown,
+  IconSortAlphaDownAlt,
+  IconSortAmountDown,
+  IconSortAmountDownAlt,
   IconSortDown,
+  IconSortNumericDown,
+  IconSortNumericDownAlt,
   IconSortUp,
   IconTrashCan,
   IconUpload,
