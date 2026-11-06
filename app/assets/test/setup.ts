@@ -254,6 +254,10 @@ const reactiveSearchComponent = (testId: string, children?: React.ReactNode) =>
 
 mock.module("@appbaseio/reactivesearch", () => ({
   DataSearch: () => reactiveSearchComponent("reactive-search-data-search"),
+  DynamicRangeSlider: (props: { componentId?: string }) =>
+    reactiveSearchComponent(
+      `reactive-search-dynamic-range-slider-${props.componentId}`,
+    ),
   MultiList: (props: { componentId?: string }) =>
     reactiveSearchComponent(`reactive-search-multi-list-${props.componentId}`),
   RangeSlider: (props: { componentId?: string }) =>
@@ -268,10 +272,14 @@ mock.module("@appbaseio/reactivesearch", () => ({
       previousQuery: Record<string, unknown>,
       nextQuery: Record<string, unknown>,
     ) => void;
+    renderResultStats?: (stats: Record<string, unknown>) => React.ReactNode;
   }) => {
     props.onData?.({ resultStats: {} });
     props.onQueryChange?.({}, {});
-    return reactiveSearchComponent("reactive-search-list");
+    return reactiveSearchComponent(
+      "reactive-search-list",
+      props.renderResultStats?.({ numberOfResults: 0, time: 0 }),
+    );
   },
   SelectedFilters: () => reactiveSearchComponent("reactive-search-filters"),
 }));

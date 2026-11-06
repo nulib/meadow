@@ -18,6 +18,7 @@ defmodule Meadow.Indexing.V2.Work do
 
   def encode(work) do
     ai_provenance = Provenance.work_summary(work.id)
+    date_created_range = date_created_range(work.descriptive_metadata.date_created)
 
     %{
       abstract: work.descriptive_metadata.abstract,
@@ -41,6 +42,9 @@ defmodule Meadow.Indexing.V2.Work do
       cultural_context: work.descriptive_metadata.cultural_context,
       date_created_edtf: encode_edtf(work.descriptive_metadata.date_created),
       date_created: encode_field(work.descriptive_metadata.date_created),
+      date_created_start: encode_sort_date(date_created_range.start),
+      date_created_end: encode_sort_date(date_created_range.end),
+      date_created_years: date_created_years(work.descriptive_metadata.date_created),
       description: work.descriptive_metadata.description,
       file_sets: file_sets(work),
       folder_name: work.descriptive_metadata.folder_name,
@@ -64,8 +68,7 @@ defmodule Meadow.Indexing.V2.Work do
       modified_date: work.updated_at,
       notes: encode_field(work.descriptive_metadata.notes),
       nav_place: encode_nav_place(work.descriptive_metadata.nav_place),
-      physical_description_material:
-        work.descriptive_metadata.physical_description_material,
+      physical_description_material: work.descriptive_metadata.physical_description_material,
       physical_description_size: work.descriptive_metadata.physical_description_size,
       preservation_level: encode_label(work.administrative_metadata.preservation_level),
       project: encode_project(work.administrative_metadata),
@@ -209,6 +212,61 @@ defmodule Meadow.Indexing.V2.Work do
   def encode_edtf(%{edtf: edtf}), do: edtf
   def encode_edtf(value), do: value
 
+  @doc """
+  The span of calendar dates covered by a work's Date Created values, as a map of
+  `:start` (earliest) and `:end` (latest) dates, both nil when none of the values
+  resolves to a bounded date. Oldest-first sorting uses the start, newest-first
+  sorting the end.
+
+  Each EDTF value is widened to its full span first, so `196X` runs from
+  1960-01-01 to 1969-12-31 and `1965/1970` from 1965-01-01 to 1970-12-31. An open
+  or unknown end of an interval contributes nothing, so `../1985` contributes only
+  1985-12-31.
+  """
+  def date_created_range(dates) do
+    case dates |> List.wrap() |> Enum.flat_map(&bounding_dates/1) do
+      [] -> %{start: nil, end: nil}
+      bounds -> %{start: Enum.min(bounds, Date), end: Enum.max(bounds, Date)}
+    end
+  end
+
+  @doc """
+  Every year covered by any of a work's Date Created values, for the Year Created
+  range facet: `1965/1970` yields 1965..1970 and `196X` the whole decade, so a work
+  matches any year range that overlaps it. BCE years are left out because the
+  facet's slider cannot start below zero.
+  """
+  def date_created_years(dates) do
+    dates
+    |> List.wrap()
+    |> Enum.flat_map(fn value ->
+      case bounding_dates(value) do
+        [] ->
+          []
+
+        bounds ->
+          Enum.to_list(max(Enum.min(bounds, Date).year, 0)..Enum.max(bounds, Date).year//1)
+      end
+    end)
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  defp bounding_dates(%{edtf: edtf}), do: bounding_dates(edtf)
+  defp bounding_dates(%{"edtf" => edtf}), do: bounding_dates(edtf)
+
+  defp bounding_dates(edtf) when is_binary(edtf) do
+    case EDTF.to_date_range(edtf) do
+      {:ok, {start_date, end_date}} -> Enum.filter([start_date, end_date], &match?(%Date{}, &1))
+      _ -> []
+    end
+  end
+
+  defp bounding_dates(_), do: []
+
+  defp encode_sort_date(%Date{} = date), do: Date.to_iso8601(date)
+  defp encode_sort_date(_), do: nil
+
   def encode_project(admin_metadata) do
     %{
       cycle: admin_metadata.project_cycle,
@@ -219,7 +277,6 @@ defmodule Meadow.Indexing.V2.Work do
       task_number: List.first(admin_metadata.project_task_number)
     }
   end
-
 
   def file_sets(work) do
     Enum.flat_map(["A", "P", "S", "X"], fn role ->
