@@ -575,7 +575,10 @@ defmodule Meadow.AI.Provenance do
   AI-generated description in the Meadow edit form. For each field that already
   carries AI provenance and whose value changed, flip the origin to reflect
   human mediation and append an event capturing the AI value -> human value
-  transition. Fields with no AI provenance are left untouched.
+  transition. Fields with no AI provenance are left untouched, and so are
+  multivalued fields whose AI-attributed items all survive the edit: changing
+  only the human-authored items next to them (e.g. fixing a typo in the
+  original description beside an AI-added one) is not an edit of AI content.
 
   Pass `except:` a list of `field_path`s to skip — used when those fields are
   being recorded through the explicit human-attestation path instead, so they
@@ -588,8 +591,8 @@ defmodule Meadow.AI.Provenance do
   should use `record_work_manual_edit!/4`.
   """
   def record_work_manual_edit(work_before, work_after, actor, opts \\ []) do
-    each_changed_ai_field(work_before, work_after, opts, fn target, before_value, after_value ->
-      record_manual_edit_for_target(target, before_value, after_value, actor)
+    each_changed_ai_field(work_before, work_after, opts, fn target, from, to, change ->
+      record_manual_edit_for_target(target, from, to, actor, change)
     end)
   end
 
@@ -603,8 +606,8 @@ defmodule Meadow.AI.Provenance do
   transaction without a savepoint, so atomicity must come from the caller.
   """
   def record_work_manual_edit!(work_before, work_after, actor, opts \\ []) do
-    each_changed_ai_field(work_before, work_after, opts, fn target, before_value, after_value ->
-      apply_manual_edit!(target, before_value, after_value, actor)
+    each_changed_ai_field(work_before, work_after, opts, fn target, from, to, change ->
+      apply_manual_edit!(target, from, to, actor, change)
     end)
   end
 
@@ -620,13 +623,50 @@ defmodule Meadow.AI.Provenance do
       before_value = field_value(work_before, target.field_path)
       after_value = field_value(work_after, target.field_path)
 
-      if before_value != after_value do
-        fun.(target, before_value, after_value)
+      with true <- before_value != after_value,
+           change when change != :none <- ai_content_change(target, before_value, after_value) do
+        fun.(target, before_value, after_value, change)
       end
     end)
 
     :ok
   end
+
+  # How an edit of the live field affects its AI content:
+  #
+  #   * `:removed` when no AI content survives: the field was cleared, or every
+  #     AI-attributed item of a multivalued field was deleted while human items
+  #     remain.
+  #   * `:none` when only human-authored items of a multivalued field changed and
+  #     every AI-attributed item came through untouched.
+  #   * `:edited` otherwise.
+  #
+  # Multivalued fields are judged by projecting the field's per-item attribution
+  # through the edit, with the same rules `item_provenance/1` uses to read it
+  # back. Targets with no per-item attribution keep the whole-field comparison.
+  defp ai_content_change(_target, _before_value, after_value)
+       when after_value in [nil, "", [], %{}],
+       do: :removed
+
+  defp ai_content_change(target, before_value, after_value)
+       when is_list(before_value) and is_list(after_value) do
+    case item_provenance(target) do
+      [] ->
+        :edited
+
+      current ->
+        edit = %{item_identifier: nil, value_before: before_value, value_after: after_value}
+        projected = follow_live_edit(current, edit, item_edit_origin(target))
+
+        cond do
+          projected == [] -> :removed
+          MapSet.new(projected) == MapSet.new(current) -> :none
+          true -> :edited
+        end
+    end
+  end
+
+  defp ai_content_change(_target, _before_value, _after_value), do: :edited
 
   @doc """
   Record an explicit human attestation that the live value of one or more
@@ -862,8 +902,10 @@ defmodule Meadow.AI.Provenance do
   # versa). Provenance is recorded *after* the work is already saved, so a
   # failure here must not fail the user's edit: roll back this target and log
   # rather than letting the resolver crash on a successful save.
-  defp record_manual_edit_for_target(target, before_value, after_value, actor) do
-    Repo.transaction(fn -> apply_manual_edit!(target, before_value, after_value, actor) end)
+  defp record_manual_edit_for_target(target, before_value, after_value, actor, change \\ :edited) do
+    Repo.transaction(fn ->
+      apply_manual_edit!(target, before_value, after_value, actor, change)
+    end)
   rescue
     error ->
       Logger.warning(
@@ -874,11 +916,13 @@ defmodule Meadow.AI.Provenance do
       :error
   end
 
-  # Human cleared an AI-provenanced field: this is a deletion, recorded the same
-  # way as a plan-change delete (status "deleted", PREMIS "deletion",
-  # `c2pa.removed`), capturing the removed AI value as `value_before`.
-  defp apply_manual_edit!(target, before_value, after_value, actor)
-       when after_value in [nil, "", [], %{}] do
+  # Human removed the AI content: cleared the field, or deleted every AI item of a
+  # multivalued field while keeping human ones. This is a deletion, recorded the
+  # same way as a plan-change delete (status "deleted", PREMIS "deletion",
+  # `c2pa.removed`), capturing the removed AI value as `value_before` and any
+  # human items left behind as `value_after`.
+  defp apply_manual_edit!(target, before_value, after_value, actor, change)
+       when change == :removed or after_value in [nil, "", [], %{}] do
     target
     |> Target.changeset(%{
       origin: "human_replacement_after_ai_suggestion",
@@ -892,13 +936,13 @@ defmodule Meadow.AI.Provenance do
       event_type: "deleted",
       actor: actor,
       value_before: before_value,
-      value_after: nil
+      value_after: if(present_value?(after_value), do: after_value)
     })
   end
 
   # Human edited AI-generated content into a new non-empty value: an edit of AI
   # content (PREMIS "metadata modification", `c2pa.edited`).
-  defp apply_manual_edit!(target, before_value, after_value, actor) do
+  defp apply_manual_edit!(target, before_value, after_value, actor, _change) do
     target
     |> Target.changeset(%{
       origin: "ai_assisted_human_modified",
@@ -1539,10 +1583,14 @@ defmodule Meadow.AI.Provenance do
   # id, so when two targets touch the same item the most recent attribution wins.
   # Only targets that were actually applied contribute: a rejected or still-
   # pending proposal (e.g. a delete of a human-entered term) must not mark the
-  # field's live items as AI content.
+  # field's live items as AI content. Neither may a target with no AI history,
+  # such as a term a reviewer added to the plan by hand (`human_generated`).
+  # This is the same set of targets per-item attestation accepts, so every item
+  # the UI badges as AI can be attested.
   defp merge_item_provenance(targets) do
     targets
     |> Enum.reject(&(&1.status in @unapplied_target_statuses))
+    |> Enum.filter(&(&1.origin in @ai_involved_origins))
     |> Enum.sort_by(&summary_sort_key/1)
     |> Enum.flat_map(&ai_item_provenance(&1, &1.events || []))
     |> Enum.reverse()
@@ -1555,9 +1603,12 @@ defmodule Meadow.AI.Provenance do
 
   defp ai_item_provenance(target, events) do
     attested = attested_item_ids(events)
+    edit_origin = item_edit_origin(target)
+    {through_apply, after_apply} = split_at_apply(events)
 
     proposed_value(target, events)
-    |> reconcile_items(current_value(target, events), item_edit_origin(target))
+    |> reconcile_items(current_value(target, through_apply), edit_origin)
+    |> follow_live_edits(after_apply, edit_origin)
     |> Enum.map(fn entry ->
       if MapSet.member?(attested, entry.id),
         do: %{entry | origin: "human_attested_after_ai"},
@@ -1603,11 +1654,13 @@ defmodule Meadow.AI.Provenance do
     end
   end
 
-  # Reconcile the proposed and current item lists into per-item attribution.
-  # Items present in both (by id) are unchanged AI generations; the leftover
-  # current items are matched positionally to dropped proposed items and treated
-  # as in-place human edits of those AI items, while any current items beyond the
-  # dropped proposed items are human additions and carry no AI lineage.
+  # Reconcile the proposed item list with the value the plan applied (both lists
+  # of AI-proposed items only) into per-item attribution. Items present in both
+  # (by id) are unchanged AI generations; the leftover current items are matched
+  # in order to dropped proposed items and treated as in-place human edits of
+  # those AI items, while any current items beyond the dropped proposed items are
+  # human additions and carry no AI lineage. Controlled terms are never paired
+  # (see `editable_in_place?/1`).
   defp reconcile_items(proposed_val, current_val, edit_origin) do
     proposed = value_item_ids(proposed_val)
     current = value_item_ids(current_val)
@@ -1623,10 +1676,83 @@ defmodule Meadow.AI.Provenance do
     edited =
       edited_current
       |> Enum.zip(dropped_proposed)
+      |> Enum.filter(fn {_id, was} ->
+        editable_in_place?(item_by_identifier(value_items(proposed_val), was))
+      end)
       |> Enum.map(fn {id, _was} -> %{id: id, origin: edit_origin} end)
 
     Enum.map(unchanged, &%{id: &1, origin: "ai_generated"}) ++ edited
   end
+
+  # Split a target's events at its last `applied` event. Events up to and
+  # including the apply describe the AI proposal and its review, where every item
+  # in play is AI-proposed. Events after it record edits of the work's live
+  # field, whose values hold the whole field, human-authored items included.
+  defp split_at_apply(events) do
+    sorted = Enum.sort_by(events, & &1.occurred_at, DateTime)
+
+    case sorted |> Enum.reverse() |> Enum.find_index(&(&1.event_type == "applied")) do
+      nil -> {sorted, []}
+      from_end -> Enum.split(sorted, length(sorted) - from_end)
+    end
+  end
+
+  defp follow_live_edits(entries, events, edit_origin) do
+    events
+    |> Enum.filter(&live_field_edit?/1)
+    |> Enum.reduce(entries, &follow_live_edit(&2, &1, edit_origin))
+  end
+
+  # A whole-field change of the live value: a human edit, or an attestation
+  # saved together with an edit. Per-item attestation events describe a single
+  # item, and deletions retire the target, so neither moves item lineage.
+  defp live_field_edit?(event) do
+    is_nil(event.item_identifier) and is_list(value_items(event.value_before)) and
+      is_list(value_items(event.value_after))
+  end
+
+  # Carry attribution through one edit of the live field. Unchanged items keep
+  # their origin. Values the edit introduced are paired, in order, with values it
+  # removed, and a new value inherits AI lineage only when its partner was an
+  # AI-attributed item that can be edited in place. So a human item edited in
+  # place pairs with its own old value and stays human, and removing an AI item
+  # never hands its lineage to a neighbor.
+  defp follow_live_edit(entries, event, edit_origin) do
+    before_items = value_items(event.value_before)
+    after_ids = value_item_ids(event.value_after)
+    before_ids = value_item_ids(before_items)
+    lineage = Map.new(entries, &{&1.id, &1.origin})
+
+    edited =
+      (after_ids -- before_ids)
+      |> Enum.zip(before_ids -- after_ids)
+      |> Enum.filter(fn {_id, was} ->
+        Map.has_key?(lineage, was) and
+          editable_in_place?(item_by_identifier(before_items, was))
+      end)
+      |> Map.new(fn {id, _was} -> {id, edit_origin} end)
+
+    after_ids
+    |> Enum.uniq()
+    |> Enum.flat_map(fn id ->
+      case Map.get(lineage, id) || Map.get(edited, id) do
+        nil -> []
+        origin -> [%{id: id, origin: origin}]
+      end
+    end)
+  end
+
+  # A controlled term's identity is the term itself, so replacing one term with
+  # another is a removal plus an addition, never an edit of the removed term.
+  # Free text, notes, URLs and dates are identified by their content, so a
+  # changed value in the same slot is the same item edited in place.
+  defp editable_in_place?(%{"term" => _}), do: false
+  defp editable_in_place?(%{term: _}), do: false
+  defp editable_in_place?(_), do: true
+
+  defp value_items(%{"value" => list}) when is_list(list), do: list
+  defp value_items(list) when is_list(list), do: list
+  defp value_items(_), do: nil
 
   defp item_edit_origin(%{origin: "ai_modified_human_content"}), do: "ai_modified_human_content"
   defp item_edit_origin(_), do: "ai_assisted_human_modified"
