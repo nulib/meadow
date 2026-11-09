@@ -874,6 +874,21 @@ defmodule Meadow.AI.ProvenanceTest do
       }
     end
 
+    defp term(id), do: %{"term" => %{"id" => id}, "role" => %{"id" => "TOPICAL"}}
+
+    # Append a direct edit of the work's live field after the apply. Live edits
+    # carry the whole field, human-authored items included.
+    defp with_live_edit(target, before, after_edit) do
+      event = %Event{
+        event_type: "human_edited",
+        value_before: %{"value" => before},
+        value_after: %{"value" => after_edit},
+        occurred_at: ~U[2026-01-01 00:02:00.000000Z]
+      }
+
+      %{target | events: target.events ++ [event]}
+    end
+
     test "keeps unchanged AI items as ai_generated" do
       target = target_with_events("ai_generated", ["A", "B"], ["A", "B"])
 
@@ -902,6 +917,67 @@ defmodule Meadow.AI.ProvenanceTest do
       target = target_with_events("ai_assisted_human_modified", ["A", "B"], ["A"])
 
       assert Provenance.item_provenance(target) == [%{id: "A", origin: "ai_generated"}]
+    end
+
+    test "never treats a replacement controlled term as an edit of the AI term" do
+      target =
+        target_with_events(
+          "ai_assisted_human_modified",
+          [term("AI-1"), term("AI-2")],
+          [term("AI-1"), term("Human")]
+        )
+
+      assert Provenance.item_provenance(target) == [%{id: "AI-1", origin: "ai_generated"}]
+    end
+
+    test "keeps existing human terms unattributed when an AI term is removed" do
+      target =
+        "ai_generated"
+        |> target_with_events([term("AI-1"), term("AI-2")], [term("AI-1"), term("AI-2")])
+        |> with_live_edit(
+          [term("Human"), term("AI-1"), term("AI-2")],
+          [term("Human"), term("AI-1")]
+        )
+
+      assert Provenance.item_provenance(target) == [%{id: "AI-1", origin: "ai_generated"}]
+    end
+
+    test "keeps existing human text unattributed when an AI item is removed" do
+      target =
+        "ai_generated"
+        |> target_with_events(["AI 1", "AI 2"], ["AI 1", "AI 2"])
+        |> with_live_edit(["Human", "AI 1", "AI 2"], ["Human", "AI 1"])
+
+      assert Provenance.item_provenance(target) == [%{id: "AI 1", origin: "ai_generated"}]
+    end
+
+    test "follows an in-place edit of an AI item in the live field" do
+      target =
+        "ai_generated"
+        |> target_with_events(["AI"], ["AI"])
+        |> with_live_edit(["Human", "AI"], ["Human", "AI, edited"])
+
+      assert Provenance.item_provenance(target) == [
+               %{id: "AI, edited", origin: "ai_assisted_human_modified"}
+             ]
+    end
+
+    test "keeps a human item human when it is edited in place beside AI items" do
+      target =
+        "ai_generated"
+        |> target_with_events(["AI"], ["AI"])
+        |> with_live_edit(["Orignal", "AI"], ["Original", "AI"])
+
+      assert Provenance.item_provenance(target) == [%{id: "AI", origin: "ai_generated"}]
+    end
+
+    test "pairs each edited value with its own slot when an AI item is removed in the same edit" do
+      target =
+        "ai_generated"
+        |> target_with_events(["AI 1", "AI 2"], ["AI 1", "AI 2"])
+        |> with_live_edit(["Orignal", "AI 1", "AI 2"], ["Original", "AI 1"])
+
+      assert Provenance.item_provenance(target) == [%{id: "AI 1", origin: "ai_generated"}]
     end
 
     test "carries the ai_modified_human_content origin onto an edited item" do
@@ -1013,6 +1089,61 @@ defmodule Meadow.AI.ProvenanceTest do
 
       assert Enum.all?(summary.item_provenance, &(&1.origin == "ai_generated"))
     end
+
+    test "attributes only items from targets with AI history" do
+      work = work_fixture(%{descriptive_metadata: %{keywords: []}})
+
+      {:ok, activity} =
+        Provenance.create_activity(%{
+          activity_type: "metadata_plan",
+          ai_use_type: "metadata_generation",
+          work_id: work.id,
+          status: "completed"
+        })
+
+      # The AI proposed one keyword; a reviewer added another to the same plan
+      # by hand, which records a `human_generated` target.
+      for {keyword, origin} <- [{"AI keyword", "ai_generated"}, {"Reviewer keyword", "human_generated"}] do
+        Provenance.record_target(
+          activity,
+          %{
+            target_type: "Work",
+            target_id: work.id,
+            field_path: "descriptive_metadata.keywords",
+            operation: "add",
+            proposed_value: [keyword],
+            origin: origin,
+            status: "applied"
+          },
+          "applied"
+        )
+      end
+
+      summary =
+        Provenance.work_summary(work.id)
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.keywords"))
+
+      assert summary.item_provenance == [%{id: "AI keyword", origin: "ai_generated"}]
+
+      # Every badged item is attestable, and the reviewer's keyword is not.
+      assert {:ok, _} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.keywords"],
+                 "bmq449",
+                 item_ids: ["AI keyword"]
+               )
+
+      assert {:error, [{"descriptive_metadata.keywords", :no_ai_provenance}]} =
+               Provenance.record_work_human_attestation(
+                 work,
+                 work,
+                 ["descriptive_metadata.keywords"],
+                 "bmq449",
+                 item_ids: ["Reviewer keyword"]
+               )
+    end
   end
 
   describe "direct work manual edit" do
@@ -1105,6 +1236,63 @@ defmodule Meadow.AI.ProvenanceTest do
 
       assert %{"descriptive_metadata.description" => %{origin: "ai_generated"}} =
                Provenance.target_summary_map("Work", work.id)
+    end
+
+    test "leaves the field untouched when only a human item beside the AI item changed",
+         %{work: work} do
+      before = put_in(work.descriptive_metadata.description, ["Orignal", "AI description"])
+      edited = put_in(work.descriptive_metadata.description, ["Original", "AI description"])
+
+      assert :ok = Provenance.record_work_manual_edit(before, edited, "bmq449")
+      assert :ok = Provenance.record_work_manual_edit!(before, edited, "bmq449")
+
+      entry =
+        Provenance.work_summary(work.id)
+        |> Enum.find(&(&1.field_path == "descriptive_metadata.description"))
+
+      assert entry.origin == "ai_generated"
+      assert entry.item_provenance == [%{id: "AI description", origin: "ai_generated"}]
+
+      [target] = Provenance.list_activities(work_id: work.id) |> hd() |> Map.fetch!(:targets)
+      refute Enum.any?(target.events, &(&1.event_type == "human_edited"))
+    end
+
+    test "records a deletion when a human removes the AI item but keeps human ones",
+         %{work: work} do
+      before = put_in(work.descriptive_metadata.description, ["Human", "AI description"])
+      edited = put_in(work.descriptive_metadata.description, ["Human"])
+
+      Provenance.record_work_manual_edit(before, edited, "bmq449")
+
+      assert %{
+               "descriptive_metadata.description" => %{
+                 origin: "human_replacement_after_ai_suggestion",
+                 status: "deleted",
+                 latest_event_type: "deleted",
+                 c2pa: %{action: "c2pa.removed"}
+               }
+             } = Provenance.target_summary_map("Work", work.id)
+
+      [target] = Provenance.list_activities(work_id: work.id) |> hd() |> Map.fetch!(:targets)
+      deleted = Enum.find(target.events, &(&1.event_type == "deleted"))
+
+      assert deleted.value_before == %{"value" => ["Human", "AI description"]}
+      assert deleted.value_after == %{"value" => ["Human"]}
+    end
+
+    test "flips the field when the AI item is edited alongside a human item",
+         %{work: work} do
+      before = put_in(work.descriptive_metadata.description, ["Human", "AI description"])
+      edited = put_in(work.descriptive_metadata.description, ["Human", "AI description, fixed"])
+
+      Provenance.record_work_manual_edit(before, edited, "bmq449")
+
+      assert %{
+               "descriptive_metadata.description" => %{
+                 origin: "ai_assisted_human_modified",
+                 latest_event_type: "human_edited"
+               }
+             } = Provenance.target_summary_map("Work", work.id)
     end
 
     test "returns :ok and records target reclassification and event atomically", %{work: work} do
