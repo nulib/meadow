@@ -21,6 +21,10 @@ defmodule Meadow.Application.Children do
          token_count: 100, interval: 1_000, replenish_count: 10}
         |> distributed()
       ],
+      "embeddings" => [
+        Meadow.Embeddings.Model.ONNX,
+        Meadow.Embeddings.Worker |> distributed()
+      ],
       "scheduler" => Meadow.Scheduler |> distributed(),
       "work_creator" => [Meadow.Ingest.WorkCreator, Meadow.Ingest.WorkRedriver]
     }

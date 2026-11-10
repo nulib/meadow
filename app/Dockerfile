@@ -11,7 +11,11 @@ ENV BUN_INSTALL=/root/.bun
 ENV PATH=${BUN_INSTALL}/bin:${PATH}
 ENV ARCH=x64
 RUN apt update -qq
-RUN apt install -y ca-certificates curl git gnupg unzip
+RUN apt install -y build-essential ca-certificates curl git gnupg unzip
+# Ortex (ONNX Runtime bindings for embeddings) compiles a Rust NIF
+ARG RUST_VERSION=1.99.1
+ENV PATH=/root/.cargo/bin:${PATH}
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain ${RUST_VERSION}
 RUN mkdir -p /etc/apt/keyrings
 RUN curl -fsSL https://bun.sh/install | bash -s "bun-v${BUN_VERSION}"
 RUN  mix local.hex --force \
@@ -42,6 +46,20 @@ ARG RELEASE_NAME=
 ENV RELEASE_NAME=${RELEASE_NAME}
 RUN mix release --overwrite
 
+# Fetch the embedding model so nodes never download it at runtime. The layout
+# mirrors the Hugging Face repository (see Meadow.Embeddings.ModelFiles).
+FROM ${BUILD_IMAGE} AS embedding-model
+ARG EMBEDDING_MODEL_REPOSITORY=onnx-community/embeddinggemma-2-ONNX
+ARG EMBEDDING_MODEL_REVISION=main
+RUN apt update -qq && apt install -y ca-certificates curl
+WORKDIR /models/${EMBEDDING_MODEL_REPOSITORY}/${EMBEDDING_MODEL_REVISION}
+RUN mkdir -p onnx \
+  && for file in tokenizer.json onnx/model.onnx onnx/model.onnx_data \
+                   onnx/vision_encoder.onnx onnx/vision_encoder.onnx_data; do \
+       curl -fsSL --retry 3 -o "${file}" \
+         "https://huggingface.co/${EMBEDDING_MODEL_REPOSITORY}/resolve/${EMBEDDING_MODEL_REVISION}/${file}" || exit 1; \
+     done
+
 # Create runtime image
 FROM ${BUILD_IMAGE}
 LABEL edu.northwestern.library.app=meadow \
@@ -57,6 +75,10 @@ ARG RELEASE_NAME=
 ENV RELEASE_NAME=${RELEASE_NAME}
 ENV LANG=C.UTF-8
 EXPOSE 4000 4369 9100-9155
+ARG EMBEDDING_MODEL_REVISION=main
+ENV EMBEDDING_MODEL_DIR=/opt/meadow/embedding-models
+ENV EMBEDDING_MODEL_REVISION=${EMBEDDING_MODEL_REVISION}
+COPY --from=embedding-model /models ${EMBEDDING_MODEL_DIR}
 COPY --from=build /app/_build/prod/rel/meadow /app
 WORKDIR /app
 ENTRYPOINT ["./bin/meadow"]

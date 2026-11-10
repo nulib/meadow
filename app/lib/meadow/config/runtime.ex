@@ -73,6 +73,7 @@ defmodule Meadow.Config.Runtime do
     Logger.info("Configuring Meadow.Repo")
 
     config :meadow, Meadow.Repo.Indexing,
+      types: Meadow.PostgrexTypes,
       username: get_secret(:meadow, ["db", "user"]),
       password: get_secret(:meadow, ["db", "password"]),
       database: get_secret(:meadow, ["db", "database"], prefix("meadow")),
@@ -84,6 +85,7 @@ defmodule Meadow.Config.Runtime do
       parameters: [application_name: "Meadow.Repo.Indexing"]
 
     config :meadow, Meadow.Repo,
+      types: Meadow.PostgrexTypes,
       username: get_secret(:meadow, ["db", "user"]),
       password: get_secret(:meadow, ["db", "password"]),
       database: get_secret(:meadow, ["db", "database"], prefix("meadow")),
@@ -128,7 +130,9 @@ defmodule Meadow.Config.Runtime do
         "file_set_annotations",
         "collections",
         "ingest_sheets",
-        "projects"
+        "projects",
+        "work_embeddings",
+        "file_set_embeddings"
       ],
       modules: [
         Meadow.Events.FileSets.Annotations,
@@ -136,6 +140,7 @@ defmodule Meadow.Config.Runtime do
         Meadow.Events.FileSets.StructuralMetadata,
         Meadow.Events.IngestSheets.SheetUpdates,
         Meadow.Events.Works.Arks,
+        Meadow.Events.Works.Embeddings,
         Meadow.Events.Indexing
       ],
       name: Meadow,
@@ -200,11 +205,28 @@ defmodule Meadow.Config.Runtime do
           schemas: [Meadow.Data.Schemas.Collection],
           retain: 1
         }
-      ],
-      embedding_model_id: get_secret(:index, ["embedding_model"]),
-      # TODO: MOVE embedding_dimensions TO INDEX SECRET
-      embedding_dimensions: get_secret(:index, ["embedding_dimensions"]),
-      embedding_text_fields: [
+      ]
+
+    Logger.info("Configuring Meadow.Embeddings")
+
+    config :meadow, Meadow.Embeddings,
+      enabled: System.get_env("EMBEDDINGS_ENABLED", "true") == "true",
+      model: Meadow.Embeddings.Model.ONNX,
+      model_name: "embeddinggemma-2",
+      repository: "onnx-community/embeddinggemma-2-ONNX",
+      revision: System.get_env("EMBEDDING_MODEL_REVISION", "main"),
+      # Full precision. The quantized exports use operators that the ONNX
+      # Runtime bundled with Ortex does not implement.
+      variant: "model",
+      model_dir:
+        System.get_env("EMBEDDING_MODEL_DIR", Path.expand("~/.cache/meadow/embedding-models")),
+      auto_download: true,
+      dimensions: 768,
+      max_tokens: 2048,
+      max_text_length: 2048,
+      batch_size: 8,
+      image_soft_tokens: 280,
+      text_fields: [
         :title,
         :alternate_title,
         :description,

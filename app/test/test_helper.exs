@@ -15,8 +15,7 @@ cluster_config =
         "http://localhost:9200"
       ),
     bulk_page_size: 3,
-    bulk_wait_interval: 2,
-    embedding_model_id: nil
+    bulk_wait_interval: 2
   )
 
 Application.put_env(:meadow, Meadow.Search.Cluster, cluster_config)

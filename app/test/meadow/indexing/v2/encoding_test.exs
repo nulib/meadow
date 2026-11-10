@@ -39,6 +39,92 @@ defmodule Meadow.Indexing.V2.EncodingTest do
       end
     end
 
+    test "work encoding reports the embedding text length but not the text", %{work: subject} do
+      doc = subject |> Document.encode(2)
+
+      assert doc.embedding_text_length > 0
+      refute Map.has_key?(doc, :embedding_text)
+      refute Map.has_key?(doc, :embedding)
+      refute Map.has_key?(doc, :embedding_model)
+    end
+
+    test "work encoding includes the stored embedding", %{work: subject} do
+      assert {:ok, %{updated: [_]}} = Meadow.Embeddings.refresh_works([subject.id])
+
+      doc =
+        Works.get_work!(subject.id)
+        |> Repo.preload(Work.required_index_preloads())
+        |> Document.encode(2)
+
+      assert doc.embedding_model == "embeddinggemma-2"
+      assert length(doc.embedding) == 768
+      assert Enum.sum(doc.embedding) == 1.0
+    end
+
+    test "work encoding leaves out an embedding from another model", %{work: subject} do
+      assert {:ok, _} = Meadow.Embeddings.refresh_works([subject.id])
+
+      Repo.update_all(Meadow.Data.Schemas.WorkEmbedding,
+        set: [model: "cohere.embed-multilingual-v3"]
+      )
+
+      doc =
+        Works.get_work!(subject.id)
+        |> Repo.preload(Work.required_index_preloads())
+        |> Document.encode(2)
+
+      refute Map.has_key?(doc, :embedding)
+      refute Map.has_key?(doc, :embedding_model)
+    end
+
+    test "file set encoding has no embedding until the image is embedded", %{file_set: subject} do
+      doc = subject |> Document.encode(2)
+      refute Map.has_key?(doc, :embedding)
+      refute Map.has_key?(doc, :embedding_model)
+    end
+
+    test "file set encoding includes the stored image embedding", %{file_set: subject} do
+      assert {:ok, _} = Meadow.Embeddings.embed_file_set(subject, "image bytes")
+
+      doc =
+        FileSets.get_file_set!(subject.id)
+        |> Repo.preload(FileSet.required_index_preloads())
+        |> Document.encode(2)
+
+      assert doc.embedding_model == "embeddinggemma-2"
+      assert length(doc.embedding) == 768
+      assert Enum.sum(doc.embedding) == 1.0
+    end
+
+    test "file set encoding leaves out an embedding from another model", %{file_set: subject} do
+      assert {:ok, _} = Meadow.Embeddings.embed_file_set(subject, "image bytes")
+      Repo.update_all(Meadow.Data.Schemas.FileSetEmbedding, set: [model: "some-other-model"])
+
+      doc =
+        FileSets.get_file_set!(subject.id)
+        |> Repo.preload(FileSet.required_index_preloads())
+        |> Document.encode(2)
+
+      refute Map.has_key?(doc, :embedding)
+    end
+
+    test "work encoding does not carry its file sets' embeddings", %{
+      work: work,
+      file_set: file_set
+    } do
+      assert {:ok, _} = Meadow.Embeddings.embed_file_set(file_set, "image bytes")
+
+      doc =
+        Works.get_work!(work.id)
+        |> Repo.preload(Work.required_index_preloads())
+        |> Document.encode(2)
+
+      refute Enum.any?(
+               doc.file_sets,
+               &(Map.has_key?(&1, :embedding) or Map.has_key?(&1, "embedding"))
+             )
+    end
+
     test "work encodes compact AI provenance", %{work: subject} do
       {:ok, activity} =
         Provenance.create_activity(%{

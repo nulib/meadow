@@ -69,6 +69,24 @@ defmodule Meadow.Events.Indexing do
     reindex_file_set_and_work(record.file_set_id)
   end
 
+  # A new or regenerated embedding is copied into the work's document
+  def handle_indexing(%{type: type, name: :work_embeddings, new_record: record})
+      when type in [:insert, :update] do
+    IndexBatcher.reindex([record.work_id], :works)
+  end
+
+  # Embeddings are only deleted along with their work
+  def handle_indexing(%{name: :work_embeddings}), do: :noop
+
+  # A new or regenerated image embedding is copied into the file set's
+  # document. The work document does not carry file set embeddings.
+  def handle_indexing(%{type: type, name: :file_set_embeddings, new_record: record})
+      when type in [:insert, :update] do
+    IndexBatcher.reindex([record.file_set_id], :file_sets)
+  end
+
+  def handle_indexing(%{name: :file_set_embeddings}), do: :noop
+
   # Entries hang off the tool row, not the file set
   def handle_indexing(%{name: :file_set_extracted_metadata_entries}), do: :noop
 

@@ -19,6 +19,7 @@ defmodule Meadow.Pipeline.Dispatcher do
     CreateDerivativeCopy,
     CreatePyramidTiff,
     CreateTranscodeJob,
+    EmbedImage,
     ExtractExifMetadata,
     ExtractMediaMetadata,
     ExtractMimeType,
@@ -46,6 +47,7 @@ defmodule Meadow.Pipeline.Dispatcher do
     CopyFileToPreservation,
     AttachTranscription,
     CreatePyramidTiff,
+    EmbedImage,
     GenerateAIMetadata,
     FileSetComplete
   ]
@@ -64,6 +66,7 @@ defmodule Meadow.Pipeline.Dispatcher do
     ExtractExifMetadata,
     CopyFileToPreservation,
     CreatePyramidTiff,
+    EmbedImage,
     FileSetComplete
   ]
 

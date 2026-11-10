@@ -60,8 +60,11 @@ defmodule Meadow.Config.Runtime.Test do
     config :meadow, Meadow.Search.Cluster,
       bulk_page_size: 3,
       bulk_wait_interval: 2,
-      embedding_model_id: nil,
       reindex_poll_interval: 250
+
+    config :meadow, Meadow.Embeddings,
+      model: Meadow.Embeddings.Model.Stub,
+      auto_download: false
 
     config :meadow,
       dc_api: [

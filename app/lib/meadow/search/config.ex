@@ -2,7 +2,7 @@ defmodule Meadow.Search.Config do
   @moduledoc """
   Convenience methods for retrieving search-specific configuration
   """
-  require Logger
+  alias Meadow.Embeddings.Config, as: EmbeddingsConfig
 
   def index_configs do
     Application.get_env(:meadow, Meadow.Search.Cluster)
@@ -27,57 +27,42 @@ defmodule Meadow.Search.Config do
     end
   end
 
+  @doc """
+  Index settings for a schema, with the `embedding` field (when the mapping
+  has one) sized to the vectors `Meadow.Embeddings` produces.
+  """
   def settings_for(schema, version) do
-    case {config_for(schema, version), embedding_model_id()} do
-      {%{settings: settings, pipeline: pipeline}, nil} ->
-        Logger.warning("No embedding model id found in config, skipping pipeline: #{pipeline}")
-        File.read!(settings) |> Jason.decode!()
-
-      {%{settings: settings, pipeline: pipeline}, _embedding_model_id} ->
-        File.read!(settings)
+    case config_for(schema, version) do
+      %{settings: settings} ->
+        settings
+        |> File.read!()
         |> Jason.decode!()
-        |> put_in(["settings", "default_pipeline"], pipeline)
         |> add_embedding_dimension()
-
-      {%{settings: settings}, _} ->
-        File.read!(settings) |> Jason.decode!()
 
       _ ->
         nil
     end
   end
 
-  def embedding_model_id do
-    Application.get_env(:meadow, Meadow.Search.Cluster)
-    |> Keyword.get(:embedding_model_id)
+  @doc "The name of the search pipeline for a schema, if it has one"
+  def search_pipeline_for(schema, version) do
+    case config_for(schema, version) do
+      %{pipeline: pipeline} -> pipeline
+      _ -> nil
+    end
   end
 
   def add_embedding_dimension(
         %{"mappings" => %{"properties" => %{"embedding" => %{"dimension" => _}}}} = settings
       ) do
-    case embedding_model_dimensions() do
-      nil -> settings
-      _ -> insert_embedding_dimension(settings)
-    end
+    put_in(
+      settings,
+      ["mappings", "properties", "embedding", "dimension"],
+      EmbeddingsConfig.dimensions()
+    )
   end
 
-  def insert_embedding_dimension(settings),
-    do:
-      put_in(
-        settings,
-        ["mappings", "properties", "embedding", "dimension"],
-        embedding_model_dimensions()
-      )
-
-  def embedding_model_dimensions do
-    Application.get_env(:meadow, Meadow.Search.Cluster)
-    |> Keyword.get(:embedding_dimensions)
-  end
-
-  def embedding_text_fields do
-    Application.get_env(:meadow, Meadow.Search.Cluster)
-    |> Keyword.get(:embedding_text_fields)
-  end
+  def add_embedding_dimension(settings), do: settings
 
   def index_versions do
     index_configs()

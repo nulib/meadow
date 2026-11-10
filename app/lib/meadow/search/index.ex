@@ -12,6 +12,11 @@ defmodule Meadow.Search.Index do
   def create_from_schema(schema, version) do
     with target <- SearchConfig.alias_for(schema, version),
          settings <- SearchConfig.settings_for(schema, version) do
+      case SearchConfig.search_pipeline_for(schema, version) do
+        nil -> :noop
+        pipeline -> create_search_pipeline(pipeline)
+      end
+
       create(target, settings)
     end
   end
@@ -21,16 +26,6 @@ defmodule Meadow.Search.Index do
   Returns `{:ok, {alias, index}}`
   """
   def create(alias, settings \\ %{}) when is_binary(alias) and is_map(settings) do
-    case get_in(settings, ["settings", "default_pipeline"]) do
-      nil ->
-        :noop
-
-      pipeline ->
-        pipeline
-        |> create_ingest_pipeline(SearchConfig.embedding_model_id(), "embedding_text")
-        |> create_search_pipeline()
-    end
-
     with timestamp <- DateTime.utc_now() |> DateTime.to_unix(:millisecond),
          new_index <- [alias, to_string(timestamp)] |> Enum.join("-") do
       case HTTP.put(new_index, json: settings) do
@@ -71,55 +66,6 @@ defmodule Meadow.Search.Index do
 
     HTTP.put("_search/pipeline/#{name}", json: pipeline)
     name
-  end
-
-  @doc """
-  Create a ingest pipeline, takes a name, model id, source field, and a target field
-  Returns name
-  """
-  def create_ingest_pipeline(name, model_id, source_field, target_field \\ "embedding") do
-    model_name = embedding_model_name(model_id)
-
-    pipeline = %{
-      "description" => "Ingest pipeline for #{name}",
-      "processors" => [
-        %{
-          "text_embedding" => %{
-            "model_id" => model_id,
-            "field_map" => %{
-              source_field => target_field
-            },
-            "ignore_failure" => true
-          }
-        },
-        %{
-          "set" => %{
-            "field" => "embedding_model",
-            "value" => model_name,
-            "if" => "ctx?.#{target_field} != null"
-          }
-        },
-        %{
-          "remove" => %{
-            "field" => source_field,
-            "ignore_failure" => true
-          }
-        }
-      ]
-    }
-
-    HTTP.put("_ingest/pipeline/#{name}", json: pipeline)
-    name
-  end
-
-  defp embedding_model_name(model_id) do
-    case HTTP.get("_plugins/_ml/models/#{model_id}") do
-      {:ok, %{status: 200, body: %{"name" => name}}} ->
-        Regex.replace(~r[^.+/huggingface/], name, "")
-
-      _ ->
-        nil
-    end
   end
 
   @doc """

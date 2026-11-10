@@ -8,6 +8,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
     CopyFileToPreservation,
     CreatePyramidTiff,
     CreateTranscodeJob,
+    EmbedImage,
     ExtractExifMetadata,
     ExtractMimeType,
     FileSetComplete,
@@ -115,6 +116,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
                CopyFileToPreservation,
                AttachTranscription,
                CreatePyramidTiff,
+               EmbedImage,
                GenerateAIMetadata,
                FileSetComplete
              ]
@@ -136,6 +138,7 @@ defmodule Meadow.Pipeline.DispatcherTest do
                ExtractExifMetadata,
                CopyFileToPreservation,
                CreatePyramidTiff,
+               EmbedImage,
                FileSetComplete
              ]
     end
@@ -217,8 +220,15 @@ defmodule Meadow.Pipeline.DispatcherTest do
           }
         })
 
-      assert Enum.member?(Dispatcher.dispatcher_actions(file_set, %{context: "Version"}), CreateTranscodeJob)
-      assert Enum.member?(Dispatcher.dispatcher_actions(file_set, %{context: "Version"}), TranscodeComplete)
+      assert Enum.member?(
+               Dispatcher.dispatcher_actions(file_set, %{context: "Version"}),
+               CreateTranscodeJob
+             )
+
+      assert Enum.member?(
+               Dispatcher.dispatcher_actions(file_set, %{context: "Version"}),
+               TranscodeComplete
+             )
     end
 
     test "dispatcher_actions for file set role: P, mime_type: video/*" do

@@ -5,7 +5,22 @@ defmodule Meadow.Config.Pipeline do
   require Logger
   alias Meadow.Config.Secrets
 
+  # Per-action defaults that differ from the pipeline-wide ones. Image
+  # embedding is CPU-bound and serialized through one model server per node,
+  # so more concurrent messages would only wait out their visibility timeout.
+  @action_defaults %{
+    Meadow.Pipeline.Actions.EmbedImage => %{
+      processor_concurrency: 1,
+      max_demand: 1,
+      min_demand: 0,
+      max_number_of_messages: 1,
+      visibility_timeout: 900
+    }
+  }
+
   defp get_config_value(action, var, default) do
+    default = get_in(@action_defaults, [action, var]) || default
+
     key = Module.split(action) |> List.last() |> Inflex.underscore() |> String.upcase()
     var_name = Enum.join([key, String.upcase(to_string(var))], "_")
 

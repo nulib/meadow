@@ -44,6 +44,7 @@ defmodule Meadow.Data.Schemas.Work do
 
     has_one(:descriptive_metadata, WorkDescriptiveMetadata, on_replace: :update)
     has_one(:administrative_metadata, WorkAdministrativeMetadata, on_replace: :update)
+    has_one(:embedding, Meadow.Data.Schemas.WorkEmbedding)
 
     has_many(:file_sets, FileSet, preload_order: [asc: :rank])
 
@@ -191,7 +192,8 @@ defmodule Meadow.Data.Schemas.Work do
       :project,
       :batches,
       :metadata_update_jobs,
-      :representative_file_set
+      :representative_file_set,
+      :embedding
     ] ++ metadata_preloads()
   end
 end

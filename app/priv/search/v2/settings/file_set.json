@@ -1,7 +1,8 @@
 {
   "settings": {
     "index": {
-      "max_result_window": "50000"
+      "max_result_window": "50000",
+      "knn": true
     },
     "analysis": {
       "analyzer": {
@@ -41,6 +42,18 @@
       "ai_provenance": {
         "type": "object",
         "enabled": false
+      },
+      "embedding": {
+        "type": "knn_vector",
+        "dimension": 768,
+        "method": {
+          "name": "hnsw",
+          "space_type": "cosinesimil",
+          "engine": "lucene"
+        }
+      },
+      "embedding_model": {
+        "type": "keyword"
       },
       "indexed_at": {
         "type": "date_nanos"
@@ -94,6 +107,26 @@
             "analyzer": "fulltext_analyzer",
             "search_analyzer": "fulltext_stopword_analyzer",
             "search_quote_analyzer": "fulltext_analyzer"
+          }
+        }
+      },
+      {
+        "extracted_metadata_whole_numbers": {
+          "path_match": "extracted_metadata.*",
+          "match_mapping_type": "long",
+          "mapping": {
+            "type": "double",
+            "ignore_malformed": true
+          }
+        }
+      },
+      {
+        "extracted_metadata_fractional_numbers": {
+          "path_match": "extracted_metadata.*",
+          "match_mapping_type": "double",
+          "mapping": {
+            "type": "double",
+            "ignore_malformed": true
           }
         }
       },

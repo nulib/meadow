@@ -14,6 +14,12 @@ defmodule Meadow.Events.IndexingTest do
   import Assertions
   import ExUnit.CaptureLog
 
+  def indexed_doc_count_with_embedding do
+    index = SearchConfig.alias_for(FileSet, 2)
+    Meadow.Search.Index.refresh(index)
+    SearchClient.indexed_doc_count(index, %{query: %{exists: %{field: "embedding"}}})
+  end
+
   def assert_flushed(schema) do
     assert_async(timeout: 2000) do
       assert IndexBatcher.flush(schema) > 0
@@ -83,6 +89,62 @@ defmodule Meadow.Events.IndexingTest do
     end
   end
 
+  describe "reindexing file sets with EXIF metadata" do
+    setup do
+      for schema <- [Work, Collection, FileSet] do
+        IndexBatcher.child_spec(schema, flush_interval: :never)
+        |> start_supervised!()
+      end
+
+      {:ok, indexable_data()}
+    end
+
+    # The same EXIF tag is a whole number for some files and a fraction for
+    # others. On a fresh index both are new fields in the same bulk request.
+    test "indexes whole and fractional values of the same EXIF tag", %{file_sets: file_sets} do
+      resolutions = Stream.cycle([599.9988, 600, 72, 72.5, 300, 1.2932398880691411])
+
+      for {file_set, resolution} <- Enum.zip(file_sets, resolutions) do
+        {:ok, _} =
+          FileSets.update_file_set(file_set, %{
+            extracted_metadata: %{
+              exif: %{
+                tool: "exifr",
+                tool_version: "6.1.1",
+                value: %{
+                  "XResolution" => resolution,
+                  "YResolution" => resolution,
+                  "ImageWidth" => 1024,
+                  "ImageHeight" => 1024
+                }
+              }
+            }
+          })
+      end
+
+      for _ <- 1..3 do
+        Indexer.reindex_all(2, FileSet)
+        assert {:ok, count} = indexed_doc_count(FileSet, 2)
+        assert count == length(file_sets)
+      end
+
+      [first | _] = file_sets
+      exif = indexed_doc(FileSet, 2, first.id) |> get_in(["extracted_metadata", "exif", "value"])
+      assert exif["xResolution"] == 599.9988
+      assert exif["imageWidth"] == 1024
+
+      # Every number under extracted_metadata gets the same type, whichever
+      # document introduces the field first, so shards cannot disagree
+      {:ok, %{body: mappings}} = SearchHTTP.get("#{SearchConfig.alias_for(FileSet, 2)}/_mapping")
+
+      for {_index, %{"mappings" => mapping}} <- mappings,
+          field <- ["xResolution", "imageWidth"] do
+        path = ["properties", "extracted_metadata", "properties", "exif", "properties", "value"]
+        assert get_in(mapping, path ++ ["properties", field, "type"]) == "double"
+      end
+    end
+  end
+
   describe "dependent updates" do
     setup do
       for schema <- [Work, Collection, FileSet] do
@@ -105,6 +167,72 @@ defmodule Meadow.Events.IndexingTest do
       assert_flushed(:all)
       assert indexed_doc(Collection, 2, collection.id) |> get_in(["title"]) == "New Title"
       assert indexed_doc(Work, 2, work.id) |> get_in(["collection", "title"]) == "New Title"
+    end
+
+    test "a stored embedding is copied into the work document", %{works: [work | _]} do
+      assert_all_empty()
+      assert_flushed(:works)
+      refute indexed_doc(Work, 2, work.id) |> Map.has_key?("embedding")
+
+      assert {:ok, %{updated: [_]}} = Meadow.Embeddings.refresh_works([work.id])
+      assert_flushed(:works)
+
+      assert_async(timeout: 2000) do
+        doc = indexed_doc(Work, 2, work.id)
+        assert doc["embedding_model"] == "embeddinggemma-2"
+        assert length(doc["embedding"]) == 768
+      end
+    end
+
+    test "a stored image embedding is copied into the file set document", %{
+      file_sets: [file_set | _]
+    } do
+      assert_all_empty()
+      assert_flushed(:all)
+      refute indexed_doc(FileSet, 2, file_set.id) |> Map.has_key?("embedding")
+
+      assert {:ok, _} = Meadow.Embeddings.embed_file_set(file_set, "image bytes")
+      assert_flushed(:file_sets)
+
+      assert_async(timeout: 2000) do
+        doc = indexed_doc(FileSet, 2, file_set.id)
+        assert doc["embedding_model"] == "embeddinggemma-2"
+        assert length(doc["embedding"]) == 768
+      end
+    end
+
+    test "file sets can be found by vector, grouped by work", %{file_sets: file_sets} do
+      assert_all_empty()
+      assert_flushed(:all)
+
+      for file_set <- file_sets do
+        assert {:ok, _} = Meadow.Embeddings.embed_file_set(file_set, "image #{file_set.id}")
+      end
+
+      assert_async(timeout: 5000, sleep_time: 200) do
+        IndexBatcher.flush(:file_sets)
+        assert {:ok, count} = indexed_doc_count_with_embedding()
+        assert count == length(file_sets)
+      end
+
+      [target | _] = file_sets
+      vector = Meadow.Embeddings.Model.Stub.vector("image #{target.id}")
+
+      {:ok, %{body: body}} =
+        SearchHTTP.post("#{SearchConfig.alias_for(FileSet, 2)}/_search",
+          json: %{
+            size: 10,
+            _source: ["id", "work_id"],
+            query: %{knn: %{embedding: %{vector: vector, k: 10}}},
+            collapse: %{field: "work_id"}
+          }
+        )
+
+      hits = get_in(body, ["hits", "hits"])
+      assert hits |> List.first() |> get_in(["_source", "id"]) == target.id
+
+      work_ids = Enum.map(hits, &get_in(&1, ["_source", "work_id"]))
+      assert work_ids == Enum.uniq(work_ids)
     end
 
     test "work representative image change cascades to a collection" do

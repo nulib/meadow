@@ -37,6 +37,7 @@ defmodule Meadow.Data.Schemas.FileSet do
 
     has_one(:core_metadata, FileSetCoreMetadata, on_replace: :update)
     has_one(:structural_metadata, FileSetStructuralMetadata, on_replace: :delete)
+    has_one(:embedding, Meadow.Data.Schemas.FileSetEmbedding)
     has_many(:derivatives, FileSetDerivative, on_replace: :delete, preload_order: [asc: :kind])
 
     has_many(:extracted_metadata, FileSetExtractedMetadata,
@@ -163,7 +164,8 @@ defmodule Meadow.Data.Schemas.FileSet do
 
   def required_index_preloads,
     do:
-      [work: [:collection] ++ Meadow.Data.Schemas.Work.metadata_preloads()] ++ metadata_preloads()
+      [:embedding, work: [:collection] ++ Meadow.Data.Schemas.Work.metadata_preloads()] ++
+        metadata_preloads()
 
   defp rename_core_metadata(%{metadata: _, core_metadata: _} = params) do
     Logger.warning("Parameter map has both :metadata and :core_metadata. Ignoring :metadata.")
