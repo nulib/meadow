@@ -62,6 +62,7 @@ defmodule MeadowWeb.Router do
 
     post("/export/:file", MeadowWeb.ExportController, :export)
     post("/evals/:file", MeadowWeb.EvalsController, :export)
+    post("/transcription_bench/:file", MeadowWeb.TranscriptionBenchController, :export)
     post("/authority_records/bulk_create", MeadowWeb.AuthorityRecordsController, :bulk_create)
     post("/authority_records/bulk_update", MeadowWeb.AuthorityRecordsController, :bulk_update)
     post("/authority_records/:file", MeadowWeb.AuthorityRecordsController, :export)

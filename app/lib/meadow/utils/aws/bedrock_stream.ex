@@ -68,8 +68,32 @@ defmodule Meadow.Utils.AWS.BedrockStream do
   end
 
   defp verify_status!(%Req.Response{status: status} = resp) do
+    reason = rejection_reason(resp, [])
     Req.cancel_async_response(resp)
-    raise Meadow.AWS.Error, message: "Bedrock streaming request rejected: #{status}"
+    raise Meadow.AWS.Error, message: "Bedrock streaming request rejected: #{status}#{reason}"
+  end
+
+  # Why Bedrock refused: the `message` of its JSON error body (a validation error names
+  # the offending field), read off the async response before it is cancelled.
+  defp rejection_reason(resp, acc) do
+    ref = resp.body.ref
+
+    receive do
+      {^ref, _} = message ->
+        case Req.parse_message(resp, message) do
+          {:ok, [data: data]} -> rejection_reason(resp, [acc, data])
+          _ -> rejection_message(acc)
+        end
+    after
+      5_000 -> rejection_message(acc)
+    end
+  end
+
+  defp rejection_message(body) do
+    case body |> IO.iodata_to_binary() |> Jason.decode() do
+      {:ok, %{"message" => message}} when is_binary(message) -> " #{message}"
+      _ -> ""
+    end
   end
 
   defp next_chunk({resp, :done}, _timeout), do: {:halt, {resp, :done}}

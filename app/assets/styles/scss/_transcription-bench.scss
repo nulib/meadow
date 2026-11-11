@@ -1,0 +1,400 @@
+// The transcription bench (Dashboards > Transcription Bench): what Bulma has no class for.
+
+// --- Picking images ---------------------------------------------------------
+
+.bench-image-grid {
+  display: grid;
+  // Cards of one width, as many to a row as fit: a card is as wide as a thumbnail and
+  // a short label need, so no card carries empty space when the page is wide.
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 15rem));
+  gap: 0.5rem;
+  // Two rows of cards, so the page does not jump while a page of them loads.
+  min-height: 9.5rem;
+
+  &[aria-busy="true"] {
+    opacity: 0.6;
+  }
+}
+
+// A small thumbnail beside the file's label: enough to recognise the page by.
+.bench-image-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 100%;
+  padding: 0.35rem;
+  overflow: hidden;
+  border: 1px solid $grey-lighter;
+  border-radius: $radius;
+  background: $white;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $grey-light;
+  }
+
+  &.is-selected {
+    border-color: $primary;
+    background: rgba($primary, 0.06);
+    box-shadow: inset 0 0 0 1px $primary;
+  }
+
+  &:focus-within {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  input[type="checkbox"] {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.15rem;
+    accent-color: $primary;
+  }
+}
+
+.bench-image-card-thumbnail {
+  display: block;
+  flex: none;
+  width: 4rem;
+  height: 4rem;
+  overflow: hidden;
+  border-radius: $radius-small;
+  background: $grey-lighter;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.bench-image-card-text {
+  display: block;
+  min-width: 0;
+  font-size: $size-7;
+  line-height: 1.35;
+
+  > * {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.bench-selected {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid $grey-lighter;
+
+  .tags {
+    gap: 0.35rem;
+  }
+}
+
+// --- Models and variants ----------------------------------------------------
+
+.bench-model-list label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.15rem 0.25rem;
+  border-radius: $radius-small;
+
+  &:hover {
+    background: $white-ter;
+  }
+
+  code {
+    margin-left: auto;
+    overflow: hidden;
+    background: none;
+    color: $grey;
+    font-size: 0.7rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.bench-variant-list > li {
+  margin-bottom: 0.4rem;
+  border: 1px solid $grey-lighter;
+  border-radius: $radius;
+  background: $white;
+
+  &.is-open {
+    border-color: $grey-light;
+  }
+}
+
+.bench-variant-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+
+  input[type="checkbox"] {
+    margin-top: 0.3rem;
+    accent-color: $primary;
+  }
+}
+
+.bench-variant-name {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-transform: none;
+  cursor: pointer;
+
+  > * {
+    display: block;
+  }
+}
+
+.bench-variant-editor {
+  padding: 0.75rem;
+  border-top: 1px solid $grey-lighter;
+  background: $white-bis;
+
+  textarea.is-family-monospace {
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+}
+
+.bench-variant-group {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid $grey-lighter;
+
+  legend {
+    float: left;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  legend + * {
+    clear: both;
+  }
+}
+
+// --- A run's results --------------------------------------------------------
+
+.bench-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.bench-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+
+  button.tag {
+    border: 0;
+    font-family: inherit;
+    text-transform: none;
+  }
+
+  .is-hidden-result {
+    color: $grey-light;
+    text-decoration: line-through;
+  }
+}
+
+.bench-results-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.bench-result {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid $grey-light;
+  border-radius: $radius-large;
+  background: $white;
+  box-shadow: 0 1px 2px rgba($black, 0.06);
+}
+
+.bench-result-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid $grey-lighter;
+}
+
+.bench-result-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  margin-left: auto;
+  font-size: $size-7;
+}
+
+.bench-stat {
+  white-space: nowrap;
+}
+
+.bench-result-waiting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0.75rem;
+  font-size: $size-7;
+}
+
+.bench-result-error {
+  margin: 0.75rem;
+  font-family: $family-monospace;
+  font-size: $size-7;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.bench-result-warning {
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid rgba($warning-dark, 0.25);
+  background: $warning-light;
+  color: $warning-dark;
+  font-size: $size-7;
+}
+
+// The viewer beside its JSON; stacked when result cards sit side by side.
+.bench-result-body {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  height: 38rem;
+
+  .bench-viewer {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+  }
+
+  .bench-json {
+    border-left: 1px solid $grey-light;
+  }
+
+  &.is-stacked {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+
+    .bench-viewer {
+      height: 32rem;
+    }
+
+    .bench-json {
+      height: 22rem;
+      border-top: 1px solid $grey-light;
+      border-left: 0;
+    }
+  }
+}
+
+.bench-json {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: #1c1917;
+
+  pre {
+    flex: 1;
+    min-height: 0;
+    margin: 0;
+    padding: 0.75rem;
+    overflow: auto;
+    background: none;
+    color: #f5f5f4;
+    font-family: $family-monospace;
+    font-size: 0.75rem;
+    line-height: 1.6;
+
+    &.is-prose {
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+  }
+}
+
+.bench-json-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #44403c;
+
+  button {
+    padding: 0.25rem 0.5rem;
+    border: 0;
+    border-radius: $radius-small;
+    background: none;
+    color: #a8a29e;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: none;
+    cursor: pointer;
+
+    &:hover {
+      color: #f5f5f4;
+    }
+
+    &[aria-selected="true"] {
+      background: #44403c;
+      color: $white;
+    }
+  }
+
+  .bench-json-copy {
+    margin-left: auto;
+    font-weight: 400;
+  }
+}
+
+.bench-json-empty {
+  color: #78716c;
+}
+
+// --- Clover 4 inside Bulma --------------------------------------------------
+//
+// Clover 4's stylesheet (imported in app.scss) sits in `@layer clover`, and its selectors
+// are all `.clover-*` classes, so it cannot touch the rest of Meadow or the Clover 3
+// viewer. The other direction is the problem: Bulma and _base.scss are unlayered, and
+// unlayered rules beat layered ones whatever their specificity, so Bulma's reset and
+// element rules (img, button, ul, strong, a, pre, headings, box-sizing) would override
+// Clover's inside the viewer. `revert-layer` hands every property of every element in
+// the viewer back to the layers below (Clover's, then the browser's), which is how the
+// viewer is styled on a page with no Bulma. Inherited values (font family, colour) still
+// come through from the page.
+.bench-viewer {
+  position: relative;
+  overflow: hidden;
+  font-size: 1rem;
+  line-height: 1.5;
+
+  *,
+  *::before,
+  *::after {
+    all: revert-layer;
+  }
+}

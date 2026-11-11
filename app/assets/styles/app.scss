@@ -21,4 +21,8 @@
 @import "./scss/georeference";
 @import "./scss/plan";
 @import "./scss/provenance";
+@import "./scss/transcription-bench";
 @import "maplibre-gl/dist/maplibre-gl.css";
+// Clover 4 (@nulib/clover), used by the transcription bench. Every rule in it is in
+// `@layer clover`; see scss/_transcription-bench.scss for how it sits beside Bulma.
+@import "@nulib/clover/styles.css";

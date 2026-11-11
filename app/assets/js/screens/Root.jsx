@@ -31,6 +31,8 @@ import ScreensDashboardsEvalsDetails from "@js/screens/Dashboards/Evals/Details"
 import ScreensDashboardsEvalsList from "@js/screens/Dashboards/Evals/List";
 import ScreensDashboardsEvalsPrompts from "@js/screens/Dashboards/Evals/Prompts";
 import ScreensDashboardsEvalsQueries from "@js/screens/Dashboards/Evals/Queries";
+import ScreensDashboardsTranscriptionBench from "@js/screens/Dashboards/Transcription/Bench";
+import ScreensDashboardsTranscriptionRun from "@js/screens/Dashboards/Transcription/Run";
 import ScreensDashboardsProvenanceList from "@js/screens/Dashboards/Provenance/List";
 import ScreensDashboardsProvenanceDetails from "@js/screens/Dashboards/Provenance/Details";
 import ScreensIngestSheet from "./IngestSheet/IngestSheet";
@@ -164,6 +166,16 @@ export default class Root extends React.Component {
                     exact
                     path="/dashboards/evals/prompts"
                     component={ScreensDashboardsEvalsPrompts}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/dashboards/transcription"
+                    component={ScreensDashboardsTranscriptionBench}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/dashboards/transcription/runs/:id"
+                    component={ScreensDashboardsTranscriptionRun}
                   />
                   <PrivateRoute
                     exact

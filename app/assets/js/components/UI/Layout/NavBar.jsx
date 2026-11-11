@@ -217,6 +217,13 @@ const UILayoutNavBar = () => {
                         </Link>
                       </UILayoutNavDropdownItem>
                       <UILayoutNavDropdownItem>
+                        <Link to="/dashboards/transcription">
+                          <IconText icon={<IconCheck />}>
+                            Transcription Bench
+                          </IconText>
+                        </Link>
+                      </UILayoutNavDropdownItem>
+                      <UILayoutNavDropdownItem>
                         <Link to="/dashboards/ai-provenance">
                           <IconText icon={<IconCheck />}>
                             AI Provenance

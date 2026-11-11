@@ -44,6 +44,7 @@ defmodule Meadow.Application.Children do
         MeadowWeb.Endpoint,
         {Absinthe.Subscription, MeadowWeb.Endpoint},
         MeadowWeb.Subscription,
+        {Task.Supervisor, name: Meadow.TranscriptionBench.TaskSupervisor},
         {MeadowWeb.MCP.Server,
          transport: :streamable_http,
          registry:

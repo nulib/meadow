@@ -30,6 +30,7 @@ defmodule MeadowWeb.Schema do
   import_types(__MODULE__.Data.PlanTypes)
   import_types(__MODULE__.EvalTypes)
   import_types(__MODULE__.AIProvenanceTypes)
+  import_types(__MODULE__.TranscriptionBenchTypes)
 
   query do
     import_fields(:account_queries)
@@ -48,6 +49,7 @@ defmodule MeadowWeb.Schema do
     import_fields(:s3_queries)
     import_fields(:work_queries)
     import_fields(:ai_provenance_queries)
+    import_fields(:transcription_bench_queries)
   end
 
   mutation do
@@ -63,6 +65,7 @@ defmodule MeadowWeb.Schema do
     import_fields(:shared_link_mutations)
     import_fields(:work_mutations)
     import_fields(:chat_mutations)
+    import_fields(:transcription_bench_mutations)
   end
 
   subscription do
