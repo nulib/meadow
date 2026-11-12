@@ -156,19 +156,22 @@ else
         title=$(echo "$pr_json" | jq -r '.title')
         body=$(echo "$pr_json" | jq -r '.body // ""')
 
-        # Extract text under the ## Summary header, stopping at the next ## section.
+        # Extract text under the Summary header, stopping at the next header of
+        # any level (the PR template uses single-# headers).
         # Strip HTML comments and image markdown; collapse to a single line.
+        # Limit lines with `sed -n` rather than `head`: head exits early, and
+        # under pipefail the upstream sed's broken pipe fails the script.
         summary=$(echo "$body" | awk '
           /^#+ Summary/{ found=1; next }
-          found && /^##/ { exit }
+          found && /^#/ { exit }
           found { print }
         ' | sed '/^<!--/,/-->/d; s/!\[[^]]*\]([^)]*)//g; s/<img[^>]*>//g; /^[[:space:]]*$/d' \
-          | head -5 | tr '\n' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+          | sed -n '1,5p' | tr '\n' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
         # Fall back to the first few lines of the body if no Summary section found
         if [[ -z "$summary" ]]; then
           summary=$(echo "$body" | sed '/^<!--/,/-->/d; s/!\[[^]]*\]([^)]*)//g; s/<img[^>]*>//g; /^[[:space:]]*$/d; /^#/d' \
-            | head -3 | tr '\n' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+            | sed -n '1,3p' | tr '\n' ' ' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
         fi
 
         if [[ -n "$summary" ]]; then
