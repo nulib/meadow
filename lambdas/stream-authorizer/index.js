@@ -19,7 +19,22 @@ function addAccessControlHeaders(request, response) {
   response.headers["access-control-allow-credentials"] = [
     { key: "Access-Control-Allow-Credentials", value: "true" }
   ];
+  addVaryOrigin(response);
   return response;
+}
+
+// Access-Control-Allow-Origin echoes the request's Origin, so browsers must
+// not reuse a cached response for a request from a different origin.
+function addVaryOrigin(response) {
+  const values = (response.headers["vary"] || [])
+    .flatMap(({ value }) => (value || "").split(","))
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const lowercased = values.map((value) => value.toLowerCase());
+  if (!lowercased.includes("origin") && !lowercased.includes("*")) {
+    values.push("Origin");
+  }
+  response.headers["vary"] = [{ key: "Vary", value: values.join(", ") }];
 }
 
 async function viewerRequestHandler(event, { config }) {
