@@ -1,10 +1,15 @@
 import {
+  DynamicRangeSlider,
+  MultiList,
+  RangeSlider,
+} from "@appbaseio/reactivesearch";
+import {
+  FACET_DATE_SENSORS,
   FACET_PROJECT_SENSORS,
   FACET_SENSORS,
   FACET_TECHNICAL_METADATA_SENSORS,
   SEARCH_SENSOR,
 } from "@js/services/reactive-search";
-import { MultiList, RangeSlider } from "@appbaseio/reactivesearch";
 
 import React from "react";
 import { allWorksQuery } from "@js/services/elasticsearch";
@@ -15,6 +20,7 @@ import userPreviousQueryParts from "@js/hooks/usePreviousQueryParts";
  * Organize the facetable metadata into groups
  */
 const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
+const facetDateSensors = FACET_DATE_SENSORS.map((sensor) => sensor.componentId);
 const facetProjectSensors = FACET_PROJECT_SENSORS.map(
   (sensor) => sensor.componentId,
 );
@@ -33,9 +39,24 @@ const filterList = (filterId) => {
   );
   return [
     ...filtersMinusCurrent,
+    ...facetDateSensors,
     ...facetProjectSensors,
     ...facetTechnicalMetadataSensors,
     //...facetRangeSensors,
+    SEARCH_SENSOR,
+  ];
+};
+
+// Return all connected facets for the date range sliders
+const filterDateList = (filterId) => {
+  let filtersMinusCurrent = facetDateSensors.filter(
+    (filterItem) => filterItem !== filterId,
+  );
+  return [
+    ...filtersMinusCurrent,
+    ...facetSensors,
+    ...facetProjectSensors,
+    ...facetTechnicalMetadataSensors,
     SEARCH_SENSOR,
   ];
 };
@@ -48,6 +69,7 @@ const filterProjectList = (filterId) => {
   return [
     ...filtersMinusCurrent,
     ...facetSensors,
+    ...facetDateSensors,
     ...facetTechnicalMetadataSensors,
     //...facetRangeSensors,
     SEARCH_SENSOR,
@@ -62,6 +84,7 @@ const filterTechnicalMetadataList = (filterId) => {
   return [
     ...filtersMinusCurrent,
     ...facetSensors,
+    ...facetDateSensors,
     ...facetProjectSensors,
     //...facetRangeSensors,
     SEARCH_SENSOR,
@@ -154,6 +177,20 @@ export default function SearchFacetSidebar() {
             showMissing={
               ["Published"].indexOf(sensor.componentId) > -1 ? false : true
             }
+          />
+        ))}
+      </div>
+
+      <div className="box" data-testid="date-facets">
+        <h3 className="title is-size-5">Dates</h3>
+        {FACET_DATE_SENSORS.map((sensor) => (
+          <DynamicRangeSlider
+            key={sensor.componentId}
+            {...sensor}
+            react={{
+              and: filterDateList(sensor.componentId),
+            }}
+            tooltipTrigger="hover"
           />
         ))}
       </div>

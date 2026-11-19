@@ -251,6 +251,62 @@ defmodule Meadow.Indexing.V2.EncodingTest do
       assert doc |> get_in([:date_created]) == dates
     end
 
+    test "work encodes the span of its Date Created values", %{work: subject} do
+      {:ok, subject} =
+        Works.update_work(subject, %{
+          descriptive_metadata: %{
+            date_created: [%{edtf: "1965/1970"}, %{edtf: "196X"}, %{edtf: "../1985"}]
+          }
+        })
+
+      doc = subject |> Document.encode(2)
+
+      assert doc |> get_in([:date_created_start]) == "1960-01-01"
+      assert doc |> get_in([:date_created_end]) == "1985-12-31"
+      assert doc |> get_in([:date_created_years]) == Enum.to_list(1960..1970) ++ [1985]
+    end
+
+    test "work without a bounded Date Created has no date sort fields", %{work: subject} do
+      doc = subject |> Document.encode(2)
+
+      assert doc |> get_in([:date_created_start]) == nil
+      assert doc |> get_in([:date_created_end]) == nil
+      assert doc |> get_in([:date_created_years]) == []
+    end
+
+    test "work with a BCE Date Created sorts but is left out of the year facet", %{
+      work: subject
+    } do
+      {:ok, subject} =
+        Works.update_work(subject, %{descriptive_metadata: %{date_created: [%{edtf: "-0500"}]}})
+
+      doc = subject |> Document.encode(2)
+
+      assert doc |> get_in([:date_created_start]) == "-0500-01-01"
+      assert doc |> get_in([:date_created_end]) == "-0500-12-31"
+      assert doc |> get_in([:date_created_years]) == []
+    end
+
+    test "indexes Date Created sort fields without bulk mapping errors", %{work: subject} do
+      {:ok, subject} =
+        Works.update_work(subject, %{
+          descriptive_metadata: %{date_created: [%{edtf: "1899-07~"}, %{edtf: "-0500"}]}
+        })
+
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          Indexer.synchronize_index()
+        end)
+
+      refute log =~ "Bulk upload encountered errors"
+
+      source = indexed_doc(Work, 2, subject.id)
+
+      assert source["date_created_start"] == "-0500-01-01"
+      assert source["date_created_end"] == "1899-07-31"
+      assert source["date_created_years"] == [1899]
+    end
+
     test "work encodes controlled term variants", %{work: subject} do
       {:ok, subject} =
         subject

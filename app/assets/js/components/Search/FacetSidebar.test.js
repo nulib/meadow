@@ -18,7 +18,16 @@ describe("SearchFacetSidebar component", () => {
 
   it("renders all general facet category boxes", () => {
     expect(screen.getByTestId("general-facets"));
+    expect(screen.getByTestId("date-facets"));
     expect(screen.getByTestId("technical-facets"));
     expect(screen.getByTestId("project-facets"));
+  });
+
+  it("renders the Year Created range slider", () => {
+    expect(
+      screen.getByTestId(
+        "reactive-search-dynamic-range-slider-DateCreatedYear",
+      ),
+    ).toBeInTheDocument();
   });
 });

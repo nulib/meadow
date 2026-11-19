@@ -335,6 +335,27 @@ const defaultRangeItemValues = {
   innerClass: rangeClasses,
 };
 
+/**
+ * Date facets - a DynamicRangeSlider over the indexed start year of Date Created.
+ * The slider takes its bounds from the current result set and draws a histogram of
+ * works per year. Until the user moves it no filter is applied, so undated works stay
+ * in the results; once narrowed, only works with a year inside the range match.
+ */
+export const FACET_DATE_SENSORS = [
+  {
+    componentId: "DateCreatedYear",
+    dataField: "date_created_years",
+    filterLabel: "Year Created",
+    innerClass: rangeClasses,
+    rangeLabels: (min, max) => ({ start: `${min}`, end: `${max}` }),
+    showFilter: true,
+    showHistogram: true,
+    stepValue: 1,
+    title: "Year Created",
+    URLParams: true,
+  },
+];
+
 export const FACET_RANGE_SENSORS = [
   {
     ...defaultRangeItemValues,

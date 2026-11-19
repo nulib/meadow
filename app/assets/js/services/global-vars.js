@@ -5,29 +5,6 @@ export const COLLECTION_TYPES = [
 
 export const GOOGLE_TAG_MANAGER_ID = "GTM-5W2MPSH";
 
-export const REACTIVESEARCH_SORT_OPTIONS = [
-  {
-    sortBy: "desc",
-    dataField: "_score",
-    label: "Sort By Relevancy",
-  },
-  {
-    sortBy: "asc",
-    dataField: "modified_date",
-    label: "Sort By Modified Date",
-  },
-  {
-    sortBy: "asc",
-    dataField: "title.keyword",
-    label: "Sort By Title",
-  },
-  {
-    sortBy: "asc",
-    dataField: "accession_number",
-    label: "Sort By Accession Number",
-  },
-];
-
 export const IIIF_SIZES = {
   IIIF_SQUARE: "/square/^500,500/0/default.jpg",
   IIIF_FULL: "/full/max/0/default.jpg",

@@ -1,4 +1,5 @@
 import {
+  FACET_DATE_SENSORS,
   FACET_PROJECT_SENSORS,
   FACET_RANGE_SENSORS,
   FACET_SENSORS,
@@ -6,10 +7,17 @@ import {
   RESULT_SENSOR,
   SEARCH_SENSOR,
 } from "@js/services/reactive-search";
+import SearchSortControls, {
+  SearchSort,
+} from "@js/components/Search/SortControls";
+import {
+  buildSearchSort,
+  readStoredSearchSort,
+  storeSearchSort,
+} from "@js/services/search-sort";
 
 import { IIIFProvider } from "@js/components/IIIF/IIIFProvider";
 import PropTypes from "prop-types";
-import { REACTIVESEARCH_SORT_OPTIONS } from "@js/services/global-vars";
 import React from "react";
 import { ReactiveList } from "@appbaseio/reactivesearch";
 import SearchSelectable from "@js/components/Search/Selectable";
@@ -35,6 +43,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   selectedItems,
 }) => {
   const facetSensors = FACET_SENSORS.map((sensor) => sensor.componentId);
+  const facetDateSensors = FACET_DATE_SENSORS.map(
+    (sensor) => sensor.componentId,
+  );
   const facetProjectSensors = FACET_PROJECT_SENSORS.map(
     (sensor) => sensor.componentId,
   );
@@ -46,6 +57,22 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     (sensor) => sensor.componentId,
   );
 
+  // The chosen sort is remembered across page loads so that leaving the Search
+  // screen (e.g. to view a work) and coming back doesn't drop it. The sort is
+  // sent through ReactiveList's defaultQuery rather than its sortOptions prop
+  // so that every option can carry a tiebreaker (see services/search-sort.js).
+  const [sort, setSort] = React.useState<SearchSort>(readStoredSearchSort);
+
+  const defaultQuery = React.useMemo(
+    () => ({ ...allWorksQuery, sort: buildSearchSort(sort) }),
+    [sort.field, sort.direction],
+  );
+
+  const handleSortChange = (next: SearchSort) => {
+    setSort(next);
+    storeSearchSort(next);
+  };
+
   return (
     <React.Fragment>
       <div data-testid="search-results-component">
@@ -53,10 +80,9 @@ const SearchResults: React.FC<SearchResultsProps> = ({
           <ReactiveList
             componentId={RESULT_SENSOR}
             dataField="accession_number"
-            defaultQuery={() => allWorksQuery}
+            defaultQuery={() => defaultQuery}
             innerClass={{
               list: `${isListView ? "" : "columns is-multiline"}`,
-              resultStats: "column is-size-6 has-text-grey",
             }}
             loader={<UISkeleton rows={10} />}
             onData={(obj) => {
@@ -68,6 +94,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             react={{
               and: [
                 ...facetSensors,
+                ...facetDateSensors,
                 ...facetProjectSensors,
                 ...facetTechnicalMetadataSensors,
                 //TODO: Leave this in as we might want to display this info in another type of range component
@@ -75,6 +102,23 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 SEARCH_SENSOR,
               ],
             }}
+            renderResultStats={(stats: {
+              numberOfResults: number;
+              time: number;
+            }) => (
+              <div
+                className="is-flex is-justify-content-space-between is-align-items-center is-flex-wrap-wrap mb-3"
+                style={{ width: "100%" }}
+              >
+                <p
+                  className="is-size-6 has-text-grey"
+                  data-testid="search-result-stats"
+                >
+                  {stats.numberOfResults} results found in {stats.time}ms
+                </p>
+                <SearchSortControls sort={sort} onChange={handleSortChange} />
+              </div>
+            )}
             renderItem={(res) => {
               const isSelected = Boolean(selectedItems.indexOf(res._id) > -1);
               if (isListView) {
@@ -115,7 +159,6 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             }}
             showResultStats={true}
             size={60}
-            sortOptions={REACTIVESEARCH_SORT_OPTIONS}
             URLParams={true}
           />
         </IIIFProvider>

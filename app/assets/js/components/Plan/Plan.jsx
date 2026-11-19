@@ -38,9 +38,13 @@ const Plan = ({ works }) => {
 
   // iterate works and get thumbnails
   const targetThumbnails = works.map((work) => {
+    // representativeImage is null when the representative file set has no
+    // pyramid or poster derivative (e.g. its ingest pipeline failed)
+    if (!work.representativeImage) return null;
+
     const thumbnail = new URL(work.representativeImage);
     thumbnail.pathname += "/square/^100,/0/default.jpg";
-    return thumbnail ? (
+    return (
       <SquircleThumbnail
         key={work.id}
         src={thumbnail.toString()}
@@ -48,7 +52,7 @@ const Plan = ({ works }) => {
         size={75}
         exponent={6}
       />
-    ) : null;
+    );
   });
 
   const handleSubmitMessage = async (text) => {

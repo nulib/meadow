@@ -88,6 +88,15 @@
       "create_date": {
         "type": "date_nanos"
       },
+      "date_created_end": {
+        "type": "date"
+      },
+      "date_created_start": {
+        "type": "date"
+      },
+      "date_created_years": {
+        "type": "integer"
+      },
       "embedding": {
         "type": "knn_vector",
         "dimension": 768,
